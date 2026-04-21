@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>أمر شراء #{{ order[0] }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="print-body">
+<div class="print-page">
+    <div class="print-actions no-print">
+        <button class="btn btn-primary" onclick="window.print()">طباعة</button>
+        <button class="btn btn-secondary" onclick="history.back()">رجوع</button>
+    </div>
+    <header class="print-header">
+        <div>
+            <h1>{{ company.company_name }}</h1>
+            <p>{{ company.address }}</p>
+            <p>هاتف: {{ company.phone }} | بريد: {{ company.email }}</p>
+            <p>رقم ضريبي: {{ company.tax_number }} | سجل تجاري: {{ company.commercial_register }}</p>
+        </div>
+        <div class="print-meta">
+            <h2>أمر شراء</h2>
+            <p>رقم: {{ order[0] }}</p>
+            <p>التاريخ: {{ order[1] }}</p>
+            <p>الحالة: {{ order[8] }}</p>
+        </div>
+    </header>
+    <section class="print-info">
+        <div><b>المورد:</b> {{ order[2] }}</div>
+        <div><b>هاتف المورد:</b> {{ order[3] }}</div>
+        <div><b>عنوان المورد:</b> {{ order[4] }}</div>
+        <div><b>طريقة السداد:</b> {{ order[5] or "" }}</div>
+        <div><b>تاريخ التوريد المتوقع:</b> {{ order[6] or "" }}</div>
+        <div><b>شروط التوريد:</b> {{ order[7] or "" }}</div>
+    </section>
+    <table class="table table-bordered print-table">
+        <tr><th>الصنف</th><th>الوحدة</th><th class="money">الكمية المطلوبة</th><th class="money">سعر الوحدة</th><th class="money">الصافي</th><th class="money">الضريبة</th><th class="money">الإجمالي</th></tr>
+        {% for line in lines %}
+        <tr><td>{{ line[0] }}</td><td>{{ line[1] }}</td><td class="money">{{ line[2] }}</td><td class="money">{{ line[3] }}</td><td class="money">{{ line[4] }}</td><td class="money">{{ line[5] }}</td><td class="money">{{ line[6] }}</td></tr>
+        {% endfor %}
+    </table>
+    <div class="print-total">
+        <div>الصافي: <b class="money">{{ order[10] }}</b></div>
+        <div>الضريبة: <b class="money">{{ order[11] }}</b></div>
+        <div>الإجمالي: <b class="money">{{ order[12] }}</b></div>
+    </div>
+    <p><b>ملاحظات:</b> {{ order[9] or "" }}</p>
+    <footer class="print-footer">
+        <p>{{ company.invoice_footer }}</p>
+        <div class="signatures"><span>مسؤول المشتريات</span><span>المورد</span><span>المدير</span></div>
+    </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,180 @@
+{% extends "layout.html" %}
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="dashboard-hero dashboard-hero-premium">
+    <div>
+        <div class="eyebrow">نظرة تنفيذية سريعة</div>
+        <h2 class="dashboard-title">صورة لحظية عن المبيعات والمشتريات والسيولة والمخزون</h2>
+        <p class="hero-text">
+            تقدر من هنا تتابع أهم المؤشرات التشغيلية والمحاسبية، وتدخل بسرعة على الشاشات الأساسية لبدء دورة العمل أو مراجعة الموقف الحالي.
+        </p>
+    </div>
+    <div class="hero-actions">
+        <a href="/sales-orders" class="btn btn-primary">أمر بيع جديد</a>
+        <a href="/purchase-orders" class="btn btn-outline-secondary">أمر شراء جديد</a>
+        <a href="/journal" class="btn btn-outline-secondary">القيود اليومية</a>
+    </div>
+</div>
+
+<div class="metric-grid metric-grid-premium mb-3">
+    <a class="dashboard-link" href="/sales">
+        <article class="card metric-card metric-accent sales-card p-3">
+            <div class="metric-top">
+                <span class="metric-icon icon-sales"><i class="bi bi-graph-up-arrow"></i></span>
+                <div class="metric-label">إجمالي المبيعات</div>
+            </div>
+            <div class="metric-value money" data-value="{{ sales_total }}">{{ sales_total }}</div>
+            <div class="metric-note">يشمل فواتير البيع المالية والمخزنية</div>
+        </article>
+    </a>
+
+    <a class="dashboard-link" href="/purchases">
+        <article class="card metric-card metric-accent purchases-card p-3">
+            <div class="metric-top">
+                <span class="metric-icon icon-purchases"><i class="bi bi-cart-check"></i></span>
+                <div class="metric-label">إجمالي المشتريات</div>
+            </div>
+            <div class="metric-value money" data-value="{{ purchases_total }}">{{ purchases_total }}</div>
+            <div class="metric-note">إجمالي فواتير الموردين المرحلة</div>
+        </article>
+    </a>
+
+    <a class="dashboard-link" href="/reports/inventory">
+        <article class="card metric-card metric-accent inventory-card p-3">
+            <div class="metric-top">
+                <span class="metric-icon icon-inventory"><i class="bi bi-box-seam"></i></span>
+                <div class="metric-label">قيمة المخزون</div>
+            </div>
+            <div class="metric-value money" data-value="{{ inventory_value }}">{{ inventory_value }}</div>
+            <div class="metric-note">بحسب الكمية الحالية وسعر التكلفة</div>
+        </article>
+    </a>
+
+    <a class="dashboard-link" href="/receipts">
+        <article class="card metric-card metric-accent customer-card p-3">
+            <div class="metric-top">
+                <span class="metric-icon icon-cash"><i class="bi bi-wallet2"></i></span>
+                <div class="metric-label">صافي الحركة النقدية</div>
+            </div>
+            <div class="metric-value money" data-value="{{ net_cash_movement }}">{{ net_cash_movement }}</div>
+            <div class="metric-note">إجمالي القبض مطروحًا منه الصرف</div>
+        </article>
+    </a>
+</div>
+
+<div class="metric-grid metric-grid-secondary mb-3">
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-people"></i><span>العملاء</span></div>
+        <div class="metric-mini-value">{{ customers_count }}</div>
+        <div class="metric-note">عملاء مسجلون بالنظام</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-truck"></i><span>الموردون</span></div>
+        <div class="metric-mini-value">{{ suppliers_count }}</div>
+        <div class="metric-note">موردون صالحون للتعامل</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-tags"></i><span>الأصناف</span></div>
+        <div class="metric-mini-value">{{ products_count }}</div>
+        <div class="metric-note">أصناف ومنتجات مسجلة</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-journal-text"></i><span>القيود</span></div>
+        <div class="metric-mini-value">{{ entries }}</div>
+        <div class="metric-note">إجمالي القيود المسجلة</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-clipboard-check"></i><span>أوامر البيع</span></div>
+        <div class="metric-mini-value">{{ sales_orders_count }}</div>
+        <div class="metric-note">أوامر البيع الحالية</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-bag-check"></i><span>أوامر الشراء</span></div>
+        <div class="metric-mini-value">{{ purchase_orders_count }}</div>
+        <div class="metric-note">أوامر الشراء الحالية</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-box-arrow-up-left"></i><span>أذون الصرف</span></div>
+        <div class="metric-mini-value">{{ delivery_notes_count }}</div>
+        <div class="metric-note">حركات صرف من المخازن</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-box-arrow-in-down"></i><span>أذون الإضافة</span></div>
+        <div class="metric-mini-value">{{ receipt_notes_count }}</div>
+        <div class="metric-note">حركات إضافة واستلام</div>
+    </article>
+</div>
+
+<div class="workspace-grid">
+    <section class="section-panel">
+        <div class="panel-head">
+            <div>
+                <h3>مؤشرات تحتاج انتباه</h3>
+                <span>ملخص سريع للوضع التشغيلي الحالي</span>
+            </div>
+        </div>
+        <div class="status-list dashboard-status-list">
+            <div class="status-item">
+                <strong>الأصناف منخفضة الرصيد</strong>
+                <span>{{ low_stock_count }} صنف يحتاج متابعة أو إعادة طلب.</span>
+            </div>
+            <div class="status-item">
+                <strong>مديونيات العملاء</strong>
+                <span class="money" data-value="{{ customer_balance_total }}">{{ customer_balance_total }}</span>
+            </div>
+            <div class="status-item">
+                <strong>مديونيات الموردين</strong>
+                <span class="money" data-value="{{ supplier_balance_total }}">{{ supplier_balance_total }}</span>
+            </div>
+            <div class="status-item">
+                <strong>فواتير عملاء متأخرة</strong>
+                <span>{{ overdue_customer_invoices }} مستند يحتاج متابعة.</span>
+            </div>
+            <div class="status-item">
+                <strong>فواتير موردين متأخرة</strong>
+                <span>{{ overdue_supplier_invoices }} مستند يحتاج مراجعة.</span>
+            </div>
+            <div class="status-item">
+                <strong>إجمالي قيمة القيود</strong>
+                <span class="money" data-value="{{ total }}">{{ total }}</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-panel">
+        <div class="panel-head">
+            <div>
+                <h3>روابط سريعة</h3>
+                <span>أسرع مسارات التشغيل اليومية</span>
+            </div>
+        </div>
+        <div class="action-grid dashboard-action-grid">
+            <a href="/customers" class="action-tile">
+                <strong>العملاء</strong>
+                <span>إضافة ومتابعة البيانات الأساسية</span>
+            </a>
+            <a href="/suppliers" class="action-tile">
+                <strong>الموردون</strong>
+                <span>إدارة الموردين والبيانات الضريبية</span>
+            </a>
+            <a href="/products" class="action-tile">
+                <strong>الأصناف</strong>
+                <span>تحديث الأصناف والأسعار والأرصدة</span>
+            </a>
+            <a href="/sales-deliveries" class="action-tile">
+                <strong>أذون الصرف</strong>
+                <span>صرف الأصناف من أوامر البيع</span>
+            </a>
+            <a href="/purchase-receipts" class="action-tile">
+                <strong>أذون الإضافة</strong>
+                <span>استلام الأصناف من أوامر الشراء</span>
+            </a>
+            <a href="/trial-balance" class="action-tile">
+                <strong>ميزان المراجعة</strong>
+                <span>مراجعة الأرصدة والحركة النهائية</span>
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}

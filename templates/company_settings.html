@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h2>إعدادات الشركة</h2>
+        <div class="eyebrow">البيانات المستخدمة في الطباعة والفواتير والمستندات</div>
+    </div>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="card p-3">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">اسم الشركة</label>
+            <input type="text" name="company_name" value="{{ settings.company_name }}" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">الرقم الضريبي</label>
+            <input type="text" name="tax_number" value="{{ settings.tax_number or '' }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">السجل التجاري</label>
+            <input type="text" name="commercial_register" value="{{ settings.commercial_register or '' }}" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">العنوان</label>
+            <input type="text" name="address" value="{{ settings.address or '' }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">الهاتف</label>
+            <input type="text" name="phone" value="{{ settings.phone or '' }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">البريد الإلكتروني</label>
+            <input type="email" name="email" value="{{ settings.email or '' }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">نسبة الضريبة الافتراضية</label>
+            <input type="number" step="0.01" min="0" name="default_tax_rate" value="{{ settings.default_tax_rate }}" class="form-control">
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">نص أسفل الفاتورة</label>
+            <input type="text" name="invoice_footer" value="{{ settings.invoice_footer or '' }}" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">شعار الشركة</label>
+            <input type="file" name="company_logo" accept=".png,.jpg,.jpeg,image/png,image/jpeg" class="form-control">
+            <div class="form-text">الملفات المسموح بها: PNG / JPG / JPEG بحد أقصى 2 ميجابايت.</div>
+        </div>
+        {% if settings.logo_path %}
+        <div class="col-md-12">
+            <img src="{{ settings.logo_path }}" alt="شعار الشركة" class="settings-logo-preview">
+        </div>
+        {% endif %}
+    </div>
+    <button class="btn btn-success mt-3">حفظ الإعدادات</button>
+</form>
+{% endblock %}

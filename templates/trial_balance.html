@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <h2>ميزان المراجعة</h2>
+    <div class="no-print">
+        <a href="/trial-balance/export" class="btn btn-outline-success">تصدير CSV</a>
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<table class="table table-bordered align-middle">
+
+<tr>
+<th>الحساب</th>
+<th>مدين</th>
+<th>دائن</th>
+</tr>
+
+{% for r in data %}
+<tr>
+<td>{{ r[0] }}</td>
+<td>{{ r[1] }}</td>
+<td>{{ r[2] }}</td>
+</tr>
+{% endfor %}
+
+<tr class="table-secondary">
+<td><b>الإجمالي</b></td>
+<td><b>{{ total_debit }}</b></td>
+<td><b>{{ total_credit }}</b></td>
+</tr>
+
+</table>
+
+{% if total_debit == total_credit %}
+<div class="alert alert-success no-print">ميزان المراجعة متوازن.</div>
+{% else %}
+<div class="alert alert-danger no-print">ميزان المراجعة غير متوازن.</div>
+{% endif %}
+
+{% endblock %}

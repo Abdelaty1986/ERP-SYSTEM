@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>{{ title }}</h2>
+<form method="POST" action="{{ action_url }}" class="card p-3 mb-3 no-print">
+    <div class="row g-2 mb-3">
+        <div class="col-md-2"><label class="form-label">التاريخ</label><input type="date" name="date" class="form-control" required></div>
+        <div class="col-md-3"><label class="form-label">الفاتورة الأصلية</label><select name="{{ invoice_field }}" id="return-invoice" class="form-control" required><option value="">اختر الفاتورة</option>{% for i in invoices %}<option value="{{ i[0] }}">#{{ i[0] }} - {{ i[1] }} - {{ i[2] }}</option>{% endfor %}</select></div>
+        <div class="col-md-1"><label class="form-label">PO/</label><input name="po_ref" class="form-control"></div>
+        <div class="col-md-1"><label class="form-label">GR/</label><input name="gr_ref" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">ملاحظات</label><input name="notes" class="form-control"></div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle" id="return-lines">
+            <thead><tr><th>الصنف</th><th>الكمية المتاحة</th><th>كمية المردود</th><th class="no-print">حذف</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><select name="product_id[]" class="form-control line-product" required><option value="">اختر الفاتورة أولاً</option></select></td>
+                    <td class="available-cell">-</td>
+                    <td><input type="number" step="0.01" min="0.01" name="quantity[]" class="form-control"></td>
+                    <td class="no-print"><button type="button" class="btn btn-danger btn-sm remove-line">حذف</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <button type="button" class="btn btn-secondary" id="add-return-line">إضافة صنف</button>
+    <button class="btn btn-success">حفظ</button>
+</form>
+<table class="table table-bordered"><tr><th>#</th><th>التاريخ</th><th>الفاتورة</th><th>الصنف</th><th>الكمية</th><th>الإجمالي</th><th>الحالة</th></tr>
+{% for r in rows %}<tr><td>{{ r[0] }}</td><td>{{ r[1] }}</td><td>{{ r[2] }}</td><td>{{ r[3] }}</td><td>{{ r[4] }}</td><td>{{ r[5] }}</td><td>{{ r[6] }}</td></tr>{% endfor %}
+</table>
+<script>
+const invoiceProducts = {{ invoice_products_json|safe }};
+function fillProductOptions(select) {
+    const invoiceId = document.getElementById("return-invoice").value;
+    const products = invoiceProducts[invoiceId] || [];
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">اختر الصنف</option>';
+    products.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.product_id;
+        option.textContent = `${item.name} - متاح ${item.available}`;
+        option.dataset.available = item.available;
+        option.dataset.price = item.unit_price;
+        if (String(item.product_id) === currentValue) option.selected = true;
+        select.appendChild(option);
+    });
+    updateAvailable(select);
+}
+function updateAvailable(select) {
+    const cell = select.closest("tr").querySelector(".available-cell");
+    const option = select.options[select.selectedIndex];
+    cell.textContent = option && option.dataset.available ? option.dataset.available : "-";
+}
+document.getElementById("return-invoice").addEventListener("change", function() {
+    document.querySelectorAll(".line-product").forEach(fillProductOptions);
+});
+document.getElementById("return-lines").addEventListener("change", function(event) {
+    if (event.target.classList.contains("line-product")) updateAvailable(event.target);
+});
+document.getElementById("return-lines").addEventListener("click", function(event) {
+    if (!event.target.classList.contains("remove-line")) return;
+    if (document.querySelectorAll("#return-lines tbody tr").length > 1) event.target.closest("tr").remove();
+});
+document.getElementById("add-return-line").addEventListener("click", function() {
+    const tbody = document.querySelector("#return-lines tbody");
+    const row = tbody.querySelector("tr").cloneNode(true);
+    row.querySelector("input").value = "";
+    row.querySelector(".available-cell").textContent = "-";
+    tbody.appendChild(row);
+    fillProductOptions(row.querySelector(".line-product"));
+});
+fillProductOptions(document.querySelector(".line-product"));
+</script>
+{% endblock %}

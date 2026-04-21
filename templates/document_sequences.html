@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>ترقيم المستندات</h2>
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-3"><label class="form-label">نوع المستند</label><input name="doc_type" class="form-control" required></div>
+        <div class="col-md-3"><label class="form-label">البادئة</label><input name="prefix" class="form-control" required></div>
+        <div class="col-md-3"><label class="form-label">الرقم التالي</label><input type="number" min="1" name="next_number" class="form-control" required></div>
+        <div class="col-md-3 d-flex align-items-end"><button class="btn btn-success w-100">حفظ</button></div>
+    </div>
+</form>
+<table class="table table-bordered"><tr><th>النوع</th><th>البادئة</th><th>الرقم التالي</th></tr>
+{% for r in rows %}<tr><td>{{ r[0] }}</td><td>{{ r[1] }}</td><td>{{ r[2] }}</td></tr>{% endfor %}
+</table>
+{% endblock %}

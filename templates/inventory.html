@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <h2>حركة المخزون</h2>
+    <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
+</div>
+
+<table class="table table-bordered align-middle">
+<tr>
+    <th>التاريخ</th>
+    <th>المنتج</th>
+    <th>الحركة</th>
+    <th>الكمية</th>
+    <th>المرجع</th>
+    <th>ملاحظات</th>
+</tr>
+{% for r in rows %}
+<tr>
+    <td>{{ r[0] }}</td>
+    <td>{{ r[1] }}</td>
+    <td>{% if r[2] == "in" %}دخول{% else %}خروج{% endif %}</td>
+    <td>{{ r[3] }}</td>
+    <td>{{ r[4] }} #{{ r[5] }}</td>
+    <td>{{ r[6] or "" }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

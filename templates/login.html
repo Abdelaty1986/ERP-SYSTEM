@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تسجيل الدخول</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="login-page">
+
+<div class="login-wrap">
+    <div class="login-intro">
+        <div class="brand-mark">ERP</div>
+        <h1>إدارة مالية ومخزنية في مكان واحد</h1>
+        <p>تابع الفواتير والمخزون والتحصيل والسداد والقيود اليومية من واجهة عملية وسريعة وواضحة.</p>
+        <div class="login-points">
+            <span>مبيعات ومشتريات</span>
+            <span>مخزون وأذون</span>
+            <span>تقارير وضريبة</span>
+        </div>
+    </div>
+
+    <div class="card login-card">
+        <div class="card-body p-4 p-lg-5">
+            <div class="eyebrow">مرحبًا بك</div>
+            <h3 class="mb-1">تسجيل الدخول</h3>
+            <p class="text-muted mb-4">أدخل بيانات المستخدم للمتابعة</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <label class="form-label">اسم المستخدم</label>
+                <input type="text" name="username" class="form-control mb-3" required autofocus>
+
+                <label class="form-label">كلمة المرور</label>
+                <input type="password" name="password" class="form-control mb-4" required>
+
+                <button class="btn btn-primary w-100">دخول</button>
+            </form>
+
+            <p class="text-muted text-center mt-3 mb-0">المستخدم الافتراضي: admin / 1234</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">تقارير المخزون</div>
+        <h2>تقرير المخزون</h2>
+        <p class="page-subtitle">نظرة سريعة على الأرصدة الحالية وقيمة المخزون والأصناف التي تحتاج متابعة.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<div class="summary-grid">
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-box-seam tone-blue"></i><span>عدد الأصناف</span></div>
+        <div class="summary-value">{{ rows|length }}</div>
+        <div class="summary-note">إجمالي الأصناف الظاهرة في التقرير</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-stack tone-green"></i><span>قيمة المخزون</span></div>
+        <div class="summary-value money" data-value="{{ total_value }}">{{ total_value }}</div>
+        <div class="summary-note">القيمة الحالية للمخزون بالتكلفة</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-exclamation-triangle tone-red"></i><span>أصناف منخفضة</span></div>
+        <div class="summary-value">{{ low_stock|length }}</div>
+        <div class="summary-note">أصناف رصيدها 5 أو أقل</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-upc-scan tone-orange"></i><span>أعلى رصيد</span></div>
+        <div class="summary-value">{{ rows[0][3] if rows else 0 }}</div>
+        <div class="summary-note">أعلى كمية حالية بين الأصناف المعروضة</div>
+    </div>
+</div>
+
+{% if low_stock %}
+<div class="alert alert-warning no-print">يوجد {{ low_stock|length }} صنفًا يحتاج متابعة بسبب انخفاض الرصيد.</div>
+{% endif %}
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>تفاصيل المخزون</h3>
+            <p>الأصناف منخفضة الرصيد مميزة بلون مختلف لتسهيل المتابعة.</p>
+        </div>
+        <span class="stat-pill">{{ rows|length }} صنف</span>
+    </div>
+
+    {% if rows %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>الكود</th>
+                <th>الصنف</th>
+                <th>الوحدة</th>
+                <th>الرصيد</th>
+                <th class="money">تكلفة الوحدة</th>
+                <th class="money">سعر البيع</th>
+                <th class="money">قيمة المخزون</th>
+            </tr>
+            {% for r in rows %}
+            <tr class="{% if r[3] <= 5 %}table-warning{% endif %}">
+                <td>{{ r[0] or "" }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+                <td class="money" data-value="{{ r[4] }}">{{ r[4] }}</td>
+                <td class="money" data-value="{{ r[5] }}">{{ r[5] }}</td>
+                <td class="money" data-value="{{ r[6] }}">{{ r[6] }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="table-secondary">
+                <td colspan="6"><b>إجمالي قيمة المخزون</b></td>
+                <td class="money" data-value="{{ total_value }}"><b>{{ total_value }}</b></td>
+            </tr>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد أصناف مسجلة حاليًا في المخزون.</div>
+    {% endif %}
+</section>
+{% endblock %}

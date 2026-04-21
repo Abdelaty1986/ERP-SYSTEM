@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <div>
+        <h2>تقرير الأرباح والخسائر</h2>
+        <div class="eyebrow">يعرض صافي المبيعات والتكلفة والمصروفات دون ضريبة القيمة المضافة</div>
+    </div>
+    <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
+</div>
+
+<table class="table table-bordered align-middle">
+<tr>
+    <th>البند</th>
+    <th>القيمة</th>
+</tr>
+<tr>
+    <td>صافي المبيعات قبل الضريبة</td>
+    <td>{{ sales_total }}</td>
+</tr>
+<tr>
+    <td>تكلفة البضاعة المباعة</td>
+    <td>{{ cost_total }}</td>
+</tr>
+<tr class="table-secondary">
+    <td><b>مجمل الربح</b></td>
+    <td><b>{{ gross_profit }}</b></td>
+</tr>
+{% for expense in expense_rows %}
+<tr>
+    <td>{{ expense[0] }}</td>
+    <td>{{ expense[1] }}</td>
+</tr>
+{% endfor %}
+<tr>
+    <td>إجمالي المصروفات الأخرى</td>
+    <td>{{ expenses_total }}</td>
+</tr>
+<tr class="{% if net_profit >= 0 %}table-success{% else %}table-danger{% endif %}">
+    <td><b>صافي الربح / الخسارة</b></td>
+    <td><b>{{ net_profit }}</b></td>
+</tr>
+</table>
+
+<p class="text-muted no-print">تكلفة البضاعة المباعة تُسجل تلقائيًا مع فواتير البيع الجديدة.</p>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h2>فاتورة مورد من أذون إضافة</h2>
+        <div class="eyebrow">اختر إذن إضافة واحدًا أو أكثر من الأذون غير المفوترة للمورد نفسه.</div>
+    </div>
+</div>
+
+{% if can_write("purchases") %}
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2 mb-3">
+        <div class="col-md-2"><label class="form-label">تاريخ التسجيل</label><input type="date" name="date" class="form-control" required></div>
+        <div class="col-md-2"><label class="form-label">رقم فاتورة المورد</label><input type="text" name="supplier_invoice_no" class="form-control" required></div>
+        <div class="col-md-2"><label class="form-label">تاريخ فاتورة المورد</label><input type="date" name="supplier_invoice_date" class="form-control" required></div>
+        <div class="col-md-2"><label class="form-label">تاريخ الاستحقاق</label><input type="date" name="due_date" class="form-control"></div>
+        <div class="col-md-2"><label class="form-label">طريقة السداد</label><select name="payment_type" class="form-select"><option value="credit">آجل</option><option value="cash">نقدي</option></select></div>
+        <div class="col-md-2"><label class="form-label">ملاحظات</label><input type="text" name="notes" class="form-control"></div>
+    </div>
+
+    <table class="table table-bordered align-middle">
+        <tr>
+            <th>اختيار</th>
+            <th>إذن إضافة</th>
+            <th>التاريخ</th>
+            <th>أمر الشراء</th>
+            <th>المورد</th>
+            <th>الصنف</th>
+            <th class="money">الكمية</th>
+            <th class="money">السعر</th>
+            <th class="money">الصافي</th>
+            <th class="money">القيمة المضافة</th>
+            <th class="money">الإجمالي</th>
+        </tr>
+        {% for r in open_receipts %}
+        <tr>
+            <td><input type="checkbox" name="receipt_ids" value="{{ r[0] }}"></td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>{{ r[3] }}</td>
+            <td>{{ r[4] }}</td>
+            <td>{{ r[5] }}</td>
+            <td class="money" data-value="{{ r[6] }}">{{ r[6] }}</td>
+            <td class="money" data-value="{{ r[7] }}">{{ r[7] }}</td>
+            <td class="money" data-value="{{ r[8] }}">{{ r[8] }}</td>
+            <td class="money" data-value="{{ r[9] }}">{{ r[9] }}</td>
+            <td class="money" data-value="{{ r[10] }}">{{ r[10] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <button class="btn btn-success">تسجيل فاتورة المورد من الأذون المحددة</button>
+</form>
+{% endif %}
+{% endblock %}

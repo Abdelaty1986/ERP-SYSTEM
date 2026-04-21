@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="page-head">
+    <div>
+        <h2>بورتال الضرائب</h2>
+        <div class="eyebrow">متابعة المستندات الجاهزة للرفع على منظومة الفاتورة الإلكترونية</div>
+    </div>
+    {% if can_write("e_invoices") %}
+    <form method="POST" action="/e-invoices/prepare-sales" class="no-print">
+        <button class="btn btn-primary">تجهيز فواتير البيع</button>
+    </form>
+    {% endif %}
+</div>
+
+<table class="table table-bordered align-middle">
+    <tr>
+        <th>#</th>
+        <th>نوع المستند</th>
+        <th>رقم المستند</th>
+        <th>UUID</th>
+        <th>الحالة</th>
+        <th>الخطأ</th>
+        <th>تاريخ الإنشاء</th>
+    </tr>
+    {% for r in rows %}
+    <tr>
+        <td>{{ r[0] }}</td>
+        <td>
+            {% if r[1] == "sale" %}فاتورة بيع
+            {% elif r[1] == "sales_credit_note" %}كريدت نوت عميل
+            {% elif r[1] == "customer_debit_note" %}تسوية مدينة
+            {% elif r[1] == "customer_credit_note" %}تسوية دائنة
+            {% else %}{{ r[1] }}{% endif %}
+        </td>
+        <td>{{ r[2] }}</td>
+        <td>{{ r[3] or "" }}</td>
+        <td>{{ r[4] }}</td>
+        <td>{{ r[5] or "" }}</td>
+        <td>{{ r[6] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

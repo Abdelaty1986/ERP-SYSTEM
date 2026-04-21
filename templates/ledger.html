@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <h2>دفتر الأستاذ: {{ acc_name }}</h2>
+    <div class="no-print">
+        <a href="/ledger/{{ account_id }}/export" class="btn btn-outline-success">تصدير CSV</a>
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<table class="table table-bordered text-center align-middle">
+
+<tr>
+<th>التاريخ</th>
+<th>البيان</th>
+<th>مدين</th>
+<th>دائن</th>
+</tr>
+
+{% for r in rows %}
+<tr>
+<td>{{ r[0] }}</td>
+<td>{{ r[1] }}</td>
+<td>{{ r[2] if r[2] else "" }}</td>
+<td>{{ r[3] if r[3] else "" }}</td>
+</tr>
+{% endfor %}
+
+<tr class="table-secondary">
+<td colspan="2"><b>الإجمالي</b></td>
+<td><b>{{ debit }}</b></td>
+<td><b>{{ credit }}</b></td>
+</tr>
+
+</table>
+
+<h4>
+الرصيد:
+{% if balance > 0 %}
+{{ balance }} مدين
+{% elif balance < 0 %}
+{{ balance * -1 }} دائن
+{% else %}
+متوازن
+{% endif %}
+</h4>
+
+{% endblock %}

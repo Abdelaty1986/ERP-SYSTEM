@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h2>أذون صرف</h2>
+        <div class="eyebrow">إذن صرف مخزني مرتبط ببند محدد من أمر البيع. الفاتورة تصدر لاحقًا من شاشة فواتير البيع من أذون الصرف.</div>
+    </div>
+</div>
+
+{% if can_write("sales") %}
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">تاريخ الصرف</label>
+            <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">بند أمر البيع</label>
+            <select name="sales_order_line_id" id="delivery_so" class="form-select" required>
+                <option value="">اختر بند أمر البيع</option>
+                {% for o in open_orders %}
+                <option value="{{ o[0] }}" data-remaining="{{ o[7] }}">أمر #{{ o[1] }} - {{ o[3] }} - {{ o[4] }} - متبقي {{ o[7] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">الكمية المنصرفة</label>
+            <input type="number" step="0.01" min="0.01" name="delivered_quantity" id="delivered_quantity" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">ملاحظات</label>
+            <input name="notes" class="form-control">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button class="btn btn-success w-100">صرف</button>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+<table class="table table-bordered align-middle">
+    <tr>
+        <th>#</th>
+        <th>رقم الإذن</th>
+        <th>التاريخ</th>
+        <th>أمر البيع</th>
+        <th>العميل</th>
+        <th>الصنف</th>
+        <th>الكمية</th>
+        <th class="money">السعر</th>
+        <th class="money">الإجمالي</th>
+        <th>الحالة</th>
+        <th class="no-print">ملاحظات تشغيل</th>
+    </tr>
+    {% for r in rows %}
+    <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2] }}</td>
+        <td>{{ r[3] }}</td>
+        <td>{{ r[4] }}</td>
+        <td>{{ r[5] }}</td>
+        <td>{{ r[6] }}</td>
+        <td class="money" data-value="{{ r[7] }}">{{ r[7] }}</td>
+        <td class="money" data-value="{{ r[8] }}">{{ r[8] }}</td>
+        <td>{% if r[9] %}تمت الفوترة{% else %}منصرف غير مفوتر{% endif %}</td>
+        <td class="no-print">{% if not r[9] %}تتم الفاتورة من شاشة فواتير البيع من أذون الصرف.{% endif %}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+document.getElementById("delivery_so").onchange = function() {
+    const option = this.options[this.selectedIndex];
+    document.getElementById("delivered_quantity").value = option.dataset.remaining || "";
+};
+</script>
+{% endblock %}

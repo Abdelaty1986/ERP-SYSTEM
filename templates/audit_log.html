@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <div>
+        <h2>سجل المراجعة</h2>
+        <div class="eyebrow">آخر العمليات الحساسة داخل النظام</div>
+    </div>
+    <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
+</div>
+
+<table class="table table-bordered align-middle">
+<tr>
+    <th>الوقت</th>
+    <th>المستخدم</th>
+    <th>الإجراء</th>
+    <th>النوع</th>
+    <th>رقم المرجع</th>
+    <th>التفاصيل</th>
+    <th>قبل</th>
+    <th>بعد</th>
+    <th>IP</th>
+</tr>
+{% for r in rows %}
+<tr>
+    <td>{{ r[0] }}</td>
+    <td>{{ r[1] }}</td>
+    <td>{{ r[2] }}</td>
+    <td>{{ r[3] }}</td>
+    <td>{{ r[4] }}</td>
+    <td>{{ r[5] or "" }}</td>
+    <td><pre class="audit-json">{{ r[6] or "" }}</pre></td>
+    <td><pre class="audit-json">{{ r[7] or "" }}</pre></td>
+    <td>{{ r[8] or "" }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

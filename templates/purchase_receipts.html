@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h2>أذون إضافة</h2>
+        <div class="eyebrow">إذن إضافة مخزني مرتبط ببند محدد من أمر الشراء. فاتورة المورد تسجل لاحقًا من شاشة فواتير المورد من أذون الإضافة.</div>
+    </div>
+</div>
+
+{% if can_write("purchases") %}
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">تاريخ الاستلام</label>
+            <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">بند أمر الشراء</label>
+            <select name="purchase_order_line_id" id="receipt_po" class="form-select" required>
+                <option value="">اختر بند أمر الشراء</option>
+                {% for o in open_orders %}
+                <option value="{{ o[0] }}" data-remaining="{{ o[7] }}">أمر #{{ o[1] }} - {{ o[3] }} - {{ o[4] }} - متبقي {{ o[7] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">الكمية المستلمة</label>
+            <input type="number" step="0.01" min="0.01" name="received_quantity" id="received_quantity" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" name="notes" class="form-control">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button class="btn btn-success w-100">استلام</button>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+<table class="table table-bordered align-middle">
+    <tr>
+        <th>#</th>
+        <th>رقم الإذن</th>
+        <th>التاريخ</th>
+        <th>أمر الشراء</th>
+        <th>المورد</th>
+        <th>الصنف</th>
+        <th>الكمية</th>
+        <th class="money">السعر</th>
+        <th class="money">الإجمالي</th>
+        <th>الحالة</th>
+        <th class="no-print">ملاحظات تشغيل</th>
+    </tr>
+    {% for r in rows %}
+    <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2] }}</td>
+        <td>{{ r[3] }}</td>
+        <td>{{ r[4] }}</td>
+        <td>{{ r[5] }}</td>
+        <td>{{ r[6] }}</td>
+        <td class="money" data-value="{{ r[7] }}">{{ r[7] }}</td>
+        <td class="money" data-value="{{ r[8] }}">{{ r[8] }}</td>
+        <td>{% if r[9] %}تمت الفوترة{% else %}مستلم غير مفوتر{% endif %}</td>
+        <td class="no-print">{% if not r[9] %}تسجل فاتورة المورد من شاشة فواتير المورد من أذون الإضافة.{% endif %}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+document.getElementById("receipt_po").onchange = function() {
+    const option = this.options[this.selectedIndex];
+    document.getElementById("received_quantity").value = option.dataset.remaining || "";
+};
+</script>
+{% endblock %}

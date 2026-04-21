@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head"><div><h2>مراكز التكلفة</h2><div class="eyebrow">لربط المصروفات والإيرادات بالإدارات أو خطوط الإنتاج أو المشروعات</div></div></div>
+{% if can_write("accounting") %}
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-2"><label class="form-label">الكود</label><input name="code" class="form-control"></div>
+        <div class="col-md-3"><label class="form-label">الاسم</label><input name="name" class="form-control" required></div>
+        <div class="col-md-2"><label class="form-label">النوع</label><input name="center_type" class="form-control" placeholder="قسم / مشروع / خط إنتاج"></div>
+        <div class="col-md-3"><label class="form-label">ملاحظات</label><input name="notes" class="form-control"></div>
+        <div class="col-md-2 d-flex align-items-end"><button class="btn btn-success w-100">إضافة</button></div>
+    </div>
+</form>
+{% endif %}
+<table class="table table-bordered"><tr><th>الكود</th><th>الاسم</th><th>النوع</th><th>الحالة</th><th>ملاحظات</th></tr>
+{% for r in rows %}<tr><td>{{ r[1] or "" }}</td><td>{{ r[2] }}</td><td>{{ r[3] or "" }}</td><td>{{ r[4] }}</td><td>{{ r[5] or "" }}</td></tr>{% endfor %}
+</table>
+{% endblock %}
