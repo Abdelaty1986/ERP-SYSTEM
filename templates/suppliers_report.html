@@ -1,61 +1,54 @@
 {% extends "layout.html" %}
-
 {% block content %}
 <div class="report-hero">
     <div class="page-title-wrap">
         <div class="eyebrow">تقارير الموردين</div>
         <h2>أرصدة الموردين</h2>
-        <p class="page-subtitle">عرض التزامات الموردين والمدفوعات وأثر ضريبة الخصم والإضافة الدائنة.</p>
+        <p class="page-subtitle">عرض الالتزامات والمدفوعات وأثر ضريبة الخصم والإضافة الدائنة مع إمكانيات فلترة سريعة.</p>
     </div>
     <div class="report-toolbar no-print">
-        <a href="/reports/suppliers?format=excel" class="btn btn-outline-success">تصدير Excel</a>
+        <a href="/reports/suppliers{% if export_query %}?{{ export_query }}&format=excel{% else %}?format=excel{% endif %}" class="btn btn-outline-success">تصدير Excel</a>
         <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
     </div>
 </div>
 
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>فلترة التقرير</h3><p>ابحث باسم المورد أو فلتر حسب حالة الخصم والإضافة.</p></div></div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-8">
+                <label class="form-label">بحث</label>
+                <input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="اسم المورد">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">حالة الخصم والإضافة</label>
+                <select name="withholding_status" class="form-select">
+                    <option value="">الكل</option>
+                    <option value="taxable" {% if filters.withholding_status == 'taxable' %}selected{% endif %}>خاضع</option>
+                    <option value="exempt" {% if filters.withholding_status == 'exempt' %}selected{% endif %}>معفي</option>
+                </select>
+            </div>
+            <div class="col-md-12 d-flex gap-2">
+                <button class="btn btn-primary">تطبيق الفلاتر</button>
+                <a href="/reports/suppliers" class="btn btn-outline-secondary">إعادة ضبط</a>
+            </div>
+        </div>
+    </form>
+</section>
+
 <div class="summary-grid">
-    <div class="summary-card">
-        <div class="summary-card-head"><i class="bi bi-truck tone-blue"></i><span>عدد الموردين</span></div>
-        <div class="summary-value">{{ rows|length }}</div>
-        <div class="summary-note">إجمالي الموردين الظاهرين في التقرير</div>
-    </div>
-    <div class="summary-card">
-        <div class="summary-card-head"><i class="bi bi-bag-check tone-orange"></i><span>إجمالي المستحق</span></div>
-        <div class="summary-value money" data-value="{{ total_balance }}">{{ total_balance }}</div>
-        <div class="summary-note">إجمالي صافي الأرصدة الدائنة للموردين</div>
-    </div>
-    <div class="summary-card">
-        <div class="summary-card-head"><i class="bi bi-cash-coin tone-green"></i><span>إجمالي المدفوعات</span></div>
-        <div class="summary-value money" data-value="{{ rows|sum(attribute=3) if rows else 0 }}">{{ rows|sum(attribute=3) if rows else 0 }}</div>
-        <div class="summary-note">إجمالي سندات الصرف المسجلة</div>
-    </div>
-    <div class="summary-card">
-        <div class="summary-card-head"><i class="bi bi-percent tone-red"></i><span>خصم وإضافة دائنة</span></div>
-        <div class="summary-value money" data-value="{{ rows|sum(attribute=5) if rows else 0 }}">{{ rows|sum(attribute=5) if rows else 0 }}</div>
-        <div class="summary-note">المبالغ الدائنة المسجلة لحساب الضرائب</div>
-    </div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-truck tone-blue"></i><span>عدد الموردين</span></div><div class="summary-value">{{ rows|length }}</div><div class="summary-note">إجمالي الموردين الظاهرين في التقرير</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-bag-check tone-orange"></i><span>إجمالي المستحق</span></div><div class="summary-value money" data-value="{{ total_balance }}">{{ total_balance }}</div><div class="summary-note">إجمالي صافي الأرصدة الدائنة للموردين</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-cash-coin tone-green"></i><span>إجمالي المدفوعات</span></div><div class="summary-value money" data-value="{{ rows|sum(attribute=3) if rows else 0 }}">{{ rows|sum(attribute=3) if rows else 0 }}</div><div class="summary-note">إجمالي سندات الصرف المسجلة</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-percent tone-red"></i><span>خصم وإضافة دائنة</span></div><div class="summary-value money" data-value="{{ rows|sum(attribute=5) if rows else 0 }}">{{ rows|sum(attribute=5) if rows else 0 }}</div><div class="summary-note">المبالغ الدائنة المسجلة لحساب الضرائب</div></div>
 </div>
 
 <section class="panel-block panel-block-muted">
-    <div class="section-title">
-        <div>
-            <h3>تفاصيل الأرصدة</h3>
-            <p>يمكنك الانتقال مباشرة إلى كشف حساب المورد من عمود الإجراءات.</p>
-        </div>
-        <span class="stat-pill">{{ rows|length }} مورد</span>
-    </div>
-
+    <div class="section-title"><div><h3>تفاصيل الأرصدة</h3><p>يمكنك الانتقال مباشرة إلى كشف حساب المورد من عمود الإجراءات.</p></div><span class="stat-pill">{{ rows|length }} مورد</span></div>
     {% if rows %}
     <div class="table-shell">
         <table class="table table-bordered align-middle table-hover">
-            <tr>
-                <th>المورد</th>
-                <th class="money">فواتير آجلة</th>
-                <th class="money">مدفوعات</th>
-                <th class="money">الرصيد المستحق</th>
-                <th class="money">خصم وإضافة دائنة</th>
-                <th class="no-print">كشف الحساب</th>
-            </tr>
+            <tr><th>المورد</th><th class="money">فواتير آجلة</th><th class="money">مدفوعات</th><th class="money">الرصيد المستحق</th><th class="money">خصم وإضافة دائنة</th><th class="no-print">كشف الحساب</th></tr>
             {% for r in rows %}
             <tr>
                 <td>{{ r[1] }}</td>
@@ -66,16 +59,10 @@
                 <td class="no-print"><a href="/suppliers/{{ r[0] }}/statement" class="btn btn-primary btn-sm">عرض</a></td>
             </tr>
             {% endfor %}
-            <tr class="table-secondary">
-                <td colspan="3"><b>إجمالي المستحق للموردين</b></td>
-                <td class="money" data-value="{{ total_balance }}"><b>{{ total_balance }}</b></td>
-                <td class="money" data-value="{{ rows|sum(attribute=5) if rows else 0 }}"><b>{{ rows|sum(attribute=5) if rows else 0 }}</b></td>
-                <td class="no-print"></td>
-            </tr>
         </table>
     </div>
     {% else %}
-    <div class="empty-hint">لا توجد بيانات موردين لعرضها في التقرير حاليًا.</div>
+    <div class="empty-hint">لا توجد بيانات موردين مطابقة للفلاتر الحالية.</div>
     {% endif %}
 </section>
 {% endblock %}

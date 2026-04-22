@@ -1,21 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="page-head page-head-compact">
+<div class="report-hero">
     <div class="page-title-wrap">
+        <div class="eyebrow">المخازن</div>
         <h2>الأصناف والمنتجات</h2>
-        <p class="page-subtitle">إدارة الأصناف وأسعار الشراء والبيع وربط المورد الافتراضي.</p>
+        <p class="page-subtitle">إدارة الأصناف وأسعار الشراء والبيع وربط المورد الافتراضي مع إمكانيات فلترة سريعة.</p>
     </div>
     <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
 </div>
 
 {% if can_write("inventory") %}
 <section class="panel-block no-print">
-    <div class="section-title">
-        <div>
-            <h3>إضافة صنف جديد</h3>
-            <p>أدخل البيانات الأساسية للصنف ليظهر في المشتريات والمبيعات والمخزون.</p>
-        </div>
-    </div>
+    <div class="section-title"><div><h3>إضافة صنف جديد</h3><p>أدخل البيانات الأساسية للصنف ليظهر في المشتريات والمبيعات والمخزون.</p></div></div>
     <form method="POST">
         <div class="row g-2">
             <div class="col-md-2"><label class="form-label">الكود</label><input type="text" name="code" class="form-control"></div>
@@ -30,28 +26,23 @@
 </section>
 {% endif %}
 
-<section class="panel-block panel-block-muted">
-    <div class="section-title">
-        <div>
-            <h3>سجل الأصناف</h3>
-            <p>يمكنك التعديل والحذف من عمود الإجراءات عند توفر الصلاحية.</p>
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>فلترة الأصناف</h3><p>ابحث بالاسم أو الكود، أو فلتر حسب المورد الافتراضي.</p></div></div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-8"><label class="form-label">بحث</label><input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="اسم أو كود الصنف"></div>
+            <div class="col-md-4"><label class="form-label">المورد الافتراضي</label><select name="supplier_id" class="form-select"><option value="">الكل</option>{% for s in suppliers %}<option value="{{ s[0] }}" {% if filters.supplier_id == (s[0]|string) %}selected{% endif %}>{{ s[1] }}</option>{% endfor %}</select></div>
+            <div class="col-md-12 d-flex gap-2"><button class="btn btn-primary">تطبيق الفلاتر</button><a href="/products" class="btn btn-outline-secondary">إعادة ضبط</a></div>
         </div>
-        <span class="stat-pill">{{ products|length }} صنف</span>
-    </div>
+    </form>
+</section>
 
+<section class="panel-block panel-block-muted">
+    <div class="section-title"><div><h3>سجل الأصناف</h3><p>يمكنك التعديل أو الحذف من عمود الإجراءات عند توفر الصلاحية.</p></div><span class="stat-pill">{{ products|length }} صنف</span></div>
     {% if products %}
     <div class="table-shell">
         <table class="table table-bordered table-hover align-middle">
-            <tr>
-                <th>الكود</th>
-                <th>الصنف</th>
-                <th>الوحدة</th>
-                <th>المورد</th>
-                <th class="money">سعر الشراء</th>
-                <th class="money">سعر البيع</th>
-                <th>الرصيد</th>
-                <th class="no-print">إجراءات</th>
-            </tr>
+            <tr><th>الكود</th><th>الصنف</th><th>الوحدة</th><th>المورد</th><th class="money">سعر الشراء</th><th class="money">سعر البيع</th><th>الرصيد</th><th class="no-print">إجراءات</th></tr>
             {% for p in products %}
             <tr>
                 <td>{{ p[1] or "" }}</td>
@@ -74,7 +65,7 @@
         </table>
     </div>
     {% else %}
-    <div class="empty-hint">لا توجد أصناف مضافة حاليًا.</div>
+    <div class="empty-hint">لا توجد أصناف مطابقة للفلاتر الحالية.</div>
     {% endif %}
 </section>
 {% endblock %}

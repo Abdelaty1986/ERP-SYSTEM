@@ -35,7 +35,7 @@ def _reference_checks(table_name):
             ("customer_adjustments", "customer_id", "تسويات عملاء"),
             ("sales_orders", "customer_id", "أوامر بيع"),
             ("sales_delivery_notes", "customer_id", "أذون صرف"),
-            ("sales_credit_notes", "customer_id", "إشعارات دائنة"),
+            ("sales_credit_notes", "customer_id", "إشعارات تسوية دائنة"),
         ]
     return [
         ("purchase_invoices", "supplier_id", "فواتير مورد"),
@@ -87,12 +87,28 @@ def build_party_page(deps):
                 flash(success_message, "success")
                 return redirect(url_for(table_name))
 
+        filters = {
+            "q": (request.args.get("q") or "").strip(),
+            "withholding_status": (request.args.get("withholding_status") or "").strip(),
+        }
+        where = []
+        params = []
+        if filters["q"]:
+            where.append("(name LIKE ? OR phone LIKE ? OR tax_registration_number LIKE ? OR tax_card_number LIKE ?)")
+            params.extend([f"%{filters['q']}%"] * 4)
+        allowed_statuses = {choice[0] for choice in _withholding_choices(table_name)}
+        if filters["withholding_status"] in allowed_statuses:
+            where.append("withholding_status = ?")
+            params.append(filters["withholding_status"])
+        where_sql = f"WHERE {' AND '.join(where)}" if where else ""
         cur.execute(
             f"""
             SELECT id,name,phone,address,tax_registration_number,tax_card_number,contact_person,email,withholding_status
             FROM {table_name}
+            {where_sql}
             ORDER BY id DESC
-            """
+            """,
+            params,
         )
         rows = cur.fetchall()
         conn.close()
@@ -102,6 +118,7 @@ def build_party_page(deps):
             rows=rows,
             endpoint=table_name,
             withholding_choices=_withholding_choices(table_name),
+            filters=filters,
         )
 
     return party_page

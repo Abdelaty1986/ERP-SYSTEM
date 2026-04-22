@@ -1,105 +1,74 @@
 {% extends "layout.html" %}
-
 {% block content %}
-<div class="page-head">
-    <h2>{{ title }}</h2>
-    <div class="d-flex gap-2 no-print">
-        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">البيانات الأساسية</div>
+        <h2>{{ title }}</h2>
+        <p class="page-subtitle">إدارة بيانات {{ title }} مع فلترة عملية للوصول السريع إلى السجل المطلوب.</p>
     </div>
 </div>
 
 {% if can_write(endpoint) %}
-<form method="POST" class="card p-3 mb-3 no-print">
-    <h5 class="mb-3">إضافة جديد</h5>
-    <div class="row g-2">
-        <div class="col-md-3">
-            <label class="form-label">الاسم</label>
-            <input type="text" name="name" class="form-control" required>
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>إضافة جديد</h3><p>أدخل البيانات الأساسية مع بيانات الضرائب وحالة الخصم والإضافة.</p></div></div>
+    <form method="POST">
+        <div class="row g-2">
+            <div class="col-md-3"><label class="form-label">الاسم</label><input type="text" name="name" class="form-control" required></div>
+            <div class="col-md-2"><label class="form-label">الهاتف</label><input type="text" name="phone" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">العنوان</label><input type="text" name="address" class="form-control"></div>
+            <div class="col-md-2"><label class="form-label">رقم التسجيل الضريبي</label><input type="text" name="tax_registration_number" class="form-control"></div>
+            <div class="col-md-2"><label class="form-label">رقم البطاقة الضريبية</label><input type="text" name="tax_card_number" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">مسؤول التواصل</label><input type="text" name="contact_person" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">البريد الإلكتروني</label><input type="email" name="email" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">حالة الخصم والإضافة</label><select name="withholding_status" class="form-select">{% for value, label in withholding_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></div>
+            <div class="col-md-3 d-flex align-items-end"><button class="btn btn-success w-100">إضافة</button></div>
         </div>
-        <div class="col-md-2">
-            <label class="form-label">الهاتف</label>
-            <input type="text" name="phone" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">العنوان</label>
-            <input type="text" name="address" class="form-control">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">رقم التسجيل الضريبي</label>
-            <input type="text" name="tax_registration_number" class="form-control">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">رقم البطاقة الضريبية</label>
-            <input type="text" name="tax_card_number" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">مسؤول التواصل</label>
-            <input type="text" name="contact_person" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">البريد الإلكتروني</label>
-            <input type="email" name="email" class="form-control">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">حالة الخصم والإضافة</label>
-            <select name="withholding_status" class="form-select">
-                {% for value, label in withholding_choices %}
-                <option value="{{ value }}">{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-success w-100">إضافة</button>
-        </div>
-    </div>
-</form>
+    </form>
+</section>
 {% endif %}
 
-<table class="table table-bordered table-hover align-middle">
-    <tr>
-        <th>#</th>
-        <th>الاسم</th>
-        <th>الهاتف</th>
-        <th>العنوان</th>
-        <th>التسجيل الضريبي</th>
-        <th>البطاقة الضريبية</th>
-        <th>مسؤول التواصل</th>
-        <th>الحالة</th>
-        <th class="no-print">كشف الحساب</th>
-        <th class="no-print">إجراءات</th>
-    </tr>
-    {% for row in rows %}
-    <tr>
-        <td>{{ row[0] }}</td>
-        <td>{{ row[1] }}</td>
-        <td>{{ row[2] or "" }}</td>
-        <td>{{ row[3] or "" }}</td>
-        <td>{{ row[4] or "" }}</td>
-        <td>{{ row[5] or "" }}</td>
-        <td>{{ row[6] or "" }}</td>
-        <td>
-            {% if endpoint == "suppliers" %}
-                {{ "خاضع" if row[8] == "taxable" else "معفي (دفعات مقدمة)" }}
-            {% else %}
-                {{ "خاضع للخصم" if row[8] == "subject" else "غير خاضع" }}
-            {% endif %}
-        </td>
-        <td class="no-print">
-            {% if endpoint == "customers" %}
-            <a href="/customers/{{ row[0] }}/statement" class="btn btn-primary btn-sm">عرض</a>
-            {% else %}
-            <a href="/suppliers/{{ row[0] }}/statement" class="btn btn-primary btn-sm">عرض</a>
-            {% endif %}
-        </td>
-        <td class="no-print">
-            <div class="d-flex gap-1 flex-wrap">
-                <a href="/{{ endpoint }}/{{ row[0] }}/edit" class="btn btn-warning btn-sm">تعديل</a>
-                <form method="POST" action="/{{ endpoint }}/{{ row[0] }}/delete" onsubmit="return confirm('هل تريد حذف هذا السجل؟');">
-                    <button class="btn btn-danger btn-sm">حذف</button>
-                </form>
-            </div>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>فلترة القائمة</h3><p>ابحث بالاسم أو الهاتف أو البيانات الضريبية، أو فلتر حسب حالة الخصم والإضافة.</p></div></div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-8"><label class="form-label">بحث</label><input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="اسم أو هاتف أو رقم ضريبي"></div>
+            <div class="col-md-4"><label class="form-label">حالة الخصم والإضافة</label><select name="withholding_status" class="form-select"><option value="">الكل</option>{% for value, label in withholding_choices %}<option value="{{ value }}" {% if filters.withholding_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="col-md-12 d-flex gap-2"><button class="btn btn-primary">تطبيق الفلاتر</button><a href="/{{ endpoint }}" class="btn btn-outline-secondary">إعادة ضبط</a></div>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title"><div><h3>السجل</h3><p>يمكنك عرض كشف الحساب أو تعديل البيانات أو حذف السجل إذا لم تكن عليه حركات مرتبطة.</p></div><span class="stat-pill">{{ rows|length }} سجل</span></div>
+    {% if rows %}
+    <div class="table-shell">
+        <table class="table table-bordered table-hover align-middle">
+            <tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>العنوان</th><th>التسجيل الضريبي</th><th>البطاقة الضريبية</th><th>مسؤول التواصل</th><th>الحالة</th><th class="no-print">كشف الحساب</th><th class="no-print">إجراءات</th></tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] or "" }}</td>
+                <td>{{ row[3] or "" }}</td>
+                <td>{{ row[4] or "" }}</td>
+                <td>{{ row[5] or "" }}</td>
+                <td>{{ row[6] or "" }}</td>
+                <td>{% if endpoint == "suppliers" %}{{ "خاضع" if row[8] == "taxable" else "معفي (دفعات مقدمة)" }}{% else %}{{ "خاضع للخصم" if row[8] == "subject" else "غير خاضع" }}{% endif %}</td>
+                <td class="no-print">{% if endpoint == "customers" %}<a href="/customers/{{ row[0] }}/statement" class="btn btn-primary btn-sm">عرض</a>{% else %}<a href="/suppliers/{{ row[0] }}/statement" class="btn btn-primary btn-sm">عرض</a>{% endif %}</td>
+                <td class="no-print">
+                    <div class="d-flex gap-1 flex-wrap">
+                        <a href="/{{ endpoint }}/{{ row[0] }}/edit" class="btn btn-warning btn-sm">تعديل</a>
+                        <form method="POST" action="/{{ endpoint }}/{{ row[0] }}/delete" onsubmit="return confirm('هل تريد حذف هذا السجل؟');">
+                            <button class="btn btn-danger btn-sm">حذف</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد سجلات مطابقة للفلاتر الحالية.</div>
+    {% endif %}
+</section>
 {% endblock %}

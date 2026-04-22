@@ -1,128 +1,183 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="page-head">
-    <h2>فواتير البيع</h2>
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المبيعات</div>
+        <h2>فواتير البيع</h2>
+        <p class="page-subtitle">تسجيل فواتير البيع ومتابعة حالتها والطباعة والإلغاء عند الحاجة.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/sales/from-delivery" class="btn btn-outline-secondary">من أذون الصرف</a>
+        <a href="/sales/financial" class="btn btn-outline-secondary">فاتورة مالية</a>
+    </div>
+</div>
+
+<div class="summary-grid no-print">
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-receipt-cutoff tone-green"></i><span>عدد الفواتير</span></div>
+        <div class="summary-value">{{ invoices|length }}</div>
+        <div class="summary-note">إجمالي فواتير البيع الظاهرة</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-cash-coin tone-blue"></i><span>إجمالي الفواتير</span></div>
+        <div class="summary-value money" data-value="{{ invoices|sum(attribute=9) if invoices else 0 }}">{{ invoices|sum(attribute=9) if invoices else 0 }}</div>
+        <div class="summary-note">الإجمالي شامل الضريبة والخصم والإضافة</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-person-badge tone-orange"></i><span>فواتير آجلة</span></div>
+        <div class="summary-value">{{ invoices|selectattr(10, 'equalto', 'credit')|list|length if invoices else 0 }}</div>
+        <div class="summary-note">عدد الفواتير المرتبطة بعملاء آجلين</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-printer tone-red"></i><span>جاهزة للطباعة</span></div>
+        <div class="summary-value">{{ invoices|length }}</div>
+        <div class="summary-note">كل الفواتير المسجلة يمكن طباعتها من الجدول</div>
+    </div>
 </div>
 
 {% if can_write("sales") %}
-<form method="POST" class="card p-3 mb-3 no-print">
-    <div class="row g-2">
-        <div class="col-md-2">
-            <label class="form-label">التاريخ</label>
-            <input type="date" name="date" class="form-control" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">نوع الفاتورة</label>
-            <select name="payment_type" class="form-select">
-                <option value="cash">نقدي</option>
-                <option value="credit">آجل</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">العميل</label>
-            <select name="customer_id" class="form-select">
-                <option value="">بدون عميل</option>
-                {% for c in customers %}
-                <option value="{{ c[0] }}">{{ c[1] }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">تاريخ الاستحقاق</label>
-            <input type="date" name="due_date" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">الصنف</label>
-            <select name="product_id" id="sale_product" class="form-select" required>
-                <option value="">اختر الصنف</option>
-                {% for p in products %}
-                <option value="{{ p[0] }}" data-price="{{ p[2] }}">{{ p[1] }} - رصيد {{ p[3] }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">الكمية</label>
-            <input type="number" step="0.01" min="0.01" name="quantity" class="form-control" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">سعر الوحدة</label>
-            <input type="number" step="0.01" min="0.01" name="unit_price" id="sale_price" class="form-control" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">ضريبة القيمة المضافة %</label>
-            <input type="number" step="0.01" min="0" name="tax_rate" value="14" class="form-control">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">PO/</label>
-            <input type="text" name="po_ref" class="form-control">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">GR/</label>
-            <input type="text" name="gr_ref" class="form-control">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">ملاحظات</label>
-            <input type="text" name="notes" class="form-control">
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>إضافة فاتورة بيع</h3>
+            <p>للفواتير المباشرة متعددة البيانات المرجعية مع دعم الضريبة والخصم والإضافة.</p>
         </div>
     </div>
-    <div class="form-hint mt-2">ضريبة الخصم والإضافة على العميل الخاضع تُحسب تلقائيًا بنسبة 1% وتؤثر على صافي التحصيل.</div>
-    <button class="btn btn-success mt-3">حفظ فاتورة البيع</button>
-</form>
+    <form method="POST">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">التاريخ</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">نوع الفاتورة</label>
+                <select name="payment_type" class="form-select">
+                    <option value="cash">نقدي</option>
+                    <option value="credit">آجل</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">العميل</label>
+                <select name="customer_id" class="form-select">
+                    <option value="">بدون عميل</option>
+                    {% for c in customers %}
+                    <option value="{{ c[0] }}">{{ c[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">تاريخ الاستحقاق</label>
+                <input type="date" name="due_date" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">الصنف</label>
+                <select name="product_id" id="sale_product" class="form-select" required>
+                    <option value="">اختر الصنف</option>
+                    {% for p in products %}
+                    <option value="{{ p[0] }}" data-price="{{ p[2] }}">{{ p[1] }} - رصيد {{ p[3] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">الكمية</label>
+                <input type="number" step="0.01" min="0.01" name="quantity" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">سعر الوحدة</label>
+                <input type="number" step="0.01" min="0.01" name="unit_price" id="sale_price" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">ضريبة القيمة المضافة %</label>
+                <input type="number" step="0.01" min="0" name="tax_rate" value="14" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">PO/</label>
+                <input type="text" name="po_ref" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">GR/</label>
+                <input type="text" name="gr_ref" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" name="notes" class="form-control">
+            </div>
+        </div>
+        <div class="form-hint mt-2">ضريبة الخصم والإضافة على العميل الخاضع تُحسب تلقائيًا بنسبة 1% وتؤثر على صافي التحصيل.</div>
+        <button class="btn btn-success mt-3">حفظ فاتورة البيع</button>
+    </form>
+</section>
 {% endif %}
 
-<table class="table table-bordered align-middle">
-    <tr>
-        <th>#</th>
-        <th>المستند</th>
-        <th>التاريخ</th>
-        <th>الاستحقاق</th>
-        <th>العميل</th>
-        <th>الصنف</th>
-        <th class="money">الصافي</th>
-        <th class="money">القيمة المضافة</th>
-        <th class="money">خصم وإضافة</th>
-        <th class="money">الإجمالي</th>
-        <th>النوع</th>
-        <th>PO/</th>
-        <th>GR/</th>
-        <th>الحالة</th>
-        <th class="no-print">إجراءات</th>
-    </tr>
-    {% for i in invoices %}
-    <tr class="{% if i[11] == 'cancelled' %}table-danger{% endif %}">
-        <td>{{ i[0] }}</td>
-        <td>{{ i[14] or "" }}</td>
-        <td>{{ i[1] }}</td>
-        <td>{{ i[13] or "" }}</td>
-        <td>{{ i[2] }}</td>
-        <td>{{ i[3] }}</td>
-        <td class="money" data-value="{{ i[6] }}">{{ i[6] }}</td>
-        <td class="money" data-value="{{ i[7] }}">{{ i[7] }}</td>
-        <td class="money" data-value="{{ i[8] }}">{{ i[8] }}</td>
-        <td class="money" data-value="{{ i[9] }}">{{ i[9] }}</td>
-        <td>{% if i[10] == "credit" %}آجل{% else %}نقدي{% endif %}</td>
-        <td>{{ i[15] or "" }}</td>
-        <td>{{ i[16] or "" }}</td>
-        <td>
-            {% if i[11] == "cancelled" %}ملغاة - {{ i[12] or "" }}
-            {% elif i[11] == "draft" %}غير مرحلة
-            {% else %}مرحلة{% endif %}
-        </td>
-        <td class="no-print">
-            <a href="/sales/{{ i[0] }}/print" class="btn btn-primary btn-sm mb-1">طباعة</a>
-            {% if can_write("sales") and i[11] == "draft" %}
-            <a href="/sales/{{ i[0] }}/edit" class="btn btn-warning btn-sm mb-1">تعديل</a>
-            {% endif %}
-            {% if can_write("sales") and i[11] == "posted" %}
-            <form method="POST" action="/sales/{{ i[0] }}/cancel" class="d-flex gap-1" onsubmit="return confirm('سيتم إلغاء الفاتورة وعكس أثرها المحاسبي والمخزني. هل تريد المتابعة؟');">
-                <input type="text" name="reason" class="form-control form-control-sm" placeholder="سبب الإلغاء" required>
-                <button class="btn btn-danger btn-sm">إلغاء</button>
-            </form>
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل الفواتير</h3>
+            <p>يمكنك الطباعة دائمًا، بينما التعديل متاح فقط للمسودات والإلغاء للفواتير المرحلة.</p>
+        </div>
+        <span class="stat-pill">{{ invoices|length }} فاتورة</span>
+    </div>
+
+    {% if invoices %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>#</th>
+                <th>المستند</th>
+                <th>التاريخ</th>
+                <th>الاستحقاق</th>
+                <th>العميل</th>
+                <th>الصنف</th>
+                <th class="money">الصافي</th>
+                <th class="money">القيمة المضافة</th>
+                <th class="money">خصم وإضافة</th>
+                <th class="money">الإجمالي</th>
+                <th>النوع</th>
+                <th>PO/</th>
+                <th>GR/</th>
+                <th>الحالة</th>
+                <th class="no-print">إجراءات</th>
+            </tr>
+            {% for i in invoices %}
+            <tr class="{% if i[11] == 'cancelled' %}table-danger{% endif %}">
+                <td>{{ i[0] }}</td>
+                <td>{{ i[14] or "" }}</td>
+                <td>{{ i[1] }}</td>
+                <td>{{ i[13] or "" }}</td>
+                <td>{{ i[2] }}</td>
+                <td>{{ i[3] }}</td>
+                <td class="money" data-value="{{ i[6] }}">{{ i[6] }}</td>
+                <td class="money" data-value="{{ i[7] }}">{{ i[7] }}</td>
+                <td class="money" data-value="{{ i[8] }}">{{ i[8] }}</td>
+                <td class="money" data-value="{{ i[9] }}">{{ i[9] }}</td>
+                <td>{% if i[10] == "credit" %}آجل{% else %}نقدي{% endif %}</td>
+                <td>{{ i[15] or "" }}</td>
+                <td>{{ i[16] or "" }}</td>
+                <td>
+                    {% if i[11] == "cancelled" %}ملغاة - {{ i[12] or "" }}
+                    {% elif i[11] == "draft" %}غير مرحلة
+                    {% else %}مرحلة{% endif %}
+                </td>
+                <td class="no-print">
+                    <a href="/sales/{{ i[0] }}/print" class="btn btn-primary btn-sm mb-1">طباعة</a>
+                    {% if can_write("sales") and i[11] == "draft" %}
+                    <a href="/sales/{{ i[0] }}/edit" class="btn btn-warning btn-sm mb-1">تعديل</a>
+                    {% endif %}
+                    {% if can_write("sales") and i[11] == "posted" %}
+                    <form method="POST" action="/sales/{{ i[0] }}/cancel" class="d-flex gap-1" onsubmit="return confirm('سيتم إلغاء الفاتورة وعكس أثرها المحاسبي والمخزني. هل تريد المتابعة؟');">
+                        <input type="text" name="reason" class="form-control form-control-sm" placeholder="سبب الإلغاء" required>
+                        <button class="btn btn-danger btn-sm">إلغاء</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد فواتير بيع مسجلة حاليًا.</div>
+    {% endif %}
+</section>
 
 <script>
 document.getElementById("sale_product")?.addEventListener("change", function () {

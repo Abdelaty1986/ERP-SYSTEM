@@ -1,51 +1,72 @@
 {% extends "layout.html" %}
-
 {% block content %}
-<div class="page-head">
-    <div>
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">التقارير التحليلية</div>
         <h2>{{ title }}</h2>
-        <div class="eyebrow">المبالغ المفتوحة بعد خصم التحصيلات أو السداد حسب أقدمية تاريخ الاستحقاق</div>
+        <p class="page-subtitle">المبالغ المفتوحة بعد خصم التحصيلات أو السداد حسب أقدمية تاريخ الاستحقاق، مع فلتر سريع باسم الطرف.</p>
     </div>
-    <button class="btn btn-primary no-print" onclick="window.print()">طباعة</button>
+    <div class="report-toolbar no-print">
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
 </div>
 
-<table class="table table-bordered align-middle">
-    <tr>
-        <th>{{ party_label }}</th>
-        <th class="money">غير مستحق</th>
-        <th class="money">1 - 30 يوم</th>
-        <th class="money">31 - 60 يوم</th>
-        <th class="money">61 - 90 يوم</th>
-        <th class="money">أكثر من 90 يوم</th>
-        <th class="money">الإجمالي</th>
-        <th class="no-print">كشف الحساب</th>
-    </tr>
-    {% for row in rows %}
-    <tr>
-        <td>{{ row[1] }}</td>
-        <td class="money">{{ "%.2f"|format(row[2]) }}</td>
-        <td class="money">{{ "%.2f"|format(row[3]) }}</td>
-        <td class="money">{{ "%.2f"|format(row[4]) }}</td>
-        <td class="money">{{ "%.2f"|format(row[5]) }}</td>
-        <td class="money">{{ "%.2f"|format(row[6]) }}</td>
-        <td class="money"><b>{{ "%.2f"|format(row[7]) }}</b></td>
-        <td class="no-print"><a class="btn btn-primary btn-sm" href="{{ url_for(statement_endpoint, id=row[0]) }}">عرض</a></td>
-    </tr>
-    {% else %}
-    <tr>
-        <td colspan="8" class="text-center text-muted">لا توجد أرصدة آجلة مفتوحة.</td>
-    </tr>
-    {% endfor %}
-    <tr class="table-light">
-        <th>الإجمالي</th>
-        <th class="money">{{ "%.2f"|format(totals[0] if totals else 0) }}</th>
-        <th class="money">{{ "%.2f"|format(totals[1] if totals else 0) }}</th>
-        <th class="money">{{ "%.2f"|format(totals[2] if totals else 0) }}</th>
-        <th class="money">{{ "%.2f"|format(totals[3] if totals else 0) }}</th>
-        <th class="money">{{ "%.2f"|format(totals[4] if totals else 0) }}</th>
-        <th class="money">{{ "%.2f"|format(totals[5] if totals else 0) }}</th>
-        <th class="no-print"></th>
-    </tr>
-</table>
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>فلترة التقرير</h3><p>ابحث باسم {{ party_label }} للوصول السريع إلى الرصيد المطلوب.</p></div></div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-10"><label class="form-label">بحث بالاسم</label><input type="text" name="q" value="{{ filters.q if filters else '' }}" class="form-control" placeholder="اسم {{ party_label }}"></div>
+            <div class="col-md-2 d-flex align-items-end gap-2"><button class="btn btn-primary flex-grow-1">تطبيق</button><a href="{{ request.path }}" class="btn btn-outline-secondary">إعادة</a></div>
+        </div>
+    </form>
+</section>
 
+<div class="summary-grid">
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-people tone-blue"></i><span>عدد {{ party_label }}</span></div><div class="summary-value">{{ rows|length }}</div><div class="summary-note">عدد الأطراف الظاهرة في التقرير</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-hourglass-split tone-green"></i><span>إجمالي غير مستحق</span></div><div class="summary-value money" data-value="{{ totals[0] if totals else 0 }}">{{ "%.2f"|format(totals[0] if totals else 0) }}</div><div class="summary-note">الحركات التي لم يحل أجلها بعد</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-calendar-range tone-orange"></i><span>أكثر من 90 يوم</span></div><div class="summary-value money" data-value="{{ totals[4] if totals else 0 }}">{{ "%.2f"|format(totals[4] if totals else 0) }}</div><div class="summary-note">الأرصدة الأعلى تقادمًا</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-calculator tone-red"></i><span>إجمالي الرصيد</span></div><div class="summary-value money" data-value="{{ totals[5] if totals else 0 }}">{{ "%.2f"|format(totals[5] if totals else 0) }}</div><div class="summary-note">إجمالي الأرصدة المفتوحة الظاهرة</div></div>
+</div>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title"><div><h3>تفاصيل الأعمار</h3><p>يمكنك الانتقال مباشرة إلى كشف الحساب من عمود الإجراءات.</p></div><span class="stat-pill">{{ rows|length }} {{ party_label }}</span></div>
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>{{ party_label }}</th>
+                <th class="money">غير مستحق</th>
+                <th class="money">1 - 30 يوم</th>
+                <th class="money">31 - 60 يوم</th>
+                <th class="money">61 - 90 يوم</th>
+                <th class="money">أكثر من 90 يوم</th>
+                <th class="money">الإجمالي</th>
+                <th class="no-print">كشف الحساب</th>
+            </tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[1] }}</td>
+                <td class="money">{{ "%.2f"|format(row[2]) }}</td>
+                <td class="money">{{ "%.2f"|format(row[3]) }}</td>
+                <td class="money">{{ "%.2f"|format(row[4]) }}</td>
+                <td class="money">{{ "%.2f"|format(row[5]) }}</td>
+                <td class="money">{{ "%.2f"|format(row[6]) }}</td>
+                <td class="money"><b>{{ "%.2f"|format(row[7]) }}</b></td>
+                <td class="no-print"><a class="btn btn-primary btn-sm" href="{{ url_for(statement_endpoint, id=row[0]) }}">عرض</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center text-muted">لا توجد أرصدة آجلة مطابقة للفلاتر الحالية.</td></tr>
+            {% endfor %}
+            <tr class="table-light">
+                <th>الإجمالي</th>
+                <th class="money">{{ "%.2f"|format(totals[0] if totals else 0) }}</th>
+                <th class="money">{{ "%.2f"|format(totals[1] if totals else 0) }}</th>
+                <th class="money">{{ "%.2f"|format(totals[2] if totals else 0) }}</th>
+                <th class="money">{{ "%.2f"|format(totals[3] if totals else 0) }}</th>
+                <th class="money">{{ "%.2f"|format(totals[4] if totals else 0) }}</th>
+                <th class="money">{{ "%.2f"|format(totals[5] if totals else 0) }}</th>
+                <th class="no-print"></th>
+            </tr>
+        </table>
+    </div>
+</section>
 {% endblock %}

@@ -1,4 +1,60 @@
+from urllib.parse import urlencode
+
 from flask import flash, redirect, render_template, request, url_for
+
+
+def _journal_filters(args):
+    return {
+        "date_from": (args.get("date_from") or "").strip(),
+        "date_to": (args.get("date_to") or "").strip(),
+        "status": (args.get("status") or "").strip(),
+        "account_id": (args.get("account_id") or "").strip(),
+        "cost_center_id": (args.get("cost_center_id") or "").strip(),
+        "description": (args.get("description") or "").strip(),
+    }
+
+
+def _apply_journal_filters(base_sql, filters, include_cost_center=True):
+    conditions = []
+    params = []
+    if filters["date_from"]:
+        conditions.append("j.date >= ?")
+        params.append(filters["date_from"])
+    if filters["date_to"]:
+        conditions.append("j.date <= ?")
+        params.append(filters["date_to"])
+    if filters["status"] in {"draft", "posted"}:
+        conditions.append("j.status = ?")
+        params.append(filters["status"])
+    if filters["account_id"].isdigit():
+        account_id = int(filters["account_id"])
+        conditions.append("(j.debit_account_id = ? OR j.credit_account_id = ?)")
+        params.extend([account_id, account_id])
+    if include_cost_center and filters["cost_center_id"].isdigit():
+        conditions.append("j.cost_center_id = ?")
+        params.append(int(filters["cost_center_id"]))
+    if filters["description"]:
+        conditions.append("j.description LIKE ?")
+        params.append(f"%{filters['description']}%")
+    if conditions:
+        base_sql += "\n WHERE " + " AND ".join(conditions)
+    return base_sql, params
+
+
+def _ledger_filters(args):
+    return {
+        "date_from": (args.get("date_from") or "").strip(),
+        "date_to": (args.get("date_to") or "").strip(),
+        "description": (args.get("description") or "").strip(),
+        "entry_type": (args.get("entry_type") or "").strip(),
+    }
+
+
+def _trial_filters(args):
+    return {
+        "q": (args.get("q") or "").strip(),
+        "balance_filter": (args.get("balance_filter") or "").strip(),
+    }
 
 
 def build_accounts_view(deps):
@@ -127,6 +183,7 @@ def build_journal_view(deps):
     def journal():
         conn = db()
         cur = conn.cursor()
+        filters = _journal_filters(request.args)
 
         if request.method == "POST":
             errors, data = validate_journal_form(cur, request.form)
@@ -162,7 +219,7 @@ def build_journal_view(deps):
                 flash("تم حفظ القيد بنجاح.", "success")
                 return redirect(url_for("journal"))
 
-        cur.execute(
+        query, params = _apply_journal_filters(
             """
             SELECT j.id,j.date,j.description,
                    a1.name,
@@ -174,9 +231,11 @@ def build_journal_view(deps):
             JOIN accounts a1 ON j.debit_account_id=a1.id
             JOIN accounts a2 ON j.credit_account_id=a2.id
             LEFT JOIN cost_centers cc ON j.cost_center_id=cc.id
-            ORDER BY j.id DESC
-            """
+            """,
+            filters,
         )
+        query += "\n ORDER BY j.id DESC"
+        cur.execute(query, params)
         journal_rows = cur.fetchall()
         cur.execute("SELECT id, code, name FROM accounts ORDER BY name")
         accounts_rows = cur.fetchall()
@@ -185,7 +244,16 @@ def build_journal_view(deps):
         group_posted = is_group_posted(cur, "manual_journal")
         conn.commit()
         conn.close()
-        return render_template("journal.html", journal=journal_rows, accounts=accounts_rows, cost_centers=cost_centers, group_posted=group_posted)
+        export_query = urlencode({k: v for k, v in filters.items() if v})
+        return render_template(
+            "journal.html",
+            journal=journal_rows,
+            accounts=accounts_rows,
+            cost_centers=cost_centers,
+            group_posted=group_posted,
+            filters=filters,
+            export_query=export_query,
+        )
 
     return journal
 
@@ -197,15 +265,19 @@ def build_journal_export_view(deps):
     def journal_export():
         conn = db()
         cur = conn.cursor()
-        cur.execute(
+        filters = _journal_filters(request.args)
+        query, params = _apply_journal_filters(
             """
             SELECT j.id,j.date,j.description,a1.name,a2.name,j.amount
             FROM journal j
             JOIN accounts a1 ON j.debit_account_id=a1.id
             JOIN accounts a2 ON j.credit_account_id=a2.id
-            ORDER BY j.id DESC
-            """
+            """,
+            filters,
+            include_cost_center=False,
         )
+        query += "\n ORDER BY j.id DESC"
+        cur.execute(query, params)
         rows = cur.fetchall()
         conn.close()
         return excel_response("journal.xls", ["رقم القيد", "التاريخ", "البيان", "مدين", "دائن", "المبلغ"], rows, title="القيود اليومية")
@@ -309,27 +381,46 @@ def build_ledger_view(deps):
     def ledger(id):
         conn = db()
         cur = conn.cursor()
+        filters = _ledger_filters(request.args)
         cur.execute("SELECT id, name FROM accounts WHERE id=?", (id,))
         account = cur.fetchone()
         if not account:
             conn.close()
             flash("الحساب غير موجود.", "danger")
             return redirect(url_for("accounts"))
+        conditions = ["account_id=?"]
+        params = [id]
+        if filters["date_from"]:
+            conditions.append("date >= ?")
+            params.append(filters["date_from"])
+        if filters["date_to"]:
+            conditions.append("date <= ?")
+            params.append(filters["date_to"])
+        if filters["description"]:
+            conditions.append("description LIKE ?")
+            params.append(f"%{filters['description']}%")
+        if filters["entry_type"] == "debit":
+            conditions.append("debit > 0")
+        elif filters["entry_type"] == "credit":
+            conditions.append("credit > 0")
         cur.execute(
             """
             SELECT date,description,debit,credit
             FROM ledger
-            WHERE account_id=?
+            WHERE """
+            + " AND ".join(conditions)
+            + """
             ORDER BY id
             """,
-            (id,),
+            params,
         )
         rows = cur.fetchall()
         debit = sum(r[2] for r in rows)
         credit = sum(r[3] for r in rows)
         balance = debit - credit
         conn.close()
-        return render_template("ledger.html", account_id=account[0], acc_name=account[1], rows=rows, debit=debit, credit=credit, balance=balance)
+        export_query = urlencode({k: v for k, v in filters.items() if v})
+        return render_template("ledger.html", account_id=account[0], acc_name=account[1], rows=rows, debit=debit, credit=credit, balance=balance, filters=filters, export_query=export_query)
 
     return ledger
 
@@ -341,20 +432,38 @@ def build_ledger_export_view(deps):
     def ledger_export(id):
         conn = db()
         cur = conn.cursor()
+        filters = _ledger_filters(request.args)
         cur.execute("SELECT name FROM accounts WHERE id=?", (id,))
         account = cur.fetchone()
         if not account:
             conn.close()
             flash("الحساب غير موجود.", "danger")
             return redirect(url_for("accounts"))
+        conditions = ["account_id=?"]
+        params = [id]
+        if filters["date_from"]:
+            conditions.append("date >= ?")
+            params.append(filters["date_from"])
+        if filters["date_to"]:
+            conditions.append("date <= ?")
+            params.append(filters["date_to"])
+        if filters["description"]:
+            conditions.append("description LIKE ?")
+            params.append(f"%{filters['description']}%")
+        if filters["entry_type"] == "debit":
+            conditions.append("debit > 0")
+        elif filters["entry_type"] == "credit":
+            conditions.append("credit > 0")
         cur.execute(
             """
             SELECT date,description,debit,credit
             FROM ledger
-            WHERE account_id=?
+            WHERE """
+            + " AND ".join(conditions)
+            + """
             ORDER BY id
             """,
-            (id,),
+            params,
         )
         rows = cur.fetchall()
         conn.close()
@@ -369,22 +478,36 @@ def build_trial_view(deps):
     def trial():
         conn = db()
         cur = conn.cursor()
-        cur.execute(
-            """
+        filters = _trial_filters(request.args)
+        query = """
             SELECT a.name,
                    COALESCE(SUM(l.debit),0),
                    COALESCE(SUM(l.credit),0)
             FROM accounts a
             LEFT JOIN ledger l ON a.id = l.account_id
-            GROUP BY a.id
-            ORDER BY a.code
-            """
-        )
+        """
+        params = []
+        if filters["q"]:
+            query += "\n WHERE a.name LIKE ?"
+            params.append(f"%{filters['q']}%")
+        query += "\n GROUP BY a.id"
+        having = []
+        if filters["balance_filter"] == "with_balance":
+            having.append("(COALESCE(SUM(l.debit),0) <> 0 OR COALESCE(SUM(l.credit),0) <> 0)")
+        elif filters["balance_filter"] == "debit_only":
+            having.append("COALESCE(SUM(l.debit),0) > COALESCE(SUM(l.credit),0)")
+        elif filters["balance_filter"] == "credit_only":
+            having.append("COALESCE(SUM(l.credit),0) > COALESCE(SUM(l.debit),0)")
+        if having:
+            query += "\n HAVING " + " AND ".join(having)
+        query += "\n ORDER BY a.code"
+        cur.execute(query, params)
         data = cur.fetchall()
         total_debit = sum(row[1] for row in data)
         total_credit = sum(row[2] for row in data)
         conn.close()
-        return render_template("trial_balance.html", data=data, total_debit=total_debit, total_credit=total_credit)
+        export_query = urlencode({k: v for k, v in filters.items() if v})
+        return render_template("trial_balance.html", data=data, total_debit=total_debit, total_credit=total_credit, filters=filters, export_query=export_query)
 
     return trial
 
@@ -396,17 +519,30 @@ def build_trial_export_view(deps):
     def trial_export():
         conn = db()
         cur = conn.cursor()
-        cur.execute(
-            """
+        filters = _trial_filters(request.args)
+        query = """
             SELECT a.name,
                    COALESCE(SUM(l.debit),0),
                    COALESCE(SUM(l.credit),0)
             FROM accounts a
             LEFT JOIN ledger l ON a.id = l.account_id
-            GROUP BY a.id
-            ORDER BY a.code
-            """
-        )
+        """
+        params = []
+        if filters["q"]:
+            query += "\n WHERE a.name LIKE ?"
+            params.append(f"%{filters['q']}%")
+        query += "\n GROUP BY a.id"
+        having = []
+        if filters["balance_filter"] == "with_balance":
+            having.append("(COALESCE(SUM(l.debit),0) <> 0 OR COALESCE(SUM(l.credit),0) <> 0)")
+        elif filters["balance_filter"] == "debit_only":
+            having.append("COALESCE(SUM(l.debit),0) > COALESCE(SUM(l.credit),0)")
+        elif filters["balance_filter"] == "credit_only":
+            having.append("COALESCE(SUM(l.credit),0) > COALESCE(SUM(l.debit),0)")
+        if having:
+            query += "\n HAVING " + " AND ".join(having)
+        query += "\n ORDER BY a.code"
+        cur.execute(query, params)
         rows = cur.fetchall()
         conn.close()
         return excel_response("trial-balance.xls", ["الحساب", "مدين", "دائن"], rows, title="ميزان المراجعة")

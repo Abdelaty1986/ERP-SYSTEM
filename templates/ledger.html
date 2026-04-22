@@ -1,50 +1,55 @@
 {% extends "layout.html" %}
-
 {% block content %}
-
-<div class="page-head">
-    <h2>دفتر الأستاذ: {{ acc_name }}</h2>
-    <div class="no-print">
-        <a href="/ledger/{{ account_id }}/export" class="btn btn-outline-success">تصدير CSV</a>
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">الحسابات العامة</div>
+        <h2>دفتر الأستاذ: {{ acc_name }}</h2>
+        <p class="page-subtitle">راجع حركة الحساب حسب التاريخ أو نوع الطرف أو جزء من البيان، مع تصدير نفس النتائج المفلترة.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/ledger/{{ account_id }}/export{% if export_query %}?{{ export_query }}{% endif %}" class="btn btn-outline-success">تصدير Excel</a>
         <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
     </div>
 </div>
 
-<table class="table table-bordered text-center align-middle">
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>فلترة الأستاذ</h3><p>فلتر حسب التاريخ أو البيان أو نوع الحركة المدينة/الدائنة.</p></div></div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-3"><label class="form-label">من تاريخ</label><input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">إلى تاريخ</label><input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">نوع الحركة</label><select name="entry_type" class="form-select"><option value="">الكل</option><option value="debit" {% if filters.entry_type == 'debit' %}selected{% endif %}>مدين فقط</option><option value="credit" {% if filters.entry_type == 'credit' %}selected{% endif %}>دائن فقط</option></select></div>
+            <div class="col-md-3"><label class="form-label">يحتوي البيان على</label><input type="text" name="description" value="{{ filters.description }}" class="form-control" placeholder="ابحث داخل البيان"></div>
+            <div class="col-md-12 d-flex gap-2"><button class="btn btn-primary">تطبيق الفلاتر</button><a href="/ledger/{{ account_id }}" class="btn btn-outline-secondary">إعادة ضبط</a></div>
+        </div>
+    </form>
+</section>
 
-<tr>
-<th>التاريخ</th>
-<th>البيان</th>
-<th>مدين</th>
-<th>دائن</th>
-</tr>
+<div class="summary-grid">
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-arrow-down-left-circle tone-green"></i><span>إجمالي المدين</span></div><div class="summary-value money" data-value="{{ debit }}">{{ debit }}</div><div class="summary-note">إجمالي الحركات المدينة الظاهرة</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-arrow-up-right-circle tone-red"></i><span>إجمالي الدائن</span></div><div class="summary-value money" data-value="{{ credit }}">{{ credit }}</div><div class="summary-note">إجمالي الحركات الدائنة الظاهرة</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-calculator tone-blue"></i><span>الرصيد</span></div><div class="summary-value money" data-value="{{ balance|abs }}">{{ balance|abs }}</div><div class="summary-note">{% if balance > 0 %}رصيد مدين{% elif balance < 0 %}رصيد دائن{% else %}متوازن{% endif %}</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-list-ul tone-orange"></i><span>عدد الحركات</span></div><div class="summary-value">{{ rows|length }}</div><div class="summary-note">عدد السطور الظاهرة بعد الفلترة</div></div>
+</div>
 
-{% for r in rows %}
-<tr>
-<td>{{ r[0] }}</td>
-<td>{{ r[1] }}</td>
-<td>{{ r[2] if r[2] else "" }}</td>
-<td>{{ r[3] if r[3] else "" }}</td>
-</tr>
-{% endfor %}
-
-<tr class="table-secondary">
-<td colspan="2"><b>الإجمالي</b></td>
-<td><b>{{ debit }}</b></td>
-<td><b>{{ credit }}</b></td>
-</tr>
-
-</table>
-
-<h4>
-الرصيد:
-{% if balance > 0 %}
-{{ balance }} مدين
-{% elif balance < 0 %}
-{{ balance * -1 }} دائن
-{% else %}
-متوازن
-{% endif %}
-</h4>
-
+<section class="panel-block panel-block-muted">
+    <div class="section-title"><div><h3>تفاصيل الحركة</h3><p>يعرض السجل كاملًا بحسب الفلاتر المختارة.</p></div><span class="stat-pill">{{ rows|length }} حركة</span></div>
+    {% if rows %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr><th>التاريخ</th><th>البيان</th><th class="money">مدين</th><th class="money">دائن</th></tr>
+            {% for r in rows %}
+            <tr>
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
+                <td class="money" data-value="{{ r[2] if r[2] else 0 }}">{{ r[2] if r[2] else "" }}</td>
+                <td class="money" data-value="{{ r[3] if r[3] else 0 }}">{{ r[3] if r[3] else "" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد حركات مطابقة للفلاتر الحالية.</div>
+    {% endif %}
+</section>
 {% endblock %}

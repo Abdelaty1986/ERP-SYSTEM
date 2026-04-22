@@ -1,4 +1,5 @@
 import sqlite3
+from urllib.parse import urlencode
 
 from flask import flash, redirect, render_template, request, url_for
 
@@ -42,19 +43,37 @@ def build_products_view(deps):
                     return redirect(url_for("products"))
                 except sqlite3.IntegrityError:
                     flash("كود الصنف مستخدم بالفعل.", "danger")
+
+        filters = {
+            "q": (request.args.get("q") or "").strip(),
+            "supplier_id": (request.args.get("supplier_id") or "").strip(),
+        }
         cur.execute("SELECT id,name FROM suppliers ORDER BY name")
         suppliers_rows = cur.fetchall()
+        where = []
+        params = []
+        if filters["q"]:
+            where.append("(p.code LIKE ? OR p.name LIKE ?)")
+            params.extend([f"%{filters['q']}%", f"%{filters['q']}%"])
+        if filters["supplier_id"].isdigit():
+            where.append("p.default_supplier_id = ?")
+            params.append(int(filters["supplier_id"]))
+        where_sql = f"WHERE {' AND '.join(where)}" if where else ""
         cur.execute(
             """
             SELECT p.id,p.code,p.name,p.unit,p.purchase_price,p.sale_price,p.stock_quantity,COALESCE(s.name,'')
             FROM products p
             LEFT JOIN suppliers s ON s.id=p.default_supplier_id
-            ORDER BY p.id DESC
             """
+            + (f"\n            {where_sql}" if where_sql else "")
+            + """
+            ORDER BY p.id DESC
+            """,
+            params,
         )
         rows = cur.fetchall()
         conn.close()
-        return render_template("products.html", products=rows, suppliers=suppliers_rows)
+        return render_template("products.html", products=rows, suppliers=suppliers_rows, filters=filters)
 
     return products
 
@@ -156,17 +175,41 @@ def build_inventory_view(deps):
     def inventory():
         conn = db()
         cur = conn.cursor()
+        filters = {
+            "q": (request.args.get("q") or "").strip(),
+            "movement_type": (request.args.get("movement_type") or "").strip(),
+            "date_from": (request.args.get("date_from") or "").strip(),
+            "date_to": (request.args.get("date_to") or "").strip(),
+        }
+        where = []
+        params = []
+        if filters["q"]:
+            where.append("p.name LIKE ?")
+            params.append(f"%{filters['q']}%")
+        if filters["movement_type"] in {"in", "out"}:
+            where.append("m.movement_type = ?")
+            params.append(filters["movement_type"])
+        if filters["date_from"]:
+            where.append("m.date >= ?")
+            params.append(filters["date_from"])
+        if filters["date_to"]:
+            where.append("m.date <= ?")
+            params.append(filters["date_to"])
         cur.execute(
             """
             SELECT m.date,p.name,m.movement_type,m.quantity,m.reference_type,m.reference_id,m.notes
             FROM inventory_movements m
             JOIN products p ON m.product_id=p.id
-            ORDER BY m.id DESC
             """
+            + ("\n WHERE " + " AND ".join(where) if where else "")
+            + """
+            ORDER BY m.id DESC
+            """,
+            params,
         )
         rows = cur.fetchall()
         conn.close()
-        return render_template("inventory.html", rows=rows)
+        return render_template("inventory.html", rows=rows, filters=filters)
 
     return inventory
 
@@ -178,13 +221,32 @@ def build_inventory_report_view(deps):
     def inventory_report():
         conn = db()
         cur = conn.cursor()
+        filters = {
+            "q": (request.args.get("q") or "").strip(),
+            "stock_filter": (request.args.get("stock_filter") or "").strip(),
+        }
+        where = []
+        params = []
+        if filters["q"]:
+            where.append("(code LIKE ? OR name LIKE ?)")
+            params.extend([f"%{filters['q']}%", f"%{filters['q']}%"])
+        if filters["stock_filter"] == "low":
+            where.append("stock_quantity <= 5")
+        elif filters["stock_filter"] == "available":
+            where.append("stock_quantity > 0")
+        elif filters["stock_filter"] == "zero":
+            where.append("stock_quantity = 0")
         cur.execute(
             """
             SELECT code,name,unit,stock_quantity,purchase_price,sale_price,
                    stock_quantity * purchase_price AS stock_value
             FROM products
-            ORDER BY name
             """
+            + ("\n WHERE " + " AND ".join(where) if where else "")
+            + """
+            ORDER BY name
+            """,
+            params,
         )
         rows = cur.fetchall()
         total_value = sum(row[6] for row in rows)
@@ -198,11 +260,14 @@ def build_inventory_report_view(deps):
                 title="تقرير المخزون",
             )
         conn.close()
+        export_query = urlencode({k: v for k, v in filters.items() if v})
         return render_template(
             "inventory_report.html",
             rows=rows,
             total_value=total_value,
             low_stock=low_stock,
+            filters=filters,
+            export_query=export_query,
         )
 
     return inventory_report

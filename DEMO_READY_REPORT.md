@@ -1,6 +1,6 @@
 # Demo Ready Report
 
-- Backup: `before_seed_demo_20260421_212125.db`
+- Backup: `before_seed_demo_20260422_115123.db`
 - Accounts kept: `87`
 - Customers: `2`
 - Suppliers: `2`

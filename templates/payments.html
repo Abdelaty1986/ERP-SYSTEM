@@ -1,77 +1,124 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">الخزينة</div>
+        <h2>سندات الصرف</h2>
+        <p class="page-subtitle">متابعة مدفوعات الموردين وتنظيم السندات بطريقة واضحة تساعد على المراجعة والطباعة اليومية.</p>
+    </div>
+</div>
 
-<div class="page-head">
-    <h2>سندات الصرف</h2>
+<div class="summary-grid no-print">
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-wallet tone-red"></i><span>عدد السندات</span></div>
+        <div class="summary-value">{{ rows|length }}</div>
+        <div class="summary-note">إجمالي سندات الصرف الظاهرة في القائمة</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-cash-coin tone-blue"></i><span>إجمالي المدفوع</span></div>
+        <div class="summary-value money" data-value="{{ rows|sum(attribute=3) if rows else 0 }}">{{ rows|sum(attribute=3) if rows else 0 }}</div>
+        <div class="summary-note">القيمة الإجمالية لسندات الصرف الحالية</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-check2-square tone-green"></i><span>سندات مرحلة</span></div>
+        <div class="summary-value">{{ rows|selectattr(5, 'equalto', 'posted')|list|length if rows else 0 }}</div>
+        <div class="summary-note">السندات التي أثرت على الخزينة والموردين</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-printer tone-orange"></i><span>جاهزة للطباعة</span></div>
+        <div class="summary-value">{{ rows|length }}</div>
+        <div class="summary-note">يمكن طباعة أي سند مباشرة من الجدول</div>
+    </div>
 </div>
 
 {% if can_write("payments") %}
-<form method="POST" class="card p-3 mb-3 no-print">
-    <div class="row g-2">
-        <div class="col-md-2">
-            <label class="form-label">التاريخ</label>
-            <input type="date" name="date" class="form-control" required>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">المورد</label>
-            <select name="supplier_id" class="form-control" required>
-                <option value="">اختر المورد</option>
-                {% for s in suppliers %}
-                <option value="{{ s[0] }}">{{ s[1] }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">المبلغ</label>
-            <input type="number" step="0.01" min="0.01" name="amount" class="form-control" required>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">ملاحظات</label>
-            <input type="text" name="notes" class="form-control">
-        </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-success w-100">حفظ</button>
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>إضافة سند صرف</h3>
+            <p>سجل المدفوع للمورد مع ملاحظات الحركة، وسيظهر أثره لاحقًا في كشف الحساب والخزينة.</p>
         </div>
     </div>
-</form>
+    <form method="POST">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">التاريخ</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">المورد</label>
+                <select name="supplier_id" class="form-select" required>
+                    <option value="">اختر المورد</option>
+                    {% for s in suppliers %}
+                    <option value="{{ s[0] }}">{{ s[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">المبلغ</label>
+                <input type="number" step="0.01" min="0.01" name="amount" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" name="notes" class="form-control" placeholder="بيان مختصر للسند">
+            </div>
+        </div>
+        <button class="btn btn-success mt-3">حفظ سند الصرف</button>
+    </form>
+</section>
 {% endif %}
 
-<table class="table table-bordered align-middle">
-    <tr>
-        <th>#</th>
-        <th>التاريخ</th>
-        <th>المورد</th>
-        <th>المبلغ</th>
-        <th>ملاحظات</th>
-        <th>الحالة</th>
-        <th class="no-print">إجراءات</th>
-    </tr>
-    {% for r in rows %}
-    <tr class="{% if r[5] == 'cancelled' %}table-danger{% endif %}">
-        <td>{{ r[0] }}</td>
-        <td>{{ r[1] }}</td>
-        <td>{{ r[2] }}</td>
-        <td>{{ r[3] }}</td>
-        <td>{{ r[4] or "" }}</td>
-        <td>
-            {% if r[5] == "cancelled" %}ملغى - {{ r[6] }}
-            {% elif r[5] == "draft" %}غير مرحل
-            {% else %}مرحل{% endif %}
-        </td>
-        <td class="no-print">
-            <a href="/payments/{{ r[0] }}/print" class="btn btn-primary btn-sm mb-1">طباعة</a>
-            {% if can_write("payments") and r[5] == "draft" %}
-            <a href="/payments/{{ r[0] }}/edit" class="btn btn-warning btn-sm mb-1">تعديل</a>
-            {% endif %}
-            {% if can_write("payments") and r[5] == "posted" %}
-            <form method="POST" action="/payments/{{ r[0] }}/cancel" class="d-flex gap-1" onsubmit="return confirm('هل تريد إلغاء السند وعكس القيد؟');">
-                <input type="text" name="reason" class="form-control form-control-sm" placeholder="سبب الإلغاء" required>
-                <button class="btn btn-danger btn-sm">إلغاء</button>
-            </form>
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل السندات</h3>
+            <p>الطباعة متاحة دائمًا، والتعديل للمسودات فقط، بينما الإلغاء متاح للسندات المرحلة مع ذكر السبب.</p>
+        </div>
+        <span class="stat-pill">{{ rows|length }} سند</span>
+    </div>
 
+    {% if rows %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>المورد</th>
+                <th class="money">المبلغ</th>
+                <th>ملاحظات</th>
+                <th>الحالة</th>
+                <th class="no-print">إجراءات</th>
+            </tr>
+            {% for r in rows %}
+            <tr class="{% if r[5] == 'cancelled' %}table-danger{% endif %}">
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+                <td class="money" data-value="{{ r[3] }}">{{ r[3] }}</td>
+                <td>{{ r[4] or "" }}</td>
+                <td>
+                    {% if r[5] == "cancelled" %}ملغى - {{ r[6] or "" }}
+                    {% elif r[5] == "draft" %}غير مرحلة
+                    {% else %}مرحلة{% endif %}
+                </td>
+                <td class="no-print">
+                    <a href="/payments/{{ r[0] }}/print" class="btn btn-primary btn-sm mb-1">طباعة</a>
+                    {% if can_write("payments") and r[5] == "draft" %}
+                    <a href="/payments/{{ r[0] }}/edit" class="btn btn-warning btn-sm mb-1">تعديل</a>
+                    {% endif %}
+                    {% if can_write("payments") and r[5] == "posted" %}
+                    <form method="POST" action="/payments/{{ r[0] }}/cancel" class="d-flex gap-1" onsubmit="return confirm('سيتم إلغاء السند وعكس أثره المحاسبي. هل تريد المتابعة؟');">
+                        <input type="text" name="reason" class="form-control form-control-sm" placeholder="سبب الإلغاء" required>
+                        <button class="btn btn-danger btn-sm">إلغاء</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد سندات صرف مسجلة حاليًا.</div>
+    {% endif %}
+</section>
 {% endblock %}

@@ -1,12 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="page-head page-head-compact">
+<div class="report-hero">
     <div class="page-title-wrap">
+        <div class="eyebrow">الحسابات العامة</div>
         <h2>القيود اليومية</h2>
-        <p class="page-subtitle">تسجيل القيود اليدوية ومراجعة حالتها والتعديل على غير المرحل منها.</p>
+        <p class="page-subtitle">تسجيل القيود اليدوية ومراجعتها مع فلاتر عملية تساعد على الوصول السريع للحركة المطلوبة.</p>
     </div>
     <div class="report-toolbar no-print">
-        <a href="/journal/export" class="btn btn-outline-success">تصدير Excel</a>
+        <a href="/journal/export{% if export_query %}?{{ export_query }}{% endif %}" class="btn btn-outline-success">تصدير Excel</a>
         <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
     </div>
 </div>
@@ -66,6 +67,61 @@
 </section>
 {% endif %}
 
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>فلترة القيود</h3>
+            <p>فلتر حسب التاريخ أو الحالة أو الحساب أو مركز التكلفة أو جزء من البيان.</p>
+        </div>
+    </div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">من تاريخ</label>
+                <input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">إلى تاريخ</label>
+                <input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">الحالة</label>
+                <select name="status" class="form-select">
+                    <option value="">الكل</option>
+                    <option value="draft" {% if filters.status == 'draft' %}selected{% endif %}>غير مرحلة</option>
+                    <option value="posted" {% if filters.status == 'posted' %}selected{% endif %}>مرحلة</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">الحساب</label>
+                <select name="account_id" class="form-select">
+                    <option value="">كل الحسابات</option>
+                    {% for a in accounts %}
+                    <option value="{{ a[0] }}" {% if filters.account_id == (a[0]|string) %}selected{% endif %}>{{ a[2] }} ({{ a[1] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">مركز التكلفة</label>
+                <select name="cost_center_id" class="form-select">
+                    <option value="">كل المراكز</option>
+                    {% for c in cost_centers %}
+                    <option value="{{ c[0] }}" {% if filters.cost_center_id == (c[0]|string) %}selected{% endif %}>{{ c[2] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">يحتوي البيان على</label>
+                <input type="text" name="description" value="{{ filters.description }}" class="form-control" placeholder="ابحث داخل البيان">
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button class="btn btn-primary flex-grow-1">تطبيق الفلاتر</button>
+                <a href="/journal" class="btn btn-outline-secondary">إعادة ضبط</a>
+            </div>
+        </div>
+    </form>
+</section>
+
 <section class="panel-block panel-block-muted">
     <div class="section-title">
         <div>
@@ -98,7 +154,7 @@
                 <td>{{ j[4] }}</td>
                 <td class="money" data-value="{{ j[5] }}">{{ j[5] }}</td>
                 <td>{{ j[7] }}</td>
-                <td>{% if j[6] == "draft" %}غير مرحل{% else %}مرحل{% endif %}</td>
+                <td>{% if j[6] == "draft" %}غير مرحلة{% else %}مرحلة{% endif %}</td>
                 <td class="actions-cell no-print">
                     {% if can_write("accounting") and j[6] == "draft" %}
                     <a href="/edit/{{ j[0] }}" class="btn btn-warning btn-sm">تعديل</a>
@@ -114,7 +170,7 @@
         </table>
     </div>
     {% else %}
-    <div class="empty-hint">لا توجد قيود يومية مسجلة حاليًا.</div>
+    <div class="empty-hint">لا توجد قيود يومية مطابقة للفلاتر الحالية.</div>
     {% endif %}
 </section>
 {% endblock %}
