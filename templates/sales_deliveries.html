@@ -4,7 +4,7 @@
     <div class="page-title-wrap">
         <div class="eyebrow">المخازن</div>
         <h2>أذون صرف</h2>
-        <p class="page-subtitle">صرف مخزني مرتبط ببنود أوامر البيع، بينما يتم إصدار الفاتورة لاحقًا من شاشة فواتير البيع من أذون الصرف.</p>
+        <p class="page-subtitle">الصرف المخزني يتم من هذه الشاشة فقط، ويمكن اختيار بند أمر البيع مباشرة عبر الباركود.</p>
     </div>
 </div>
 
@@ -12,20 +12,20 @@
     <div class="summary-card">
         <div class="summary-card-head"><i class="bi bi-box-arrow-up-right tone-blue"></i><span>عدد الأذون</span></div>
         <div class="summary-value">{{ rows|length }}</div>
-        <div class="summary-note">إجمالي أذون الصرف المخزنية المسجلة</div>
+        <div class="summary-note">إجمالي أذون الصرف المسجلة</div>
     </div>
     <div class="summary-card">
         <div class="summary-card-head"><i class="bi bi-box2 tone-green"></i><span>إجمالي الكمية</span></div>
         <div class="summary-value">{{ rows|sum(attribute=6) if rows else 0 }}</div>
-        <div class="summary-note">الكميات التي تم صرفها من المخزون</div>
+        <div class="summary-note">إجمالي الكميات التي تم صرفها</div>
     </div>
     <div class="summary-card">
         <div class="summary-card-head"><i class="bi bi-cash tone-orange"></i><span>إجمالي القيمة</span></div>
         <div class="summary-value money" data-value="{{ rows|sum(attribute=8) if rows else 0 }}">{{ rows|sum(attribute=8) if rows else 0 }}</div>
-        <div class="summary-note">قيمة الأصناف المصروفة بحسب أسعار الأمر</div>
+        <div class="summary-note">القيمة الإجمالية للأذون المسجلة</div>
     </div>
     <div class="summary-card">
-        <div class="summary-card-head"><i class="bi bi-receipt-cutoff tone-red"></i><span>حالة الفوترة</span></div>
+        <div class="summary-card-head"><i class="bi bi-receipt-cutoff tone-red"></i><span>أذون مفوترة</span></div>
         <div class="summary-value">{{ rows|selectattr(9)|list|length if rows else 0 }}</div>
         <div class="summary-note">عدد الأذون التي تم تحويلها إلى فواتير بيع</div>
     </div>
@@ -36,29 +36,42 @@
     <div class="section-title">
         <div>
             <h3>إضافة إذن صرف</h3>
-            <p>اختر بند أمر البيع المفتوح وحدد الكمية المنصرفة. هذه الشاشة خاصة بالمخازن فقط ولا تصدر الفاتورة من داخلها.</p>
+            <p>يمكنك إدخال أو مسح الباركود لاختيار الصنف، ثم يقوم النظام باختيار أول بند أمر بيع مفتوح مطابق تلقائيًا.</p>
         </div>
     </div>
     <form method="POST">
-        <div class="row g-2">
+        <div class="row g-3">
             <div class="col-md-2">
                 <label class="form-label">تاريخ الصرف</label>
                 <input type="date" name="date" class="form-control" required>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
+                <label class="form-label">باركود الصنف</label>
+                <input type="text" id="delivery_barcode" class="form-control" placeholder="امسح أو اكتب الباركود">
+                <div class="form-text" id="barcode_help_text">أدخل الباركود لتحديد بند أمر البيع تلقائيًا.</div>
+            </div>
+            <div class="col-md-5">
                 <label class="form-label">بند أمر البيع</label>
                 <select name="sales_order_line_id" id="delivery_so" class="form-select" required>
                     <option value="">اختر بند أمر البيع</option>
                     {% for o in open_orders %}
-                    <option value="{{ o[0] }}" data-remaining="{{ o[7] }}">أمر #{{ o[1] }} - {{ o[3] }} - {{ o[4] }} - متبقي {{ o[7] }}</option>
+                    <option value="{{ o[0] }}"
+                            data-code="{{ o[5] }}"
+                            data-barcode="{{ o[6] }}"
+                            data-remaining="{{ o[9] }}">
+                        أمر #{{ o[1] }} - {{ o[3] }} - {{ o[4] }}
+                        {% if o[5] %} - {{ o[5] }}{% endif %}
+                        {% if o[6] %} - {{ o[6] }}{% endif %}
+                        - متبقي {{ o[9] }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">الكمية المنصرفة</label>
+            <div class="col-md-1">
+                <label class="form-label">الكمية</label>
                 <input type="number" step="0.01" min="0.01" name="delivered_quantity" id="delivered_quantity" class="form-control" required>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-1">
                 <label class="form-label">ملاحظات</label>
                 <input name="notes" class="form-control">
             </div>
@@ -72,7 +85,7 @@
     <div class="section-title">
         <div>
             <h3>سجل الأذون</h3>
-            <p>هذه الشاشة خاصة بالصرف المخزني فقط. الفاتورة تصدر لاحقًا من شاشة فواتير البيع من أذون الصرف.</p>
+            <p>هذه الشاشة مخصصة للصرف المخزني فقط. إصدار الفاتورة يتم لاحقًا من شاشة فواتير البيع من أذون الصرف.</p>
         </div>
         <span class="stat-pill">{{ rows|length }} إذن</span>
     </div>
@@ -80,34 +93,38 @@
     {% if rows %}
     <div class="table-shell">
         <table class="table table-bordered align-middle table-hover">
-            <tr>
-                <th>#</th>
-                <th>رقم الإذن</th>
-                <th>التاريخ</th>
-                <th>أمر البيع</th>
-                <th>العميل</th>
-                <th>الصنف</th>
-                <th>الكمية</th>
-                <th class="money">السعر</th>
-                <th class="money">الإجمالي</th>
-                <th>الحالة</th>
-                <th class="no-print">ملاحظات تشغيل</th>
-            </tr>
-            {% for r in rows %}
-            <tr>
-                <td>{{ r[0] }}</td>
-                <td>{{ r[1] }}</td>
-                <td>{{ r[2] }}</td>
-                <td>{{ r[3] }}</td>
-                <td>{{ r[4] }}</td>
-                <td>{{ r[5] }}</td>
-                <td>{{ r[6] }}</td>
-                <td class="money" data-value="{{ r[7] }}">{{ r[7] }}</td>
-                <td class="money" data-value="{{ r[8] }}">{{ r[8] }}</td>
-                <td>{% if r[9] %}تمت الفوترة{% else %}منصرف غير مفوتر{% endif %}</td>
-                <td class="no-print">{% if not r[9] %}تتم الفاتورة من شاشة فواتير البيع من أذون الصرف.{% endif %}</td>
-            </tr>
-            {% endfor %}
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>رقم الإذن</th>
+                    <th>التاريخ</th>
+                    <th>أمر البيع</th>
+                    <th>العميل</th>
+                    <th>الصنف</th>
+                    <th>الكمية</th>
+                    <th class="money">السعر</th>
+                    <th class="money">الإجمالي</th>
+                    <th>الحالة</th>
+                    <th class="no-print">ملاحظات تشغيل</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    <td>{{ r[0] }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>{{ r[4] }}</td>
+                    <td>{{ r[5] }}</td>
+                    <td>{{ r[6] }}</td>
+                    <td class="money" data-value="{{ r[7] }}">{{ r[7] }}</td>
+                    <td class="money" data-value="{{ r[8] }}">{{ r[8] }}</td>
+                    <td>{% if r[9] %}تمت الفوترة{% else %}منصرف غير مفوتر{% endif %}</td>
+                    <td class="no-print">{% if not r[9] %}يتم إصدار الفاتورة من شاشة فواتير البيع من أذون الصرف.{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
     {% else %}
@@ -116,9 +133,48 @@
 </section>
 
 <script>
-document.getElementById("delivery_so").onchange = function() {
-    const option = this.options[this.selectedIndex];
-    document.getElementById("delivered_quantity").value = option.dataset.remaining || "";
-};
+document.addEventListener("DOMContentLoaded", function () {
+    const orderSelect = document.getElementById("delivery_so");
+    const qtyInput = document.getElementById("delivered_quantity");
+    const barcodeInput = document.getElementById("delivery_barcode");
+    const helpText = document.getElementById("barcode_help_text");
+
+    function syncQuantity() {
+        const option = orderSelect.options[orderSelect.selectedIndex];
+        qtyInput.value = option?.dataset.remaining || "";
+    }
+
+    function matchByBarcode(value) {
+        const needle = (value || "").trim().toUpperCase();
+        if (!needle) {
+            helpText.textContent = "أدخل الباركود لتحديد بند أمر البيع تلقائيًا.";
+            return;
+        }
+        let matched = false;
+        Array.from(orderSelect.options).forEach(function (option) {
+            const barcode = (option.dataset.barcode || "").trim().toUpperCase();
+            const code = (option.dataset.code || "").trim().toUpperCase();
+            if (!matched && (needle === barcode || needle === code)) {
+                option.selected = true;
+                matched = true;
+            }
+        });
+        if (matched) {
+            syncQuantity();
+            helpText.textContent = "تم اختيار بند أمر البيع المطابق للباركود.";
+        } else {
+            helpText.textContent = "لم يتم العثور على بند أمر بيع مفتوح بهذا الباركود.";
+        }
+    }
+
+    orderSelect?.addEventListener("change", syncQuantity);
+    barcodeInput?.addEventListener("change", function () { matchByBarcode(this.value); });
+    barcodeInput?.addEventListener("keyup", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            matchByBarcode(this.value);
+        }
+    });
+});
 </script>
 {% endblock %}

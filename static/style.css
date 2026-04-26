@@ -1223,3 +1223,74 @@ td[data-number-formatted="true"]{
         box-shadow:none;
     }
 }
+
+.barcode-ticket-wrap{
+    max-width:980px;
+    margin:0 auto;
+}
+
+.barcode-ticket{
+    background:#fff;
+    border:1px solid #dbe3ef;
+    border-radius:8px;
+    padding:24px;
+    box-shadow:0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.barcode-ticket-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:20px;
+}
+
+.barcode-visual-card{
+    border:1px dashed #c8d5e6;
+    border-radius:8px;
+    padding:18px;
+    background:#f8fbff;
+    text-align:center;
+}
+
+.barcode-visual{
+    background:#fff;
+    border:1px solid #e5edf7;
+    border-radius:8px;
+    padding:18px 12px 10px;
+    overflow:auto;
+}
+
+.barcode-visual svg{
+    display:block;
+    width:100%;
+    min-width:360px;
+    height:120px;
+}
+
+.barcode-caption{
+    margin-top:10px;
+    font-size:1.05rem;
+    font-weight:700;
+    letter-spacing:0.08em;
+    color:#0f172a;
+}
+
+.barcode-note{
+    margin-top:6px;
+    color:#475569;
+    font-size:.92rem;
+}
+
+.barcode-payload{
+    direction:ltr;
+    text-align:left;
+    white-space:pre-wrap;
+    word-break:break-word;
+    background:#0f172a;
+    color:#e2e8f0;
+    border-radius:8px;
+    padding:14px;
+    margin:10px 0 0;
+    font-size:.85rem;
+}

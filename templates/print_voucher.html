@@ -18,11 +18,11 @@
             {% if company.logo_path %}<img src="{{ company.logo_path }}" alt="شعار الشركة" class="print-logo">{% endif %}
             <h1>{{ company.company_name }}</h1>
             <p>{{ company.address }}</p>
-            <p>هاتف: {{ company.phone }} | بريد: {{ company.email }}</p>
+            <p>هاتف: {{ company.phone }} | بريد إلكتروني: {{ company.email }}</p>
         </div>
         <div class="print-meta">
             <h2>{{ doc_type }}</h2>
-            <p>رقم: {{ doc[0] }}</p>
+            <p>الرقم: {{ doc[0] }}</p>
             <p>التاريخ: {{ doc[1] }}</p>
             <p>الحالة: {% if doc[7] == "cancelled" %}ملغى{% elif doc[7] == "draft" %}غير مرحل{% else %}مرحل{% endif %}</p>
         </div>
@@ -38,7 +38,7 @@
     </section>
 
     {% if doc[7] == "cancelled" %}
-    <div class="alert alert-danger">هذا السند ملغي. سبب الإلغاء: {{ doc[8] }}</div>
+    <div class="alert alert-danger">هذا السند ملغى. سبب الإلغاء: {{ doc[8] }}</div>
     {% endif %}
 
     <footer class="print-footer">

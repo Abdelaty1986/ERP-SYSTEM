@@ -63,6 +63,7 @@ from modules.inventory.views import (
     build_edit_product_view,
     build_inventory_report_view,
     build_inventory_view,
+    build_product_barcode_view,
     build_products_view,
 )
 from modules.parties.views import (
@@ -272,27 +273,27 @@ ROLE_PERMISSIONS = {
 
 POSTING_GROUPS = {
     "manual_journal": {
-        "name": "ط·آ·ط¢آ§ط·آ¸أ¢â‚¬â€چط·آ¸أ¢â‚¬ع‘ط·آ¸ط¸آ¹ط·آ¸ط«â€ ط·آ·ط¢آ¯ ط·آ·ط¢آ§ط·آ¸أ¢â‚¬â€چط·آ¸ط¸آ¹ط·آ¸ط«â€ ط·آ¸أ¢â‚¬آ¦ط·آ¸ط¸آ¹ط·آ·ط¢آ©",
+        "name": "القيود اليومية اليدوية",
         "table": "journal",
         "list_endpoint": "journal",
     },
     "sales": {
-        "name": "ط·آ¸ط¸آ¾ط·آ¸ط«â€ ط·آ·ط¢آ§ط·آ·ط¹آ¾ط·آ¸ط¸آ¹ط·آ·ط¢آ± ط·آ·ط¢آ§ط·آ¸أ¢â‚¬â€چط·آ·ط¢آ¨ط·آ¸ط¸آ¹ط·آ·ط¢آ¹",
+        "name": "فواتير البيع",
         "table": "sales_invoices",
         "list_endpoint": "sales",
     },
     "purchases": {
-        "name": "ط·آ¸ط¸آ¾ط·آ¸ط«â€ ط·آ·ط¢آ§ط·آ·ط¹آ¾ط·آ¸ط¸آ¹ط·آ·ط¢آ± ط·آ·ط¢آ§ط·آ¸أ¢â‚¬â€چط·آ¸أ¢â‚¬آ¦ط·آ¸ط«â€ ط·آ·ط¢آ±ط·آ·ط¢آ¯ط·آ¸ط¸آ¹ط·آ¸أ¢â‚¬آ ",
+        "name": "فواتير الموردين",
         "table": "purchase_invoices",
         "list_endpoint": "purchases",
     },
     "receipts": {
-        "name": "ط·آ·ط¢آ³ط·آ¸أ¢â‚¬آ ط·آ·ط¢آ¯ط·آ·ط¢آ§ط·آ·ط¹آ¾ ط·آ·ط¢آ§ط·آ¸أ¢â‚¬â€چط·آ¸أ¢â‚¬ع‘ط·آ·ط¢آ¨ط·آ·ط¢آ¶",
+        "name": "سندات القبض",
         "table": "receipt_vouchers",
         "list_endpoint": "receipts",
     },
     "payments": {
-        "name": "ط·آ·ط¢آ³ط·آ¸أ¢â‚¬آ ط·آ·ط¢آ¯ط·آ·ط¢آ§ط·آ·ط¹آ¾ ط·آ·ط¢آ§ط·آ¸أ¢â‚¬â€چط·آ·ط¢آµط·آ·ط¢آ±ط·آ¸ط¸آ¾",
+        "name": "سندات الصرف",
         "table": "payment_vouchers",
         "list_endpoint": "payments",
     },
@@ -558,7 +559,7 @@ def login():
             session["role"] = user[3]
             return redirect(url_for("dashboard"))
 
-        flash("ط·آ·ط¢آ§ط·آ·ط¢آ³ط·آ¸أ¢â‚¬آ¦ ط·آ·ط¢آ§ط·آ¸أ¢â‚¬â€چط·آ¸أ¢â‚¬آ¦ط·آ·ط¢آ³ط·آ·ط¹آ¾ط·آ·ط¢آ®ط·آ·ط¢آ¯ط·آ¸أ¢â‚¬آ¦ ط·آ·ط¢آ£ط·آ¸ط«â€  ط·آ¸ط¦â€™ط·آ¸أ¢â‚¬â€چط·آ¸أ¢â‚¬آ¦ط·آ·ط¢آ© ط·آ·ط¢آ§ط·آ¸أ¢â‚¬â€چط·آ¸أ¢â‚¬آ¦ط·آ·ط¢آ±ط·آ¸ط«â€ ط·آ·ط¢آ± ط·آ·ط·â€؛ط·آ¸ط¸آ¹ط·آ·ط¢آ± ط·آ·ط¢آµط·آ·ط¢آ­ط·آ¸ط¸آ¹ط·آ·ط¢آ­ط·آ·ط¢آ©.", "danger")
+        flash("اسم المستخدم أو كلمة المرور غير صحيحة.", "danger")
 
     return render_template("login.html")
 
@@ -1344,6 +1345,13 @@ def delete_supplier(id):
 @permission_required("inventory")
 def products():
     return build_products_view(MODULE_DEPS)()
+
+
+@app.route("/products/<int:id>/barcode")
+@login_required
+@permission_required("inventory")
+def product_barcode(id):
+    return build_product_barcode_view(MODULE_DEPS)(id)
 @app.route("/sales", methods=["GET", "POST"])
 @login_required
 @permission_required("sales")

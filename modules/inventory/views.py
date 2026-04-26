@@ -1,7 +1,134 @@
+import json
 import sqlite3
-from urllib.parse import urlencode
 
 from flask import flash, redirect, render_template, request, url_for
+from markupsafe import Markup
+
+
+def _generate_product_barcode_value(product_id):
+    return f"PRD-{int(product_id):08d}"
+
+
+def _build_product_barcode_payload(product_row):
+    supplier_name = product_row[8] if len(product_row) > 8 else ""
+    payload = {
+        "product_id": product_row[0],
+        "barcode": product_row[7] or _generate_product_barcode_value(product_row[0]),
+        "code": product_row[1] or "",
+        "name": product_row[2],
+        "unit": product_row[3],
+        "purchase_price": float(product_row[4] or 0),
+        "sale_price": float(product_row[5] or 0),
+        "supplier": supplier_name or "",
+    }
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+
+
+def _build_code39_svg(value):
+    patterns = {
+        "0": "nnnwwnwnn",
+        "1": "wnnwnnnnw",
+        "2": "nnwwnnnnw",
+        "3": "wnwwnnnnn",
+        "4": "nnnwwnnnw",
+        "5": "wnnwwnnnn",
+        "6": "nnwwwnnnn",
+        "7": "nnnwnnwnw",
+        "8": "wnnwnnwnn",
+        "9": "nnwwnnwnn",
+        "A": "wnnnnwnnw",
+        "B": "nnwnnwnnw",
+        "C": "wnwnnwnnn",
+        "D": "nnnnwwnnw",
+        "E": "wnnnwwnnn",
+        "F": "nnwnwwnnn",
+        "G": "nnnnnwwnw",
+        "H": "wnnnnwwnn",
+        "I": "nnwnnwwnn",
+        "J": "nnnnwwwnn",
+        "K": "wnnnnnnww",
+        "L": "nnwnnnnww",
+        "M": "wnwnnnnwn",
+        "N": "nnnnwnnww",
+        "O": "wnnnwnnwn",
+        "P": "nnwnwnnwn",
+        "Q": "nnnnnnwww",
+        "R": "wnnnnnwwn",
+        "S": "nnwnnnwwn",
+        "T": "nnnnwnwwn",
+        "U": "wwnnnnnnw",
+        "V": "nwwnnnnnw",
+        "W": "wwwnnnnnn",
+        "X": "nwnnwnnnw",
+        "Y": "wwnnwnnnn",
+        "Z": "nwwnwnnnn",
+        "-": "nwnnnnwnw",
+        ".": "wwnnnnwnn",
+        " ": "nwwnnnwnn",
+        "$": "nwnwnwnnn",
+        "/": "nwnwnnnwn",
+        "+": "nwnnnwnwn",
+        "%": "nnnwnwnwn",
+        "*": "nwnnwnwnn",
+    }
+    content = f"*{(value or '').upper()}*"
+    narrow = 2
+    wide = 5
+    bar_height = 92
+    quiet_zone = 16
+    gap = 2
+    x = quiet_zone
+    rects = []
+
+    for index, char in enumerate(content):
+        pattern = patterns.get(char)
+        if not pattern:
+            continue
+        for pos, token in enumerate(pattern):
+            width = wide if token == "w" else narrow
+            if pos % 2 == 0:
+                rects.append(
+                    f'<rect x="{x}" y="0" width="{width}" height="{bar_height}" rx="0.6" ry="0.6"></rect>'
+                )
+            x += width
+            if pos != len(pattern) - 1:
+                x += gap
+        if index != len(content) - 1:
+            x += narrow * 3
+
+    total_width = x + quiet_zone
+    svg = f"""
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {total_width} {bar_height}" role="img" aria-label="Barcode {value}">
+        <rect width="{total_width}" height="{bar_height}" fill="#ffffff"></rect>
+        <g fill="#111827">
+            {''.join(rects)}
+        </g>
+    </svg>
+    """
+    return Markup(svg)
+
+
+def _ensure_product_barcode(cur, product_id):
+    cur.execute(
+        """
+        SELECT p.id,p.code,p.name,p.unit,p.purchase_price,p.sale_price,p.stock_quantity,
+               p.barcode_value,COALESCE(s.name,'')
+        FROM products p
+        LEFT JOIN suppliers s ON s.id = p.default_supplier_id
+        WHERE p.id=?
+        """,
+        (product_id,),
+    )
+    product = cur.fetchone()
+    if not product:
+        return None
+    barcode_value = product[7] or _generate_product_barcode_value(product[0])
+    barcode_payload = _build_product_barcode_payload(product)
+    cur.execute(
+        "UPDATE products SET barcode_value=?, barcode_payload=? WHERE id=?",
+        (barcode_value, barcode_payload, product_id),
+    )
+    return barcode_value, barcode_payload
 
 
 def build_products_view(deps):
@@ -21,25 +148,30 @@ def build_products_view(deps):
             except ValueError:
                 purchase_price = 0
                 sale_price = 0
-                flash("أسعار المنتج يجب أن تكون أرقامًا.", "danger")
+                flash("أسعار الصنف يجب أن تكون أرقامًا صحيحة.", "danger")
                 supplier_id = None
             if supplier_id:
                 cur.execute("SELECT 1 FROM suppliers WHERE id=?", (supplier_id,))
                 if not cur.fetchone():
                     supplier_id = None
             if not name:
-                flash("اسم المنتج مطلوب.", "danger")
+                flash("اسم الصنف مطلوب.", "danger")
             elif purchase_price < 0 or sale_price < 0:
                 flash("الأسعار لا يمكن أن تكون سالبة.", "danger")
             else:
                 try:
                     cur.execute(
-                        "INSERT INTO products(code,name,unit,purchase_price,sale_price,default_supplier_id) VALUES (?,?,?,?,?,?)",
+                        """
+                        INSERT INTO products(code,name,unit,purchase_price,sale_price,default_supplier_id)
+                        VALUES (?,?,?,?,?,?)
+                        """,
                         (code or None, name, unit, purchase_price, sale_price, supplier_id),
                     )
+                    product_id = cur.lastrowid
+                    _ensure_product_barcode(cur, product_id)
                     conn.commit()
                     conn.close()
-                    flash("تمت إضافة الصنف.", "success")
+                    flash("تمت إضافة الصنف وتوليد الباركود الخاص به تلقائيًا.", "success")
                     return redirect(url_for("products"))
                 except sqlite3.IntegrityError:
                     flash("كود الصنف مستخدم بالفعل.", "danger")
@@ -53,22 +185,37 @@ def build_products_view(deps):
         where = []
         params = []
         if filters["q"]:
-            where.append("(p.code LIKE ? OR p.name LIKE ?)")
-            params.extend([f"%{filters['q']}%", f"%{filters['q']}%"])
+            where.append("(p.code LIKE ? OR p.name LIKE ? OR p.barcode_value LIKE ?)")
+            params.extend([f"%{filters['q']}%", f"%{filters['q']}%", f"%{filters['q']}%"])
         if filters["supplier_id"].isdigit():
             where.append("p.default_supplier_id = ?")
             params.append(int(filters["supplier_id"]))
         where_sql = f"WHERE {' AND '.join(where)}" if where else ""
         cur.execute(
             """
-            SELECT p.id,p.code,p.name,p.unit,p.purchase_price,p.sale_price,p.stock_quantity,COALESCE(s.name,'')
+            SELECT p.id,p.code,p.name,p.unit,p.purchase_price,p.sale_price,p.stock_quantity,
+                   p.barcode_value,p.barcode_payload,COALESCE(s.name,'')
             FROM products p
             LEFT JOIN suppliers s ON s.id=p.default_supplier_id
             """
-            + (f"\n            {where_sql}" if where_sql else "")
-            + """
-            ORDER BY p.id DESC
-            """,
+            + (f"\n{where_sql}" if where_sql else "")
+            + "\nORDER BY p.id DESC",
+            params,
+        )
+        rows = cur.fetchall()
+        for row in rows:
+            if not row[7] or not row[8]:
+                _ensure_product_barcode(cur, row[0])
+        conn.commit()
+        cur.execute(
+            """
+            SELECT p.id,p.code,p.name,p.unit,p.purchase_price,p.sale_price,p.stock_quantity,
+                   p.barcode_value,p.barcode_payload,COALESCE(s.name,'')
+            FROM products p
+            LEFT JOIN suppliers s ON s.id=p.default_supplier_id
+            """
+            + (f"\n{where_sql}" if where_sql else "")
+            + "\nORDER BY p.id DESC",
             params,
         )
         rows = cur.fetchall()
@@ -76,6 +223,37 @@ def build_products_view(deps):
         return render_template("products.html", products=rows, suppliers=suppliers_rows, filters=filters)
 
     return products
+
+
+def build_product_barcode_view(deps):
+    db = deps["db"]
+
+    def product_barcode(id):
+        conn = db()
+        cur = conn.cursor()
+        barcode_result = _ensure_product_barcode(cur, id)
+        if not barcode_result:
+            conn.close()
+            flash("الصنف غير موجود.", "danger")
+            return redirect(url_for("products"))
+        conn.commit()
+        cur.execute(
+            """
+            SELECT p.id,p.code,p.name,p.unit,p.purchase_price,p.sale_price,p.stock_quantity,
+                   p.barcode_value,p.barcode_payload,COALESCE(s.name,'')
+            FROM products p
+            LEFT JOIN suppliers s ON s.id=p.default_supplier_id
+            WHERE p.id=?
+            """,
+            (id,),
+        )
+        product = cur.fetchone()
+        conn.close()
+        payload = json.loads(product[8]) if product[8] else {}
+        barcode_svg = _build_code39_svg(product[7])
+        return render_template("product_barcode.html", product=product, payload=payload, barcode_svg=barcode_svg)
+
+    return product_barcode
 
 
 def build_edit_product_view(deps):
@@ -86,7 +264,14 @@ def build_edit_product_view(deps):
     def edit_product(id):
         conn = db()
         cur = conn.cursor()
-        cur.execute("SELECT id,code,name,unit,purchase_price,sale_price,default_supplier_id FROM products WHERE id=?", (id,))
+        cur.execute(
+            """
+            SELECT id,code,name,unit,purchase_price,sale_price,default_supplier_id
+            FROM products
+            WHERE id=?
+            """,
+            (id,),
+        )
         product = cur.fetchone()
         if not product:
             conn.close()
@@ -108,13 +293,18 @@ def build_edit_product_view(deps):
             else:
                 try:
                     cur.execute(
-                        "UPDATE products SET code=?,name=?,unit=?,purchase_price=?,sale_price=?,default_supplier_id=? WHERE id=?",
+                        """
+                        UPDATE products
+                        SET code=?,name=?,unit=?,purchase_price=?,sale_price=?,default_supplier_id=?
+                        WHERE id=?
+                        """,
                         (code or None, name, unit, purchase_price, sale_price, supplier_id, id),
                     )
+                    _ensure_product_barcode(cur, id)
                     log_action(cur, "update", "product", id, name)
                     conn.commit()
                     conn.close()
-                    flash("تم تعديل الصنف.", "success")
+                    flash("تم تعديل الصنف وتحديث بيانات الباركود.", "success")
                     return redirect(url_for("products"))
                 except sqlite3.IntegrityError:
                     flash("كود الصنف مستخدم بالفعل.", "danger")
@@ -184,8 +374,8 @@ def build_inventory_view(deps):
         where = []
         params = []
         if filters["q"]:
-            where.append("p.name LIKE ?")
-            params.append(f"%{filters['q']}%")
+            where.append("(p.name LIKE ? OR p.code LIKE ? OR p.barcode_value LIKE ?)")
+            params.extend([f"%{filters['q']}%", f"%{filters['q']}%", f"%{filters['q']}%"])
         if filters["movement_type"] in {"in", "out"}:
             where.append("m.movement_type = ?")
             params.append(filters["movement_type"])
@@ -202,9 +392,7 @@ def build_inventory_view(deps):
             JOIN products p ON m.product_id=p.id
             """
             + ("\n WHERE " + " AND ".join(where) if where else "")
-            + """
-            ORDER BY m.id DESC
-            """,
+            + "\n ORDER BY m.id DESC",
             params,
         )
         rows = cur.fetchall()
@@ -228,8 +416,8 @@ def build_inventory_report_view(deps):
         where = []
         params = []
         if filters["q"]:
-            where.append("(code LIKE ? OR name LIKE ?)")
-            params.extend([f"%{filters['q']}%", f"%{filters['q']}%"])
+            where.append("(code LIKE ? OR name LIKE ? OR barcode_value LIKE ?)")
+            params.extend([f"%{filters['q']}%", f"%{filters['q']}%", f"%{filters['q']}%"])
         if filters["stock_filter"] == "low":
             where.append("stock_quantity <= 5")
         elif filters["stock_filter"] == "available":
@@ -243,9 +431,7 @@ def build_inventory_report_view(deps):
             FROM products
             """
             + ("\n WHERE " + " AND ".join(where) if where else "")
-            + """
-            ORDER BY name
-            """,
+            + "\n ORDER BY name",
             params,
         )
         rows = cur.fetchall()

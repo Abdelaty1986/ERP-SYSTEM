@@ -14,14 +14,15 @@
     </div>
     <header class="print-header">
         <div>
+            {% if company.logo_path %}<img src="{{ company.logo_path }}" alt="شعار الشركة" class="print-logo">{% endif %}
             <h1>{{ company.company_name }}</h1>
             <p>{{ company.address }}</p>
-            <p>هاتف: {{ company.phone }} | بريد: {{ company.email }}</p>
-            <p>رقم ضريبي: {{ company.tax_number }} | سجل تجاري: {{ company.commercial_register }}</p>
+            <p>هاتف: {{ company.phone }} | بريد إلكتروني: {{ company.email }}</p>
+            <p>الرقم الضريبي: {{ company.tax_number }}</p>
         </div>
         <div class="print-meta">
             <h2>أمر شراء</h2>
-            <p>رقم: {{ order[0] }}</p>
+            <p>رقم المستند: {{ order[0] }}</p>
             <p>التاريخ: {{ order[1] }}</p>
             <p>الحالة: {{ order[8] }}</p>
         </div>

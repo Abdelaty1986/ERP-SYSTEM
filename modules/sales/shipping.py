@@ -22,7 +22,8 @@ def build_sales_deliveries_view(deps):
             notes = request.form.get("notes", "").strip()
             cur.execute(
                 """
-                SELECT so.id,sol.id,so.customer_id,sol.product_id,sol.quantity,sol.unit_price,sol.tax_rate,p.name,p.purchase_price,p.stock_quantity,so.date,so.delivery_date
+                SELECT so.id,sol.id,so.customer_id,sol.product_id,sol.quantity,sol.unit_price,sol.tax_rate,
+                       p.name,p.purchase_price,p.stock_quantity,so.date,so.delivery_date
                 FROM sales_order_lines sol
                 JOIN sales_orders so ON so.id=sol.order_id
                 JOIN products p ON p.id=sol.product_id
@@ -31,7 +32,10 @@ def build_sales_deliveries_view(deps):
                 (line_id,),
             )
             order = cur.fetchone()
-            cur.execute("SELECT COALESCE(SUM(delivered_quantity),0) FROM sales_delivery_notes WHERE sales_order_line_id=?", (line_id,))
+            cur.execute(
+                "SELECT COALESCE(SUM(delivered_quantity),0) FROM sales_delivery_notes WHERE sales_order_line_id=?",
+                (line_id,),
+            )
             already_delivered = cur.fetchone()[0] if order else 0
             remaining = (order[4] - already_delivered) if order else 0
             movement_date = parse_iso_date(date_value)
@@ -46,7 +50,7 @@ def build_sales_deliveries_view(deps):
             elif movement_date and planned_delivery_date and movement_date < planned_delivery_date:
                 flash("تاريخ إذن الصرف لا يمكن أن يكون أسبق من تاريخ التوريد المحدد في أمر البيع.", "danger")
             elif delivered_quantity <= 0 or delivered_quantity > remaining:
-                flash("الكمية المنصرفة يجب أن تكون أكبر من صفر ولا تتجاوز المتبقي.", "danger")
+                flash("الكمية المنصرفة يجب أن تكون أكبر من صفر ولا تتجاوز الكمية المتبقية.", "danger")
             elif delivered_quantity > order[9]:
                 flash("رصيد المخزون لا يكفي لإذن الصرف.", "danger")
             else:
@@ -61,13 +65,34 @@ def build_sales_deliveries_view(deps):
                 cost_total = delivered_quantity * order[8]
                 tax_amount = total * order[6] / 100
                 grand_total = total + tax_amount
-                cogs_journal_id = create_auto_journal(cur, date_value, f"إذن صرف مبيعات {delivery_no} - {order[7]}", "6100", "1400", cost_total) if cost_total > 0 else None
+                cogs_journal_id = (
+                    create_auto_journal(cur, date_value, f"إذن صرف مبيعات {delivery_no} - {order[7]}", "6100", "1400", cost_total)
+                    if cost_total > 0
+                    else None
+                )
                 cur.execute(
                     """
                     INSERT INTO sales_delivery_notes(delivery_no,date,sales_order_id,sales_order_line_id,customer_id,product_id,ordered_quantity,delivered_quantity,unit_price,total,cost_total,tax_rate,tax_amount,grand_total,cogs_journal_id,notes)
                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
-                    (delivery_no, date_value, order[0], order[1], order[2], order[3], order[4], delivered_quantity, order[5], total, cost_total, order[6], tax_amount, grand_total, cogs_journal_id, notes),
+                    (
+                        delivery_no,
+                        date_value,
+                        order[0],
+                        order[1],
+                        order[2],
+                        order[3],
+                        order[4],
+                        delivered_quantity,
+                        order[5],
+                        total,
+                        cost_total,
+                        order[6],
+                        tax_amount,
+                        grand_total,
+                        cogs_journal_id,
+                        notes,
+                    ),
                 )
                 delivery_id = cur.lastrowid
                 mark_journal_source(cur, "sales_delivery", delivery_id, cogs_journal_id)
@@ -85,8 +110,8 @@ def build_sales_deliveries_view(deps):
 
         cur.execute(
             """
-            SELECT sol.id,so.id,so.date,COALESCE(c.name,'بيع نقدي'),p.name,sol.quantity,sol.unit_price,
-                   sol.quantity-COALESCE(SUM(sd.delivered_quantity),0) AS remaining
+            SELECT sol.id,so.id,so.date,COALESCE(c.name,'بيع نقدي'),p.name,COALESCE(p.code,''),COALESCE(p.barcode_value,''),
+                   sol.quantity,sol.unit_price,sol.quantity-COALESCE(SUM(sd.delivered_quantity),0) AS remaining
             FROM sales_order_lines sol
             JOIN sales_orders so ON so.id=sol.order_id
             LEFT JOIN customers c ON c.id=so.customer_id
@@ -145,22 +170,25 @@ def build_purchase_receipts_view(deps):
                 (line_id,),
             )
             order = cur.fetchone()
-            cur.execute("SELECT COALESCE(SUM(received_quantity),0) FROM purchase_receipts WHERE purchase_order_line_id=?", (line_id,))
+            cur.execute(
+                "SELECT COALESCE(SUM(received_quantity),0) FROM purchase_receipts WHERE purchase_order_line_id=?",
+                (line_id,),
+            )
             already_received = cur.fetchone()[0] if order else 0
             remaining = (order[4] - already_received) if order else 0
             movement_date = parse_iso_date(date_value)
             order_date = parse_iso_date(order[8]) if order else None
             planned_supply_date = parse_iso_date(order[9]) if order else None
             if not date_value:
-                flash("تاريخ إذن الاستلام مطلوب.", "danger")
+                flash("تاريخ إذن الإضافة مطلوب.", "danger")
             elif not order:
                 flash("بند أمر الشراء غير موجود.", "danger")
             elif movement_date and order_date and movement_date < order_date:
-                flash("تاريخ إذن الاستلام لا يمكن أن يكون أسبق من تاريخ أمر الشراء.", "danger")
+                flash("تاريخ إذن الإضافة لا يمكن أن يكون أسبق من تاريخ أمر الشراء.", "danger")
             elif movement_date and planned_supply_date and movement_date < planned_supply_date:
-                flash("تاريخ إذن الاستلام لا يمكن أن يكون أسبق من تاريخ التوريد المحدد في أمر الشراء.", "danger")
+                flash("تاريخ إذن الإضافة لا يمكن أن يكون أسبق من تاريخ التوريد المحدد في أمر الشراء.", "danger")
             elif received_quantity <= 0 or received_quantity > remaining:
-                flash("الكمية المستلمة يجب أن تكون أكبر من صفر ولا تتجاوز المتبقي.", "danger")
+                flash("الكمية المستلمة يجب أن تكون أكبر من صفر ولا تتجاوز الكمية المتبقية.", "danger")
             else:
                 try:
                     ensure_open_period(cur, date_value)
@@ -172,26 +200,42 @@ def build_purchase_receipts_view(deps):
                 total = received_quantity * order[5]
                 tax_amount = total * order[6] / 100
                 grand_total = total + tax_amount
-                journal_id = create_auto_journal(cur, date_value, f"إذن استلام مخزني {receipt_no} - {order[7]}", "1400", "2150", total)
+                journal_id = create_auto_journal(cur, date_value, f"إذن إضافة مخزني {receipt_no} - {order[7]}", "1400", "2150", total)
                 cur.execute(
                     """
                     INSERT INTO purchase_receipts(receipt_no,date,purchase_order_id,purchase_order_line_id,supplier_id,product_id,ordered_quantity,received_quantity,unit_price,total,tax_rate,tax_amount,grand_total,journal_id,notes)
                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
-                    (receipt_no, date_value, order[0], order[1], order[2], order[3], order[4], received_quantity, order[5], total, order[6], tax_amount, grand_total, journal_id, notes),
+                    (
+                        receipt_no,
+                        date_value,
+                        order[0],
+                        order[1],
+                        order[2],
+                        order[3],
+                        order[4],
+                        received_quantity,
+                        order[5],
+                        total,
+                        order[6],
+                        tax_amount,
+                        grand_total,
+                        journal_id,
+                        notes,
+                    ),
                 )
                 receipt_id = cur.lastrowid
                 mark_journal_source(cur, "purchase_receipt", receipt_id, journal_id)
                 cur.execute("UPDATE products SET stock_quantity=stock_quantity+?, purchase_price=? WHERE id=?", (received_quantity, order[5], order[3]))
                 cur.execute(
                     "INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes) VALUES (?,?,?,?,?,?,?)",
-                    (date_value, order[3], "in", received_quantity, "purchase_receipt", receipt_id, f"إذن استلام {receipt_no}"),
+                    (date_value, order[3], "in", received_quantity, "purchase_receipt", receipt_id, f"إذن إضافة {receipt_no}"),
                 )
                 log_action(cur, "create", "purchase_receipt", receipt_id, f"{receipt_no}; total={grand_total}")
                 conn.commit()
                 conn.close()
                 rebuild_ledger()
-                flash(f"تم تسجيل إذن الاستلام {receipt_no}.", "success")
+                flash(f"تم تسجيل إذن الإضافة {receipt_no}.", "success")
                 return redirect(url_for("purchase_receipts"))
 
         cur.execute(

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة التحكم</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="file:///C:/Users/Hany.Abdelatty/Desktop/%D8%AA%D8%B7%D9%88%D9%8A%D8%B1%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20ERP/%D9%85%D9%84%D9%81%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D9%81%D8%B1%2016-4-2027/erp_dev_copy/static/style.css">
+
+</head>
+<body>
+
+
+<div class="app-shell">
+    <aside class="sidebar no-print" id="appSidebar">
+        <div class="brand-block">
+            
+            <a href="/dashboard" class="brand-mark">ERP</a>
+            
+            <div class="brand-copy">
+                <div class="brand-title">شركة جولدن ديمو للصناعات</div>
+                <div class="brand-subtitle">واجهة تشغيل يومية منظمة</div>
+            </div>
+        </div>
+
+        <nav class="side-nav">
+            <a href="/dashboard" class="side-link side-link-main active">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>لوحة التحكم</span>
+            </a>
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-graph-up-arrow"></i> المبيعات</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    
+                    <a href="/customers" class="">العملاء</a>
+                    <a href="/reports/customers" class="">أرصدة العملاء</a>
+                    <a href="/reports/customers/aging" class="">أعمار ديون العملاء</a>
+                    
+                    
+                    <a href="/sales-orders" class="">أوامر البيع</a>
+                    <a href="/sales" class="">فواتير البيع</a>
+                    <a href="/sales/from-delivery" class="">فاتورة بيع من أذون الصرف</a>
+                    <a href="/sales/financial" class="">فاتورة بيع مالية</a>
+                    <a href="/returns/sales" class="">مردودات المبيعات</a>
+                    <a href="/credit-notes/sales" class="">إشعارات تسوية دائنة</a>
+                    
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bag-check-fill"></i> المشتريات</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    
+                    <a href="/suppliers" class="">الموردون</a>
+                    <a href="/reports/suppliers" class="">أرصدة الموردين</a>
+                    <a href="/reports/suppliers/aging" class="">أعمار مديونيات الموردين</a>
+                    
+                    
+                    <a href="/purchase-orders" class="">أوامر الشراء</a>
+                    <a href="/purchases/from-receipt" class="">فاتورة مورد من أذون الإضافة</a>
+                    <a href="/purchases" class="">فاتورة مورد مباشرة</a>
+                    <a href="/returns/purchases" class="">مردودات المشتريات</a>
+                    <a href="/debit-notes/suppliers" class="">إشعارات تسوية مدينة</a>
+                    
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-box-seam-fill"></i> المخازن</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/products" class="">الأصناف والمنتجات</a>
+                    <a href="/purchase-receipts" class="">أذون إضافة</a>
+                    <a href="/sales-deliveries" class="">أذون صرف</a>
+                    <a href="/inventory" class="">حركة المخزون</a>
+                    <a href="/reports/inventory" class="">تقرير المخزون</a>
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-calculator-fill"></i> الحسابات العامة</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/accounts" class="">شجرة الحسابات</a>
+                    <a href="/journal" class="">القيود اليومية</a>
+                    <a href="/trial-balance" class="">ميزان المراجعة</a>
+                    <a href="/cost-centers" class="">مراكز التكلفة</a>
+                    <a href="/adjustments/customers" class="">تسويات العملاء</a>
+                    
+                    <a href="/opening-balances" class="">الأرصدة الافتتاحية</a>
+                    <a href="/year-end" class="">إقفال السنة</a>
+                    
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-cash-stack"></i> الخزينة</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    
+                    <a href="/receipts" class="">سندات القبض</a>
+                    
+                    
+                    <a href="/payments" class="">سندات الصرف</a>
+                    
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bar-chart-line-fill"></i> التقارير</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/reports/profit-loss" class="">الأرباح والخسائر</a>
+                    <a href="/reports/balance-sheet" class="">الميزانية العمومية</a>
+                    <a href="/reports/cash-flow" class="">التدفقات النقدية</a>
+                    <a href="/reports/cost-centers" class="">مراكز التكلفة</a>
+                    <a href="/reports/vat" class="">ضريبة القيمة المضافة</a>
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-people-fill"></i> شؤون العاملين</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/employees" class="">الموظفون</a>
+                    <a href="/payroll" class="">المرتبات</a>
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-shield-lock-fill"></i> الإدارة</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/settings/company" class="">إعدادات الشركة</a>
+                    <a href="/fiscal-periods" class="">الفترات المالية</a>
+                    <a href="/posting-control" class="">الترحيل وفك الترحيل</a>
+                    <a href="/document-sequences" class="">ترقيم المستندات</a>
+                    <a href="/allocations" class="">ربط السداد بالفواتير</a>
+                    <a href="/backup" class="">نسخ احتياطي واستعادة</a>
+                    <a href="/audit-log" class="">سجل المراجعة</a>
+                    <a href="/e-invoices" class="">بوابة الضرائب</a>
+                    <a href="/permissions" class="">الصلاحيات التفصيلية</a>
+                    <a href="/users" class="">المستخدمون</a>
+                </div>
+            </details>
+            
+        </nav>
+    </aside>
+
+    <main class="main-panel">
+        <header class="topbar no-print">
+            <div class="topbar-title-group">
+                <button type="button" class="mobile-nav-toggle btn btn-outline-secondary" id="mobileNavToggle" aria-label="فتح القائمة" aria-expanded="false" aria-controls="appSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <div class="eyebrow">تشغيل يومي</div>
+                    <h1>نظام ERP</h1>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <span class="user-pill">admin - مدير</span>
+                <a href="/logout" class="btn btn-danger btn-sm">خروج</a>
+            </div>
+        </header>
+
+        <section class="content-panel">
+            
+                
+            
+
+            
+<div class="dashboard-hero dashboard-hero-premium">
+    <div>
+        <div class="eyebrow">نظرة تنفيذية سريعة</div>
+        <h2 class="dashboard-title">صورة لحظية عن المبيعات والمشتريات والسيولة والمخزون</h2>
+        <p class="hero-text">
+            تقدر من هنا تتابع أهم المؤشرات التشغيلية والمحاسبية، وتدخل بسرعة على الشاشات الأساسية لبدء دورة العمل أو مراجعة الموقف الحالي.
+        </p>
+    </div>
+    <div class="hero-actions">
+        <a href="/sales-orders" class="btn btn-primary">أمر بيع جديد</a>
+        <a href="/purchase-orders" class="btn btn-outline-secondary">أمر شراء جديد</a>
+        <a href="/journal" class="btn btn-outline-secondary">القيود اليومية</a>
+    </div>
+</div>
+
+<div class="metric-grid metric-grid-premium mb-3">
+    <a class="dashboard-link" href="/sales">
+        <article class="card metric-card metric-accent sales-card p-3">
+            <div class="metric-top">
+                <span class="metric-icon icon-sales"><i class="bi bi-graph-up-arrow"></i></span>
+                <div class="metric-label">إجمالي المبيعات</div>
+            </div>
+            <div class="metric-value money" data-value="8436.0">8436.0</div>
+            <div class="metric-note">يشمل فواتير البيع المالية والمخزنية</div>
+        </article>
+    </a>
+
+    <a class="dashboard-link" href="/purchases">
+        <article class="card metric-card metric-accent purchases-card p-3">
+            <div class="metric-top">
+                <span class="metric-icon icon-purchases"><i class="bi bi-cart-check"></i></span>
+                <div class="metric-label">إجمالي المشتريات</div>
+            </div>
+            <div class="metric-value money" data-value="9576.0">9576.0</div>
+            <div class="metric-note">إجمالي فواتير الموردين المرحلة</div>
+        </article>
+    </a>
+
+    <a class="dashboard-link" href="/reports/inventory">
+        <article class="card metric-card metric-accent inventory-card p-3">
+            <div class="metric-top">
+                <span class="metric-icon icon-inventory"><i class="bi bi-box-seam"></i></span>
+                <div class="metric-label">قيمة المخزون</div>
+            </div>
+            <div class="metric-value money" data-value="21700.0">21700.0</div>
+            <div class="metric-note">بحسب الكمية الحالية وسعر التكلفة</div>
+        </article>
+    </a>
+
+    <a class="dashboard-link" href="/receipts">
+        <article class="card metric-card metric-accent customer-card p-3">
+            <div class="metric-top">
+                <span class="metric-icon icon-cash"><i class="bi bi-wallet2"></i></span>
+                <div class="metric-label">صافي الحركة النقدية</div>
+            </div>
+            <div class="metric-value money" data-value="1000.0">1000.0</div>
+            <div class="metric-note">إجمالي القبض مطروحًا منه الصرف</div>
+        </article>
+    </a>
+</div>
+
+<div class="metric-grid metric-grid-secondary mb-3">
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-people"></i><span>العملاء</span></div>
+        <div class="metric-mini-value">2</div>
+        <div class="metric-note">عملاء مسجلون بالنظام</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-truck"></i><span>الموردون</span></div>
+        <div class="metric-mini-value">2</div>
+        <div class="metric-note">موردون صالحون للتعامل</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-tags"></i><span>الأصناف</span></div>
+        <div class="metric-mini-value">2</div>
+        <div class="metric-note">أصناف ومنتجات مسجلة</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-journal-text"></i><span>القيود</span></div>
+        <div class="metric-mini-value">18</div>
+        <div class="metric-note">إجمالي القيود المسجلة</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-clipboard-check"></i><span>أوامر البيع</span></div>
+        <div class="metric-mini-value">1</div>
+        <div class="metric-note">أوامر البيع الحالية</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-bag-check"></i><span>أوامر الشراء</span></div>
+        <div class="metric-mini-value">1</div>
+        <div class="metric-note">أوامر الشراء الحالية</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-box-arrow-up-left"></i><span>أذون الصرف</span></div>
+        <div class="metric-mini-value">1</div>
+        <div class="metric-note">حركات صرف من المخازن</div>
+    </article>
+    <article class="card metric-mini-card p-3">
+        <div class="metric-mini-head"><i class="bi bi-box-arrow-in-down"></i><span>أذون الإضافة</span></div>
+        <div class="metric-mini-value">1</div>
+        <div class="metric-note">حركات إضافة واستلام</div>
+    </article>
+</div>
+
+<div class="workspace-grid">
+    <section class="section-panel">
+        <div class="panel-head">
+            <div>
+                <h3>مؤشرات تحتاج انتباه</h3>
+                <span>ملخص سريع للوضع التشغيلي الحالي</span>
+            </div>
+        </div>
+        <div class="status-list dashboard-status-list">
+            <div class="status-item">
+                <strong>الأصناف منخفضة الرصيد</strong>
+                <span>0 صنف يحتاج متابعة أو إعادة طلب.</span>
+            </div>
+            <div class="status-item">
+                <strong>مديونيات العملاء</strong>
+                <span class="money" data-value="3094.4399999999996">3094.4399999999996</span>
+            </div>
+            <div class="status-item">
+                <strong>مديونيات الموردين</strong>
+                <span class="money" data-value="7507.6">7507.6</span>
+            </div>
+            <div class="status-item">
+                <strong>فواتير عملاء متأخرة</strong>
+                <span>0 مستند يحتاج متابعة.</span>
+            </div>
+            <div class="status-item">
+                <strong>فواتير موردين متأخرة</strong>
+                <span>0 مستند يحتاج مراجعة.</span>
+            </div>
+            <div class="status-item">
+                <strong>إجمالي قيمة القيود</strong>
+                <span class="money" data-value="450541.96">450541.96</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-panel">
+        <div class="panel-head">
+            <div>
+                <h3>روابط سريعة</h3>
+                <span>أسرع مسارات التشغيل اليومية</span>
+            </div>
+        </div>
+        <div class="action-grid dashboard-action-grid">
+            <a href="/customers" class="action-tile">
+                <strong>العملاء</strong>
+                <span>إضافة ومتابعة البيانات الأساسية</span>
+            </a>
+            <a href="/suppliers" class="action-tile">
+                <strong>الموردون</strong>
+                <span>إدارة الموردين والبيانات الضريبية</span>
+            </a>
+            <a href="/products" class="action-tile">
+                <strong>الأصناف</strong>
+                <span>تحديث الأصناف والأسعار والأرصدة</span>
+            </a>
+            <a href="/sales-deliveries" class="action-tile">
+                <strong>أذون الصرف</strong>
+                <span>صرف الأصناف من أوامر البيع</span>
+            </a>
+            <a href="/purchase-receipts" class="action-tile">
+                <strong>أذون الإضافة</strong>
+                <span>استلام الأصناف من أوامر الشراء</span>
+            </a>
+            <a href="/trial-balance" class="action-tile">
+                <strong>ميزان المراجعة</strong>
+                <span>مراجعة الأرصدة والحركة النهائية</span>
+            </a>
+        </div>
+    </section>
+</div>
+
+        </section>
+    </main>
+</div>
+
+<div class="sidebar-backdrop no-print" id="sidebarBackdrop" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const moneyFormatter = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+    document.querySelectorAll(".money").forEach(function (node) {
+        const raw = (node.dataset.value || node.textContent || "").replace(/,/g, "").trim();
+        if (!/^-?\\d+(\\.\\d+)?$/.test(raw)) return;
+        node.textContent = moneyFormatter.format(Number(raw));
+    });
+
+    const sidebar = document.getElementById("appSidebar");
+    const toggle = document.getElementById("mobileNavToggle");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const media = window.matchMedia("(max-width: 992px)");
+
+    function closeSidebar() {
+        if (!sidebar || !toggle || !backdrop) return;
+        sidebar.classList.remove("is-open");
+        backdrop.hidden = true;
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("sidebar-open");
+    }
+
+    function openSidebar() {
+        if (!sidebar || !toggle || !backdrop) return;
+        sidebar.classList.add("is-open");
+        backdrop.hidden = false;
+        toggle.setAttribute("aria-expanded", "true");
+        document.body.classList.add("sidebar-open");
+    }
+
+    toggle?.addEventListener("click", function () {
+        if (sidebar?.classList.contains("is-open")) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    });
+
+    backdrop?.addEventListener("click", closeSidebar);
+
+    document.querySelectorAll(".sidebar a").forEach(function (node) {
+        node.addEventListener("click", function () {
+            if (media.matches) closeSidebar();
+        });
+    });
+
+    media.addEventListener("change", function (event) {
+        if (!event.matches) {
+            closeSidebar();
+        }
+    });
+});
+</script>
+
+</body>
+</html>

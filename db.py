@@ -990,6 +990,8 @@ def init_db():
     add_column_if_missing(cur, "financial_sales_invoices", "withholding_journal_id", "INTEGER")
     add_column_if_missing(cur, "purchase_receipts", "purchase_order_line_id", "INTEGER")
     add_column_if_missing(cur, "products", "default_supplier_id", "INTEGER")
+    add_column_if_missing(cur, "products", "barcode_value", "TEXT")
+    add_column_if_missing(cur, "products", "barcode_payload", "TEXT")
     add_column_if_missing(cur, "receipt_vouchers", "status", "TEXT NOT NULL DEFAULT 'posted'")
     add_column_if_missing(cur, "receipt_vouchers", "cancelled_at", "TEXT")
     add_column_if_missing(cur, "receipt_vouchers", "cancel_reason", "TEXT")
@@ -1007,6 +1009,8 @@ def init_db():
     add_column_if_missing(cur, "employees", "tax", "REAL NOT NULL DEFAULT 0")
     add_column_if_missing(cur, "employees", "status", "TEXT NOT NULL DEFAULT 'active'")
     add_column_if_missing(cur, "employees", "notes", "TEXT")
+
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_products_barcode_value ON products(barcode_value)")
 
     cur.execute("UPDATE sales_invoices SET grand_total=total + tax_amount WHERE grand_total=0")
     cur.execute("UPDATE purchase_invoices SET grand_total=total + tax_amount WHERE grand_total=0")
