@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <div>
+        <h2>المستخدمون والصلاحيات</h2>
+        <div class="eyebrow">المشاهدة فقط لا يمكنه الحفظ أو التعديل أو الإلغاء حتى لو حاول استخدام الرابط مباشرة</div>
+    </div>
+</div>
+
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <label class="form-label">اسم المستخدم</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">كلمة المرور</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">الدور</label>
+            <select name="role" class="form-control">
+                <option value="accountant">محاسب</option>
+                <option value="sales">مبيعات</option>
+                <option value="viewer">مشاهدة فقط</option>
+                <option value="admin">مدير</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">إضافة</button>
+        </div>
+    </div>
+</form>
+
+<table class="table table-bordered align-middle">
+<tr>
+    <th>#</th>
+    <th>اسم المستخدم</th>
+    <th>الدور</th>
+</tr>
+{% for r in rows %}
+<tr>
+    <td>{{ r[0] }}</td>
+    <td>{{ r[1] }}</td>
+    <td>{{ r[2] }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

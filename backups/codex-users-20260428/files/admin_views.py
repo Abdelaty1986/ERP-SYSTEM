@@ -2,7 +2,7 @@ import os
 import sqlite3
 from datetime import datetime
 
-from flask import flash, redirect, render_template, request, send_file, session, url_for
+from flask import flash, redirect, render_template, request, send_file, url_for
 
 
 def _safe_backup_database(source_path, target_path):
@@ -202,67 +202,3 @@ def build_users_view(deps):
         return render_template("users.html", rows=rows)
 
     return users
-
-
-def build_change_user_password_view(deps):
-    db = deps["db"]
-    generate_password_hash = deps["generate_password_hash"]
-    log_action = deps["log_action"]
-
-    def change_user_password(id):
-        new_password = request.form.get("new_password", "")
-        conn = db()
-        cur = conn.cursor()
-        cur.execute("SELECT id,username FROM users WHERE id=?", (id,))
-        user = cur.fetchone()
-        if not user:
-            conn.close()
-            flash("المستخدم غير موجود.", "danger")
-            return redirect(url_for("users"))
-        if not new_password:
-            conn.close()
-            flash("كلمة المرور الجديدة مطلوبة.", "danger")
-            return redirect(url_for("users"))
-        cur.execute("UPDATE users SET password=? WHERE id=?", (generate_password_hash(new_password), id))
-        log_action(cur, "update", "user_password", id, f"username={user[1]}")
-        conn.commit()
-        conn.close()
-        flash(f"تم تحديث كلمة مرور المستخدم {user[1]}.", "success")
-        return redirect(url_for("users"))
-
-    return change_user_password
-
-
-def build_delete_user_view(deps):
-    db = deps["db"]
-    log_action = deps["log_action"]
-
-    def delete_user(id):
-        current_user_id = session.get("user_id")
-        conn = db()
-        cur = conn.cursor()
-        cur.execute("SELECT id,username,role FROM users WHERE id=?", (id,))
-        user = cur.fetchone()
-        if not user:
-            conn.close()
-            flash("المستخدم غير موجود.", "danger")
-            return redirect(url_for("users"))
-        if current_user_id == user[0]:
-            conn.close()
-            flash("لا يمكنك حذف المستخدم الحالي أثناء تسجيل الدخول.", "danger")
-            return redirect(url_for("users"))
-        if user[2] == "admin":
-            cur.execute("SELECT COUNT(*) FROM users WHERE role='admin'")
-            admin_count = cur.fetchone()[0] or 0
-            if admin_count <= 1:
-                conn.close()
-                flash("لا يمكن حذف آخر مدير في النظام.", "danger")
-                return redirect(url_for("users"))
-        cur.execute("DELETE FROM users WHERE id=?", (id,))
-        log_action(cur, "delete", "user", id, f"username={user[1]}; role={user[2]}")
-        conn.commit()
-        conn.close()
-        flash(f"تم حذف المستخدم {user[1]}.", "success")
-        return redirect(url_for("users"))
-
-    return delete_user

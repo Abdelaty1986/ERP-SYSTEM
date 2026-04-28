@@ -1,11 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-
 <div class="page-head">
     <div>
         <h2>المستخدمون والصلاحيات</h2>
-        <div class="eyebrow">المشاهدة فقط لا يمكنه الحفظ أو التعديل أو الإلغاء حتى لو حاول استخدام الرابط مباشرة</div>
+        <div class="eyebrow">إدارة المستخدمين متاحة للمدير فقط مع حماية آخر Admin والمستخدم الحالي من الحذف الخاطئ</div>
     </div>
 </div>
 
@@ -34,19 +33,33 @@
     </div>
 </form>
 
-<table class="table table-bordered align-middle">
-<tr>
-    <th>#</th>
-    <th>اسم المستخدم</th>
-    <th>الدور</th>
-</tr>
-{% for r in rows %}
-<tr>
-    <td>{{ r[0] }}</td>
-    <td>{{ r[1] }}</td>
-    <td>{{ r[2] }}</td>
-</tr>
-{% endfor %}
-</table>
-
+<div class="table-shell">
+    <table class="table table-bordered align-middle">
+        <tr>
+            <th>#</th>
+            <th>اسم المستخدم</th>
+            <th>الدور</th>
+            <th class="no-print">تغيير كلمة المرور</th>
+            <th class="no-print">حذف المستخدم</th>
+        </tr>
+        {% for r in rows %}
+        <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td class="no-print">
+                <form method="POST" action="/users/{{ r[0] }}/change-password" class="d-flex gap-2">
+                    <input type="password" name="new_password" class="form-control form-control-sm" placeholder="كلمة مرور جديدة" required>
+                    <button class="btn btn-warning btn-sm">تغيير كلمة المرور</button>
+                </form>
+            </td>
+            <td class="no-print">
+                <form method="POST" action="/users/{{ r[0] }}/delete" onsubmit="return confirm('سيتم حذف المستخدم نهائيًا. هل تريد المتابعة؟');">
+                    <button class="btn btn-danger btn-sm">حذف المستخدم</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 {% endblock %}

@@ -39,8 +39,6 @@ from modules.accounting.views import (
 from modules.admin.views import (
     build_audit_log_view,
     build_backup_restore_view,
-    build_change_user_password_view,
-    build_delete_user_view,
     build_permissions_view,
     build_users_view,
 )
@@ -2887,20 +2885,6 @@ def permissions():
 def users():
     return build_users_view(MODULE_DEPS)()
 
-
-@app.route("/users/<int:id>/change-password", methods=["POST"])
-@login_required
-@admin_required
-def change_user_password(id):
-    return build_change_user_password_view(MODULE_DEPS)(id)
-
-
-@app.route("/users/<int:id>/delete", methods=["POST"])
-@login_required
-@admin_required
-def delete_user(id):
-    return build_delete_user_view(MODULE_DEPS)(id)
-
 @app.route("/import-full-data", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -3621,8 +3605,6 @@ app.view_functions["backup_restore"] = login_required(admin_required(build_backu
 app.view_functions["audit_log"] = login_required(admin_required(build_audit_log_view(MODULE_DEPS)))
 app.view_functions["permissions"] = login_required(admin_required(build_permissions_view(MODULE_DEPS)))
 app.view_functions["users"] = login_required(admin_required(build_users_view(MODULE_DEPS)))
-app.view_functions["change_user_password"] = login_required(admin_required(build_change_user_password_view(MODULE_DEPS)))
-app.view_functions["delete_user"] = login_required(admin_required(build_delete_user_view(MODULE_DEPS)))
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
