@@ -3624,5 +3624,199 @@ app.view_functions["users"] = login_required(admin_required(build_users_view(MOD
 app.view_functions["change_user_password"] = login_required(admin_required(build_change_user_password_view(MODULE_DEPS)))
 app.view_functions["delete_user"] = login_required(admin_required(build_delete_user_view(MODULE_DEPS)))
 
+
+@app.route("/sales/export/all")
+@login_required
+@permission_required("e_invoices")
+def export_sales_invoices_excel():
+    """Export all sales invoices in a tax-portal friendly Excel file."""
+    conn = db()
+    cur = conn.cursor()
+
+    def table_exists(table_name):
+        cur.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (table_name,),
+        )
+        return cur.fetchone() is not None
+
+    def table_columns(table_name):
+        cur.execute(f"PRAGMA table_info({table_name})")
+        return {row[1] for row in cur.fetchall()}
+
+    def money(value):
+        try:
+            return round(float(value or 0), 2)
+        except (TypeError, ValueError):
+            return 0
+
+    def label_status(value):
+        return {
+            "posted": "مرحل",
+            "draft": "غير مرحل",
+            "cancelled": "ملغى",
+            "prepared": "جاهز للإرسال",
+            "submitted": "تم الإرسال",
+            "accepted": "مقبول",
+            "rejected": "مرفوض",
+        }.get(value or "", value or "")
+
+    def label_payment(value):
+        return {
+            "cash": "نقدي",
+            "credit": "آجل",
+            "bank": "بنك",
+            "wallet": "محفظة",
+        }.get(value or "", value or "")
+
+    if not table_exists("sales_invoices"):
+        conn.close()
+        flash("جدول فواتير المبيعات غير موجود في قاعدة البيانات.", "danger")
+        return redirect(url_for("e_invoices"))
+
+    cols = table_columns("sales_invoices")
+    has_customers = table_exists("customers")
+    has_products = table_exists("products")
+
+    select_parts = ["s.id AS invoice_id"]
+    headers = ["رقم داخلي"]
+
+    optional_fields = [
+        ("doc_no", "رقم المستند", "s.doc_no"),
+        ("date", "التاريخ", "s.date"),
+    ]
+
+    for col, header, sql_expr in optional_fields:
+        if col in cols:
+            select_parts.append(f"{sql_expr} AS {col}")
+            headers.append(header)
+
+    if "customer_id" in cols:
+        if has_customers:
+            select_parts.append("COALESCE(c.name, '') AS customer_name")
+        else:
+            select_parts.append("s.customer_id AS customer_name")
+        headers.append("العميل")
+
+    if "product_id" in cols:
+        if has_products:
+            select_parts.append("COALESCE(p.name, '') AS product_name")
+        else:
+            select_parts.append("s.product_id AS product_name")
+        headers.append("الصنف")
+
+    numeric_fields = [
+        ("quantity", "الكمية"),
+        ("unit_price", "سعر الوحدة"),
+        ("total", "الإجمالي قبل الضريبة"),
+        ("tax_amount", "ضريبة القيمة المضافة"),
+        ("withholding_amount", "خصم وإضافة"),
+    ]
+
+    for col, header in numeric_fields:
+        if col in cols:
+            select_parts.append(f"s.{col} AS {col}")
+            headers.append(header)
+
+    if "payment_type" in cols:
+        select_parts.append("s.payment_type AS payment_type")
+        headers.append("نوع السداد")
+
+    if "status" in cols:
+        select_parts.append("s.status AS status")
+        headers.append("الحالة")
+
+    join_parts = []
+    if "customer_id" in cols and has_customers:
+        join_parts.append("LEFT JOIN customers c ON c.id = s.customer_id")
+    if "product_id" in cols and has_products:
+        join_parts.append("LEFT JOIN products p ON p.id = s.product_id")
+
+    where_parts = []
+    params = []
+
+    from_date = request.args.get("from_date", "").strip()
+    to_date = request.args.get("to_date", "").strip()
+    status_filter = request.args.get("status", "").strip()
+
+    if from_date and "date" in cols:
+        where_parts.append("s.date >= ?")
+        params.append(from_date)
+    if to_date and "date" in cols:
+        where_parts.append("s.date <= ?")
+        params.append(to_date)
+    if status_filter and "status" in cols:
+        where_parts.append("s.status = ?")
+        params.append(status_filter)
+
+    sql = f"""
+        SELECT {", ".join(select_parts)}
+        FROM sales_invoices s
+        {" ".join(join_parts)}
+        {"WHERE " + " AND ".join(where_parts) if where_parts else ""}
+        ORDER BY {"s.date DESC," if "date" in cols else ""} s.id DESC
+    """
+
+    cur.execute(sql, params)
+    fetched_rows = cur.fetchall()
+    selected_names = [description[0] for description in cur.description]
+
+    rows = []
+    total_before_tax = 0
+    total_tax = 0
+    total_withholding = 0
+    total_net = 0
+
+    include_net = any(col in cols for col in ("total", "tax_amount", "withholding_amount"))
+    if include_net:
+        headers.append("الصافي بعد الضريبة والخصم")
+
+    for raw_row in fetched_rows:
+        row_map = dict(zip(selected_names, raw_row))
+        line = []
+
+        for name in selected_names:
+            value = row_map.get(name)
+            if name in {"quantity", "unit_price", "total", "tax_amount", "withholding_amount"}:
+                value = money(value)
+            elif name == "payment_type":
+                value = label_payment(value)
+            elif name == "status":
+                value = label_status(value)
+            line.append(value)
+
+        total_value = money(row_map.get("total")) if "total" in row_map else 0
+        tax_value = money(row_map.get("tax_amount")) if "tax_amount" in row_map else 0
+        withholding_value = money(row_map.get("withholding_amount")) if "withholding_amount" in row_map else 0
+        net_value = total_value + tax_value - withholding_value
+
+        total_before_tax += total_value
+        total_tax += tax_value
+        total_withholding += withholding_value
+        total_net += net_value
+
+        if include_net:
+            line.append(money(net_value))
+
+        rows.append(line)
+
+    if rows and include_net:
+        summary = [""] * len(headers)
+        summary[0] = "الإجمالي"
+        if "total" in selected_names:
+            summary[headers.index("الإجمالي قبل الضريبة")] = money(total_before_tax)
+        if "tax_amount" in selected_names:
+            summary[headers.index("ضريبة القيمة المضافة")] = money(total_tax)
+        if "withholding_amount" in selected_names:
+            summary[headers.index("خصم وإضافة")] = money(total_withholding)
+        summary[-1] = money(total_net)
+        rows.append(summary)
+
+    conn.close()
+
+    filename = f"sales_invoices_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xls"
+    return excel_response(filename, headers, rows, "تقرير فواتير المبيعات")
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
