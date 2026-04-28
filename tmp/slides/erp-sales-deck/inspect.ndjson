@@ -1,0 +1,163 @@
+{"kind":"deck","id":"erp-sales-deck","slideCount":6,"slideSize":{"width":1280,"height":720}}
+{"kind":"slide","slide":1,"id":"rdu1qp"}
+{"kind":"slide","slide":2,"id":"5mjl75"}
+{"kind":"slide","slide":3,"id":"401ps1"}
+{"kind":"slide","slide":4,"id":"4zagc3"}
+{"kind":"slide","slide":5,"id":"7bllez"}
+{"kind":"slide","slide":6,"id":"fa0ove"}
+{"kind":"image","slide":1,"id":"2","role":"art plate","path":"C:\\Users\\Hany.Abdelatty\\Desktop\\تطوير برنامج ERP\\ملفات السيرفر 16-4-2027\\erp_dev_copy\\outputs\\sales-deck\\references\\slide-01.png","bbox":[0,0,1280,720]}
+{"kind":"shape","slide":1,"id":"3","role":"cover contrast overlay","shapeType":"rect","bbox":[0,0,1280,720]}
+{"kind":"shape","slide":1,"id":"4","role":"cover accent rule","shapeType":"rect","bbox":[64,86,7,455]}
+{"kind":"textbox","slide":1,"id":"5","role":"kicker","text":"ERP SALES DECK","textPreview":"ERP SALES DECK","textChars":14,"textLines":1,"bbox":[86,88,520,26]}
+{"kind":"textbox","slide":1,"id":"6","role":"cover title","text":"نظام ERP محاسبي وإداري جاهز للعرض والتشغيل","textPreview":"نظام ERP محاسبي وإداري جاهز للعرض والتشغيل","textChars":42,"textLines":1,"bbox":[82,130,785,184]}
+{"kind":"textbox","slide":1,"id":"7","role":"cover subtitle","text":"نسخة عملية تربط المبيعات والمشتريات والمخازن والحسابات داخل دورة تشغيل واضحة وسهلة الشرح.","textPreview":"نسخة عملية تربط المبيعات والمشتريات والمخازن والحسابات داخل دورة تشغيل واضحة وسهلة الشرح.","textChars":89,"textLines":1,"bbox":[86,326,610,86]}
+{"kind":"shape","slide":1,"id":"8","role":"cover moment panel","shapeType":"roundRect","bbox":[86,456,390,92]}
+{"kind":"textbox","slide":1,"id":"9","role":"cover moment","text":"نظام واحد يربط التشغيل والأثر المحاسبي والتقارير","textPreview":"نظام واحد يربط التشغيل والأثر المحاسبي والتقارير","textChars":48,"textLines":1,"bbox":[112,478,336,40]}
+{"kind":"textbox","slide":1,"id":"10","role":"caption","text":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textPreview":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textChars":115,"textLines":1,"bbox":[64,674,980,22]}
+{"kind":"image","slide":2,"id":"2","role":"art plate","path":"C:\\Users\\Hany.Abdelatty\\Desktop\\تطوير برنامج ERP\\ملفات السيرفر 16-4-2027\\erp_dev_copy\\outputs\\sales-deck\\references\\slide-02.png","bbox":[0,0,1280,720]}
+{"kind":"shape","slide":2,"id":"3","role":"content contrast overlay","shapeType":"rect","bbox":[0,0,1280,720]}
+{"kind":"textbox","slide":2,"id":"4","role":"header","text":"OVERVIEW","textPreview":"OVERVIEW","textChars":8,"textLines":1,"bbox":[64,34,430,24]}
+{"kind":"textbox","slide":2,"id":"5","role":"header","text":"02 / 06","textPreview":"02 / 06","textChars":7,"textLines":1,"bbox":[1114,34,104,24]}
+{"kind":"shape","slide":2,"id":"6","role":"header rule","shapeType":"rect","bbox":[64,64,1152,2]}
+{"kind":"shape","slide":2,"id":"7","role":"header marker","shapeType":"ellipse","bbox":[57,57,16,16]}
+{"kind":"textbox","slide":2,"id":"8","role":"title","text":"ما الذي يقدمه النظام للشركة؟","textPreview":"ما الذي يقدمه النظام للشركة؟","textChars":28,"textLines":1,"bbox":[64,86,760,142]}
+{"kind":"textbox","slide":2,"id":"9","role":"subtitle","text":"النظام يغطي المستندات اليومية من أول الطلب وحتى أثرها في الأستاذ وميزان المراجعة.","textPreview":"النظام يغطي المستندات اليومية من أول الطلب وحتى أثرها في الأستاذ وميزان المراجعة.","textChars":81,"textLines":1,"bbox":[66,234,720,70]}
+{"kind":"shape","slide":2,"id":"10","role":"card panel: تشغيل يومي","shapeType":"roundRect","bbox":[84,408,355.3333333333333,204]}
+{"kind":"shape","slide":2,"id":"11","role":"card accent: تشغيل يومي","shapeType":"rect","bbox":[84,408,8,204]}
+{"kind":"shape","slide":2,"id":"12","role":"icon badge","shapeType":"ellipse","bbox":[106,432,54,54]}
+{"kind":"shape","slide":2,"id":"13","role":"icon glyph","shapeType":"rect","bbox":[122,461,6,12]}
+{"kind":"shape","slide":2,"id":"14","role":"icon glyph","shapeType":"rect","bbox":[131,453,6,20]}
+{"kind":"shape","slide":2,"id":"15","role":"icon glyph","shapeType":"rect","bbox":[140,446,6,27]}
+{"kind":"textbox","slide":2,"id":"16","role":"card label","text":"تشغيل يومي","textPreview":"تشغيل يومي","textChars":10,"textLines":1,"bbox":[172,430,247.33333333333331,28]}
+{"kind":"textbox","slide":2,"id":"17","role":"card body: تشغيل يومي","text":"إدارة العملاء والموردين\nوالأصناف والفواتير وسندات\nالقبض والصرف من واجهة عربية\nمنظمة.","textPreview":"إدارة العملاء والموردين | والأصناف والفواتير وسندات | القبض والصرف من واجهة عربية | منظمة.","textChars":84,"textLines":4,"bbox":[108,494,307.3333333333333,96]}
+{"kind":"shape","slide":2,"id":"18","role":"card panel: ترابط محاسبي","shapeType":"roundRect","bbox":[463.3333333333333,408,355.3333333333333,204]}
+{"kind":"shape","slide":2,"id":"19","role":"card accent: ترابط محاسبي","shapeType":"rect","bbox":[463.3333333333333,408,8,204]}
+{"kind":"shape","slide":2,"id":"20","role":"icon badge","shapeType":"ellipse","bbox":[485.3333333333333,432,54,54]}
+{"kind":"shape","slide":2,"id":"21","role":"icon glyph","shapeType":"ellipse","bbox":[498.3333333333333,450,10,10]}
+{"kind":"shape","slide":2,"id":"22","role":"icon glyph","shapeType":"ellipse","bbox":[516.3333333333333,459,10,10]}
+{"kind":"shape","slide":2,"id":"23","role":"icon glyph","shapeType":"rect","bbox":[507.3333333333333,457,19,3]}
+{"kind":"textbox","slide":2,"id":"24","role":"card label","text":"ترابط محاسبي","textPreview":"ترابط محاسبي","textChars":12,"textLines":1,"bbox":[551.3333333333333,430,247.33333333333331,28]}
+{"kind":"textbox","slide":2,"id":"25","role":"card body: ترابط محاسبي","text":"كل حركة أساسية تنعكس على\nالقيود ودفتر الأستاذ وميزان\nالمراجعة والتقارير ذات\nالصلة.","textPreview":"كل حركة أساسية تنعكس على | القيود ودفتر الأستاذ وميزان | المراجعة والتقارير ذات | الصلة.","textChars":82,"textLines":4,"bbox":[487.3333333333333,494,307.3333333333333,96]}
+{"kind":"shape","slide":2,"id":"26","role":"card panel: جاهزية عرض","shapeType":"roundRect","bbox":[842.6666666666666,408,355.3333333333333,204]}
+{"kind":"shape","slide":2,"id":"27","role":"card accent: جاهزية عرض","shapeType":"rect","bbox":[842.6666666666666,408,8,204]}
+{"kind":"shape","slide":2,"id":"28","role":"icon badge","shapeType":"ellipse","bbox":[864.6666666666666,432,54,54]}
+{"kind":"shape","slide":2,"id":"29","role":"icon glyph","shapeType":"roundRect","bbox":[877.6666666666666,447,26,13]}
+{"kind":"shape","slide":2,"id":"30","role":"icon glyph","shapeType":"roundRect","bbox":[882.6666666666666,456,26,13]}
+{"kind":"shape","slide":2,"id":"31","role":"icon glyph","shapeType":"roundRect","bbox":[887.6666666666666,465,20,10]}
+{"kind":"textbox","slide":2,"id":"32","role":"card label","text":"جاهزية عرض","textPreview":"جاهزية عرض","textChars":10,"textLines":1,"bbox":[930.6666666666666,430,247.33333333333331,28]}
+{"kind":"textbox","slide":2,"id":"33","role":"card body: جاهزية عرض","text":"الديمو الحالي نظيف وواضح،\nوفيه سيناريو ذهبي قابل للشرح\nخطوة بخطوة أمام العميل.","textPreview":"الديمو الحالي نظيف وواضح، | وفيه سيناريو ذهبي قابل للشرح | خطوة بخطوة أمام العميل.","textChars":78,"textLines":3,"bbox":[866.6666666666666,494,307.3333333333333,96]}
+{"kind":"textbox","slide":2,"id":"34","role":"caption","text":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textPreview":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textChars":115,"textLines":1,"bbox":[64,674,980,22]}
+{"kind":"image","slide":3,"id":"2","role":"art plate","path":"C:\\Users\\Hany.Abdelatty\\Desktop\\تطوير برنامج ERP\\ملفات السيرفر 16-4-2027\\erp_dev_copy\\outputs\\sales-deck\\references\\slide-03.png","bbox":[0,0,1280,720]}
+{"kind":"shape","slide":3,"id":"3","role":"metrics contrast overlay","shapeType":"rect","bbox":[0,0,1280,720]}
+{"kind":"textbox","slide":3,"id":"4","role":"header","text":"MODULES","textPreview":"MODULES","textChars":7,"textLines":1,"bbox":[64,34,430,24]}
+{"kind":"textbox","slide":3,"id":"5","role":"header","text":"03 / 06","textPreview":"03 / 06","textChars":7,"textLines":1,"bbox":[1114,34,104,24]}
+{"kind":"shape","slide":3,"id":"6","role":"header rule","shapeType":"rect","bbox":[64,64,1152,2]}
+{"kind":"shape","slide":3,"id":"7","role":"header marker","shapeType":"ellipse","bbox":[57,57,16,16]}
+{"kind":"textbox","slide":3,"id":"8","role":"title","text":"الموديولات الأساسية في النسخة الحالية","textPreview":"الموديولات الأساسية في النسخة الحالية","textChars":37,"textLines":1,"bbox":[64,86,700,142]}
+{"kind":"textbox","slide":3,"id":"9","role":"subtitle","text":"النسخة الحالية متوازنة بين التشغيل اليومي والرقابة المحاسبية بدون تعقيد زائد.","textPreview":"النسخة الحالية متوازنة بين التشغيل اليومي والرقابة المحاسبية بدون تعقيد زائد.","textChars":77,"textLines":1,"bbox":[66,234,700,70]}
+{"kind":"shape","slide":3,"id":"10","role":"metric panel: عملاء وفواتير","shapeType":"roundRect","bbox":[92,404,330,174]}
+{"kind":"shape","slide":3,"id":"11","role":"metric accent: عملاء وفواتير","shapeType":"rect","bbox":[92,404,330,7]}
+{"kind":"textbox","slide":3,"id":"12","role":"metric value","text":"المبيعات","textPreview":"المبيعات","textChars":8,"textLines":1,"bbox":[114,428,286,54]}
+{"kind":"textbox","slide":3,"id":"13","role":"metric label","text":"عملاء وفواتير","textPreview":"عملاء وفواتير","textChars":13,"textLines":1,"bbox":[116,486,282,38]}
+{"kind":"textbox","slide":3,"id":"14","role":"metric note","text":"أوامر بيع، فواتير بيع، مردودات","textPreview":"أوامر بيع، فواتير بيع، مردودات","textChars":30,"textLines":1,"bbox":[116,536,282,22]}
+{"kind":"shape","slide":3,"id":"15","role":"metric panel: موردون وفواتير","shapeType":"roundRect","bbox":[462,404,330,174]}
+{"kind":"shape","slide":3,"id":"16","role":"metric accent: موردون وفواتير","shapeType":"rect","bbox":[462,404,330,7]}
+{"kind":"textbox","slide":3,"id":"17","role":"metric value","text":"المشتريات","textPreview":"المشتريات","textChars":9,"textLines":1,"bbox":[484,428,286,54]}
+{"kind":"textbox","slide":3,"id":"18","role":"metric label","text":"موردون وفواتير","textPreview":"موردون وفواتير","textChars":14,"textLines":1,"bbox":[486,486,282,38]}
+{"kind":"textbox","slide":3,"id":"19","role":"metric note","text":"أوامر شراء، فواتير مورد، مردودات","textPreview":"أوامر شراء، فواتير مورد، مردودات","textChars":32,"textLines":1,"bbox":[486,536,282,22]}
+{"kind":"shape","slide":3,"id":"20","role":"metric panel: قيود وتقارير","shapeType":"roundRect","bbox":[832,404,330,174]}
+{"kind":"shape","slide":3,"id":"21","role":"metric accent: قيود وتقارير","shapeType":"rect","bbox":[832,404,330,7]}
+{"kind":"textbox","slide":3,"id":"22","role":"metric value","text":"الحسابات","textPreview":"الحسابات","textChars":8,"textLines":1,"bbox":[854,428,286,54]}
+{"kind":"textbox","slide":3,"id":"23","role":"metric label","text":"قيود وتقارير","textPreview":"قيود وتقارير","textChars":12,"textLines":1,"bbox":[856,486,282,38]}
+{"kind":"textbox","slide":3,"id":"24","role":"metric note","text":"يومية، أستاذ، ميزان مراجعة، تقارير","textPreview":"يومية، أستاذ، ميزان مراجعة، تقارير","textChars":34,"textLines":1,"bbox":[856,536,282,22]}
+{"kind":"textbox","slide":3,"id":"25","role":"caption","text":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textPreview":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textChars":115,"textLines":1,"bbox":[64,674,980,22]}
+{"kind":"image","slide":4,"id":"2","role":"art plate","path":"C:\\Users\\Hany.Abdelatty\\Desktop\\تطوير برنامج ERP\\ملفات السيرفر 16-4-2027\\erp_dev_copy\\outputs\\sales-deck\\references\\slide-04.png","bbox":[0,0,1280,720]}
+{"kind":"shape","slide":4,"id":"3","role":"content contrast overlay","shapeType":"rect","bbox":[0,0,1280,720]}
+{"kind":"textbox","slide":4,"id":"4","role":"header","text":"FLOW","textPreview":"FLOW","textChars":4,"textLines":1,"bbox":[64,34,430,24]}
+{"kind":"textbox","slide":4,"id":"5","role":"header","text":"04 / 06","textPreview":"04 / 06","textChars":7,"textLines":1,"bbox":[1114,34,104,24]}
+{"kind":"shape","slide":4,"id":"6","role":"header rule","shapeType":"rect","bbox":[64,64,1152,2]}
+{"kind":"shape","slide":4,"id":"7","role":"header marker","shapeType":"ellipse","bbox":[57,57,16,16]}
+{"kind":"textbox","slide":4,"id":"8","role":"title","text":"دورة تشغيل واضحة من المستند إلى الحسابات","textPreview":"دورة تشغيل واضحة من المستند إلى الحسابات","textChars":40,"textLines":1,"bbox":[64,86,760,142]}
+{"kind":"textbox","slide":4,"id":"9","role":"subtitle","text":"الهدف ليس فقط تسجيل العملية، بل أن تسمع الشاشات في بعضها حتى تصل النتيجة إلى التقارير النهائية.","textPreview":"الهدف ليس فقط تسجيل العملية، بل أن تسمع الشاشات في بعضها حتى تصل النتيجة إلى التقارير النهائية.","textChars":95,"textLines":1,"bbox":[66,234,720,70]}
+{"kind":"shape","slide":4,"id":"10","role":"card panel: الشراء","shapeType":"roundRect","bbox":[84,408,355.3333333333333,204]}
+{"kind":"shape","slide":4,"id":"11","role":"card accent: الشراء","shapeType":"rect","bbox":[84,408,8,204]}
+{"kind":"shape","slide":4,"id":"12","role":"icon badge","shapeType":"ellipse","bbox":[106,432,54,54]}
+{"kind":"shape","slide":4,"id":"13","role":"icon glyph","shapeType":"rect","bbox":[122,461,6,12]}
+{"kind":"shape","slide":4,"id":"14","role":"icon glyph","shapeType":"rect","bbox":[131,453,6,20]}
+{"kind":"shape","slide":4,"id":"15","role":"icon glyph","shapeType":"rect","bbox":[140,446,6,27]}
+{"kind":"textbox","slide":4,"id":"16","role":"card label","text":"الشراء","textPreview":"الشراء","textChars":6,"textLines":1,"bbox":[172,430,247.33333333333331,28]}
+{"kind":"textbox","slide":4,"id":"17","role":"card body: الشراء","text":"أمر شراء ثم إذن إضافة ثم\nتسجيل فاتورة المورد وفق\nالسيناريو الصحيح دون تكرار\nالأثر المخزني.","textPreview":"أمر شراء ثم إذن إضافة ثم | تسجيل فاتورة المورد وفق | السيناريو الصحيح دون تكرار | الأثر المخزني.","textChars":90,"textLines":4,"bbox":[108,494,307.3333333333333,96]}
+{"kind":"shape","slide":4,"id":"18","role":"card panel: البيع","shapeType":"roundRect","bbox":[463.3333333333333,408,355.3333333333333,204]}
+{"kind":"shape","slide":4,"id":"19","role":"card accent: البيع","shapeType":"rect","bbox":[463.3333333333333,408,8,204]}
+{"kind":"shape","slide":4,"id":"20","role":"icon badge","shapeType":"ellipse","bbox":[485.3333333333333,432,54,54]}
+{"kind":"shape","slide":4,"id":"21","role":"icon glyph","shapeType":"ellipse","bbox":[498.3333333333333,450,10,10]}
+{"kind":"shape","slide":4,"id":"22","role":"icon glyph","shapeType":"ellipse","bbox":[516.3333333333333,459,10,10]}
+{"kind":"shape","slide":4,"id":"23","role":"icon glyph","shapeType":"rect","bbox":[507.3333333333333,457,19,3]}
+{"kind":"textbox","slide":4,"id":"24","role":"card label","text":"البيع","textPreview":"البيع","textChars":5,"textLines":1,"bbox":[551.3333333333333,430,247.33333333333331,28]}
+{"kind":"textbox","slide":4,"id":"25","role":"card body: البيع","text":"أمر بيع ثم إذن صرف ثم إصدار\nفاتورة العميل مع ظهور أثرها\nفي العميل والمخزون\nوالحسابات.","textPreview":"أمر بيع ثم إذن صرف ثم إصدار | فاتورة العميل مع ظهور أثرها | في العميل والمخزون | والحسابات.","textChars":85,"textLines":4,"bbox":[487.3333333333333,494,307.3333333333333,96]}
+{"kind":"shape","slide":4,"id":"26","role":"card panel: المراجعة","shapeType":"roundRect","bbox":[842.6666666666666,408,355.3333333333333,204]}
+{"kind":"shape","slide":4,"id":"27","role":"card accent: المراجعة","shapeType":"rect","bbox":[842.6666666666666,408,8,204]}
+{"kind":"shape","slide":4,"id":"28","role":"icon badge","shapeType":"ellipse","bbox":[864.6666666666666,432,54,54]}
+{"kind":"shape","slide":4,"id":"29","role":"icon glyph","shapeType":"roundRect","bbox":[877.6666666666666,447,26,13]}
+{"kind":"shape","slide":4,"id":"30","role":"icon glyph","shapeType":"roundRect","bbox":[882.6666666666666,456,26,13]}
+{"kind":"shape","slide":4,"id":"31","role":"icon glyph","shapeType":"roundRect","bbox":[887.6666666666666,465,20,10]}
+{"kind":"textbox","slide":4,"id":"32","role":"card label","text":"المراجعة","textPreview":"المراجعة","textChars":8,"textLines":1,"bbox":[930.6666666666666,430,247.33333333333331,28]}
+{"kind":"textbox","slide":4,"id":"33","role":"card body: المراجعة","text":"النتائج تظهر في اليومية\nوالأستاذ وكشوف الحساب وميزان\nالمراجعة والتقارير\nالتشغيلية.","textPreview":"النتائج تظهر في اليومية | والأستاذ وكشوف الحساب وميزان | المراجعة والتقارير | التشغيلية.","textChars":82,"textLines":4,"bbox":[866.6666666666666,494,307.3333333333333,96]}
+{"kind":"textbox","slide":4,"id":"34","role":"caption","text":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textPreview":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textChars":115,"textLines":1,"bbox":[64,674,980,22]}
+{"kind":"image","slide":5,"id":"2","role":"art plate","path":"C:\\Users\\Hany.Abdelatty\\Desktop\\تطوير برنامج ERP\\ملفات السيرفر 16-4-2027\\erp_dev_copy\\outputs\\sales-deck\\references\\slide-05.png","bbox":[0,0,1280,720]}
+{"kind":"shape","slide":5,"id":"3","role":"content contrast overlay","shapeType":"rect","bbox":[0,0,1280,720]}
+{"kind":"textbox","slide":5,"id":"4","role":"header","text":"CONTROL","textPreview":"CONTROL","textChars":7,"textLines":1,"bbox":[64,34,430,24]}
+{"kind":"textbox","slide":5,"id":"5","role":"header","text":"05 / 06","textPreview":"05 / 06","textChars":7,"textLines":1,"bbox":[1114,34,104,24]}
+{"kind":"shape","slide":5,"id":"6","role":"header rule","shapeType":"rect","bbox":[64,64,1152,2]}
+{"kind":"shape","slide":5,"id":"7","role":"header marker","shapeType":"ellipse","bbox":[57,57,16,16]}
+{"kind":"textbox","slide":5,"id":"8","role":"title","text":"قوة الرقابة والمتابعة المحاسبية","textPreview":"قوة الرقابة والمتابعة المحاسبية","textChars":31,"textLines":1,"bbox":[64,86,760,142]}
+{"kind":"textbox","slide":5,"id":"9","role":"subtitle","text":"المشروع لا يتوقف عند إصدار المستند، بل يمتد إلى الفلاتر وكشوف الحساب والطباعة والتقارير.","textPreview":"المشروع لا يتوقف عند إصدار المستند، بل يمتد إلى الفلاتر وكشوف الحساب والطباعة والتقارير.","textChars":88,"textLines":1,"bbox":[66,234,720,70]}
+{"kind":"shape","slide":5,"id":"10","role":"card panel: فلاتر عملية","shapeType":"roundRect","bbox":[84,408,355.3333333333333,204]}
+{"kind":"shape","slide":5,"id":"11","role":"card accent: فلاتر عملية","shapeType":"rect","bbox":[84,408,8,204]}
+{"kind":"shape","slide":5,"id":"12","role":"icon badge","shapeType":"ellipse","bbox":[106,432,54,54]}
+{"kind":"shape","slide":5,"id":"13","role":"icon glyph","shapeType":"rect","bbox":[122,461,6,12]}
+{"kind":"shape","slide":5,"id":"14","role":"icon glyph","shapeType":"rect","bbox":[131,453,6,20]}
+{"kind":"shape","slide":5,"id":"15","role":"icon glyph","shapeType":"rect","bbox":[140,446,6,27]}
+{"kind":"textbox","slide":5,"id":"16","role":"card label","text":"فلاتر عملية","textPreview":"فلاتر عملية","textChars":11,"textLines":1,"bbox":[172,430,247.33333333333331,28]}
+{"kind":"textbox","slide":5,"id":"17","role":"card body: فلاتر عملية","text":"فلاتر في اليومية والأستاذ\nوالعملاء والموردين والمخزون\nوالتقارير لتسريع الوصول\nللمعلومة.","textPreview":"فلاتر في اليومية والأستاذ | والعملاء والموردين والمخزون | والتقارير لتسريع الوصول | للمعلومة.","textChars":87,"textLines":4,"bbox":[108,494,307.3333333333333,96]}
+{"kind":"shape","slide":5,"id":"18","role":"card panel: طباعة جاهزة","shapeType":"roundRect","bbox":[463.3333333333333,408,355.3333333333333,204]}
+{"kind":"shape","slide":5,"id":"19","role":"card accent: طباعة جاهزة","shapeType":"rect","bbox":[463.3333333333333,408,8,204]}
+{"kind":"shape","slide":5,"id":"20","role":"icon badge","shapeType":"ellipse","bbox":[485.3333333333333,432,54,54]}
+{"kind":"shape","slide":5,"id":"21","role":"icon glyph","shapeType":"ellipse","bbox":[498.3333333333333,450,10,10]}
+{"kind":"shape","slide":5,"id":"22","role":"icon glyph","shapeType":"ellipse","bbox":[516.3333333333333,459,10,10]}
+{"kind":"shape","slide":5,"id":"23","role":"icon glyph","shapeType":"rect","bbox":[507.3333333333333,457,19,3]}
+{"kind":"textbox","slide":5,"id":"24","role":"card label","text":"طباعة جاهزة","textPreview":"طباعة جاهزة","textChars":11,"textLines":1,"bbox":[551.3333333333333,430,247.33333333333331,28]}
+{"kind":"textbox","slide":5,"id":"25","role":"card body: طباعة جاهزة","text":"طباعة للمستندات الرئيسية مثل\nالفواتير وأوامر الشراء\nوسندات القبض والصرف\nوالتسويات.","textPreview":"طباعة للمستندات الرئيسية مثل | الفواتير وأوامر الشراء | وسندات القبض والصرف | والتسويات.","textChars":82,"textLines":4,"bbox":[487.3333333333333,494,307.3333333333333,96]}
+{"kind":"shape","slide":5,"id":"26","role":"card panel: اتزان محاسبي","shapeType":"roundRect","bbox":[842.6666666666666,408,355.3333333333333,204]}
+{"kind":"shape","slide":5,"id":"27","role":"card accent: اتزان محاسبي","shapeType":"rect","bbox":[842.6666666666666,408,8,204]}
+{"kind":"shape","slide":5,"id":"28","role":"icon badge","shapeType":"ellipse","bbox":[864.6666666666666,432,54,54]}
+{"kind":"shape","slide":5,"id":"29","role":"icon glyph","shapeType":"roundRect","bbox":[877.6666666666666,447,26,13]}
+{"kind":"shape","slide":5,"id":"30","role":"icon glyph","shapeType":"roundRect","bbox":[882.6666666666666,456,26,13]}
+{"kind":"shape","slide":5,"id":"31","role":"icon glyph","shapeType":"roundRect","bbox":[887.6666666666666,465,20,10]}
+{"kind":"textbox","slide":5,"id":"32","role":"card label","text":"اتزان محاسبي","textPreview":"اتزان محاسبي","textChars":12,"textLines":1,"bbox":[930.6666666666666,430,247.33333333333331,28]}
+{"kind":"textbox","slide":5,"id":"33","role":"card body: اتزان محاسبي","text":"نسخة الديمو الحالية متزنة في\nميزان المراجعة وتمت مراجعة\nمساراتها الأساسية باختبارات\nQA.","textPreview":"نسخة الديمو الحالية متزنة في | ميزان المراجعة وتمت مراجعة | مساراتها الأساسية باختبارات | QA.","textChars":87,"textLines":4,"bbox":[866.6666666666666,494,307.3333333333333,96]}
+{"kind":"textbox","slide":5,"id":"34","role":"caption","text":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textPreview":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textChars":115,"textLines":1,"bbox":[64,674,980,22]}
+{"kind":"image","slide":6,"id":"2","role":"art plate","path":"C:\\Users\\Hany.Abdelatty\\Desktop\\تطوير برنامج ERP\\ملفات السيرفر 16-4-2027\\erp_dev_copy\\outputs\\sales-deck\\references\\slide-06.png","bbox":[0,0,1280,720]}
+{"kind":"shape","slide":6,"id":"3","role":"metrics contrast overlay","shapeType":"rect","bbox":[0,0,1280,720]}
+{"kind":"textbox","slide":6,"id":"4","role":"header","text":"STATUS","textPreview":"STATUS","textChars":6,"textLines":1,"bbox":[64,34,430,24]}
+{"kind":"textbox","slide":6,"id":"5","role":"header","text":"06 / 06","textPreview":"06 / 06","textChars":7,"textLines":1,"bbox":[1114,34,104,24]}
+{"kind":"shape","slide":6,"id":"6","role":"header rule","shapeType":"rect","bbox":[64,64,1152,2]}
+{"kind":"shape","slide":6,"id":"7","role":"header marker","shapeType":"ellipse","bbox":[57,57,16,16]}
+{"kind":"textbox","slide":6,"id":"8","role":"title","text":"حالة النسخة الحالية ولماذا هي جاهزة للعرض","textPreview":"حالة النسخة الحالية ولماذا هي جاهزة للعرض","textChars":41,"textLines":1,"bbox":[64,86,700,142]}
+{"kind":"textbox","slide":6,"id":"9","role":"subtitle","text":"تم تجهيز نسخة ديمو نظيفة مع مراجعة تشغيلية حديثة، ما يجعل العرض على العميل مباشرًا وواضحًا.","textPreview":"تم تجهيز نسخة ديمو نظيفة مع مراجعة تشغيلية حديثة، ما يجعل العرض على العميل مباشرًا وواضحًا.","textChars":91,"textLines":1,"bbox":[66,234,700,70]}
+{"kind":"shape","slide":6,"id":"10","role":"metric panel: حسابًا في الدليل","shapeType":"roundRect","bbox":[92,404,330,174]}
+{"kind":"shape","slide":6,"id":"11","role":"metric accent: حسابًا في الدليل","shapeType":"rect","bbox":[92,404,330,7]}
+{"kind":"textbox","slide":6,"id":"12","role":"metric value","text":"87","textPreview":"87","textChars":2,"textLines":1,"bbox":[114,428,286,54]}
+{"kind":"textbox","slide":6,"id":"13","role":"metric label","text":"حسابًا في الدليل","textPreview":"حسابًا في الدليل","textChars":16,"textLines":1,"bbox":[116,486,282,38]}
+{"kind":"textbox","slide":6,"id":"14","role":"metric note","text":"تم الحفاظ على شجرة الحسابات","textPreview":"تم الحفاظ على شجرة الحسابات","textChars":27,"textLines":1,"bbox":[116,536,282,22]}
+{"kind":"shape","slide":6,"id":"15","role":"metric panel: قيدًا في الديمو","shapeType":"roundRect","bbox":[462,404,330,174]}
+{"kind":"shape","slide":6,"id":"16","role":"metric accent: قيدًا في الديمو","shapeType":"rect","bbox":[462,404,330,7]}
+{"kind":"textbox","slide":6,"id":"17","role":"metric value","text":"18","textPreview":"18","textChars":2,"textLines":1,"bbox":[484,428,286,54]}
+{"kind":"textbox","slide":6,"id":"18","role":"metric label","text":"قيدًا في الديمو","textPreview":"قيدًا في الديمو","textChars":15,"textLines":1,"bbox":[486,486,282,38]}
+{"kind":"textbox","slide":6,"id":"19","role":"metric note","text":"مع أستاذ وميزان مراجعة متزن","textPreview":"مع أستاذ وميزان مراجعة متزن","textChars":27,"textLines":1,"bbox":[486,536,282,22]}
+{"kind":"shape","slide":6,"id":"20","role":"metric panel: نجاح المسارات الرئيسية","shapeType":"roundRect","bbox":[832,404,330,174]}
+{"kind":"shape","slide":6,"id":"21","role":"metric accent: نجاح المسارات الرئيسية","shapeType":"rect","bbox":[832,404,330,7]}
+{"kind":"textbox","slide":6,"id":"22","role":"metric value","text":"200","textPreview":"200","textChars":3,"textLines":1,"bbox":[854,428,286,54]}
+{"kind":"textbox","slide":6,"id":"23","role":"metric label","text":"نجاح المسارات الرئيسية","textPreview":"نجاح المسارات الرئيسية","textChars":22,"textLines":1,"bbox":[856,486,282,38]}
+{"kind":"textbox","slide":6,"id":"24","role":"metric note","text":"آخر QA على الشاشات الأساسية والطباعة","textPreview":"آخر QA على الشاشات الأساسية والطباعة","textChars":36,"textLines":1,"bbox":[856,536,282,22]}
+{"kind":"textbox","slide":6,"id":"25","role":"caption","text":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textPreview":"Generated art plate is used as visual direction; all meaningful copy and structure are editable PowerPoint objects.","textChars":115,"textLines":1,"bbox":[64,674,980,22]}

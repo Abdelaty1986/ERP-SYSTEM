@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h2>فاتورة بيع من أذون صرف</h2>
+        <div class="eyebrow">اختر إذن صرف واحدًا أو أكثر من الأذون غير المفوترة لتكوين فاتورة بيع متعددة الأصناف.</div>
+    </div>
+</div>
+
+<form method="GET" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-3">
+            <label class="form-label">رقم أمر البيع</label>
+            <input type="number" name="sales_order_id" value="{{ selected_order_id or '' }}" class="form-control" placeholder="مثال: 12">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">رقم إذن الصرف</label>
+            <input type="text" name="delivery_no" value="{{ selected_delivery_no or '' }}" class="form-control" placeholder="مثال: DN-000001">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-primary w-100">بحث</button>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <a href="/sales/from-delivery" class="btn btn-secondary w-100">عرض الكل</a>
+        </div>
+    </div>
+</form>
+
+{% if can_write("sales") %}
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2 mb-3">
+        <div class="col-md-2"><label class="form-label">تاريخ الفاتورة</label><input type="date" name="date" class="form-control" required></div>
+        <div class="col-md-2"><label class="form-label">تاريخ الاستحقاق</label><input type="date" name="due_date" class="form-control"></div>
+        <div class="col-md-2"><label class="form-label">نوع البيع</label><select name="payment_type" class="form-control"><option value="credit">آجل</option><option value="cash">نقدي</option></select></div>
+        <div class="col-md-2"><label class="form-label">PO/</label><input type="text" name="po_ref" class="form-control"></div>
+        <div class="col-md-2"><label class="form-label">GR/</label><input type="text" name="gr_ref" class="form-control"></div>
+        <div class="col-md-2"><label class="form-label">ملاحظات</label><input type="text" name="notes" class="form-control"></div>
+    </div>
+
+    {% if not open_deliveries %}
+    <div class="alert alert-warning">لا توجد أذون صرف مفتوحة غير مفوترة مطابقة لبحثك الحالي.</div>
+    {% else %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle">
+            <tr>
+                <th>اختيار</th><th>إذن الصرف</th><th>التاريخ</th><th>أمر البيع</th><th>العميل</th><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الصافي</th><th>VAT</th><th>خصم وإضافة</th><th>الإجمالي</th>
+            </tr>
+            {% for d in open_deliveries %}
+            <tr>
+                <td><input type="checkbox" name="delivery_ids" value="{{ d[0] }}" {% if d[0] in selected_delivery_ids %}checked{% endif %}></td>
+                <td>{{ d[1] }}</td>
+                <td>{{ d[2] }}</td>
+                <td>{{ d[3] }}</td>
+                <td>{{ d[4] }}</td>
+                <td>{{ d[5] }}</td>
+                <td>{{ d[6] }}</td>
+                <td>{{ d[7] }}</td>
+                <td>{{ d[8] }}</td>
+                <td>
+                    <input type="checkbox" name="vat_enabled_{{ d[0] }}" value="1" checked>
+                    <input type="hidden" name="vat_rate_{{ d[0] }}" value="14">
+                </td>
+                <td>
+                    <input type="checkbox" name="withholding_enabled_{{ d[0] }}" value="1">
+                    <input type="hidden" name="withholding_rate_{{ d[0] }}" value="1">
+                </td>
+                <td>{{ d[10] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <button class="btn btn-success">تسجيل الفاتورة من الأذون المختارة</button>
+    {% endif %}
+</form>
+{% endif %}
+{% endblock %}

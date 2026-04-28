@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>{{ doc_type }} #{{ doc[0] }}</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+
+<style>
+body {
+    font-family: "Tahoma", Arial;
+    background: #f5f5f5;
+}
+
+.print-page {
+    width: 210mm;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border: 1px solid #ddd;
+}
+
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+}
+
+.print-logo {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.company-info h2 {
+    margin: 0;
+    font-weight: bold;
+}
+
+.doc-title {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 26px;
+    font-weight: bold;
+    border: 2px solid #000;
+    padding: 8px;
+    width: 200px;
+}
+
+.info-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.info-table td {
+    padding: 8px;
+    border: 1px solid #ccc;
+}
+
+.amount-box {
+    margin-top: 20px;
+    border: 2px solid #000;
+    padding: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.amount-words {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.notes-box {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 60px;
+}
+
+.signatures {
+    margin-top: 50px;
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.signatures div {
+    width: 30%;
+    border-top: 1px solid #000;
+    padding-top: 10px;
+}
+
+.print-actions {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+@media print {
+    .print-actions {
+        display: none;
+    }
+    body {
+        background: white;
+    }
+}
+</style>
+
+</head>
+<body>
+
+<div class="print-actions">
+    <button onclick="window.print()" class="btn btn-primary">طباعة</button>
+</div>
+
+<div class="print-page">
+
+    <!-- HEADER -->
+    <div class="print-header">
+        <div class="company-info">
+            {% if company.logo_path %}
+            <img src="{{ company.logo_path }}" class="print-logo">
+            {% endif %}
+            <h2>{{ company.company_name }}</h2>
+            <div>{{ company.address }}</div>
+            <div>{{ company.phone }}</div>
+        </div>
+
+        <div>
+            <div><b>رقم السند:</b> {{ doc[0] }}</div>
+            <div><b>التاريخ:</b> {{ doc[1] }}</div>
+            <div><b>الحالة:</b>
+                {% if doc[7] == "cancelled" %}ملغى
+                {% elif doc[7] == "draft" %}مسودة
+                {% else %}مرحل{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- TITLE -->
+    <div class="doc-title">
+        {{ doc_type }}
+    </div>
+
+    <!-- INFO -->
+    <table class="info-table">
+        <tr>
+            <td><b>{{ party_label }}</b></td>
+            <td>{{ doc[2] }}</td>
+        </tr>
+        <tr>
+            <td><b>الهاتف</b></td>
+            <td>{{ doc[3] }}</td>
+        </tr>
+        <tr>
+            <td><b>العنوان</b></td>
+            <td>{{ doc[4] }}</td>
+        </tr>
+    </table>
+
+    <!-- AMOUNT -->
+    <div class="amount-box">
+        المبلغ: {{ doc[5] }} جنيه
+    </div>
+
+    {% if amount_in_words %}
+    <div class="amount-words">
+        {{ amount_in_words }}
+    </div>
+    {% endif %}
+
+    <!-- NOTES -->
+    <div class="notes-box">
+        <b>البيان:</b><br>
+        {{ doc[6] or "" }}
+    </div>
+
+    <!-- CANCEL -->
+    {% if doc[7] == "cancelled" %}
+    <div style="color:red; margin-top:15px;">
+        ⚠ هذا السند ملغى - السبب: {{ doc[8] }}
+    </div>
+    {% endif %}
+
+    <!-- SIGNATURES -->
+    <div class="signatures">
+        <div>المحاسب</div>
+        <div>المستلم</div>
+        <div>المدير</div>
+    </div>
+
+</div>
+
+</body>
+</html>

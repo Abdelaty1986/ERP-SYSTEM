@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>ربط السداد والتحصيل بالفواتير</h2>
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-2"><label class="form-label">النوع</label><select name="allocation_type" class="form-control"><option value="customer">عميل</option><option value="supplier">مورد</option></select></div>
+        <div class="col-md-3"><label class="form-label">رقم الفاتورة</label><input type="number" name="invoice_id" class="form-control" required></div>
+        <div class="col-md-3"><label class="form-label">رقم السند</label><input type="number" name="voucher_id" class="form-control" required></div>
+        <div class="col-md-2"><label class="form-label">المبلغ</label><input type="number" step="0.01" min="0.01" name="amount" class="form-control" required></div>
+        <div class="col-md-2 d-flex align-items-end"><button class="btn btn-success w-100">ربط</button></div>
+    </div>
+</form>
+<div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="card p-3"><h5>فواتير العملاء الآجلة</h5><p>{% for r in sales_invoices %}{% if loop.index <= 10 %}#{{ r[0] }} - {{ r[1] }} - {{ r[2] }}<br>{% endif %}{% endfor %}</p></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>سندات القبض</h5><p>{% for r in receipts %}{% if loop.index <= 10 %}#{{ r[0] }} - {{ r[1] }} - {{ r[2] }}<br>{% endif %}{% endfor %}</p></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>فواتير الموردين الآجلة</h5><p>{% for r in purchase_invoices %}{% if loop.index <= 10 %}#{{ r[0] }} - {{ r[1] }} - {{ r[2] }}<br>{% endif %}{% endfor %}</p></div></div>
+    <div class="col-md-3"><div class="card p-3"><h5>سندات الصرف</h5><p>{% for r in payments %}{% if loop.index <= 10 %}#{{ r[0] }} - {{ r[1] }} - {{ r[2] }}<br>{% endif %}{% endfor %}</p></div></div>
+</div>
+<table class="table table-bordered"><tr><th>النوع</th><th>الفاتورة</th><th>السند</th><th>المبلغ</th></tr>{% for r in rows %}<tr><td>{{ r[0] }}</td><td>{{ r[1] }}</td><td>{{ r[2] }}</td><td>{{ r[3] }}</td></tr>{% endfor %}</table>
+{% endblock %}

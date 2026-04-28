@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h2>الفترات المالية</h2>
+        <div class="eyebrow">إقفال الفترة يمنع التسجيل أو التعديل داخلها، وفتحها متاح للمدير فقط مع تسجيل العملية في سجل المراجعة.</div>
+    </div>
+</div>
+
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-3">
+            <label class="form-label">اسم الفترة</label>
+            <input type="text" name="name" class="form-control" placeholder="مثال: أبريل 2026" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">من تاريخ</label>
+            <input type="date" name="start_date" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">إلى تاريخ</label>
+            <input type="date" name="end_date" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" name="notes" class="form-control">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">إضافة فترة</button>
+        </div>
+    </div>
+</form>
+
+<table class="table table-bordered align-middle">
+    <tr>
+        <th>#</th>
+        <th>الفترة</th>
+        <th>من</th>
+        <th>إلى</th>
+        <th>الحالة</th>
+        <th>آخر إقفال</th>
+        <th>آخر فتح</th>
+        <th>ملاحظات</th>
+        <th class="no-print">إجراء</th>
+    </tr>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>{% if row[4] == "closed" %}<span class="badge bg-danger">مقفلة</span>{% else %}<span class="badge bg-success">مفتوحة</span>{% endif %}</td>
+        <td>{{ row[5] or "" }} {{ row[6] or "" }}</td>
+        <td>{{ row[7] or "" }} {{ row[8] or "" }}</td>
+        <td>{{ row[9] or "" }}</td>
+        <td class="no-print">
+            {% if row[4] == "closed" %}
+            <form method="POST" action="/fiscal-periods/{{ row[0] }}/open" onsubmit="return confirm('سيتم فتح الفترة المالية المغلقة وتسجيل العملية في سجل المراجعة. هل تريد المتابعة؟');">
+                <button class="btn btn-warning btn-sm" {% if session.get('role') != 'admin' %}disabled title="فتح الفترة متاح للمدير فقط"{% endif %}>فتح الفترة</button>
+            </form>
+            {% else %}
+            <form method="POST" action="/fiscal-periods/{{ row[0] }}/close" onsubmit="return confirm('إقفال الفترة سيمنع أي تسجيل أو تعديل داخلها. هل تريد المتابعة؟');">
+                <button class="btn btn-danger btn-sm">إقفال</button>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

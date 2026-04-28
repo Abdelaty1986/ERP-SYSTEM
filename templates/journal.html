@@ -1,0 +1,176 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">الحسابات العامة</div>
+        <h2>القيود اليومية</h2>
+        <p class="page-subtitle">تسجيل القيود اليدوية ومراجعتها مع فلاتر عملية تساعد على الوصول السريع للحركة المطلوبة.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/journal/export{% if export_query %}?{{ export_query }}{% endif %}" class="btn btn-outline-success">تصدير Excel</a>
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+{% if can_write("accounting") %}
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>إضافة قيد جديد</h3>
+            <p>أدخل بيانات القيد ليؤثر على اليومية والأستاذ وميزان المراجعة حسب حالة الترحيل.</p>
+        </div>
+    </div>
+    <form method="POST">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label">التاريخ</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-9">
+                <label class="form-label">البيان</label>
+                <input type="text" name="description" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">الحساب المدين</label>
+                <select name="debit" class="form-select" required>
+                    <option value="">اختر الحساب المدين</option>
+                    {% for a in accounts %}
+                    <option value="{{ a[0] }}">{{ a[2] }} ({{ a[1] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">الحساب الدائن</label>
+                <select name="credit" class="form-select" required>
+                    <option value="">اختر الحساب الدائن</option>
+                    {% for a in accounts %}
+                    <option value="{{ a[0] }}">{{ a[2] }} ({{ a[1] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">المبلغ</label>
+                <input type="number" step="0.01" min="0.01" name="amount" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">مركز التكلفة</label>
+                <select name="cost_center_id" class="form-select">
+                    <option value="">بدون مركز تكلفة</option>
+                    {% for c in cost_centers %}
+                    <option value="{{ c[0] }}">{{ c[2] }}{% if c[1] %} ({{ c[1] }}){% endif %}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-success mt-3">حفظ القيد</button>
+    </form>
+</section>
+{% endif %}
+
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>فلترة القيود</h3>
+            <p>فلتر حسب التاريخ أو الحالة أو الحساب أو مركز التكلفة أو جزء من البيان.</p>
+        </div>
+    </div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">من تاريخ</label>
+                <input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">إلى تاريخ</label>
+                <input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">الحالة</label>
+                <select name="status" class="form-select">
+                    <option value="">الكل</option>
+                    <option value="draft" {% if filters.status == 'draft' %}selected{% endif %}>غير مرحلة</option>
+                    <option value="posted" {% if filters.status == 'posted' %}selected{% endif %}>مرحلة</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">الحساب</label>
+                <select name="account_id" class="form-select">
+                    <option value="">كل الحسابات</option>
+                    {% for a in accounts %}
+                    <option value="{{ a[0] }}" {% if filters.account_id == (a[0]|string) %}selected{% endif %}>{{ a[2] }} ({{ a[1] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">مركز التكلفة</label>
+                <select name="cost_center_id" class="form-select">
+                    <option value="">كل المراكز</option>
+                    {% for c in cost_centers %}
+                    <option value="{{ c[0] }}" {% if filters.cost_center_id == (c[0]|string) %}selected{% endif %}>{{ c[2] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">يحتوي البيان على</label>
+                <input type="text" name="description" value="{{ filters.description }}" class="form-control" placeholder="ابحث داخل البيان">
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button class="btn btn-primary flex-grow-1">تطبيق الفلاتر</button>
+                <a href="/journal" class="btn btn-outline-secondary">إعادة ضبط</a>
+            </div>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل القيود</h3>
+            <p>القيود غير المرحلة فقط هي التي تقبل التعديل أو الحذف.</p>
+        </div>
+        <span class="stat-pill">{{ journal|length }} قيد</span>
+    </div>
+
+    {% if journal %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>البيان</th>
+                <th>مدين</th>
+                <th>دائن</th>
+                <th class="money">المبلغ</th>
+                <th>مركز التكلفة</th>
+                <th>الحالة</th>
+                <th class="no-print">إجراءات</th>
+            </tr>
+            {% for j in journal %}
+            <tr>
+                <td>{{ j[0] }}</td>
+                <td>{{ j[1] }}</td>
+                <td>{{ j[2] }}</td>
+                <td>{{ j[3] }}</td>
+                <td>{{ j[4] }}</td>
+                <td class="money" data-value="{{ j[5] }}">{{ j[5] }}</td>
+                <td>{{ j[7] }}</td>
+                <td>{% if j[6] == "draft" %}غير مرحلة{% else %}مرحلة{% endif %}</td>
+                <td class="actions-cell no-print">
+                    {% if can_write("accounting") and j[6] == "draft" %}
+                    <a href="/edit/{{ j[0] }}" class="btn btn-warning btn-sm">تعديل</a>
+                    <form method="POST" action="/delete/{{ j[0] }}" class="d-inline" onsubmit="return confirm('هل تريد حذف هذا القيد؟');">
+                        <button class="btn btn-danger btn-sm">حذف</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">مقفل</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد قيود يومية مطابقة للفلاتر الحالية.</div>
+    {% endif %}
+</section>
+{% endblock %}

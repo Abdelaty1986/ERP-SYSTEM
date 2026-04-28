@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>تعديل فاتورة بيع غير مرحلة</h2>
+
+<form method="POST" class="card p-3">
+    <div class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">التاريخ</label>
+            <input type="date" name="date" value="{{ invoice[1] }}" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">تاريخ الاستحقاق</label>
+            <input type="date" name="due_date" value="{{ invoice[2] or '' }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">نوع البيع</label>
+            <select name="payment_type" class="form-control">
+                <option value="cash" {% if invoice[8] == "cash" %}selected{% endif %}>نقدي</option>
+                <option value="credit" {% if invoice[8] == "credit" %}selected{% endif %}>آجل</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">العميل</label>
+            <select name="customer_id" class="form-control">
+                <option value="">بدون عميل</option>
+                {% for c in customers %}
+                <option value="{{ c[0] }}" {% if invoice[3] == c[0] %}selected{% endif %}>{{ c[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">المنتج</label>
+            <select name="product_id" class="form-control" required>
+                {% for p in products %}
+                <option value="{{ p[0] }}" {% if invoice[4] == p[0] %}selected{% endif %}>{{ p[1] }} - رصيد {{ p[3] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">الكمية</label>
+            <input type="number" step="0.01" min="0.01" name="quantity" value="{{ invoice[5] }}" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">السعر</label>
+            <input type="number" step="0.01" min="0.01" name="unit_price" value="{{ invoice[6] }}" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">ضريبة %</label>
+            <input type="number" step="0.01" min="0" name="tax_rate" value="{{ invoice[7] }}" class="form-control">
+        </div>
+    </div>
+    <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-success">حفظ التعديل</button>
+        <a href="/sales" class="btn btn-secondary">رجوع</a>
+    </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>إقفال السنة المالية</h2>
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-3"><label class="form-label">السنة</label><input name="fiscal_year" class="form-control" placeholder="2026" required></div>
+        <div class="col-md-3"><label class="form-label">تاريخ الإقفال</label><input type="date" name="closing_date" class="form-control" required></div>
+        <div class="col-md-4"><label class="form-label">ملاحظات</label><input name="notes" class="form-control"></div>
+        <div class="col-md-2 d-flex align-items-end"><button class="btn btn-danger w-100" onclick="return confirm('هل تريد تنفيذ قيد إقفال السنة؟')">إقفال</button></div>
+    </div>
+</form>
+<table class="table table-bordered"><tr><th>السنة</th><th>التاريخ</th><th>الإيرادات</th><th>المصروفات</th><th>صافي الربح/الخسارة</th><th>الحالة</th></tr>
+{% for r in rows %}<tr><td>{{ r[1] }}</td><td>{{ r[2] }}</td><td>{{ r[3] }}</td><td>{{ r[4] }}</td><td>{{ r[5] }}</td><td>{{ r[6] }}</td></tr>{% endfor %}
+</table>
+{% endblock %}

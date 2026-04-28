@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المخازن</div>
+        <h2>حركة المخزون</h2>
+        <p class="page-subtitle">متابعة دخول وخروج الأصناف مع فلاتر حسب التاريخ ونوع الحركة والتصنيف.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>فلترة الحركة</h3>
+            <p>فلتر حسب الصنف أو نوع الحركة أو التصنيف أو نطاق التاريخ.</p>
+        </div>
+    </div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label">بحث بالصنف</label>
+                <input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="اسم الصنف">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">التصنيف</label>
+                <select name="category_id" class="form-select">
+                    <option value="">كل التصنيفات</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if filters.category_id == category.id|string %}selected{% endif %}>
+                        {{ category.option_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">نوع الحركة</label>
+                <select name="movement_type" class="form-select">
+                    <option value="">الكل</option>
+                    <option value="in" {% if filters.movement_type == 'in' %}selected{% endif %}>دخول</option>
+                    <option value="out" {% if filters.movement_type == 'out' %}selected{% endif %}>خروج</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">من تاريخ</label>
+                <input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">إلى تاريخ</label>
+                <input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control">
+            </div>
+            <div class="col-md-12 d-flex gap-2 justify-content-end">
+                <button class="btn btn-primary">تطبيق</button>
+                <a href="/inventory" class="btn btn-outline-secondary">إعادة</a>
+            </div>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل الحركة</h3>
+            <p>يعرض الحركات المخزنية بحسب الفلاتر المختارة.</p>
+        </div>
+        <span class="stat-pill">{{ rows|length }} حركة</span>
+    </div>
+    {% if rows %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>التاريخ</th>
+                <th>الصنف</th>
+                <th>التصنيف</th>
+                <th>الحركة</th>
+                <th>الكمية</th>
+                <th>المرجع</th>
+                <th>ملاحظات</th>
+            </tr>
+            {% for r in rows %}
+            <tr>
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[7] or "-" }}</td>
+                <td>{% if r[2] == "in" %}دخول{% else %}خروج{% endif %}</td>
+                <td>{{ r[3] }}</td>
+                <td>{{ r[4] }} #{{ r[5] }}</td>
+                <td>{{ r[6] or "" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد حركات مخزون مطابقة للفلاتر الحالية.</div>
+    {% endif %}
+</section>
+{% endblock %}

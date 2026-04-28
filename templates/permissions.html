@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h2>الصلاحيات التفصيلية</h2>
+        <div class="eyebrow">تحديد مستوى الوصول لكل دور ولكل جزء من النظام</div>
+    </div>
+</div>
+
+<form method="POST" class="card p-3 no-print">
+    <table class="table table-bordered align-middle">
+        <tr>
+            <th>الجزء</th>
+            {% for role in roles %}
+            <th>{{ role[1] }}</th>
+            {% endfor %}
+        </tr>
+        {% for module in modules %}
+        <tr>
+            <td>{{ module[1] }}</td>
+            {% for role in roles %}
+            <td>
+                <select name="{{ role[0] }}__{{ module[0] }}" class="form-control">
+                    {% for level in access_levels %}
+                    <option value="{{ level[0] }}" {% if matrix.get(role[0] ~ "__" ~ module[0], "none") == level[0] %}selected{% endif %}>{{ level[1] }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    <button class="btn btn-success">حفظ الصلاحيات</button>
+</form>
+{% endblock %}

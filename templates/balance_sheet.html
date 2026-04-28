@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <div>
+        <h2>الميزانية العمومية</h2>
+        <div class="eyebrow">الأرصدة مبنية على القيود المرحلة في دفتر الأستاذ</div>
+    </div>
+    <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h5>الأصول</h5>
+            <table class="table table-bordered">
+                <tr><th>الكود</th><th>الحساب</th><th>الرصيد</th></tr>
+                {% for row in assets %}
+                <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ "%.2f"|format(row[2]) }}</td></tr>
+                {% endfor %}
+                <tr class="table-light"><th colspan="2">إجمالي الأصول</th><th>{{ "%.2f"|format(total_assets) }}</th></tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3 mb-3">
+            <h5>الخصوم</h5>
+            <table class="table table-bordered">
+                <tr><th>الكود</th><th>الحساب</th><th>الرصيد</th></tr>
+                {% for row in liabilities %}
+                <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ "%.2f"|format(row[2]) }}</td></tr>
+                {% endfor %}
+                <tr class="table-light"><th colspan="2">إجمالي الخصوم</th><th>{{ "%.2f"|format(total_liabilities) }}</th></tr>
+            </table>
+        </div>
+        <div class="card p-3">
+            <h5>حقوق الملكية</h5>
+            <table class="table table-bordered">
+                <tr><th>الكود</th><th>الحساب</th><th>الرصيد</th></tr>
+                {% for row in equity %}
+                <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ "%.2f"|format(row[2]) }}</td></tr>
+                {% endfor %}
+                <tr class="table-light"><th colspan="2">إجمالي حقوق الملكية</th><th>{{ "%.2f"|format(total_equity) }}</th></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card p-3 mt-3">
+    <div class="row g-3">
+        <div class="col-md-4"><b>إجمالي الأصول:</b> {{ "%.2f"|format(total_assets) }}</div>
+        <div class="col-md-4"><b>الخصوم وحقوق الملكية:</b> {{ "%.2f"|format(total_liabilities + total_equity) }}</div>
+        <div class="col-md-4"><b>فرق الاتزان:</b> {{ "%.2f"|format(difference) }}</div>
+    </div>
+</div>
+
+{% endblock %}

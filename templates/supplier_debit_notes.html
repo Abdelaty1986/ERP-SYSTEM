@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="page-head">
+    <h2>إشعارات تسوية مدينة للموردين</h2>
+</div>
+
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">التاريخ</label>
+            <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">مردود المشتريات</label>
+            <select name="purchase_return_id" class="form-control" required>
+                <option value="">اختر مردود المشتريات</option>
+                {% for row in open_returns %}
+                <option value="{{ row[0] }}">#{{ row[0] }} - {{ row[2] or "مورد نقدي" }} - {{ row[3] }} - {{ row[4] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" name="notes" class="form-control">
+        </div>
+    </div>
+    <button class="btn btn-success mt-3">إصدار إشعار تسوية مدين</button>
+</form>
+
+<table class="table table-bordered align-middle">
+    <tr>
+        <th>#</th>
+        <th>رقم المستند</th>
+        <th>التاريخ</th>
+        <th>المورد</th>
+        <th>الصنف</th>
+        <th>الكمية</th>
+        <th>الإجمالي</th>
+        <th class="no-print">إجراءات</th>
+    </tr>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>{{ row[4] }}</td>
+        <td>{{ row[5] }}</td>
+        <td>{{ row[6] }}</td>
+        <td class="no-print">
+            <a href="/debit-notes/suppliers/{{ row[0] }}/print" class="btn btn-primary btn-sm">طباعة</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

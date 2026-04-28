@@ -1,0 +1,175 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المبيعات</div>
+        <h2>أوامر البيع</h2>
+        <p class="page-subtitle">تسجيل أوامر البيع فقط، بينما يتم صرف البضاعة من المخازن وإصدار الفاتورة من شاشة الفواتير.</p>
+    </div>
+</div>
+
+<div class="summary-grid no-print">
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-card-checklist tone-blue"></i><span>عدد الأوامر</span></div>
+        <div class="summary-value">{{ rows|length }}</div>
+        <div class="summary-note">إجمالي أوامر البيع المسجلة حاليًا</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-box-seam tone-green"></i><span>إجمالي الكمية</span></div>
+        <div class="summary-value">{{ rows|sum(attribute=5) if rows else 0 }}</div>
+        <div class="summary-note">إجمالي الكميات المطلوبة في الأوامر الحالية</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-currency-dollar tone-orange"></i><span>إجمالي الأوامر</span></div>
+        <div class="summary-value money" data-value="{{ rows|sum(attribute=6) if rows else 0 }}">{{ rows|sum(attribute=6) if rows else 0 }}</div>
+        <div class="summary-note">قيمة أوامر البيع قبل التحويل إلى أذون صرف وفواتير</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-truck tone-red"></i><span>دور الشاشة</span></div>
+        <div class="summary-value">تسجيل</div>
+        <div class="summary-note">الأمر هنا للتخطيط فقط دون صرف أو فوترة من نفس الشاشة</div>
+    </div>
+</div>
+
+{% if can_write("sales") %}
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>إضافة أمر بيع</h3>
+            <p>أنشئ أمر بيع متعدد الأصناف، ثم تابع الصرف لاحقًا من المخازن بحسب الكميات المتاحة.</p>
+        </div>
+    </div>
+    <form method="POST">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">التاريخ</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">العميل</label>
+                <select name="customer_id" class="form-select">
+                    <option value="">بيع نقدي</option>
+                    {% for c in customers %}
+                    <option value="{{ c[0] }}">{{ c[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">تاريخ التسليم</label>
+                <input type="date" name="delivery_date" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">شروط السداد</label>
+                <input name="payment_terms" class="form-control">
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">ملاحظات</label>
+                <input name="notes" class="form-control" placeholder="أي بيانات تشغيلية أو تجارية تخص الأمر">
+            </div>
+        </div>
+
+        <div class="table-shell mt-3">
+            <table class="table table-bordered align-middle" id="sales-order-lines">
+                <thead>
+                    <tr>
+                        <th>الصنف</th>
+                        <th>الكمية</th>
+                        <th>السعر</th>
+                        <th>الضريبة %</th>
+                        <th class="no-print">حذف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select name="product_id[]" class="form-select product-select" required>
+                                <option value="">اختر الصنف</option>
+                                {% for p in products %}
+                                <option value="{{ p[0] }}" data-price="{{ p[2] }}">{{ p[1] }} - رصيد {{ p[3] }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="number" step="0.01" min="0.01" name="quantity[]" class="form-control" required></td>
+                        <td><input type="number" step="0.01" min="0.01" name="unit_price[]" class="form-control line-price" required></td>
+                        <td><input type="number" step="0.01" min="0" name="tax_rate[]" value="14" class="form-control"></td>
+                        <td class="no-print"><button type="button" class="btn btn-danger btn-sm remove-line">حذف</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary" id="add-sales-line">إضافة صنف</button>
+            <button class="btn btn-success">حفظ أمر البيع</button>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل الأوامر</h3>
+            <p>بعد تسجيل الأمر، يتم صرف البضاعة من شاشة أذون الصرف بالمخازن ثم يتم إصدار الفاتورة من شاشة الفواتير.</p>
+        </div>
+        <span class="stat-pill">{{ rows|length }} أمر</span>
+    </div>
+
+    {% if rows %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>العميل</th>
+                <th>الأصناف</th>
+                <th>عدد البنود</th>
+                <th>إجمالي الكمية</th>
+                <th class="money">الإجمالي</th>
+                <th>تاريخ التسليم</th>
+                <th>الحالة</th>
+                <th class="no-print">ملاحظات تشغيل</th>
+            </tr>
+            {% for r in rows %}
+            <tr>
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+                <td>{{ r[4] }}</td>
+                <td>{{ r[5] }}</td>
+                <td class="money" data-value="{{ r[6] }}">{{ r[6] }}</td>
+                <td>{{ r[7] or "" }}</td>
+                <td>{{ r[8] }}</td>
+                <td class="no-print">يتم الصرف من شاشة أذون الصرف بالمخازن.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد أوامر بيع مسجلة حاليًا.</div>
+    {% endif %}
+</section>
+
+<script>
+function bindOrderLines(tableId) {
+    const table = document.getElementById(tableId);
+    table.addEventListener("change", function(event) {
+        if (!event.target.classList.contains("product-select")) return;
+        const option = event.target.options[event.target.selectedIndex];
+        event.target.closest("tr").querySelector(".line-price").value = option.dataset.price || "";
+    });
+    table.addEventListener("click", function(event) {
+        if (!event.target.classList.contains("remove-line")) return;
+        if (table.querySelectorAll("tbody tr").length > 1) event.target.closest("tr").remove();
+    });
+}
+document.getElementById("add-sales-line").onclick = function() {
+    const tbody = document.querySelector("#sales-order-lines tbody");
+    const row = tbody.querySelector("tr").cloneNode(true);
+    row.querySelectorAll("input").forEach(input => input.value = input.name === "tax_rate[]" ? "14" : "");
+    row.querySelector("select").value = "";
+    tbody.appendChild(row);
+};
+bindOrderLines("sales-order-lines");
+</script>
+{% endblock %}

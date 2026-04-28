@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المشتريات</div>
+        <h2>أوامر الشراء</h2>
+        <p class="page-subtitle">تسجيل أوامر الشراء فقط، بينما يتم الاستلام من المخازن وتسجيل فاتورة المورد من شاشة الفواتير.</p>
+    </div>
+</div>
+
+<div class="summary-grid no-print">
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-journal-text tone-blue"></i><span>عدد الأوامر</span></div>
+        <div class="summary-value">{{ orders|length }}</div>
+        <div class="summary-note">إجمالي أوامر الشراء الحالية</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-boxes tone-green"></i><span>إجمالي الكمية</span></div>
+        <div class="summary-value">{{ orders|sum(attribute=5) if orders else 0 }}</div>
+        <div class="summary-note">الكميات المطلوبة عبر أوامر الشراء</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-cash-stack tone-orange"></i><span>إجمالي الأوامر</span></div>
+        <div class="summary-value money" data-value="{{ orders|sum(attribute=6) if orders else 0 }}">{{ orders|sum(attribute=6) if orders else 0 }}</div>
+        <div class="summary-note">قيمة الأوامر قبل الاستلام والفوترة</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-building-check tone-red"></i><span>دور الشاشة</span></div>
+        <div class="summary-value">اعتماد</div>
+        <div class="summary-note">يتم الاستلام لاحقًا من شاشة أذون الإضافة بالمخازن</div>
+    </div>
+</div>
+
+{% if can_write("purchases") %}
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>إصدار أمر شراء</h3>
+            <p>سجل الأصناف المطلوبة والكميات والأسعار التقديرية وشروط التوريد والسداد، ثم تابع الاستلام من المخازن.</p>
+        </div>
+    </div>
+    <form method="POST">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">تاريخ الأمر</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">المورد</label>
+                <select name="supplier_id" class="form-select" required>
+                    <option value="">اختر المورد</option>
+                    {% for s in suppliers %}
+                    <option value="{{ s[0] }}">{{ s[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">طريقة السداد</label>
+                <input type="text" name="payment_terms" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">تاريخ التوريد</label>
+                <input type="date" name="delivery_date" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">شروط التوريد</label>
+                <input type="text" name="delivery_terms" class="form-control">
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" name="notes" class="form-control" placeholder="أي بيانات تخص المورد أو التوريد">
+            </div>
+        </div>
+
+        <div class="table-shell mt-3">
+            <table class="table table-bordered align-middle" id="purchase-order-lines">
+                <thead>
+                    <tr>
+                        <th>الصنف</th>
+                        <th>الكمية المطلوبة</th>
+                        <th>السعر المتوقع</th>
+                        <th>الضريبة %</th>
+                        <th class="no-print">حذف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select name="product_id[]" class="form-select product-select" required>
+                                <option value="">اختر الصنف</option>
+                                {% for p in products %}
+                                <option value="{{ p[0] }}" data-price="{{ p[2] }}">{{ p[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="number" step="0.01" min="0.01" name="quantity[]" class="form-control" required></td>
+                        <td><input type="number" step="0.01" min="0.01" name="unit_price[]" class="form-control line-price" required></td>
+                        <td><input type="number" step="0.01" min="0" name="tax_rate[]" value="14" class="form-control"></td>
+                        <td class="no-print"><button type="button" class="btn btn-danger btn-sm remove-line">حذف</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary" id="add-purchase-line">إضافة صنف</button>
+            <button class="btn btn-success">إصدار أمر الشراء</button>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل الأوامر</h3>
+            <p>بعد إصدار الأمر، يتم الاستلام من شاشة أذون الإضافة، ثم تسجل فاتورة المورد من شاشة الفواتير.</p>
+        </div>
+        <span class="stat-pill">{{ orders|length }} أمر</span>
+    </div>
+
+    {% if orders %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>المورد</th>
+                <th>الأصناف</th>
+                <th>عدد البنود</th>
+                <th>إجمالي الكمية</th>
+                <th class="money">الإجمالي</th>
+                <th>طريقة السداد</th>
+                <th>تاريخ التوريد</th>
+                <th>الحالة</th>
+                <th class="no-print">إجراءات</th>
+            </tr>
+            {% for o in orders %}
+            <tr>
+                <td>{{ o[0] }}</td>
+                <td>{{ o[1] }}</td>
+                <td>{{ o[2] }}</td>
+                <td>{{ o[3] }}</td>
+                <td>{{ o[4] }}</td>
+                <td>{{ o[5] }}</td>
+                <td class="money" data-value="{{ o[6] }}">{{ o[6] }}</td>
+                <td>{{ o[7] or "" }}</td>
+                <td>{{ o[8] or "" }}</td>
+                <td>{{ o[9] }}</td>
+                <td class="no-print">
+                    <a href="/purchase-orders/{{ o[0] }}/print" class="btn btn-primary btn-sm">طباعة</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد أوامر شراء مسجلة حاليًا.</div>
+    {% endif %}
+</section>
+
+<script>
+function bindOrderLines(tableId) {
+    const table = document.getElementById(tableId);
+    table.addEventListener("change", function(event) {
+        if (!event.target.classList.contains("product-select")) return;
+        const option = event.target.options[event.target.selectedIndex];
+        event.target.closest("tr").querySelector(".line-price").value = option.dataset.price || "";
+    });
+    table.addEventListener("click", function(event) {
+        if (!event.target.classList.contains("remove-line")) return;
+        if (table.querySelectorAll("tbody tr").length > 1) event.target.closest("tr").remove();
+    });
+}
+document.getElementById("add-purchase-line").onclick = function() {
+    const tbody = document.querySelector("#purchase-order-lines tbody");
+    const row = tbody.querySelector("tr").cloneNode(true);
+    row.querySelectorAll("input").forEach(input => input.value = input.name === "tax_rate[]" ? "14" : "");
+    row.querySelector("select").value = "";
+    tbody.appendChild(row);
+};
+bindOrderLines("purchase-order-lines");
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">تقارير العملاء</div>
+        <h2>أرصدة العملاء</h2>
+        <p class="page-subtitle">ملخص الذمم المدينة والتحصيلات وأثر ضريبة الخصم والإضافة المدينة مع إمكانيات فلترة سريعة.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/reports/customers{% if export_query %}?{{ export_query }}&format=excel{% else %}?format=excel{% endif %}" class="btn btn-outline-success">تصدير Excel</a>
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>فلترة التقرير</h3><p>ابحث بالاسم أو فلتر حسب حالة الخصم والإضافة.</p></div></div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-8">
+                <label class="form-label">بحث</label>
+                <input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="اسم العميل">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">حالة الخصم والإضافة</label>
+                <select name="withholding_status" class="form-select">
+                    <option value="">الكل</option>
+                    <option value="subject" {% if filters.withholding_status == 'subject' %}selected{% endif %}>خاضع للخصم</option>
+                    <option value="non_subject" {% if filters.withholding_status == 'non_subject' %}selected{% endif %}>غير خاضع</option>
+                </select>
+            </div>
+            <div class="col-md-12 d-flex gap-2">
+                <button class="btn btn-primary">تطبيق الفلاتر</button>
+                <a href="/reports/customers" class="btn btn-outline-secondary">إعادة ضبط</a>
+            </div>
+        </div>
+    </form>
+</section>
+
+<div class="summary-grid">
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-people tone-blue"></i><span>عدد العملاء</span></div><div class="summary-value">{{ rows|length }}</div><div class="summary-note">إجمالي العملاء الظاهرين في التقرير</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-receipt-cutoff tone-green"></i><span>إجمالي المستحق</span></div><div class="summary-value money" data-value="{{ total_balance }}">{{ total_balance }}</div><div class="summary-note">إجمالي صافي الأرصدة المدينة للعملاء</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-wallet2 tone-orange"></i><span>إجمالي التحصيلات</span></div><div class="summary-value money" data-value="{{ rows|sum(attribute=3) if rows else 0 }}">{{ rows|sum(attribute=3) if rows else 0 }}</div><div class="summary-note">إجمالي المقبوضات المسجلة</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-percent tone-red"></i><span>خصم وإضافة مدينة</span></div><div class="summary-value money" data-value="{{ rows|sum(attribute=5) if rows else 0 }}">{{ rows|sum(attribute=5) if rows else 0 }}</div><div class="summary-note">المبالغ المدينة المسجلة لحساب الضرائب</div></div>
+</div>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title"><div><h3>تفاصيل الأرصدة</h3><p>يمكنك الانتقال مباشرة إلى كشف حساب كل عميل من عمود الإجراءات.</p></div><span class="stat-pill">{{ rows|length }} عميل</span></div>
+    {% if rows %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr><th>العميل</th><th class="money">فواتير آجلة</th><th class="money">تحصيلات</th><th class="money">الرصيد المستحق</th><th class="money">خصم وإضافة مدينة</th><th class="no-print">كشف الحساب</th></tr>
+            {% for r in rows %}
+            <tr>
+                <td>{{ r[1] }}</td>
+                <td class="money" data-value="{{ r[2] }}">{{ r[2] }}</td>
+                <td class="money" data-value="{{ r[3] }}">{{ r[3] }}</td>
+                <td class="money" data-value="{{ r[4] }}">{{ r[4] }}</td>
+                <td class="money" data-value="{{ r[5] }}">{{ r[5] }}</td>
+                <td class="no-print"><a href="/customers/{{ r[0] }}/statement" class="btn btn-primary btn-sm">عرض</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد بيانات عملاء مطابقة للفلاتر الحالية.</div>
+    {% endif %}
+</section>
+{% endblock %}

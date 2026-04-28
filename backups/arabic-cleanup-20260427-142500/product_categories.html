@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المخازن</div>
+        <h2>تصنيفات الأصناف</h2>
+        <p class="page-subtitle">إدارة التصنيفات الرئيسية والفرعية للأصناف مع التفعيل والتعطيل بدل الحذف.</p>
+    </div>
+</div>
+
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>{% if edit_category %}تعديل التصنيف{% else %}إضافة تصنيف جديد{% endif %}</h3>
+            <p>يمكنك إضافة تصنيف رئيسي أو ربطه بتصنيف أب لإنشاء تصنيف فرعي.</p>
+        </div>
+    </div>
+    <form method="POST">
+        <input type="hidden" name="action" value="save">
+        <input type="hidden" name="category_id" value="{{ edit_category[0] if edit_category else '' }}">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">اسم التصنيف</label>
+                <input type="text" name="name" value="{{ edit_category[1] if edit_category else '' }}" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">التصنيف الأب</label>
+                <select name="parent_id" class="form-select">
+                    <option value="">تصنيف رئيسي</option>
+                    {% for c in categories %}
+                    {% if not edit_category or c.id != edit_category[0] %}
+                    <option value="{{ c.id }}" {% if edit_category and edit_category[2] == c.id %}selected{% endif %}>{{ c.option_label }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button class="btn btn-success">حفظ</button>
+                {% if edit_category %}
+                <a href="/product-categories" class="btn btn-outline-secondary">إلغاء</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل التصنيفات</h3>
+            <p>يظهر التصنيف الفرعي أسفل الأب مع توضيح حالته الحالية.</p>
+        </div>
+        <span class="stat-pill">{{ categories|length }} تصنيف</span>
+    </div>
+    {% if categories %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>التصنيف</th>
+                <th>المسار</th>
+                <th>الحالة</th>
+                <th>تاريخ الإنشاء</th>
+                <th class="no-print">إجراءات</th>
+            </tr>
+            {% for c in categories %}
+            <tr>
+                <td>{{ c.option_label }}</td>
+                <td>{{ c.full_label }}</td>
+                <td>{% if c.status == 'active' %}نشط{% else %}معطل{% endif %}</td>
+                <td>{{ c.created_at }}</td>
+                <td class="no-print">
+                    <div class="d-flex gap-1 flex-wrap">
+                        <a href="/product-categories?edit_id={{ c.id }}" class="btn btn-warning btn-sm">تعديل</a>
+                        <form method="POST" action="/product-categories" class="d-inline">
+                            <input type="hidden" name="action" value="toggle">
+                            <input type="hidden" name="category_id" value="{{ c.id }}">
+                            <button class="btn btn-outline-secondary btn-sm">{% if c.status == 'active' %}تعطيل{% else %}تفعيل{% endif %}</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد تصنيفات مسجلة حاليًا.</div>
+    {% endif %}
+</section>
+{% endblock %}

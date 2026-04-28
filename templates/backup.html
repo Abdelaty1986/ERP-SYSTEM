@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>نسخ احتياطي واستعادة</h2>
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h5>إنشاء نسخة احتياطية</h5>
+            <a href="/backup?download=1" class="btn btn-primary">تحميل نسخة الآن</a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <form method="POST" enctype="multipart/form-data" class="card p-3">
+            <h5>استعادة نسخة</h5>
+            <input type="file" name="backup_file" class="form-control mb-3" accept=".db" required>
+            <button class="btn btn-danger" onclick="return confirm('سيتم استبدال قاعدة البيانات الحالية. هل أنت متأكد؟')">استعادة</button>
+        </form>
+    </div>
+</div>
+<div class="card p-3 mt-3">
+    <h5>النسخ الموجودة</h5>
+    {% for b in backups %}<div>{{ b }}</div>{% else %}<div class="text-muted">لا توجد نسخ محفوظة بعد.</div>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">الحسابات العامة</div>
+        <h2>ميزان المراجعة</h2>
+        <p class="page-subtitle">فلترة الحسابات حسب الاسم أو نوع الرصيد لمراجعة أسرع، مع الحفاظ على إجماليات النتائج الظاهرة.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/trial-balance/export{% if export_query %}?{{ export_query }}{% endif %}" class="btn btn-outline-success">تصدير Excel</a>
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>فلترة الميزان</h3><p>ابحث باسم الحساب أو اعرض فقط الحسابات ذات الحركة أو ذات الرصيد المدين/الدائن.</p></div></div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-8"><label class="form-label">بحث بالحساب</label><input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="اسم الحساب"></div>
+            <div class="col-md-4"><label class="form-label">نوع الرصيد</label><select name="balance_filter" class="form-select"><option value="">الكل</option><option value="with_balance" {% if filters.balance_filter == 'with_balance' %}selected{% endif %}>حسابات ذات حركة</option><option value="debit_only" {% if filters.balance_filter == 'debit_only' %}selected{% endif %}>رصيد مدين</option><option value="credit_only" {% if filters.balance_filter == 'credit_only' %}selected{% endif %}>رصيد دائن</option></select></div>
+            <div class="col-md-12 d-flex gap-2"><button class="btn btn-primary">تطبيق الفلاتر</button><a href="/trial-balance" class="btn btn-outline-secondary">إعادة ضبط</a></div>
+        </div>
+    </form>
+</section>
+
+<div class="summary-grid">
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-arrow-down-left-circle tone-green"></i><span>إجمالي المدين</span></div><div class="summary-value money" data-value="{{ total_debit }}">{{ total_debit }}</div><div class="summary-note">مجموع الجانب المدين للحسابات الظاهرة</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-arrow-up-right-circle tone-red"></i><span>إجمالي الدائن</span></div><div class="summary-value money" data-value="{{ total_credit }}">{{ total_credit }}</div><div class="summary-note">مجموع الجانب الدائن للحسابات الظاهرة</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-diagram-3 tone-blue"></i><span>عدد الحسابات</span></div><div class="summary-value">{{ data|length }}</div><div class="summary-note">عدد الحسابات بعد تطبيق الفلاتر</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-shield-check tone-orange"></i><span>الحالة</span></div><div class="summary-value">{% if total_debit == total_credit %}متزن{% else %}غير متزن{% endif %}</div><div class="summary-note">اتزان النتائج الظاهرة حاليًا</div></div>
+</div>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title"><div><h3>تفاصيل الميزان</h3><p>يعرض الحسابات بحسب الفلاتر المختارة مع إجماليات مباشرة.</p></div><span class="stat-pill">{{ data|length }} حساب</span></div>
+    {% if data %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr><th>الحساب</th><th class="money">مدين</th><th class="money">دائن</th></tr>
+            {% for r in data %}
+            <tr>
+                <td>{{ r[0] }}</td>
+                <td class="money" data-value="{{ r[1] }}">{{ r[1] }}</td>
+                <td class="money" data-value="{{ r[2] }}">{{ r[2] }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="table-secondary"><td><b>الإجمالي</b></td><td class="money" data-value="{{ total_debit }}"><b>{{ total_debit }}</b></td><td class="money" data-value="{{ total_credit }}"><b>{{ total_credit }}</b></td></tr>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد حسابات مطابقة للفلاتر الحالية.</div>
+    {% endif %}
+</section>
+{% endblock %}

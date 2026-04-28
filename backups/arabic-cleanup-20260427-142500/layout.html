@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}ظ†ط¸ط§ظ… ERP{% endblock %}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="/static/style.css">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+{% set current_path = request.path %}
+
+<div class="app-shell">
+    <aside class="sidebar no-print" id="appSidebar">
+        <div class="brand-block">
+            {% if company_settings.logo_path %}
+            <img src="{{ company_settings.logo_path }}" alt="ط´ط¹ط§ط± ط§ظ„ط´ط±ظƒط©" class="brand-logo">
+            {% else %}
+            <a href="/dashboard" class="brand-mark">ERP</a>
+            {% endif %}
+            <div class="brand-copy">
+                <div class="brand-title">{{ company_settings.company_name or "ظ†ط¸ط§ظ… ط§ظ„ط¥ط¯ط§ط±ط© ط§ظ„ظ…ط§ظ„ظٹط©" }}</div>
+                <div class="brand-subtitle">ظˆط§ط¬ظ‡ط© طھط´ط؛ظٹظ„ ظٹظˆظ…ظٹط© ظ…ظ†ط¸ظ…ط©</div>
+            </div>
+        </div>
+
+        <nav class="side-nav">
+            <a href="/dashboard" class="side-link side-link-main{% if current_path == '/dashboard' %} active{% endif %}">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>ظ„ظˆط­ط© ط§ظ„طھط­ظƒظ…</span>
+            </a>
+
+            {% if can_read("customers") or can_read("sales") %}
+            <details class="nav-group" {% if current_path.startswith('/customers') or current_path.startswith('/sales') or current_path.startswith('/returns/sales') or current_path.startswith('/credit-notes/sales') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-graph-up-arrow"></i> ط§ظ„ظ…ط¨ظٹط¹ط§طھ</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    {% if can_read("customers") %}
+                    <a href="/customers" class="{% if current_path == '/customers' or current_path.startswith('/customers/') %}active{% endif %}">ط§ظ„ط¹ظ…ظ„ط§ط،</a>
+                    <a href="/reports/customers" class="{% if current_path == '/reports/customers' %}active{% endif %}">ط£ط±طµط¯ط© ط§ظ„ط¹ظ…ظ„ط§ط،</a>
+                    <a href="/reports/customers/aging" class="{% if current_path == '/reports/customers/aging' %}active{% endif %}">ط£ط¹ظ…ط§ط± ط¯ظٹظˆظ† ط§ظ„ط¹ظ…ظ„ط§ط،</a>
+                    {% endif %}
+                    {% if can_read("sales") %}
+                    <a href="/sales-orders" class="{% if current_path == '/sales-orders' %}active{% endif %}">ط£ظˆط§ظ…ط± ط§ظ„ط¨ظٹط¹</a>
+                    <a href="/sales" class="{% if current_path == '/sales' or current_path.startswith('/sales/') and '/print' not in current_path %}active{% endif %}">ظپظˆط§طھظٹط± ط§ظ„ط¨ظٹط¹</a>
+                    <a href="/sales/from-delivery" class="{% if current_path == '/sales/from-delivery' %}active{% endif %}">ظپط§طھظˆط±ط© ط¨ظٹط¹ ظ…ظ† ط£ط°ظˆظ† ط§ظ„طµط±ظپ</a>
+                    <a href="/sales/financial" class="{% if current_path == '/sales/financial' %}active{% endif %}">ظپط§طھظˆط±ط© ط¨ظٹط¹ ظ…ط§ظ„ظٹط©</a>
+                    <a href="/returns/sales" class="{% if current_path == '/returns/sales' %}active{% endif %}">ظ…ط±ط¯ظˆط¯ط§طھ ط§ظ„ظ…ط¨ظٹط¹ط§طھ</a>
+                    <a href="/credit-notes/sales" class="{% if current_path.startswith('/credit-notes/sales') %}active{% endif %}">ط¥ط´ط¹ط§ط±ط§طھ طھط³ظˆظٹط© ط¯ط§ط¦ظ†ط©</a>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("suppliers") or can_read("purchases") %}
+            <details class="nav-group" {% if current_path.startswith('/suppliers') or current_path.startswith('/purchase') or current_path.startswith('/purchases') or current_path.startswith('/returns/purchases') or current_path.startswith('/debit-notes/suppliers') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bag-check-fill"></i> ط§ظ„ظ…ط´طھط±ظٹط§طھ</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    {% if can_read("suppliers") %}
+                    <a href="/suppliers" class="{% if current_path == '/suppliers' or current_path.startswith('/suppliers/') %}active{% endif %}">ط§ظ„ظ…ظˆط±ط¯ظˆظ†</a>
+                    <a href="/reports/suppliers" class="{% if current_path == '/reports/suppliers' %}active{% endif %}">ط£ط±طµط¯ط© ط§ظ„ظ…ظˆط±ط¯ظٹظ†</a>
+                    <a href="/reports/suppliers/aging" class="{% if current_path == '/reports/suppliers/aging' %}active{% endif %}">ط£ط¹ظ…ط§ط± ظ…ط¯ظٹظˆظ†ظٹط§طھ ط§ظ„ظ…ظˆط±ط¯ظٹظ†</a>
+                    {% endif %}
+                    {% if can_read("purchases") %}
+                    <a href="/purchase-orders" class="{% if current_path == '/purchase-orders' %}active{% endif %}">ط£ظˆط§ظ…ط± ط§ظ„ط´ط±ط§ط،</a>
+                    <a href="/purchases/from-receipt" class="{% if current_path == '/purchases/from-receipt' %}active{% endif %}">ظپط§طھظˆط±ط© ظ…ظˆط±ط¯ ظ…ظ† ط£ط°ظˆظ† ط§ظ„ط¥ط¶ط§ظپط©</a>
+                    <a href="/purchases" class="{% if current_path == '/purchases' %}active{% endif %}">ظپط§طھظˆط±ط© ظ…ظˆط±ط¯ ظ…ط¨ط§ط´ط±ط©</a>
+                    <a href="/returns/purchases" class="{% if current_path == '/returns/purchases' %}active{% endif %}">ظ…ط±ط¯ظˆط¯ط§طھ ط§ظ„ظ…ط´طھط±ظٹط§طھ</a>
+                    <a href="/debit-notes/suppliers" class="{% if current_path.startswith('/debit-notes/suppliers') %}active{% endif %}">ط¥ط´ط¹ط§ط±ط§طھ طھط³ظˆظٹط© ظ…ط¯ظٹظ†ط©</a>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("inventory") %}
+            <details class="nav-group" {% if current_path.startswith('/products') or current_path == '/product-categories' or current_path.startswith('/inventory') or current_path.startswith('/purchase-receipts') or current_path.startswith('/sales-deliveries') or current_path == '/reports/inventory' %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-box-seam-fill"></i> ط§ظ„ظ…ط®ط§ط²ظ†</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/products" class="{% if current_path == '/products' or current_path.startswith('/products/') %}active{% endif %}">ط§ظ„ط£طµظ†ط§ظپ ظˆط§ظ„ظ…ظ†طھط¬ط§طھ</a>
+                    <a href="/product-categories" class="{% if current_path == '/product-categories' %}active{% endif %}">تصنيفات الأصناف</a>
+                    <a href="/purchase-receipts" class="{% if current_path == '/purchase-receipts' %}active{% endif %}">ط£ط°ظˆظ† ط¥ط¶ط§ظپط©</a>
+                    <a href="/sales-deliveries" class="{% if current_path == '/sales-deliveries' %}active{% endif %}">ط£ط°ظˆظ† طµط±ظپ</a>
+                    <a href="/inventory" class="{% if current_path == '/inventory' %}active{% endif %}">ط­ط±ظƒط© ط§ظ„ظ…ط®ط²ظˆظ†</a>
+                    <a href="/reports/inventory" class="{% if current_path == '/reports/inventory' %}active{% endif %}">طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ†</a>
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("accounting") %}
+            <details class="nav-group" {% if current_path.startswith('/accounts') or current_path.startswith('/journal') or current_path.startswith('/trial-balance') or current_path.startswith('/cost-centers') or current_path.startswith('/adjustments/customers') or current_path.startswith('/opening-balances') or current_path.startswith('/year-end') or current_path.startswith('/ledger/') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-calculator-fill"></i> ط§ظ„ط­ط³ط§ط¨ط§طھ ط§ظ„ط¹ط§ظ…ط©</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/accounts" class="{% if current_path == '/accounts' or current_path.startswith('/accounts/') %}active{% endif %}">ط´ط¬ط±ط© ط§ظ„ط­ط³ط§ط¨ط§طھ</a>
+                    <a href="/journal" class="{% if current_path == '/journal' or current_path.startswith('/edit/') %}active{% endif %}">ط§ظ„ظ‚ظٹظˆط¯ ط§ظ„ظٹظˆظ…ظٹط©</a>
+                    <a href="/trial-balance" class="{% if current_path == '/trial-balance' %}active{% endif %}">ظ…ظٹط²ط§ظ† ط§ظ„ظ…ط±ط§ط¬ط¹ط©</a>
+                    <a href="/cost-centers" class="{% if current_path == '/cost-centers' %}active{% endif %}">ظ…ط±ط§ظƒط² ط§ظ„طھظƒظ„ظپط©</a>
+                    <a href="/adjustments/customers" class="{% if current_path.startswith('/adjustments/customers') %}active{% endif %}">طھط³ظˆظٹط§طھ ط§ظ„ط¹ظ…ظ„ط§ط،</a>
+                    {% if session.get("role") == "admin" %}
+                    <a href="/opening-balances" class="{% if current_path == '/opening-balances' %}active{% endif %}">ط§ظ„ط£ط±طµط¯ط© ط§ظ„ط§ظپطھطھط§ط­ظٹط©</a>
+                    <a href="/year-end" class="{% if current_path == '/year-end' %}active{% endif %}">ط¥ظ‚ظپط§ظ„ ط§ظ„ط³ظ†ط©</a>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("receipts") or can_read("payments") %}
+            <details class="nav-group" {% if current_path.startswith('/receipts') or current_path.startswith('/payments') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-cash-stack"></i> ط§ظ„ط®ط²ظٹظ†ط©</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    {% if can_read("receipts") %}
+                    <a href="/receipts" class="{% if current_path.startswith('/receipts') %}active{% endif %}">ط³ظ†ط¯ط§طھ ط§ظ„ظ‚ط¨ط¶</a>
+                    {% endif %}
+                    {% if can_read("payments") %}
+                    <a href="/payments" class="{% if current_path.startswith('/payments') %}active{% endif %}">ط³ظ†ط¯ط§طھ ط§ظ„طµط±ظپ</a>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("reports") %}
+            <details class="nav-group" {% if current_path.startswith('/reports/') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bar-chart-line-fill"></i> ط§ظ„طھظ‚ط§ط±ظٹط±</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/reports/profit-loss" class="{% if current_path == '/reports/profit-loss' %}active{% endif %}">ط§ظ„ط£ط±ط¨ط§ط­ ظˆط§ظ„ط®ط³ط§ط¦ط±</a>
+                    <a href="/reports/balance-sheet" class="{% if current_path == '/reports/balance-sheet' %}active{% endif %}">ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ط§ظ„ط¹ظ…ظˆظ…ظٹط©</a>
+                    <a href="/reports/cash-flow" class="{% if current_path == '/reports/cash-flow' %}active{% endif %}">ط§ظ„طھط¯ظپظ‚ط§طھ ط§ظ„ظ†ظ‚ط¯ظٹط©</a>
+                    <a href="/reports/cost-centers" class="{% if current_path == '/reports/cost-centers' %}active{% endif %}">ظ…ط±ط§ظƒط² ط§ظ„طھظƒظ„ظپط©</a>
+                    <a href="/reports/vat" class="{% if current_path == '/reports/vat' %}active{% endif %}">ط¶ط±ظٹط¨ط© ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط¶ط§ظپط©</a>
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("hr") %}
+            <details class="nav-group" {% if current_path.startswith('/employees') or current_path.startswith('/payroll') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-people-fill"></i> ط´ط¤ظˆظ† ط§ظ„ط¹ط§ظ…ظ„ظٹظ†</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/employees" class="{% if current_path.startswith('/employees') %}active{% endif %}">ط§ظ„ظ…ظˆط¸ظپظˆظ†</a>
+                    <a href="/payroll" class="{% if current_path.startswith('/payroll') %}active{% endif %}">ط§ظ„ظ…ط±طھط¨ط§طھ</a>
+                </div>
+            </details>
+            {% endif %}
+
+            {% if session.get("role") == "admin" %}
+            <details class="nav-group" {% if current_path.startswith('/settings/company') or current_path.startswith('/fiscal-periods') or current_path.startswith('/posting-control') or current_path.startswith('/document-sequences') or current_path.startswith('/allocations') or current_path.startswith('/backup') or current_path.startswith('/audit-log') or current_path.startswith('/e-invoices') or current_path.startswith('/permissions') or current_path.startswith('/users') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-shield-lock-fill"></i> ط§ظ„ط¥ط¯ط§ط±ط©</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/settings/company" class="{% if current_path == '/settings/company' %}active{% endif %}">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ط´ط±ظƒط©</a>
+                    <a href="/fiscal-periods" class="{% if current_path.startswith('/fiscal-periods') %}active{% endif %}">ط§ظ„ظپطھط±ط§طھ ط§ظ„ظ…ط§ظ„ظٹط©</a>
+                    <a href="/posting-control" class="{% if current_path.startswith('/posting-control') %}active{% endif %}">ط§ظ„طھط±ط­ظٹظ„ ظˆظپظƒ ط§ظ„طھط±ط­ظٹظ„</a>
+                    <a href="/document-sequences" class="{% if current_path == '/document-sequences' %}active{% endif %}">طھط±ظ‚ظٹظ… ط§ظ„ظ…ط³طھظ†ط¯ط§طھ</a>
+                    <a href="/allocations" class="{% if current_path == '/allocations' %}active{% endif %}">ط±ط¨ط· ط§ظ„ط³ط¯ط§ط¯ ط¨ط§ظ„ظپظˆط§طھظٹط±</a>
+                    <a href="/backup" class="{% if current_path == '/backup' %}active{% endif %}">ظ†ط³ط® ط§ط­طھظٹط§ط·ظٹ ظˆط§ط³طھط¹ط§ط¯ط©</a>
+                    <a href="/audit-log" class="{% if current_path == '/audit-log' %}active{% endif %}">ط³ط¬ظ„ ط§ظ„ظ…ط±ط§ط¬ط¹ط©</a>
+                    <a href="/e-invoices" class="{% if current_path == '/e-invoices' %}active{% endif %}">ط¨ظˆط§ط¨ط© ط§ظ„ط¶ط±ط§ط¦ط¨</a>
+                    <a href="/permissions" class="{% if current_path == '/permissions' %}active{% endif %}">ط§ظ„طµظ„ط§ط­ظٹط§طھ ط§ظ„طھظپطµظٹظ„ظٹط©</a>
+                    <a href="/users" class="{% if current_path == '/users' %}active{% endif %}">ط§ظ„ظ…ط³طھط®ط¯ظ…ظˆظ†</a>
+                </div>
+            </details>
+            {% endif %}
+        </nav>
+    </aside>
+
+    <main class="main-panel">
+        <header class="topbar no-print">
+            <div class="topbar-title-group">
+                <button type="button" class="mobile-nav-toggle btn btn-outline-secondary" id="mobileNavToggle" aria-label="ظپطھط­ ط§ظ„ظ‚ط§ط¦ظ…ط©" aria-expanded="false" aria-controls="appSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <div class="eyebrow">طھط´ط؛ظٹظ„ ظٹظˆظ…ظٹ</div>
+                    <h1>ظ†ط¸ط§ظ… ERP</h1>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <span class="user-pill">{{ session.get("username", "admin") }} - {{ role_label }}</span>
+                <a href="/logout" class="btn btn-danger btn-sm">ط®ط±ظˆط¬</a>
+            </div>
+        </header>
+
+        <section class="content-panel">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="ط¥ط؛ظ„ط§ظ‚"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+</div>
+
+<div class="sidebar-backdrop no-print" id="sidebarBackdrop" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const moneyFormatter = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+    document.querySelectorAll(".money").forEach(function (node) {
+        const raw = (node.dataset.value || node.textContent || "").replace(/,/g, "").trim();
+        if (!/^-?\\d+(\\.\\d+)?$/.test(raw)) return;
+        node.textContent = moneyFormatter.format(Number(raw));
+    });
+
+    const sidebar = document.getElementById("appSidebar");
+    const toggle = document.getElementById("mobileNavToggle");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const media = window.matchMedia("(max-width: 992px)");
+
+    function closeSidebar() {
+        if (!sidebar || !toggle || !backdrop) return;
+        sidebar.classList.remove("is-open");
+        backdrop.hidden = true;
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("sidebar-open");
+    }
+
+    function openSidebar() {
+        if (!sidebar || !toggle || !backdrop) return;
+        sidebar.classList.add("is-open");
+        backdrop.hidden = false;
+        toggle.setAttribute("aria-expanded", "true");
+        document.body.classList.add("sidebar-open");
+    }
+
+    toggle?.addEventListener("click", function () {
+        if (sidebar?.classList.contains("is-open")) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    });
+
+    backdrop?.addEventListener("click", closeSidebar);
+
+    document.querySelectorAll(".sidebar a").forEach(function (node) {
+        node.addEventListener("click", function () {
+            if (media.matches) closeSidebar();
+        });
+    });
+
+    media.addEventListener("change", function (event) {
+        if (!event.matches) {
+            closeSidebar();
+        }
+    });
+});
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
+

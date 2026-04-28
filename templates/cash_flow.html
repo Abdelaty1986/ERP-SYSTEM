@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <div>
+        <h2>قائمة التدفقات النقدية</h2>
+        <div class="eyebrow">تصنيف مبدئي للتدفقات من القيود المرحلة على الخزنة والبنك</div>
+    </div>
+    <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="card metric-card p-3"><div class="metric-label">رصيد أول المدة المحسوب</div><div class="metric-value">{{ "%.2f"|format(beginning_cash) }}</div></div></div>
+    <div class="col-md-3"><div class="card metric-card p-3"><div class="metric-label">صافي التشغيل</div><div class="metric-value">{{ "%.2f"|format(totals.operating) }}</div></div></div>
+    <div class="col-md-3"><div class="card metric-card p-3"><div class="metric-label">صافي الاستثمار</div><div class="metric-value">{{ "%.2f"|format(totals.investing) }}</div></div></div>
+    <div class="col-md-3"><div class="card metric-card p-3"><div class="metric-label">صافي التمويل</div><div class="metric-value">{{ "%.2f"|format(totals.financing) }}</div></div></div>
+</div>
+
+<div class="card p-3 mb-3">
+    <div class="row g-3">
+        <div class="col-md-6"><b>صافي التغير في النقدية:</b> {{ "%.2f"|format(net_cash_flow) }}</div>
+        <div class="col-md-6"><b>رصيد آخر المدة:</b> {{ "%.2f"|format(ending_cash) }}</div>
+    </div>
+</div>
+
+<table class="table table-bordered align-middle">
+<tr>
+    <th>التاريخ</th>
+    <th>البيان</th>
+    <th>النشاط</th>
+    <th>الحساب المقابل</th>
+    <th>النوع</th>
+    <th>المبلغ</th>
+    <th>الأثر النقدي</th>
+</tr>
+{% for row in rows %}
+<tr>
+    <td>{{ row[0] }}</td>
+    <td>{{ row[1] }}</td>
+    <td>{{ row[2] }}</td>
+    <td>{{ row[3] }} - {{ row[4] }}</td>
+    <td>{% if row[5] == "in" %}داخل{% else %}خارج{% endif %}</td>
+    <td>{{ "%.2f"|format(row[6]) }}</td>
+    <td>{{ "%.2f"|format(row[7]) }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

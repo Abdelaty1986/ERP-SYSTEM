@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h2>تقرير مراكز التكلفة</h2>
+        <div class="eyebrow">إيرادات ومصروفات القيود المرحلة المرتبطة بمراكز تكلفة</div>
+    </div>
+    <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
+</div>
+
+<table class="table table-bordered align-middle">
+    <tr>
+        <th>الكود</th>
+        <th>مركز التكلفة</th>
+        <th>الإيرادات</th>
+        <th>المصروفات</th>
+        <th>الصافي</th>
+    </tr>
+    {% for r in rows %}
+    <tr>
+        <td>{{ r[0] or "" }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2] or 0 }}</td>
+        <td>{{ r[3] or 0 }}</td>
+        <td>{{ (r[2] or 0) - (r[3] or 0) }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="table-secondary">
+        <td colspan="2"><b>الإجمالي</b></td>
+        <td><b>{{ totals.revenue }}</b></td>
+        <td><b>{{ totals.expense }}</b></td>
+        <td><b>{{ totals.revenue - totals.expense }}</b></td>
+    </tr>
+</table>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-head">
+    <h2>شجرة الحسابات</h2>
+    <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
+</div>
+
+{% if can_write("accounting") %}
+<form method="POST" class="card p-3 mb-3 no-print">
+    <h5 class="mb-3">إضافة حساب جديد</h5>
+    <div class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">الكود</label>
+            <input type="text" name="code" class="form-control" required>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">اسم الحساب</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">النوع</label>
+            <select name="type" class="form-select" required>
+                {% for account_type in account_types %}
+                <option value="{{ account_type }}">{{ account_type }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">إضافة</button>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+<input type="text" id="search" class="form-control mb-3 no-print" placeholder="ابحث عن حساب...">
+
+<table class="table table-bordered table-hover" id="tbl">
+    <thead>
+        <tr>
+            <th>الكود</th>
+            <th>الاسم</th>
+            <th>النوع</th>
+            <th>عدد القيود</th>
+            <th class="no-print">إجراءات</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in accounts %}
+        <tr>
+            <td>{{ a[1] }}</td>
+            <td>{{ a[2] }}</td>
+            <td>{{ a[3] }}</td>
+            <td>{{ a[4] }}</td>
+            <td class="actions-cell no-print">
+                <a href="/ledger/{{ a[0] }}" class="btn btn-primary btn-sm">الأستاذ</a>
+                {% if can_write("accounting") %}
+                <a href="/accounts/edit/{{ a[0] }}" class="btn btn-warning btn-sm">تعديل</a>
+                <form method="POST" action="/accounts/delete/{{ a[0] }}" class="d-inline" onsubmit="return confirm('هل تريد حذف هذا الحساب؟');">
+                    <button class="btn btn-danger btn-sm" {% if a[4] > 0 %}disabled title="لا يمكن حذف حساب مستخدم في قيود يومية"{% endif %}>حذف</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+document.getElementById("search").onkeyup = function () {
+    let v = this.value.toLowerCase();
+    document.querySelectorAll("#tbl tbody tr").forEach(function (row) {
+        row.style.display = row.innerText.toLowerCase().includes(v) ? "" : "none";
+    });
+};
+</script>
+{% endblock %}

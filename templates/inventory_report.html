@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">تقارير المخزون</div>
+        <h2>تقرير المخزون</h2>
+        <p class="page-subtitle">متابعة الأرصدة الحالية وقيمة المخزون مع إمكانية التصفية حسب التصنيف.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/reports/inventory{% if export_query %}?{{ export_query }}&format=excel{% else %}?format=excel{% endif %}" class="btn btn-outline-success">تصدير Excel</a>
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>فلترة التقرير</h3>
+            <p>ابحث بالاسم أو الكود أو التصنيف، أو اعرض فقط الأصناف منخفضة الرصيد.</p>
+        </div>
+    </div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-5"><label class="form-label">بحث</label><input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="اسم أو كود الصنف"></div>
+            <div class="col-md-3">
+                <label class="form-label">التصنيف</label>
+                <select name="category_id" class="form-select">
+                    <option value="">الكل</option>
+                    {% for c in categories %}
+                    <option value="{{ c.id }}" {% if filters.category_id == (c.id|string) %}selected{% endif %}>{{ c.option_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">حالة الرصيد</label>
+                <select name="stock_filter" class="form-select">
+                    <option value="">الكل</option>
+                    <option value="low" {% if filters.stock_filter == 'low' %}selected{% endif %}>منخفض</option>
+                    <option value="available" {% if filters.stock_filter == 'available' %}selected{% endif %}>متاح</option>
+                    <option value="zero" {% if filters.stock_filter == 'zero' %}selected{% endif %}>صفر</option>
+                </select>
+            </div>
+            <div class="col-md-12 d-flex gap-2">
+                <button class="btn btn-primary">تطبيق الفلاتر</button>
+                <a href="/reports/inventory" class="btn btn-outline-secondary">إعادة ضبط</a>
+            </div>
+        </div>
+    </form>
+</section>
+
+<div class="summary-grid">
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-box-seam tone-blue"></i><span>عدد الأصناف</span></div><div class="summary-value">{{ rows|length }}</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-stack tone-green"></i><span>قيمة المخزون</span></div><div class="summary-value money" data-value="{{ total_value }}">{{ total_value }}</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-exclamation-triangle tone-red"></i><span>أصناف منخفضة</span></div><div class="summary-value">{{ low_stock|length }}</div></div>
+</div>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>تفاصيل المخزون</h3>
+            <p>يظهر عمود التصنيف ضمن التقرير ويدخل في تصدير Excel.</p>
+        </div>
+        <span class="stat-pill">{{ rows|length }} صنف</span>
+    </div>
+    {% if rows %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr><th>الكود</th><th>الصنف</th><th>التصنيف</th><th>الوحدة</th><th>الرصيد</th><th class="money">تكلفة الوحدة</th><th class="money">سعر البيع</th><th class="money">قيمة المخزون</th></tr>
+            {% for r in rows %}
+            <tr class="{% if r[3] <= 5 %}table-warning{% endif %}">
+                <td>{{ r[0] or "" }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[7] or "-" }}</td>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+                <td class="money" data-value="{{ r[4] }}">{{ r[4] }}</td>
+                <td class="money" data-value="{{ r[5] }}">{{ r[5] }}</td>
+                <td class="money" data-value="{{ r[6] }}">{{ r[6] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد أصناف مطابقة للفلاتر الحالية.</div>
+    {% endif %}
+</section>
+{% endblock %}

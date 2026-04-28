@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>{{ doc_title }} #{{ doc[2] }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="print-body">
+<div class="print-page">
+    <div class="print-actions no-print">
+        <button class="btn btn-primary" onclick="window.print()">طباعة</button>
+        <button class="btn btn-secondary" onclick="history.back()">رجوع</button>
+    </div>
+
+    <header class="print-header">
+        <div>
+            {% if company.logo_path %}<img src="{{ company.logo_path }}" alt="شعار الشركة" class="print-logo">{% endif %}
+            <h1>{{ company.company_name }}</h1>
+            <p>{{ company.address }}</p>
+            <p>هاتف: {{ company.phone }} | بريد إلكتروني: {{ company.email }}</p>
+            <p>الرقم الضريبي: {{ company.tax_number }}</p>
+        </div>
+        <div class="print-meta">
+            <h2>{{ doc_title }}</h2>
+            <p>رقم المستند: {{ doc[2] }}</p>
+            <p>التاريخ: {{ doc[1] }}</p>
+            <p>النوع: {% if note_kind == "debit" %}مدين{% else %}دائن{% endif %}</p>
+        </div>
+    </header>
+
+    <section class="print-info">
+        <div><b>{{ party_label or "الطرف" }}:</b> {{ doc[3] }}</div>
+        <div><b>الهاتف:</b> {{ doc[4] }}</div>
+        <div><b>العنوان:</b> {{ doc[5] }}</div>
+        {% if source_label %}
+        <div><b>المرجع:</b> {{ source_label }}</div>
+        {% endif %}
+        <div><b>ملاحظات:</b> {{ doc[13] if doc|length > 13 else doc[11] }}</div>
+    </section>
+
+    {% if doc|length > 14 %}
+    <table class="table table-bordered print-table">
+        <tr>
+            <th>الصنف</th>
+            <th>الوحدة</th>
+            <th class="money">الكمية</th>
+            <th class="money">سعر الوحدة</th>
+            <th class="money">الصافي</th>
+            <th class="money">الضريبة</th>
+            <th class="money">الإجمالي</th>
+        </tr>
+        <tr>
+            <td>{{ doc[6] }}</td>
+            <td>{{ doc[7] }}</td>
+            <td class="money" data-value="{{ doc[8] }}">{{ doc[8] }}</td>
+            <td class="money" data-value="{{ doc[9] }}">{{ doc[9] }}</td>
+            <td class="money" data-value="{{ doc[10] }}">{{ doc[10] }}</td>
+            <td class="money" data-value="{{ doc[11] }}">{{ doc[11] }}</td>
+            <td class="money" data-value="{{ doc[12] }}">{{ doc[12] }}</td>
+        </tr>
+    </table>
+    {% else %}
+    <table class="table table-bordered print-table">
+        <tr>
+            <th>البيان</th>
+            <th class="money">الصافي</th>
+            <th class="money">ضريبة %</th>
+            <th class="money">الضريبة</th>
+            <th class="money">الإجمالي</th>
+        </tr>
+        <tr>
+            <td>{{ doc[6] }}</td>
+            <td class="money" data-value="{{ doc[7] }}">{{ doc[7] }}</td>
+            <td class="money" data-value="{{ doc[8] }}">{{ doc[8] }}</td>
+            <td class="money" data-value="{{ doc[9] }}">{{ doc[9] }}</td>
+            <td class="money" data-value="{{ doc[10] }}">{{ doc[10] }}</td>
+        </tr>
+    </table>
+    {% endif %}
+
+    {% if amount_in_words %}
+    <div class="print-total"><b>{{ amount_in_words }}</b></div>
+    {% endif %}
+
+    <footer class="print-footer">
+        <p>{{ company.invoice_footer }}</p>
+        <div class="signatures">
+            <span>المحاسب</span>
+            <span>{{ party_label or "الطرف" }}</span>
+            <span>المدير</span>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

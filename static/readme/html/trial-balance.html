@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نظام ERP</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="file:///C:/Users/Hany.Abdelatty/Desktop/%D8%AA%D8%B7%D9%88%D9%8A%D8%B1%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20ERP/%D9%85%D9%84%D9%81%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D9%81%D8%B1%2016-4-2027/erp_dev_copy/static/style.css">
+
+</head>
+<body>
+
+
+<div class="app-shell">
+    <aside class="sidebar no-print" id="appSidebar">
+        <div class="brand-block">
+            
+            <a href="/dashboard" class="brand-mark">ERP</a>
+            
+            <div class="brand-copy">
+                <div class="brand-title">شركة جولدن ديمو للصناعات</div>
+                <div class="brand-subtitle">واجهة تشغيل يومية منظمة</div>
+            </div>
+        </div>
+
+        <nav class="side-nav">
+            <a href="/dashboard" class="side-link side-link-main">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>لوحة التحكم</span>
+            </a>
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-graph-up-arrow"></i> المبيعات</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    
+                    <a href="/customers" class="">العملاء</a>
+                    <a href="/reports/customers" class="">أرصدة العملاء</a>
+                    <a href="/reports/customers/aging" class="">أعمار ديون العملاء</a>
+                    
+                    
+                    <a href="/sales-orders" class="">أوامر البيع</a>
+                    <a href="/sales" class="">فواتير البيع</a>
+                    <a href="/sales/from-delivery" class="">فاتورة بيع من أذون الصرف</a>
+                    <a href="/sales/financial" class="">فاتورة بيع مالية</a>
+                    <a href="/returns/sales" class="">مردودات المبيعات</a>
+                    <a href="/credit-notes/sales" class="">إشعارات تسوية دائنة</a>
+                    
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bag-check-fill"></i> المشتريات</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    
+                    <a href="/suppliers" class="">الموردون</a>
+                    <a href="/reports/suppliers" class="">أرصدة الموردين</a>
+                    <a href="/reports/suppliers/aging" class="">أعمار مديونيات الموردين</a>
+                    
+                    
+                    <a href="/purchase-orders" class="">أوامر الشراء</a>
+                    <a href="/purchases/from-receipt" class="">فاتورة مورد من أذون الإضافة</a>
+                    <a href="/purchases" class="">فاتورة مورد مباشرة</a>
+                    <a href="/returns/purchases" class="">مردودات المشتريات</a>
+                    <a href="/debit-notes/suppliers" class="">إشعارات تسوية مدينة</a>
+                    
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-box-seam-fill"></i> المخازن</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/products" class="">الأصناف والمنتجات</a>
+                    <a href="/purchase-receipts" class="">أذون إضافة</a>
+                    <a href="/sales-deliveries" class="">أذون صرف</a>
+                    <a href="/inventory" class="">حركة المخزون</a>
+                    <a href="/reports/inventory" class="">تقرير المخزون</a>
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" open>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-calculator-fill"></i> الحسابات العامة</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/accounts" class="">شجرة الحسابات</a>
+                    <a href="/journal" class="">القيود اليومية</a>
+                    <a href="/trial-balance" class="active">ميزان المراجعة</a>
+                    <a href="/cost-centers" class="">مراكز التكلفة</a>
+                    <a href="/adjustments/customers" class="">تسويات العملاء</a>
+                    
+                    <a href="/opening-balances" class="">الأرصدة الافتتاحية</a>
+                    <a href="/year-end" class="">إقفال السنة</a>
+                    
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-cash-stack"></i> الخزينة</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    
+                    <a href="/receipts" class="">سندات القبض</a>
+                    
+                    
+                    <a href="/payments" class="">سندات الصرف</a>
+                    
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bar-chart-line-fill"></i> التقارير</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/reports/profit-loss" class="">الأرباح والخسائر</a>
+                    <a href="/reports/balance-sheet" class="">الميزانية العمومية</a>
+                    <a href="/reports/cash-flow" class="">التدفقات النقدية</a>
+                    <a href="/reports/cost-centers" class="">مراكز التكلفة</a>
+                    <a href="/reports/vat" class="">ضريبة القيمة المضافة</a>
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-people-fill"></i> شؤون العاملين</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/employees" class="">الموظفون</a>
+                    <a href="/payroll" class="">المرتبات</a>
+                </div>
+            </details>
+            
+
+            
+            <details class="nav-group" >
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-shield-lock-fill"></i> الإدارة</span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/settings/company" class="">إعدادات الشركة</a>
+                    <a href="/fiscal-periods" class="">الفترات المالية</a>
+                    <a href="/posting-control" class="">الترحيل وفك الترحيل</a>
+                    <a href="/document-sequences" class="">ترقيم المستندات</a>
+                    <a href="/allocations" class="">ربط السداد بالفواتير</a>
+                    <a href="/backup" class="">نسخ احتياطي واستعادة</a>
+                    <a href="/audit-log" class="">سجل المراجعة</a>
+                    <a href="/e-invoices" class="">بوابة الضرائب</a>
+                    <a href="/permissions" class="">الصلاحيات التفصيلية</a>
+                    <a href="/users" class="">المستخدمون</a>
+                </div>
+            </details>
+            
+        </nav>
+    </aside>
+
+    <main class="main-panel">
+        <header class="topbar no-print">
+            <div class="topbar-title-group">
+                <button type="button" class="mobile-nav-toggle btn btn-outline-secondary" id="mobileNavToggle" aria-label="فتح القائمة" aria-expanded="false" aria-controls="appSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <div class="eyebrow">تشغيل يومي</div>
+                    <h1>نظام ERP</h1>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <span class="user-pill">admin - مدير</span>
+                <a href="/logout" class="btn btn-danger btn-sm">خروج</a>
+            </div>
+        </header>
+
+        <section class="content-panel">
+            
+                
+            
+
+            
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">الحسابات العامة</div>
+        <h2>ميزان المراجعة</h2>
+        <p class="page-subtitle">فلترة الحسابات حسب الاسم أو نوع الرصيد لمراجعة أسرع، مع الحفاظ على إجماليات النتائج الظاهرة.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/trial-balance/export" class="btn btn-outline-success">تصدير Excel</a>
+        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+
+<section class="panel-block no-print">
+    <div class="section-title"><div><h3>فلترة الميزان</h3><p>ابحث باسم الحساب أو اعرض فقط الحسابات ذات الحركة أو ذات الرصيد المدين/الدائن.</p></div></div>
+    <form method="GET">
+        <div class="row g-2">
+            <div class="col-md-8"><label class="form-label">بحث بالحساب</label><input type="text" name="q" value="" class="form-control" placeholder="اسم الحساب"></div>
+            <div class="col-md-4"><label class="form-label">نوع الرصيد</label><select name="balance_filter" class="form-select"><option value="">الكل</option><option value="with_balance" >حسابات ذات حركة</option><option value="debit_only" >رصيد مدين</option><option value="credit_only" >رصيد دائن</option></select></div>
+            <div class="col-md-12 d-flex gap-2"><button class="btn btn-primary">تطبيق الفلاتر</button><a href="/trial-balance" class="btn btn-outline-secondary">إعادة ضبط</a></div>
+        </div>
+    </form>
+</section>
+
+<div class="summary-grid">
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-arrow-down-left-circle tone-green"></i><span>إجمالي المدين</span></div><div class="summary-value money" data-value="450541.96">450541.96</div><div class="summary-note">مجموع الجانب المدين للحسابات الظاهرة</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-arrow-up-right-circle tone-red"></i><span>إجمالي الدائن</span></div><div class="summary-value money" data-value="450541.96">450541.96</div><div class="summary-note">مجموع الجانب الدائن للحسابات الظاهرة</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-diagram-3 tone-blue"></i><span>عدد الحسابات</span></div><div class="summary-value">87</div><div class="summary-note">عدد الحسابات بعد تطبيق الفلاتر</div></div>
+    <div class="summary-card"><div class="summary-card-head"><i class="bi bi-shield-check tone-orange"></i><span>الحالة</span></div><div class="summary-value">متزن</div><div class="summary-note">اتزان النتائج الظاهرة حاليًا</div></div>
+</div>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title"><div><h3>تفاصيل الميزان</h3><p>يعرض الحسابات بحسب الفلاتر المختارة مع إجماليات مباشرة.</p></div><span class="stat-pill">87 حساب</span></div>
+    
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr><th>الحساب</th><th class="money">مدين</th><th class="money">دائن</th></tr>
+            
+            <tr>
+                <td>الأصول</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>الخزنة</td>
+                <td class="money" data-value="155280.0">155280.0</td>
+                <td class="money" data-value="3500.0">3500.0</td>
+            </tr>
+            
+            <tr>
+                <td>خزنة المصنع</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>خزنة الإدارة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>البنك</td>
+                <td class="money" data-value="250000.0">250000.0</td>
+                <td class="money" data-value="0.0">0.0</td>
+            </tr>
+            
+            <tr>
+                <td>حساب جاري بالبنك</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>ودائع بنكية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>العملاء</td>
+                <td class="money" data-value="6156.0">6156.0</td>
+                <td class="money" data-value="3061.56">3061.56</td>
+            </tr>
+            
+            <tr>
+                <td>عملاء محليون</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>أوراق قبض</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مخصص ديون مشكوك فيها</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>المخزون</td>
+                <td class="money" data-value="25000.0">25000.0</td>
+                <td class="money" data-value="3300.0">3300.0</td>
+            </tr>
+            
+            <tr>
+                <td>مخزون خامات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>إنتاج تحت التشغيل</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مخزون إنتاج تام</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مخزون قطع غيار ومستلزمات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>بضاعة بالطريق</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>ضريبة قيمة مضافة - مدخلات</td>
+                <td class="money" data-value="1176.0">1176.0</td>
+                <td class="money" data-value="0.0">0.0</td>
+            </tr>
+            
+            <tr>
+                <td>ضريبة خصم وإضافة مدينة</td>
+                <td class="money" data-value="61.56">61.56</td>
+                <td class="money" data-value="0.0">0.0</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات مقدمة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>عهد وسلف عاملين</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>الأصول الثابتة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>أراضي</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مباني وإنشاءات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>آلات ومعدات إنتاج</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>سيارات ووسائل نقل</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>أثاث وأجهزة مكتبية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مجمع إهلاك الأصول الثابتة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>أرصدة افتتاحية وتسويات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>الخصوم</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>الموردون</td>
+                <td class="money" data-value="2068.4">2068.4</td>
+                <td class="money" data-value="9576.0">9576.0</td>
+            </tr>
+            
+            <tr>
+                <td>موردو خامات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>موردو خدمات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>أوراق دفع</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>بضاعة مستلمة غير مفوترة</td>
+                <td class="money" data-value="6000.0">6000.0</td>
+                <td class="money" data-value="6000.0">6000.0</td>
+            </tr>
+            
+            <tr>
+                <td>ضريبة قيمة مضافة - مخرجات</td>
+                <td class="money" data-value="0.0">0.0</td>
+                <td class="money" data-value="1036.0">1036.0</td>
+            </tr>
+            
+            <tr>
+                <td>ضرائب مستحقة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>تأمينات اجتماعية مستحقة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>ضريبة خصم وإضافة دائنة</td>
+                <td class="money" data-value="0.0">0.0</td>
+                <td class="money" data-value="68.4">68.4</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات مستحقة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>أجور مستحقة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>كهرباء ومرافق مستحقة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>استقطاعات عاملين مستحقة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>ضريبة كسب عمل مستحقة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>قروض قصيرة الأجل</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>قروض طويلة الأجل</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>حقوق الملكية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>رأس المال</td>
+                <td class="money" data-value="0.0">0.0</td>
+                <td class="money" data-value="416600.0">416600.0</td>
+            </tr>
+            
+            <tr>
+                <td>جاري الشركاء</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>الأرباح المحتجزة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>صافي ربح أو خسارة العام</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>أرباح مرحلة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>الإيرادات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>إيرادات المبيعات</td>
+                <td class="money" data-value="0.0">0.0</td>
+                <td class="money" data-value="5400.0">5400.0</td>
+            </tr>
+            
+            <tr>
+                <td>مبيعات محلية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مبيعات تصدير</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مردودات ومسموحات المبيعات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مردودات ومسموحات المشتريات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>خصم مسموح به</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>إيرادات أخرى</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>إيرادات خدمات وفواتير مالية</td>
+                <td class="money" data-value="0.0">0.0</td>
+                <td class="money" data-value="2000.0">2000.0</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات التشغيل</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات إدارية وعمومية</td>
+                <td class="money" data-value="1500.0">1500.0</td>
+                <td class="money" data-value="0.0">0.0</td>
+            </tr>
+            
+            <tr>
+                <td>مرتبات الإدارة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>إيجار إداري</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>اتصالات وإنترنت</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مهمات مكتبية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات قانونية ومهنية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات علاج وتدريب عاملين</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>حصة الشركة في التأمينات الاجتماعية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات بيع وتسويق</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>عمولات مبيعات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>دعاية وإعلان</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>نقل وتوزيع</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات تمويلية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>فوائد بنكية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مصروفات بنكية</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>تكاليف الإنتاج</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>تكلفة البضاعة المباعة</td>
+                <td class="money" data-value="3300.0">3300.0</td>
+                <td class="money" data-value="0.0">0.0</td>
+            </tr>
+            
+            <tr>
+                <td>خامات مباشرة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>أجور مباشرة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>تكاليف صناعية غير مباشرة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>كهرباء المصنع</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>صيانة آلات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>إهلاك آلات ومعدات</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>مستلزمات تشغيل</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr>
+                <td>رقابة جودة</td>
+                <td class="money" data-value="0">0</td>
+                <td class="money" data-value="0">0</td>
+            </tr>
+            
+            <tr class="table-secondary"><td><b>الإجمالي</b></td><td class="money" data-value="450541.96"><b>450541.96</b></td><td class="money" data-value="450541.96"><b>450541.96</b></td></tr>
+        </table>
+    </div>
+    
+</section>
+
+        </section>
+    </main>
+</div>
+
+<div class="sidebar-backdrop no-print" id="sidebarBackdrop" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const moneyFormatter = new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+    document.querySelectorAll(".money").forEach(function (node) {
+        const raw = (node.dataset.value || node.textContent || "").replace(/,/g, "").trim();
+        if (!/^-?\\d+(\\.\\d+)?$/.test(raw)) return;
+        node.textContent = moneyFormatter.format(Number(raw));
+    });
+
+    const sidebar = document.getElementById("appSidebar");
+    const toggle = document.getElementById("mobileNavToggle");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const media = window.matchMedia("(max-width: 992px)");
+
+    function closeSidebar() {
+        if (!sidebar || !toggle || !backdrop) return;
+        sidebar.classList.remove("is-open");
+        backdrop.hidden = true;
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("sidebar-open");
+    }
+
+    function openSidebar() {
+        if (!sidebar || !toggle || !backdrop) return;
+        sidebar.classList.add("is-open");
+        backdrop.hidden = false;
+        toggle.setAttribute("aria-expanded", "true");
+        document.body.classList.add("sidebar-open");
+    }
+
+    toggle?.addEventListener("click", function () {
+        if (sidebar?.classList.contains("is-open")) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    });
+
+    backdrop?.addEventListener("click", closeSidebar);
+
+    document.querySelectorAll(".sidebar a").forEach(function (node) {
+        node.addEventListener("click", function () {
+            if (media.matches) closeSidebar();
+        });
+    });
+
+    media.addEventListener("change", function (event) {
+        if (!event.matches) {
+            closeSidebar();
+        }
+    });
+});
+</script>
+
+</body>
+</html>

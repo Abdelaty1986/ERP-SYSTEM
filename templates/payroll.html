@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <div>
+        <h2>كشوف المرتبات</h2>
+        <div class="eyebrow">{{ active_count }} موظف نشط جاهز للاحتساب</div>
+    </div>
+</div>
+
+{% if can_write("hr") %}
+<form method="POST" class="card p-3 mb-3 no-print">
+    <div class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">الفترة</label>
+            <input type="month" name="period" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">تاريخ القيد</label>
+            <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" name="notes" class="form-control">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">إنشاء وترحيل</button>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+<table class="table table-bordered align-middle">
+<tr>
+    <th>#</th>
+    <th>الفترة</th>
+    <th>التاريخ</th>
+    <th>الإجمالي</th>
+    <th>استقطاعات الموظفين</th>
+    <th>تأمينات الشركة</th>
+    <th>الصافي</th>
+    <th>الحالة</th>
+    <th class="no-print">تفاصيل</th>
+</tr>
+{% for run in runs %}
+<tr>
+    <td>{{ run[0] }}</td>
+    <td>{{ run[1] }}</td>
+    <td>{{ run[2] }}</td>
+    <td>{{ run[3] }}</td>
+    <td>{{ run[4] }}</td>
+    <td>{{ run[5] }}</td>
+    <td>{{ run[6] }}</td>
+    <td>{% if run[7] == "posted" %}مرحل{% else %}غير مرحل{% endif %}</td>
+    <td class="no-print"><a class="btn btn-primary btn-sm" href="/payroll/{{ run[0] }}">عرض</a></td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

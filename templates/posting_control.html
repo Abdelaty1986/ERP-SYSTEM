@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-head">
+    <div>
+        <h2>الترحيل وفك الترحيل</h2>
+        <div class="eyebrow">هذه الشاشة للمدير فقط. فك الترحيل يحول المجموعة إلى مسودات بدون أثر في الأستاذ العام حتى يتم ترحيلها مرة أخرى.</div>
+    </div>
+</div>
+
+<table class="table table-bordered align-middle">
+<tr>
+    <th>المجموعة</th>
+    <th>حالة المجموعة</th>
+    <th>مرحل</th>
+    <th>غير مرحل</th>
+    <th>آخر ترحيل</th>
+    <th>آخر فك ترحيل</th>
+    <th class="no-print">إجراء</th>
+</tr>
+{% for row in rows %}
+<tr>
+    <td>
+        <b>{{ row.name }}</b>
+        <div class="text-muted small"><a href="{{ url_for(row.list_endpoint) }}">عرض العمليات</a></div>
+    </td>
+    <td>
+        {% if row.is_posted %}
+        <span class="badge bg-success">مرحل</span>
+        {% else %}
+        <span class="badge bg-warning text-dark">مفتوح للتعديل</span>
+        {% endif %}
+    </td>
+    <td>{{ row.posted_count }}</td>
+    <td>{{ row.draft_count }}</td>
+    <td>{{ row.posted_at or "" }} {{ row.posted_by or "" }}</td>
+    <td>{{ row.unposted_at or "" }} {{ row.unposted_by or "" }}</td>
+    <td class="no-print">
+        {% if row.is_posted %}
+        <form method="POST" action="{{ url_for('posting_control_action', group_key=row.key, action='unpost') }}" onsubmit="return confirm('فك الترحيل سيزيل أثر هذه المجموعة من الأستاذ والمخزون مؤقتا. هل تريد المتابعة؟');">
+            <button class="btn btn-warning btn-sm">فك الترحيل</button>
+        </form>
+        {% else %}
+        <form method="POST" action="{{ url_for('posting_control_action', group_key=row.key, action='post') }}" onsubmit="return confirm('سيتم ترحيل كل المسودات في هذه المجموعة. هل تريد المتابعة؟');">
+            <button class="btn btn-success btn-sm">ترحيل</button>
+        </form>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
