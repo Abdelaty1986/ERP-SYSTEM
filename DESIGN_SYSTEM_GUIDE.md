@@ -1,6 +1,6 @@
 # Design System Implementation Guide
 
-## For Developers: Extending the Modern ERP UI
+## For Developers: Extending the Modern LedgerX UI
 
 ### 1. CSS Custom Properties Reference
 

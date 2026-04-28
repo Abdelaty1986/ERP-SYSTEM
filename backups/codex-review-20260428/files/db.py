@@ -1160,7 +1160,7 @@ def init_db():
     cur.execute("SELECT * FROM users WHERE username='admin'")
     if not cur.fetchone():
         os.makedirs(INSTANCE_DIR, exist_ok=True)
-        bootstrap_password = os.environ.get("ERP_BOOTSTRAP_ADMIN_PASSWORD", "").strip() or secrets.token_urlsafe(12)
+        bootstrap_password = os.environ.get("LedgerX_BOOTSTRAP_ADMIN_PASSWORD", "").strip() or secrets.token_urlsafe(12)
         cur.execute(
             "INSERT INTO users(username,password,role) VALUES(?,?,?)",
             ("admin", generate_password_hash(bootstrap_password), "admin"),

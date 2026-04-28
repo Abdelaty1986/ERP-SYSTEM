@@ -236,7 +236,7 @@ class DemoRunner:
         self.post(
             "/settings/company",
             data={
-                "company_name": scalar("SELECT company_name FROM company_settings WHERE id=1") or "ERP Demo",
+                "company_name": scalar("SELECT company_name FROM company_settings WHERE id=1") or "LedgerX Demo",
                 "tax_number": scalar("SELECT tax_number FROM company_settings WHERE id=1") or "",
                 "commercial_register": scalar("SELECT commercial_register FROM company_settings WHERE id=1") or "",
                 "address": scalar("SELECT address FROM company_settings WHERE id=1") or "",

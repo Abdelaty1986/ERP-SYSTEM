@@ -94,7 +94,7 @@ def _build_invoice_workbook(company, header, lines, party_label):
     ws = wb.active
     ws.title = "Invoice"
     ws.sheet_view.rightToLeft = True
-    ws["A1"] = company.get("name") or "ERP-SYSTEM"
+    ws["A1"] = company.get("name") or "LedgerX-SYSTEM"
     ws["A2"] = f"{party_label}: {header[3]}"
     ws["A3"] = f"رقم الفاتورة: {header[1]}"
     ws["A4"] = f"تاريخ الفاتورة: {header[2]}"

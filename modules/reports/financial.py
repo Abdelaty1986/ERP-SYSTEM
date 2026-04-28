@@ -1,3 +1,4 @@
+from flask import render_template_string, request
 from io import BytesIO
 
 from flask import flash, redirect, render_template, request, send_file, url_for
@@ -396,55 +397,622 @@ def build_profit_loss_report_view(deps):
     return profit_loss_report
 
 
+
+
 def build_vat_report_view(deps):
     db = deps["db"]
 
     def vat_report():
+        date_from = request.args.get("date_from", "").strip()
+        date_to = request.args.get("date_to", "").strip()
+
+        where_sales = ["s.status='posted'"]
+        where_purchases = ["p.status='posted'"]
+        params_sales = []
+        params_purchases = []
+
+        if date_from:
+            where_sales.append("s.date >= ?")
+            where_purchases.append("p.date >= ?")
+            params_sales.append(date_from)
+            params_purchases.append(date_from)
+
+        if date_to:
+            where_sales.append("s.date <= ?")
+            where_purchases.append("p.date <= ?")
+            params_sales.append(date_to)
+            params_purchases.append(date_to)
+
+        sales_where_sql = " AND ".join(where_sales)
+        purchases_where_sql = " AND ".join(where_purchases)
+
         conn = db()
         cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT s.date,s.doc_no,COALESCE(c.name,'عميل نقدي'),p.name,COALESCE(p.unit,''),l.total,COALESCE(l.vat_rate,14),COALESCE(l.vat_amount,0),'بيع',l.grand_total
+
+        cur.execute(f"""
+            SELECT
+                s.date,
+                'مبيعات' AS doc_type,
+                COALESCE(s.doc_no, 'SI-' || printf('%06d', s.id)) AS doc_no,
+                COALESCE(c.name, 'عميل نقدي') AS party_name,
+                COALESCE(p.name, '') AS item_name,
+                COALESCE(l.total, 0) AS net_amount,
+                COALESCE(l.vat_amount, 0) AS vat_amount,
+                (COALESCE(l.total,0) + COALESCE(l.vat_amount,0) - COALESCE(l.withholding_amount,0)) AS grand_total
             FROM sales_invoices s
-            JOIN sales_invoice_lines l ON l.invoice_id=s.id
-            JOIN products p ON p.id=l.product_id
-            LEFT JOIN customers c ON c.id=s.customer_id
-            WHERE s.status='posted' AND COALESCE(l.vat_enabled,1)=1 AND COALESCE(l.vat_amount,0) > 0
+            JOIN sales_invoice_lines l ON l.invoice_id = s.id
+            LEFT JOIN products p ON p.id = l.product_id
+            LEFT JOIN customers c ON c.id = s.customer_id
+            WHERE {sales_where_sql} AND COALESCE(l.vat_amount,0) > 0
+
             UNION ALL
-            SELECT s.date,s.doc_no,COALESCE(c.name,'عميل نقدي'),p.name,COALESCE(p.unit,''),s.total,COALESCE(s.tax_rate,14),COALESCE(s.tax_amount,0),'بيع',s.grand_total
+
+            SELECT
+                s.date,
+                'مبيعات' AS doc_type,
+                COALESCE(s.doc_no, 'SI-' || printf('%06d', s.id)) AS doc_no,
+                COALESCE(c.name, 'عميل نقدي') AS party_name,
+                COALESCE(p.name, '') AS item_name,
+                COALESCE(s.total, 0) AS net_amount,
+                COALESCE(s.tax_amount, 0) AS vat_amount,
+                (COALESCE(s.total,0) + COALESCE(s.tax_amount,0) - COALESCE(s.withholding_amount,0)) AS grand_total
             FROM sales_invoices s
-            JOIN products p ON p.id=s.product_id
-            LEFT JOIN customers c ON c.id=s.customer_id
-            WHERE s.status='posted' AND COALESCE(s.tax_amount,0) > 0
-              AND NOT EXISTS (SELECT 1 FROM sales_invoice_lines l WHERE l.invoice_id=s.id)
-            UNION ALL
-            SELECT p.date,p.doc_no,COALESCE(s.name,'مورد نقدي'),pr.name,COALESCE(pr.unit,''),l.total,COALESCE(l.vat_rate,14),COALESCE(l.vat_amount,0),'شراء',l.grand_total
+            LEFT JOIN products p ON p.id = s.product_id
+            LEFT JOIN customers c ON c.id = s.customer_id
+            WHERE {sales_where_sql}
+              AND NOT EXISTS (SELECT 1 FROM sales_invoice_lines l2 WHERE l2.invoice_id=s.id)
+              AND COALESCE(s.tax_amount,0) > 0
+        """, params_sales + params_sales)
+
+        sales_rows = cur.fetchall()
+
+        cur.execute(f"""
+            SELECT
+                p.date,
+                'مشتريات' AS doc_type,
+                COALESCE(p.doc_no, p.supplier_invoice_no, 'PI-' || printf('%06d', p.id)) AS doc_no,
+                COALESCE(s.name, 'مورد نقدي') AS party_name,
+                COALESCE(pr.name, '') AS item_name,
+                COALESCE(l.total, 0) AS net_amount,
+                COALESCE(l.vat_amount, 0) AS vat_amount,
+                (COALESCE(l.total,0) + COALESCE(l.vat_amount,0) - COALESCE(l.withholding_amount,0)) AS grand_total
             FROM purchase_invoices p
-            JOIN purchase_invoice_lines l ON l.invoice_id=p.id
-            JOIN products pr ON pr.id=l.product_id
-            LEFT JOIN suppliers s ON s.id=p.supplier_id
-            WHERE p.status='posted' AND COALESCE(l.vat_enabled,1)=1 AND COALESCE(l.vat_amount,0) > 0
+            JOIN purchase_invoice_lines l ON l.invoice_id = p.id
+            LEFT JOIN products pr ON pr.id = l.product_id
+            LEFT JOIN suppliers s ON s.id = p.supplier_id
+            WHERE {purchases_where_sql} AND COALESCE(l.vat_amount,0) > 0
+
             UNION ALL
-            SELECT p.date,p.doc_no,COALESCE(s.name,'مورد نقدي'),pr.name,COALESCE(pr.unit,''),p.total,COALESCE(p.tax_rate,14),COALESCE(p.tax_amount,0),'شراء',p.grand_total
+
+            SELECT
+                p.date,
+                'مشتريات' AS doc_type,
+                COALESCE(p.doc_no, p.supplier_invoice_no, 'PI-' || printf('%06d', p.id)) AS doc_no,
+                COALESCE(s.name, 'مورد نقدي') AS party_name,
+                COALESCE(pr.name, '') AS item_name,
+                COALESCE(p.total, 0) AS net_amount,
+                COALESCE(p.tax_amount, 0) AS vat_amount,
+                (COALESCE(p.total,0) + COALESCE(p.tax_amount,0) - COALESCE(p.withholding_amount,0)) AS grand_total
             FROM purchase_invoices p
-            JOIN products pr ON pr.id=p.product_id
-            LEFT JOIN suppliers s ON s.id=p.supplier_id
-            WHERE p.status='posted' AND COALESCE(p.tax_amount,0) > 0
-              AND NOT EXISTS (SELECT 1 FROM purchase_invoice_lines l WHERE l.invoice_id=p.id)
-            ORDER BY 1 DESC
-            """
-        )
-        rows = cur.fetchall()
-        output_vat = sum((row[7] or 0) for row in rows if row[8] == "بيع")
-        input_vat = sum((row[7] or 0) for row in rows if row[8] == "شراء")
-        payable_vat = output_vat - input_vat
+            LEFT JOIN products pr ON pr.id = p.product_id
+            LEFT JOIN suppliers s ON s.id = p.supplier_id
+            WHERE {purchases_where_sql}
+              AND NOT EXISTS (SELECT 1 FROM purchase_invoice_lines l2 WHERE l2.invoice_id=p.id)
+              AND COALESCE(p.tax_amount,0) > 0
+        """, params_purchases + params_purchases)
+
+        purchase_rows = cur.fetchall()
         conn.close()
-        if request.args.get("format") == "excel":
-            return _tax_report_excel("vat-report.xlsx", "تقرير ضريبة القيمة المضافة", rows, "صافي المستحق", payable_vat)
-        return render_template("vat_report.html", output_vat=output_vat, input_vat=input_vat, payable_vat=payable_vat, rows=rows)
+
+        def clean_doc_no(value):
+            value = str(value or "")
+            value = value.replace("\ufffe", "-").replace("￾", "-")
+            value = value.replace("SI000", "SI-000").replace("PI000", "PI-000")
+            return value
+
+        rows = []
+        for r in list(sales_rows) + list(purchase_rows):
+            rows.append((
+                r[0],
+                r[1],
+                clean_doc_no(r[2]),
+                r[3],
+                r[4],
+                float(r[5] or 0),
+                float(r[6] or 0),
+                float(r[7] or 0),
+            ))
+
+        rows.sort(key=lambda r: (r[0] or "", r[1] or "", r[2] or ""))
+
+        output_vat = sum(r[6] for r in rows if r[1] == "مبيعات")
+        input_vat = sum(r[6] for r in rows if r[1] == "مشتريات")
+        net_due = output_vat - input_vat
+
+        total_net = sum(r[5] for r in rows)
+        total_vat = sum(r[6] for r in rows)
+        total_grand = sum(r[7] for r in rows)
+
+        template = """
+        {% extends "layout.html" %}
+        {% block content %}
+
+        <div class="vat-report-page" dir="rtl">
+
+            <div class="report-header">
+                <div>
+                    <h2>تقرير ضريبة القيمة المضافة</h2>
+                    <p>مخرجات المبيعات ومدخلات المشتريات للفواتير المرحلة فقط</p>
+                    {% if date_from or date_to %}
+                    <small>
+                        الفترة:
+                        {% if date_from %} من {{ date_from }} {% endif %}
+                        {% if date_to %} إلى {{ date_to }} {% endif %}
+                    </small>
+                    {% endif %}
+                </div>
+
+                <div class="report-actions d-print-none">
+                    <button onclick="window.print()" class="btn-print">طباعة / PDF</button>
+                </div>
+            </div>
+
+            <form method="get" class="filter-box d-print-none">
+                <div>
+                    <label>من تاريخ</label>
+                    <input type="date" name="date_from" value="{{ date_from }}">
+                </div>
+                <div>
+                    <label>إلى تاريخ</label>
+                    <input type="date" name="date_to" value="{{ date_to }}">
+                </div>
+                <div class="filter-actions">
+                    <button type="submit">تطبيق الفلتر</button>
+                    <a href="{{ url_for('vat_report') }}">إلغاء الفلتر</a>
+                </div>
+            </form>
+
+            <div class="summary-grid">
+                <div class="summary-card output">
+                    <span>ضريبة المخرجات</span>
+                    <strong>{{ "%.2f"|format(output_vat) }}</strong>
+                    <small>ضريبة فواتير البيع</small>
+                </div>
+
+                <div class="summary-card input">
+                    <span>ضريبة المدخلات</span>
+                    <strong>{{ "%.2f"|format(input_vat) }}</strong>
+                    <small>ضريبة فواتير الشراء</small>
+                </div>
+
+                <div class="summary-card due">
+                    <span>الصافي المستحق</span>
+                    <strong>{{ "%.2f"|format(net_due) }}</strong>
+                    <small>موجب = مستحق، سالب = رصيد مدخلات</small>
+                </div>
+            </div>
+
+            <div class="report-table-card">
+                <div class="table-title">تفاصيل الفواتير الضريبية</div>
+
+                <div class="table-responsive">
+                    <table class="vat-table">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>النوع</th>
+                                <th>رقم المستند</th>
+                                <th>العميل / المورد</th>
+                                <th>الصنف</th>
+                                <th>الصافي قبل الضريبة</th>
+                                <th>الضريبة</th>
+                                <th>الإجمالي بعد الضريبة</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for r in rows %}
+                            <tr>
+                                <td class="nowrap date-cell">{{ r[0] }}</td>
+                                <td class="nowrap">
+                                    {% if r[1] == "مبيعات" %}
+                                        <span class="badge badge-sale">مبيعات</span>
+                                    {% else %}
+                                        <span class="badge badge-purchase">مشتريات</span>
+                                    {% endif %}
+                                </td>
+                                <td class="nowrap doc-no" dir="ltr">{{ r[2] }}</td>
+                                <td class="party-cell">{{ r[3] }}</td>
+                                <td class="item-cell">{{ r[4] }}</td>
+                                <td class="num">{{ "%.2f"|format(r[5]) }}</td>
+                                <td class="num">{{ "%.2f"|format(r[6]) }}</td>
+                                <td class="num">{{ "%.2f"|format(r[7]) }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="empty-row">لا توجد فواتير ضريبية مرحلة.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                        <tfoot>
+                            <tr>
+                                <td colspan="5">الإجمالي</td>
+                                <td class="num">{{ "%.2f"|format(total_net) }}</td>
+                                <td class="num">{{ "%.2f"|format(total_vat) }}</td>
+                                <td class="num">{{ "%.2f"|format(total_grand) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <style>
+            .vat-report-page {
+                background: #f6f8fb;
+                padding: 24px;
+                font-family: Tahoma, Arial, sans-serif;
+                color: #1f2937;
+            }
+
+            .report-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 16px;
+                margin-bottom: 18px;
+            }
+
+            .report-header h2 {
+                margin: 0;
+                font-size: 28px;
+                font-weight: 800;
+                color: #111827;
+            }
+
+            .report-header p {
+                margin: 6px 0 0;
+                color: #6b7280;
+            }
+
+            .report-header small {
+                display: block;
+                margin-top: 6px;
+                color: #374151;
+                font-weight: 600;
+            }
+
+            .btn-print {
+                border: 0;
+                background: #2563eb;
+                color: #fff;
+                padding: 10px 18px;
+                border-radius: 10px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+
+            .filter-box {
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                border-radius: 16px;
+                padding: 16px;
+                margin-bottom: 18px;
+                display: flex;
+                align-items: end;
+                gap: 14px;
+                flex-wrap: wrap;
+                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+            }
+
+            .filter-box label {
+                display: block;
+                font-size: 13px;
+                color: #6b7280;
+                margin-bottom: 6px;
+                font-weight: 700;
+            }
+
+            .filter-box input {
+                border: 1px solid #d1d5db;
+                border-radius: 10px;
+                padding: 9px 12px;
+                min-width: 180px;
+            }
+
+            .filter-actions {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .filter-actions button {
+                background: #111827;
+                color: #fff;
+                border: 0;
+                border-radius: 10px;
+                padding: 10px 16px;
+                font-weight: 700;
+            }
+
+            .filter-actions a {
+                color: #6b7280;
+                text-decoration: none;
+                font-weight: 700;
+            }
+
+            .summary-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 16px;
+                margin-bottom: 20px;
+            }
+
+            .summary-card {
+                background: #fff;
+                border-radius: 18px;
+                padding: 20px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            }
+
+            .summary-card span {
+                display: block;
+                color: #6b7280;
+                font-size: 14px;
+                margin-bottom: 8px;
+                font-weight: 700;
+            }
+
+            .summary-card strong {
+                display: block;
+                font-size: 30px;
+                line-height: 1.2;
+                margin-bottom: 8px;
+                direction: ltr;
+                text-align: right;
+            }
+
+            .summary-card small {
+                color: #6b7280;
+                font-weight: 600;
+            }
+
+            .summary-card.output strong { color: #dc2626; }
+            .summary-card.input strong { color: #059669; }
+            .summary-card.due strong { color: #2563eb; }
+
+            .report-table-card {
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                border-radius: 18px;
+                overflow: hidden;
+                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            }
+
+            .table-title {
+                padding: 16px 18px;
+                font-size: 18px;
+                font-weight: 800;
+                border-bottom: 1px solid #e5e7eb;
+                background: #fff;
+            }
+
+            .table-responsive {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .vat-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                background: #fff;
+            }
+
+            .vat-table th {
+                background: #111827;
+                color: #fff;
+                padding: 12px 10px;
+                font-size: 13px;
+                font-weight: 800;
+                border: 1px solid #1f2937;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            .vat-table td {
+                padding: 11px 10px;
+                border: 1px solid #e5e7eb;
+                font-size: 13px;
+                vertical-align: middle;
+                background: #fff;
+            }
+
+            .vat-table tbody tr:nth-child(even) td {
+                background: #f9fafb;
+            }
+
+            .vat-table tfoot td {
+                background: #f3f4f6;
+                font-weight: 900;
+                border-top: 2px solid #9ca3af;
+            }
+
+            .nowrap {
+                white-space: nowrap;
+            }
+
+            .date-cell {
+                width: 95px;
+                direction: ltr;
+                text-align: center;
+            }
+
+            .doc-no {
+                width: 100px;
+                text-align: center;
+                font-weight: 800;
+            }
+
+            .party-cell {
+                width: 160px;
+                font-weight: 700;
+            }
+
+            .item-cell {
+                width: 180px;
+            }
+
+            .num {
+                direction: ltr;
+                text-align: left;
+                white-space: nowrap;
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .badge {
+                display: inline-block;
+                padding: 5px 9px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+
+            .badge-sale {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+            .badge-purchase {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .empty-row {
+                text-align: center;
+                color: #6b7280;
+                padding: 28px !important;
+            }
+
+            @media (max-width: 768px) {
+                .vat-report-page {
+                    padding: 14px;
+                }
+
+                .summary-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .report-header {
+                    display: block;
+                }
+
+                .report-actions {
+                    margin-top: 12px;
+                }
+            }
+
+            @media print {
+                @page {
+                    size: A4 landscape;
+                    margin: 10mm;
+                }
+
+                .sidebar,
+                .navbar,
+                .d-print-none,
+                .btn,
+                .report-actions,
+                .filter-box {
+                    display: none !important;
+                }
+
+                html, body {
+                    background: #fff !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                .vat-report-page {
+                    padding: 0 !important;
+                    background: #fff !important;
+                }
+
+                .report-header {
+                    margin-bottom: 12px;
+                }
+
+                .report-header h2 {
+                    font-size: 22px;
+                }
+
+                .summary-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 8px;
+                    margin-bottom: 12px;
+                }
+
+                .summary-card {
+                    box-shadow: none !important;
+                    border: 1px solid #ddd !important;
+                    border-radius: 10px;
+                    padding: 12px;
+                }
+
+                .summary-card strong {
+                    font-size: 22px;
+                }
+
+                .report-table-card {
+                    box-shadow: none !important;
+                    border-radius: 0;
+                }
+
+                .table-title {
+                    padding: 10px;
+                }
+
+                .vat-table {
+                    table-layout: fixed;
+                }
+
+                .vat-table th,
+                .vat-table td {
+                    font-size: 11px;
+                    padding: 7px 6px;
+                    line-height: 1.35;
+                }
+
+                .date-cell,
+                .doc-no,
+                .num {
+                    white-space: nowrap !important;
+                }
+            }
+        </style>
+
+        {% endblock %}
+        """
+
+        return render_template_string(
+            template,
+            rows=rows,
+            output_vat=output_vat,
+            input_vat=input_vat,
+            net_due=net_due,
+            total_net=total_net,
+            total_vat=total_vat,
+            total_grand=total_grand,
+            date_from=date_from,
+            date_to=date_to,
+        )
 
     return vat_report
-
 
 def build_withholding_tax_report_view(deps):
     db = deps["db"]
@@ -454,21 +1022,21 @@ def build_withholding_tax_report_view(deps):
         cur = conn.cursor()
         cur.execute(
             """
-            SELECT s.date,s.doc_no,COALESCE(c.name,'عميل نقدي'),p.name,COALESCE(p.unit,''),l.total,COALESCE(l.withholding_rate,1),COALESCE(l.withholding_amount,0),'بيع',l.grand_total
+            SELECT s.date,s.doc_no,COALESCE(c.name,'عميل نقدي'),p.name,COALESCE(p.unit,''),l.total,COALESCE(l.withholding_rate,1),COALESCE(l.withholding_amount,0),'بيع',(l.total + COALESCE(l.vat_amount,0) - COALESCE(l.withholding_amount,0))
             FROM sales_invoices s
             JOIN sales_invoice_lines l ON l.invoice_id=s.id
             JOIN products p ON p.id=l.product_id
             LEFT JOIN customers c ON c.id=s.customer_id
             WHERE s.status='posted' AND COALESCE(l.withholding_enabled,0)=1 AND COALESCE(l.withholding_amount,0) > 0
             UNION ALL
-            SELECT s.date,s.doc_no,COALESCE(c.name,'عميل نقدي'),p.name,COALESCE(p.unit,''),s.total,COALESCE(s.withholding_rate,1),COALESCE(s.withholding_amount,0),'بيع',s.grand_total
+            SELECT s.date,s.doc_no,COALESCE(c.name,'عميل نقدي'),p.name,COALESCE(p.unit,''),s.total,COALESCE(s.withholding_rate,1),COALESCE(s.withholding_amount,0),'بيع',(s.total + COALESCE(s.tax_amount,0) - COALESCE(s.withholding_amount,0))
             FROM sales_invoices s
             JOIN products p ON p.id=s.product_id
             LEFT JOIN customers c ON c.id=s.customer_id
             WHERE s.status='posted' AND COALESCE(s.withholding_amount,0) > 0
               AND NOT EXISTS (SELECT 1 FROM sales_invoice_lines l WHERE l.invoice_id=s.id)
             UNION ALL
-            SELECT p.date,p.doc_no,COALESCE(s.name,'مورد نقدي'),pr.name,COALESCE(pr.unit,''),l.total,COALESCE(l.withholding_rate,1),COALESCE(l.withholding_amount,0),'شراء',l.grand_total
+            SELECT p.date,p.doc_no,COALESCE(s.name,'مورد نقدي'),pr.name,COALESCE(pr.unit,''),l.total,COALESCE(l.withholding_rate,1),COALESCE(l.withholding_amount,0),'شراء',(l.total + COALESCE(l.vat_amount,0) - COALESCE(l.withholding_amount,0))
             FROM purchase_invoices p
             JOIN purchase_invoice_lines l ON l.invoice_id=p.id
             JOIN products pr ON pr.id=l.product_id

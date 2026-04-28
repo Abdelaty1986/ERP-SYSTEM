@@ -1,6 +1,6 @@
 ﻿import os
 
-css_path = r'C:\Users\Hany.Abdelatty\Desktop\تطوير برنامج ERP\ملفات السيرفر 16-4-2027\erp_dev_copy\static\style.css'
+css_path = r'C:\Users\Hany.Abdelatty\Desktop\تطوير برنامج LedgerX\ملفات السيرفر 16-4-2027\erp_dev_copy\static\style.css'
 
 # Read the file
 with open(css_path, 'r', encoding='utf-8') as f:

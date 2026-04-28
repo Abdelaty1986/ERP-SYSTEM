@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_brand.css') }}">
+
+
+<a href="https://wa.me/201140320867?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20Ledger%20X" target="_blank" rel="noopener" class="lx-whatsapp-float" aria-label="تواصل واتساب">
+    <span>واتساب</span>
+    <strong>💬</strong>
+</a>
+
+<div class="ledgerx-landing" dir="rtl">
+    <section class="lx-hero">
+        <div class="lx-hero-text">
+            <div class="lx-badge">Ledger X — نظام محاسبي متكامل</div>
+            <h1>إدارة الحسابات والمخزون والمبيعات من مكان واحد</h1>
+            <p>
+                Ledger X يساعد الشركات الصغيرة والمتوسطة على متابعة العملاء، الموردين،
+                الفواتير، المخزون، القيود، التقارير، والضرائب بسهولة واحترافية.
+            </p>
+
+            <div class="lx-actions">
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('dashboard') }}" class="lx-btn primary">فتح لوحة التحكم</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="lx-btn primary">دخول البرنامج</a>
+                {% endif %}
+                <a href="#pricing" class="lx-btn secondary">عرض الأسعار</a>
+                <a href="#contact" class="lx-btn whatsapp">تواصل واتساب</a>
+            </div>
+
+            <div class="lx-trust">
+                <span>✓ مناسب للشركات التجارية</span>
+                <span>✓ تقارير مالية وضريبية</span>
+                <span>✓ صلاحيات للمستخدمين</span>
+            </div>
+        </div>
+
+        <div class="lx-hero-card">
+            <div class="lx-window">
+                <div class="lx-window-top"><span></span><span></span><span></span></div>
+                <div class="lx-dashboard-preview">
+                    <div class="lx-preview-title">لوحة تحكم Ledger X</div>
+                    <div class="lx-preview-grid">
+                        <div><strong>156,100</strong><small>صافي مبيعات</small></div>
+                        <div><strong>21,854</strong><small>ضريبة مستحقة</small></div>
+                        <div><strong>177,954</strong><small>إجمالي فواتير</small></div>
+                        <div><strong>+12</strong><small>عمليات اليوم</small></div>
+                    </div>
+                    <div class="lx-preview-line"></div>
+                    <div class="lx-preview-line small"></div>
+                    <div class="lx-preview-line"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="lx-section">
+        <h2>كل ما تحتاجه لإدارة نشاطك</h2>
+        <div class="lx-features">
+            <div class="lx-feature"><h3>المبيعات والعملاء</h3><p>فواتير بيع، مرتجعات، سندات قبض، كشف حساب، ومتابعة أرصدة العملاء.</p></div>
+            <div class="lx-feature"><h3>المشتريات والموردين</h3><p>فواتير مشتريات، سندات صرف، كشف حساب مورد، وتقارير آجال السداد.</p></div>
+            <div class="lx-feature"><h3>المخزون</h3><p>إدارة الأصناف، الكميات، التكلفة، الحركات، والباركود.</p></div>
+            <div class="lx-feature"><h3>المحاسبة</h3><p>دليل حسابات، قيود يومية، أستاذ عام، ميزان مراجعة، وتقارير مالية.</p></div>
+            <div class="lx-feature"><h3>الضرائب</h3><p>تقرير قيمة مضافة، خصم وإضافة، وتجهيز بيانات الفاتورة الإلكترونية.</p></div>
+            <div class="lx-feature"><h3>الصلاحيات</h3><p>تحكم في صلاحيات المستخدمين حسب الدور والوظيفة داخل الشركة.</p></div>
+        </div>
+    </section>
+
+    <section class="lx-section lx-pricing" id="pricing">
+        <h2>باقات واضحة تناسب بداية كل شركة</h2>
+        <div class="lx-price-grid">
+            <div class="lx-price-card"><h3>الباقة الأساسية</h3><div class="lx-price">7,000 جنيه</div><p>مناسبة لشركة صغيرة تبدأ في تنظيم الحسابات والمخزون.</p><ul><li>حتى 3 مستخدمين</li><li>المبيعات والمشتريات والمخزون</li><li>تقارير أساسية</li><li>إعداد وتشغيل أولي</li></ul></div>
+            <div class="lx-price-card featured"><div class="lx-popular">الأكثر طلبًا</div><h3>الباقة المتقدمة</h3><div class="lx-price">10,000 جنيه</div><p>مناسبة لشركة تحتاج تقارير وصلاحيات وتجهيز ضريبي أقوى.</p><ul><li>حتى 7 مستخدمين</li><li>تقارير مالية وضريبية</li><li>صلاحيات مستخدمين</li><li>تجهيز الفاتورة الإلكترونية</li></ul></div>
+            <div class="lx-price-card"><h3>الدعم والاستضافة</h3><div class="lx-price">اختياري</div><p>خدمات تشغيل ومتابعة حسب احتياج العميل.</p><ul><li>دعم فني: 1,000 جنيه شهريًا</li><li>استضافة سيرفر: 800 جنيه شهريًا</li><li>مستخدم إضافي بتكلفة منفصلة</li><li>تحديثات وتحسينات حسب الاتفاق</li></ul></div>
+        </div>
+    </section>
+
+
+    <section class="lx-section lx-contact" id="contact">
+        <div class="lx-contact-card">
+            <div class="lx-contact-text">
+                <span class="lx-contact-kicker">تواصل معنا</span>
+                <h2>جاهز تشوف Ledger X على نشاطك؟</h2>
+                <p>
+                    ابعتلنا على واتساب وهنساعدك تعرف الباقة المناسبة، طريقة التشغيل،
+                    وتجهيز البرنامج حسب طبيعة شركتك.
+                </p>
+                <div class="lx-contact-info">
+                    <a href="tel:01140320867" class="lx-phone">📞 01140320867</a>
+                    <a href="https://wa.me/201140320867?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20Ledger%20X" target="_blank" rel="noopener" class="lx-whatsapp-main">💬 تواصل واتساب الآن</a>
+                </div>
+            </div>
+            <div class="lx-contact-mini">
+                <strong>ماذا تحصل عليه؟</strong>
+                <ul>
+                    <li>توضيح مناسب للباقة حسب نشاطك</li>
+                    <li>شرح طريقة التشغيل والتدريب</li>
+                    <li>اتفاق واضح للدعم والاستضافة</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="lx-cta">
+        <h2>ابدأ إدارة شركتك بطريقة أوضح</h2>
+        <p>Ledger X مصمم ليكون بسيطًا في الاستخدام وقويًا في النتائج.</p>
+        <div class="lx-actions lx-cta-actions">
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('dashboard') }}" class="lx-btn primary">فتح لوحة التحكم</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="lx-btn primary">دخول البرنامج الآن</a>
+            {% endif %}
+            <a href="https://wa.me/201140320867?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20Ledger%20X" target="_blank" rel="noopener" class="lx-btn whatsapp">استفسار واتساب</a>
+        </div>
+    </section>
+</div>
+{% endblock %}
