@@ -3478,6 +3478,24 @@ def prepare_customer_adjustment_einvoice(id):
 @permission_required("e_invoices")
 def e_invoices():
     return build_einvoices_view(MODULE_DEPS)()
+
+@app.route("/sales/export-all")
+@login_required
+@permission_required("sales")
+def export_all_sales_excel():
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM sales_invoices ORDER BY id DESC")
+    rows = cur.fetchall()
+    headers = [description[0] for description in cur.description]
+    conn.close()
+
+    return excel_response(
+        "sales_invoices_all.xls",
+        headers,
+        rows,
+        title="تقرير فواتير البيع",
+    )
 @app.route("/e-invoices/prepare-sales", methods=["POST"])
 @login_required
 @permission_required("e_invoices", write_always=True)
