@@ -39,11 +39,11 @@
 </section>
 
 <section class="panel-block panel-block-muted">
-    <div class="section-title"><div><h3>السجل</h3><p>يمكنك عرض كشف الحساب أو تعديل البيانات أو حذف السجل إذا لم تكن عليه حركات مرتبطة.</p></div><span class="stat-pill">{{ rows|length }} سجل</span></div>
+    <div class="section-title"><div><h3>السجل</h3><p>يمكنك عرض كشف الحساب الرسمي أو تقرير التعاملات الكامل أو تعديل البيانات أو حذف السجل إذا لم تكن عليه حركات مرتبطة.</p></div><span class="stat-pill">{{ rows|length }} سجل</span></div>
     {% if rows %}
     <div class="table-shell">
         <table class="table table-bordered table-hover align-middle">
-            <tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>العنوان</th><th>التسجيل الضريبي</th><th>البطاقة الضريبية</th><th>مسؤول التواصل</th><th>الحالة</th><th class="no-print">كشف الحساب</th><th class="no-print">إجراءات</th></tr>
+            <tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>العنوان</th><th>التسجيل الضريبي</th><th>البطاقة الضريبية</th><th>مسؤول التواصل</th><th>الحالة</th><th class="no-print">التقارير</th><th class="no-print">إجراءات</th></tr>
             {% for row in rows %}
             <tr>
                 <td>{{ row[0] }}</td>
@@ -54,7 +54,17 @@
                 <td>{{ row[5] or "" }}</td>
                 <td>{{ row[6] or "" }}</td>
                 <td>{% if endpoint == "suppliers" %}{{ "خاضع" if row[8] == "taxable" else "معفي (دفعات مقدمة)" }}{% else %}{{ "خاضع للخصم" if row[8] == "subject" else "غير خاضع" }}{% endif %}</td>
-                <td class="no-print">{% if endpoint == "customers" %}<a href="/customers/{{ row[0] }}/statement" class="btn btn-primary btn-sm">عرض</a>{% else %}<a href="/suppliers/{{ row[0] }}/statement" class="btn btn-primary btn-sm">عرض</a>{% endif %}</td>
+                <td class="no-print">
+                    <div class="d-flex gap-1 flex-wrap">
+                        {% if endpoint == "customers" %}
+                            <a href="/customers/{{ row[0] }}/statement" class="btn btn-primary btn-sm">كشف حساب</a>
+                            <a href="/customers/{{ row[0] }}/statement?mode=transactions" class="btn btn-outline-primary btn-sm">تعاملات</a>
+                        {% else %}
+                            <a href="/suppliers/{{ row[0] }}/statement" class="btn btn-primary btn-sm">كشف حساب</a>
+                            <a href="/suppliers/{{ row[0] }}/statement?mode=transactions" class="btn btn-outline-primary btn-sm">تعاملات</a>
+                        {% endif %}
+                    </div>
+                </td>
                 <td class="no-print">
                     <div class="d-flex gap-1 flex-wrap">
                         <a href="/{{ endpoint }}/{{ row[0] }}/edit" class="btn btn-warning btn-sm">تعديل</a>
