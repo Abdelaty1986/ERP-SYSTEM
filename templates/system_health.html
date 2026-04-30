@@ -1,0 +1,301 @@
+{% extends "layout.html" %}
+{% block title %}System Health{% endblock %}
+
+{% block extra_css %}
+<style>
+.health-shell {
+    position: relative;
+    overflow: hidden;
+    min-height: 78vh;
+    padding: 28px;
+    border-radius: 30px;
+    color: #e0f2fe;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(34,197,94,.18), transparent 24%),
+        radial-gradient(circle at 85% 5%, rgba(14,165,233,.18), transparent 32%),
+        linear-gradient(135deg, #020617, #0f172a 60%, #111827);
+    box-shadow: 0 28px 90px rgba(2,6,23,.38);
+}
+.health-shell.alert-mode {
+    background:
+        radial-gradient(circle at 15% 15%, rgba(239,68,68,.22), transparent 24%),
+        radial-gradient(circle at 85% 5%, rgba(248,113,113,.18), transparent 32%),
+        linear-gradient(135deg, #020617, #111827 60%, #450a0a);
+}
+.health-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(125,211,252,.075) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(125,211,252,.075) 1px, transparent 1px);
+    background-size: 38px 38px;
+    animation: gridMove 22s linear infinite;
+}
+.health-shell::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -120px;
+    height: 110px;
+    background: linear-gradient(to bottom, transparent, rgba(125,211,252,.18), transparent);
+    animation: scanLine 5s linear infinite;
+}
+.health-shell > * { position: relative; z-index: 1; }
+@keyframes gridMove {
+    from { background-position: 0 0; }
+    to { background-position: 0 380px; }
+}
+@keyframes scanLine {
+    from { transform: translateY(-140px); }
+    to { transform: translateY(92vh); }
+}
+.health-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    justify-content: space-between;
+    align-items: center;
+}
+.health-title {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 900;
+    color: #bfdbfe;
+    text-shadow: 0 0 24px rgba(96,165,250,.75);
+    margin-bottom: 8px;
+}
+.health-subtitle { color: #bae6fd; margin: 0; }
+.core-orb {
+    width: 155px;
+    height: 155px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    font-size: 34px;
+    font-weight: 900;
+    background: radial-gradient(circle, #22c55e, #14532d 52%, #052e16);
+    box-shadow: 0 0 28px rgba(34,197,94,.9), 0 0 86px rgba(34,197,94,.45);
+    animation: orbPulse 1.6s ease-in-out infinite alternate;
+}
+.core-orb.bad {
+    background: radial-gradient(circle, #ef4444, #7f1d1d 52%, #450a0a);
+    box-shadow: 0 0 28px rgba(239,68,68,.9), 0 0 86px rgba(239,68,68,.45);
+    animation: orbPanic .55s ease-in-out infinite alternate;
+}
+@keyframes orbPulse {
+    from { transform: scale(.97); filter: brightness(.92); }
+    to { transform: scale(1.05); filter: brightness(1.18); }
+}
+@keyframes orbPanic {
+    from { transform: scale(.96) rotate(-1deg); }
+    to { transform: scale(1.06) rotate(1deg); }
+}
+.ecg-panel {
+    margin: 26px 0;
+    border-radius: 26px;
+    padding: 18px;
+    background: rgba(2,6,23,.5);
+    border: 1px solid rgba(125,211,252,.24);
+    box-shadow: inset 0 0 35px rgba(14,165,233,.08);
+}
+.ecg-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #bfdbfe;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+.ecg-screen {
+    width: 100%;
+    height: 115px;
+    display: block;
+    background:
+        linear-gradient(rgba(34,197,94,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,197,94,.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    border-radius: 18px;
+}
+.health-shell.alert-mode .ecg-screen {
+    background:
+        linear-gradient(rgba(239,68,68,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(239,68,68,.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+}
+.ecg-path {
+    fill: none;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+    filter: drop-shadow(0 0 10px currentColor);
+}
+.ecg-ok {
+    color: #22c55e;
+    animation: ecgRun 2.5s linear infinite;
+}
+.ecg-bad {
+    color: #ef4444;
+    animation: ecgRun .75s linear infinite, ecgTension .18s infinite;
+}
+@keyframes ecgRun { to { stroke-dashoffset: 0; } }
+@keyframes ecgTension {
+    0%,100% { transform: translateY(0); }
+    45% { transform: translateY(-3px); }
+    70% { transform: translateY(3px); }
+}
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+}
+.stat-card {
+    background: rgba(15,23,42,.74);
+    border: 1px solid rgba(125,211,252,.22);
+    border-radius: 22px;
+    padding: 16px;
+    backdrop-filter: blur(12px);
+    transition: .25s ease;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(125,211,252,.72);
+    box-shadow: 0 18px 45px rgba(14,165,233,.18);
+}
+.stat-card span { color: #93c5fd; font-size: 13px; }
+.stat-card strong { display: block; margin-top: 5px; font-size: 28px; color: #e0f2fe; }
+.check-table {
+    margin-top: 24px;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(125,211,252,.22);
+    background: rgba(15,23,42,.78);
+}
+.check-table table { width: 100%; margin: 0; color: #e0f2fe; }
+.check-table th {
+    color: #93c5fd;
+    background: rgba(2,6,23,.42);
+    padding: 14px;
+}
+.check-table td {
+    padding: 14px;
+    border-top: 1px solid rgba(125,211,252,.12);
+}
+.badge-soft-ok, .badge-soft-bad, .badge-soft-warn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 12px;
+}
+.badge-soft-ok { color: #bbf7d0; border: 1px solid rgba(34,197,94,.5); background: rgba(34,197,94,.12); }
+.badge-soft-bad { color: #fecaca; border: 1px solid rgba(239,68,68,.5); background: rgba(239,68,68,.12); }
+.badge-soft-warn { color: #fef3c7; border: 1px solid rgba(250,204,21,.5); background: rgba(250,204,21,.12); }
+.routes-box {
+    margin-top: 22px;
+    direction: ltr;
+    text-align: left;
+    max-height: 260px;
+    overflow: auto;
+    font-size: 13px;
+    color: #bfdbfe;
+    background: rgba(2,6,23,.65);
+    border: 1px solid rgba(125,211,252,.16);
+    border-radius: 18px;
+    padding: 14px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="health-shell {% if not health.overall_ok %}alert-mode{% endif %}">
+    <div class="health-header">
+        <div>
+            <div class="text-info fw-bold mb-2">System Health Monitor</div>
+            <h1 class="health-title">❤️ مركز نبض النظام</h1>
+            <p class="health-subtitle">
+                متابعة حالة قاعدة البيانات، الميجريشن، الجداول، الراوتس، والمؤشرات الأساسية لحظيًا.
+            </p>
+            <div class="mt-2 text-light opacity-75">آخر فحص: {{ health.generated_at }}</div>
+        </div>
+        <div class="core-orb {% if not health.overall_ok %}bad{% endif %}">
+            {% if health.overall_ok %}OK{% else %}ALERT{% endif %}
+        </div>
+    </div>
+
+    <div class="ecg-panel">
+        <div class="ecg-title">
+            <span>System Pulse</span>
+            <span class="{% if health.overall_ok %}text-success{% else %}text-danger{% endif %}">
+                {% if health.overall_ok %}نبض مستقر{% else %}نبض متوتر{% endif %}
+            </span>
+        </div>
+        <svg class="ecg-screen" viewBox="0 0 1000 140" preserveAspectRatio="none">
+            {% if health.overall_ok %}
+            <path class="ecg-path ecg-ok" d="M0 82 L110 82 L135 42 L162 112 L190 82 L310 82 L340 58 L365 82 L520 82 L555 25 L590 122 L628 82 L1000 82" />
+            {% else %}
+            <path class="ecg-path ecg-bad" d="M0 82 L65 82 L88 18 L118 126 L148 24 L176 118 L210 82 L300 82 L330 12 L360 130 L395 20 L430 122 L470 82 L565 82 L595 18 L630 128 L665 28 L700 118 L735 82 L1000 82" />
+            {% endif %}
+        </svg>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-card"><span>Database Size</span><strong>{{ health.stats.db_size_mb|default(0) }} MB</strong></div>
+        <div class="stat-card"><span>Routes</span><strong>{{ health.stats.routes|default(0) }}</strong></div>
+        <div class="stat-card"><span>Users</span><strong>{{ health.stats.users|default(0) }}</strong></div>
+        <div class="stat-card"><span>Accounts</span><strong>{{ health.stats.accounts|default(0) }}</strong></div>
+        <div class="stat-card"><span>Customers</span><strong>{{ health.stats.customers|default(0) }}</strong></div>
+        <div class="stat-card"><span>Suppliers</span><strong>{{ health.stats.suppliers|default(0) }}</strong></div>
+        <div class="stat-card"><span>Products</span><strong>{{ health.stats.products|default(0) }}</strong></div>
+        <div class="stat-card"><span>Posted Journals</span><strong>{{ health.stats.posted_journals|default(0) }}</strong></div>
+    </div>
+
+    <div class="check-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>الفحص</th>
+                    <th>الحالة</th>
+                    <th>التفاصيل</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in health.checks %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        {% if item.ok %}
+                        <span class="badge-soft-ok">✅ سليم</span>
+                        {% else %}
+                        <span class="badge-soft-bad">❌ مشكلة</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.details }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mt-4">
+        <a href="/dashboard" class="btn btn-outline-light rounded-4 px-4">العودة للداشبورد</a>
+        {% if is_developer_user %}
+        <a href="/dev-control" class="btn btn-info rounded-4 px-4">لوحة المطور</a>
+        {% endif %}
+    </div>
+
+    {% if is_developer_user %}
+    <div class="routes-box mt-4">
+        <strong>Routes Snapshot</strong>
+        <hr>
+        {% for route in health.routes %}
+            {{ route }}<br>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

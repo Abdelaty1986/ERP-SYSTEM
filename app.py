@@ -1,10 +1,12 @@
-﻿import csv
+import csv
 import html
 import io
 import json
 import os
 import secrets
 import shutil
+import subprocess
+import sys
 import sqlite3
 from datetime import date, datetime
 from functools import wraps
@@ -23,6 +25,8 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import PERMISSION_MODULES, init_db
+from migrations import get_migration_status, run_migrations
+from system_health import build_system_health
 from modules.accounting.views import (
     build_account_delete_view,
     build_account_edit_view,
@@ -154,7 +158,10 @@ except ImportError:
     build_import_full_data_view = None
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.environ.get(
+    "ERP_DB_PATH",
+    os.path.join(BASE_DIR, "database.db")
+)
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
 SECRET_KEY_FILE = os.path.join(INSTANCE_DIR, "secret_key.txt")
@@ -185,7 +192,21 @@ def load_secret_key():
 app = Flask(__name__)
 app.secret_key = load_secret_key()
 
-init_db()
+def init_and_migrate():
+    """
+    إنشاء قاعدة البيانات ثم تشغيل التحديثات غير المدمرة مرة واحدة عند تشغيل التطبيق.
+    لا يتم تشغيل هذا مع كل Login أو كل Request.
+    """
+    try:
+        init_db()
+        run_migrations(DB_PATH)
+        print("✅ Database initialized and migrated successfully.")
+    except Exception as exc:
+        print(f"❌ Database init/migration failed: {exc}")
+        raise
+
+
+init_and_migrate()
 
 
 def db():
@@ -615,6 +636,227 @@ def logout():
 @login_required
 def dashboard():
     return build_dashboard_view(MODULE_DEPS)()
+
+
+@app.route("/system-health")
+@login_required
+@admin_required
+def system_health():
+    """صفحة فحص حالة النظام وقاعدة البيانات والمايجريشن."""
+    health = build_system_health(DB_PATH, app, get_migration_status)
+    return render_template("system_health.html", health=health)
+
+
+@app.route("/dev-control")
+@login_required
+@admin_required
+def developer_control():
+    """لوحة أدوات المطور: أدوات حساسة لا تظهر للمستخدمين العاديين."""
+    try:
+        health = build_system_health(DB_PATH, app, get_migration_status)
+    except Exception as exc:
+        health = {
+            "overall_ok": False,
+            "overall_label": "Health check failed",
+            "checks": [
+                {
+                    "name": "System Health",
+                    "ok": False,
+                    "details": str(exc),
+                    "level": "danger",
+                }
+            ],
+            "stats": {},
+            "migration_status": {
+                "current_version": "?",
+                "latest_version": "?",
+                "pending": "?",
+                "rows": [],
+            },
+            "generated_at": "",
+        }
+    migration_status = health.get("migration_status") or get_migration_status(DB_PATH)
+    last_log = session.pop("dev_last_log", None)
+    test_report_raw = session.pop("dev_last_test_report", None)
+    try:
+        test_report = json.loads(test_report_raw) if test_report_raw else None
+    except Exception:
+        test_report = None
+    return render_template(
+        "developer_control.html",
+        health=health,
+        migration_status=migration_status,
+        last_log=last_log,
+        test_report=test_report,
+    )
+
+
+def _run_command(command, timeout=240):
+    """تشغيل أمر داخلي مع إرجاع نتيجة مختصرة للعرض."""
+    completed = subprocess.run(
+        command,
+        cwd=BASE_DIR,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+    output = (completed.stdout or "") + "\n" + (completed.stderr or "")
+    output = output.strip()
+    if len(output) > 5000:
+        output = output[-5000:]
+    return completed.returncode, output
+
+
+DEV_ALLOWED_REDIRECT_ERRORS = {
+    "/dev/run-migrations redirected -> 302 Location: /dev-control",
+    "/dev/run-test redirected -> 302 Location: /dev-control",
+    "/dev/deploy redirected -> 302 Location: /dev-control",
+    "/dev/import-data redirected -> 302 Location: /import-full-data",
+    "/dev/backup-now redirected -> 302 Location: /dev-control",
+}
+
+
+def _extract_ultimate_test_report(output, return_code=0):
+    """
+    تحويل خرج pro_test.py إلى تقرير واضح لصفحة Developer Control.
+    Redirects أدوات المطور تعتبر نجاحًا لأنها تنفذ الأمر ثم ترجع للوحة المطور.
+    """
+    errors = []
+    warnings = []
+    in_errors = False
+    in_warnings = False
+
+    for raw_line in (output or "").splitlines():
+        line = raw_line.strip()
+        if line == "Errors:":
+            in_errors = True
+            in_warnings = False
+            continue
+        if line == "Warnings:":
+            in_warnings = True
+            in_errors = False
+            continue
+        if line.startswith("FINAL RESULT") or line.startswith("="):
+            in_errors = False
+            in_warnings = False
+            continue
+        if in_errors and line.startswith("-"):
+            errors.append(line[1:].strip())
+        elif in_warnings and line.startswith("-"):
+            warnings.append(line[1:].strip())
+
+    allowed_redirects = [err for err in errors if err in DEV_ALLOWED_REDIRECT_ERRORS]
+    real_errors = [err for err in errors if err not in DEV_ALLOWED_REDIRECT_ERRORS]
+
+    ok = (return_code == 0 and not real_errors) or (return_code != 0 and errors and not real_errors)
+
+    if ok and allowed_redirects:
+        status = "pass_with_allowed_redirects"
+        label = "PASS مع Redirects طبيعية"
+        message = "الاختبار سليم. Redirects الخاصة بأدوات المطور تم اعتبارها نجاح لأنها ترجعك إلى لوحة المطور بعد التنفيذ."
+    elif ok:
+        status = "pass"
+        label = "PASS"
+        message = "الاختبار اكتمل بنجاح."
+    else:
+        status = "failed"
+        label = "FAILED"
+        message = "يوجد أخطاء حقيقية تحتاج مراجعة."
+
+    return {
+        "ok": ok,
+        "status": status,
+        "label": label,
+        "message": message,
+        "return_code": return_code,
+        "allowed_redirects": allowed_redirects,
+        "real_errors": real_errors,
+        "warnings": warnings,
+        "raw_errors": errors,
+        "raw_tail": (output or "")[-4500:],
+    }
+
+
+@app.route("/dev/run-migrations", methods=["GET", "POST"])
+@login_required
+@admin_required
+def dev_run_migrations():
+    try:
+        result = run_migrations(DB_PATH)
+        applied = result.get("applied", []) if isinstance(result, dict) else []
+        flash(f"✅ تم تشغيل Migration بنجاح. عدد التحديثات المطبقة: {len(applied)}", "success")
+    except Exception as exc:
+        flash(f"❌ فشل تشغيل Migration: {exc}", "danger")
+    return redirect(url_for("developer_control"))
+
+
+@app.route("/dev/run-test", methods=["GET", "POST"])
+@login_required
+@admin_required
+def dev_run_test():
+    test_candidates = ["safe_ultimate_test.py"]
+    test_file = next((name for name in test_candidates if os.path.exists(os.path.join(BASE_DIR, name))), None)
+    if not test_file:
+        flash("❌ لم يتم العثور على ملف safe_ultimate_test.py", "danger")
+        return redirect(url_for("developer_control"))
+
+    try:
+        code, output = _run_command([sys.executable, test_file, "--mode", "FULL_SAFE"], timeout=300)
+        report = _extract_ultimate_test_report(output, code)
+        session["dev_last_test_report"] = json.dumps(report, ensure_ascii=False)
+        session["dev_last_log"] = report.get("raw_tail", "")
+
+        if report["ok"]:
+            flash(f"✅ Ultimate Test {report['label']}. {report['message']}", "success")
+        else:
+            real_count = len(report.get("real_errors", []))
+            flash(f"❌ Ultimate Test FAILED. عدد الأخطاء الحقيقية: {real_count}", "danger")
+
+    except Exception as exc:
+        flash(f"❌ فشل تشغيل Ultimate Test: {exc}", "danger")
+    return redirect(url_for("developer_control"))
+
+
+@app.route("/dev/deploy", methods=["GET", "POST"])
+@login_required
+@admin_required
+def dev_deploy():
+    deploy_file = os.path.join(BASE_DIR, "deploy.sh")
+    if not os.path.exists(deploy_file):
+        flash("❌ ملف deploy.sh غير موجود في فولدر المشروع", "danger")
+        return redirect(url_for("developer_control"))
+    try:
+        code, output = _run_command(["bash", "deploy.sh"], timeout=360)
+        if code == 0:
+            flash(f"✅ تم تشغيل Auto Deploy بنجاح. {output[:700]}", "success")
+        else:
+            flash(f"❌ Auto Deploy انتهى بأخطاء. {output[:900]}", "danger")
+    except Exception as exc:
+        flash(f"❌ فشل تشغيل Auto Deploy: {exc}", "danger")
+    return redirect(url_for("developer_control"))
+
+
+@app.route("/dev/import-data")
+@login_required
+@admin_required
+def dev_import_data():
+    return redirect(url_for("import_full_data"))
+
+
+@app.route("/dev/backup-now", methods=["GET", "POST"])
+@login_required
+@admin_required
+def dev_backup_now():
+    try:
+        backup_dir = os.path.join(BASE_DIR, "backups", "manual")
+        os.makedirs(backup_dir, exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = os.path.join(backup_dir, f"database_manual_backup_{stamp}.db")
+        shutil.copy2(DB_PATH, backup_path)
+        flash(f"✅ تم إنشاء نسخة احتياطية: {backup_path}", "success")
+    except Exception as exc:
+        flash(f"❌ فشل إنشاء النسخة الاحتياطية: {exc}", "danger")
+    return redirect(url_for("developer_control"))
 
 
 @app.route("/settings/company", methods=["GET", "POST"])
