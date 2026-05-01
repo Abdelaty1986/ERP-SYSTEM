@@ -1,4 +1,5 @@
 from flask import flash, redirect, render_template, request, url_for
+from modules.accounting.ledger_engine import post_simple_entry
 
 
 def _add_column_if_missing(cur, table, column, definition):
@@ -82,6 +83,118 @@ def _fetch_general_accounts(cur):
     return cur.fetchall()
 
 
+def _normalize_text(value):
+    return (value or "").strip().lower()
+
+
+def _account_meta(cur, account_id):
+    """
+    يرجع بيانات الحساب كاملة لاستخدامها في فلترة سندات القبض والصرف.
+    يعتمد أساسًا على نوع الحساب، ومعه طبقة حماية بالكلمات والكود.
+    """
+    cur.execute("SELECT id, code, name, type FROM accounts WHERE id=?", (account_id,))
+    return cur.fetchone()
+
+
+def _is_blocked_treasury_account(code, name, account_type, direction):
+    """
+    Enterprise guard:
+    - direction='receipt': الحساب المختار هو الطرف الدائن في سند القبض.
+    - direction='payment': الحساب المختار هو الطرف المدين في سند الصرف.
+
+    الهدف: منع الحسابات الحساسة التي يجب أن تتحرك من دورة البيع/الشراء/المخزون فقط.
+    """
+    code = str(code or "").strip()
+    name_l = _normalize_text(name)
+    type_l = _normalize_text(account_type)
+
+    # حسابات لا تدخل كسند قبض/صرف يدوي عام إطلاقًا
+    globally_blocked_keywords = [
+        "مخزون",
+        "بضاعة",
+        "تكلفة البضاعة",
+        "رأس المال",
+        "ارباح",
+        "أرباح",
+        "مجمع إهلاك",
+        "ضريبة قيمة مضافة - مخرجات",
+        "ضريبة قيمة مضافة - مدخلات",
+    ]
+
+    # حماية إضافية بالأكواد الرئيسية الحالية، بدون الاعتماد عليها وحدها
+    globally_blocked_codes = {
+        "1400",  # المخزون
+        "4100",  # إيرادات المبيعات
+        "6100",  # تكلفة البضاعة
+    }
+
+    if code in globally_blocked_codes:
+        return True
+    if any(keyword.lower() in name_l for keyword in globally_blocked_keywords):
+        return True
+
+    if direction == "receipt":
+        # في القبض لا تختار مصروفات أو أصول مخزنية/ثابتة كرأس طرف دائن عام
+        blocked_types = {"مصروفات", "أصول", "حقوق ملكية"}
+        blocked_keywords = ["مصروف", "تكلفة", "أصل ثابت", "أصول ثابتة"]
+        if type_l in {_normalize_text(t) for t in blocked_types}:
+            return True
+        if any(keyword.lower() in name_l for keyword in blocked_keywords):
+            return True
+
+    elif direction == "payment":
+        # في الصرف لا تختار إيرادات/مبيعات/عملاء كرأس طرف مدين عام
+        blocked_types = {"إيرادات", "حقوق ملكية"}
+        blocked_keywords = ["مبيعات", "إيراد", "إيرادات", "عميل", "عملاء"]
+        if type_l in {_normalize_text(t) for t in blocked_types}:
+            return True
+        if any(keyword.lower() in name_l for keyword in blocked_keywords):
+            return True
+
+    return False
+
+
+def _fetch_allowed_treasury_accounts(cur, direction):
+    """
+    ترجع الحسابات المسموحة للعرض في سند القبض أو الصرف.
+    شكل الخرج يظل (id, code, name) حتى لا نكسر القوالب الحالية.
+    """
+    cur.execute(
+        """
+        SELECT id, code, name, type
+        FROM accounts
+        WHERE code NOT IN ('1100','1110','1120','1200','1210')
+        ORDER BY code
+        """
+    )
+    allowed = []
+    for account_id, code, name, account_type in cur.fetchall():
+        if not _is_blocked_treasury_account(code, name, account_type, direction):
+            allowed.append((account_id, code, name))
+    return allowed
+
+
+def _validate_manual_treasury_account(cur, account_id, direction):
+    """
+    حماية Backend: حتى لو المستخدم عدل HTML يدويًا، نمنع الحساب غير المسموح.
+    """
+    if not account_id:
+        return False, "الحساب العام غير موجود."
+
+    row = _account_meta(cur, account_id)
+    if not row:
+        return False, "الحساب العام غير موجود."
+
+    _, code, name, account_type = row
+    if _is_blocked_treasury_account(code, name, account_type, direction):
+        if direction == "receipt":
+            return False, "هذا الحساب غير مسموح استخدامه كسند قبض يدوي. استخدم شاشة العملية الأصلية أو اختر حسابًا مناسبًا."
+        return False, "هذا الحساب غير مسموح استخدامه كسند صرف يدوي. استخدم شاشة العملية الأصلية أو اختر حسابًا مناسبًا."
+
+    return True, ""
+
+
+
 def _account_code_name(cur, account_id):
     cur.execute("SELECT code, name FROM accounts WHERE id=?", (account_id,))
     return cur.fetchone()
@@ -129,6 +242,8 @@ def build_receipts_view(deps):
                 flash("العميل غير موجود.", "danger")
             elif account_type == "account" and not selected_account:
                 flash("الحساب العام غير موجود.", "danger")
+            elif account_type == "account" and not _validate_manual_treasury_account(cur, account_id, "receipt")[0]:
+                flash(_validate_manual_treasury_account(cur, account_id, "receipt")[1], "danger")
             elif account_type not in ("customer", "account"):
                 flash("نوع الحساب غير صحيح.", "danger")
             elif amount <= 0:
@@ -160,7 +275,15 @@ def build_receipts_view(deps):
                     credit_code = selected_account[0]
 
                 if group_posted:
-                    journal_id = create_auto_journal(cur, date_value, description, debit_code, credit_code, amount)
+                    journal_id = post_simple_entry(
+                        cur=cur,
+                        date=date_value,
+                        description=description,
+                        debit_code=debit_code,
+                        credit_code=credit_code,
+                        amount=amount,
+                        source_type="receipts",
+                    )
 
                 cur.execute(
                     """
@@ -192,7 +315,7 @@ def build_receipts_view(deps):
         cur.execute("SELECT id,name FROM customers WHERE name!='حساب عام - سند قبض' ORDER BY name")
         customers_rows = cur.fetchall()
         cash_accounts = _fetch_cash_accounts(cur)
-        general_accounts = _fetch_general_accounts(cur)
+        general_accounts = _fetch_allowed_treasury_accounts(cur, "receipt")
 
         cur.execute(
             """
@@ -271,6 +394,8 @@ def build_payments_view(deps):
                 flash("المورد غير موجود.", "danger")
             elif account_type == "account" and not selected_account:
                 flash("الحساب العام غير موجود.", "danger")
+            elif account_type == "account" and not _validate_manual_treasury_account(cur, account_id, "payment")[0]:
+                flash(_validate_manual_treasury_account(cur, account_id, "payment")[1], "danger")
             elif account_type not in ("supplier", "account"):
                 flash("نوع الحساب غير صحيح.", "danger")
             elif amount <= 0:
@@ -302,7 +427,15 @@ def build_payments_view(deps):
                     credit_code = cash_account[0]
 
                 if group_posted:
-                    journal_id = create_auto_journal(cur, date_value, description, debit_code, credit_code, amount)
+                    journal_id = post_simple_entry(
+                        cur=cur,
+                        date=date_value,
+                        description=description,
+                        debit_code=debit_code,
+                        credit_code=credit_code,
+                        amount=amount,
+                        source_type="payments",
+                    )
 
                 cur.execute(
                     """
@@ -334,7 +467,7 @@ def build_payments_view(deps):
         cur.execute("SELECT id,name FROM suppliers WHERE name!='حساب عام - سند صرف' ORDER BY name")
         suppliers_rows = cur.fetchall()
         cash_accounts = _fetch_cash_accounts(cur)
-        general_accounts = _fetch_general_accounts(cur)
+        general_accounts = _fetch_allowed_treasury_accounts(cur, "payment")
 
         cur.execute(
             """

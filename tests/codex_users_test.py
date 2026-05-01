@@ -1,7 +1,12 @@
 import json
 import shutil
+import sys
 import tempfile
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 import app as appmod
 
@@ -17,9 +22,8 @@ def fetchone(cur, sql, params=()):
 
 
 def main():
-    workspace = Path(__file__).resolve().parent
-    source_db = workspace / "database.db"
-    temp_dir = Path(tempfile.mkdtemp(prefix="erp-users-test-", dir=str(workspace)))
+    source_db = PROJECT_ROOT / "database.db"
+    temp_dir = Path(tempfile.mkdtemp(prefix="erp-users-test-", dir=str(PROJECT_ROOT)))
     temp_db = temp_dir / "database_test.db"
     shutil.copy2(source_db, temp_db)
 

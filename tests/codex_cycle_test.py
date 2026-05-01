@@ -1,7 +1,12 @@
 import json
 import shutil
+import sys
 import tempfile
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 import app as appmod
 
@@ -17,9 +22,8 @@ def fetchone(cur, sql, params=()):
 
 
 def main():
-    workspace = Path(__file__).resolve().parent
-    source_db = workspace / "database.db"
-    temp_dir = Path(tempfile.mkdtemp(prefix="erp-codex-test-", dir=str(workspace)))
+    source_db = PROJECT_ROOT / "database.db"
+    temp_dir = Path(tempfile.mkdtemp(prefix="erp-codex-test-", dir=str(PROJECT_ROOT)))
     temp_db = temp_dir / "database_test.db"
     shutil.copy2(source_db, temp_db)
 
@@ -236,7 +240,7 @@ def main():
     assert_true(direct_sale_resp.status_code in (302, 303), "فشل إنشاء فاتورة بيع مباشرة")
     direct_sale_invoice_id = fetchone(cur, "SELECT MAX(id) FROM sales_invoices")[0]
     sales_return_resp = client.post(
-        "/sales-returns",
+        "/returns/sales",
         data={
             "date": "2026-04-28",
             "sales_invoice_id": str(direct_sale_invoice_id),
@@ -272,7 +276,7 @@ def main():
     assert_true(direct_purchase_resp.status_code in (302, 303), "فشل إنشاء فاتورة مشتريات مباشرة")
     direct_purchase_invoice_id = fetchone(cur, "SELECT MAX(id) FROM purchase_invoices")[0]
     purchase_return_resp = client.post(
-        "/purchase-returns",
+        "/returns/purchases",
         data={
             "date": "2026-04-28",
             "purchase_invoice_id": str(direct_purchase_invoice_id),

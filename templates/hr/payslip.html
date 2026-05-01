@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+.payslip-shell{direction:rtl;max-width:980px;margin:0 auto}
+.payslip-toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-start;margin-bottom:16px}
+.payslip-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:#eef2ff;color:#1d4ed8}
+.payslip-btn-primary{background:#2563eb;color:#fff}
+.payslip-paper{background:#fff;border:1px solid #dbe3ee;border-radius:24px;padding:28px;box-shadow:0 16px 36px rgba(15,23,42,.08)}
+.payslip-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:14px}
+.payslip-head h1{margin:0 0 8px;font-size:30px;font-weight:900;color:#0f172a}.payslip-head p{margin:0;color:#64748b;line-height:1.8}
+.payslip-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.payslip-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:14px}.payslip-box span{display:block;color:#64748b;font-size:12px}.payslip-box strong{display:block;color:#0f172a;font-size:16px;margin-top:6px}
+.payslip-table{width:100%;border-collapse:collapse}.payslip-table th,.payslip-table td{border:1px solid #e2e8f0;padding:10px;text-align:right}.payslip-table th{background:#f8fafc;color:#334155}
+.payslip-total{font-weight:900;background:#eff6ff}
+@media(max-width:900px){.payslip-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.payslip-grid{grid-template-columns:1fr}}
+@media print{
+  .no-print,.sidebar,.topbar,.support-card,.payslip-toolbar{display:none !important}
+  body{background:#fff}
+  .main-panel{padding:0 !important}
+  .payslip-paper{box-shadow:none;border:0;border-radius:0;padding:0}
+  @page{size:A4;margin:12mm}
+}
+</style>
+
+<div class="payslip-shell">
+  <div class="payslip-toolbar no-print">
+    <a class="payslip-btn" href="{{ url_for('hr.payroll_detail', run_id=payslip.run_id) }}">رجوع للمسير</a>
+    <button class="payslip-btn payslip-btn-primary" onclick="window.print()">طباعة / PDF</button>
+  </div>
+
+  <div class="payslip-paper">
+    <div class="payslip-head">
+      <div>
+        <h1>شيت مرتب</h1>
+        <p>كشف مرتب شهري مع تفصيل المستحقات والاستقطاعات بصيغة مناسبة للطباعة.</p>
+      </div>
+      <div style="text-align:left">
+        <strong style="display:block;color:#0f172a;font-size:18px">الشهر: {{ payslip.payroll_month }}</strong>
+        <span style="display:block;color:#64748b;margin-top:4px">تاريخ التشغيل: {{ payslip.run_date }}</span>
+      </div>
+    </div>
+
+    <div class="payslip-grid">
+      <div class="payslip-box"><span>كود الموظف</span><strong>{{ payslip.employee_code or '-' }}</strong></div>
+      <div class="payslip-box"><span>اسم الموظف</span><strong>{{ payslip.full_name }}</strong></div>
+      <div class="payslip-box"><span>القسم</span><strong>{{ payslip.department_name or '-' }}</strong></div>
+      <div class="payslip-box"><span>الوظيفة</span><strong>{{ payslip.job_title or '-' }}</strong></div>
+    </div>
+
+    <table class="payslip-table">
+      <thead>
+        <tr><th>البند</th><th>القيمة</th><th>البند</th><th>القيمة</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>الراتب الأساسي</td><td>{{ "%.2f"|format(payslip.base_salary or 0) }}</td><td>العلاوات</td><td>{{ "%.2f"|format(payslip.bonus_amount or 0) }}</td></tr>
+        <tr><td>البدلات</td><td>{{ "%.2f"|format(payslip.allowance_amount or 0) }}</td><td>الحوافز</td><td>{{ "%.2f"|format(payslip.incentive_amount or 0) }}</td></tr>
+        <tr><td>الإضافي</td><td>{{ "%.2f"|format(payslip.overtime_amount or 0) }}</td><td class="payslip-total">إجمالي المستحقات</td><td class="payslip-total">{{ "%.2f"|format(payslip.gross_salary or 0) }}</td></tr>
+        <tr><td>التأمينات</td><td>{{ "%.2f"|format(payslip.insurance_amount or 0) }}</td><td>الضرائب</td><td>{{ "%.2f"|format(payslip.tax_amount or 0) }}</td></tr>
+        <tr><td>السلف</td><td>{{ "%.2f"|format(payslip.loan_amount or 0) }}</td><td>الجزاءات</td><td>{{ "%.2f"|format(payslip.penalty_amount or 0) }}</td></tr>
+        <tr><td>الغياب/التأخير</td><td>{{ "%.2f"|format((payslip.late_deduction or 0) + (payslip.absence_deduction or 0)) }}</td><td>استقطاعات أخرى</td><td>{{ "%.2f"|format(payslip.other_deduction or 0) }}</td></tr>
+        <tr><td class="payslip-total">إجمالي الاستقطاعات</td><td class="payslip-total">{{ "%.2f"|format(payslip.total_deductions or 0) }}</td><td class="payslip-total">صافي الراتب</td><td class="payslip-total">{{ "%.2f"|format(payslip.net_salary or 0) }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

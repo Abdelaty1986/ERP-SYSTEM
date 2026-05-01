@@ -1,0 +1,153 @@
+{% extends "layout.html" %}
+{% block title %}لوحة تحكم المطور{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_dev_control.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="dev-console" dir="rtl">
+    <header class="dev-hero">
+        <div class="dev-hero__content">
+            <span class="dev-kicker">Developer Command Center</span>
+            <h1>لوحة تحكم المطور</h1>
+            <p>أدوات الصيانة، النسخ الاحتياطي، الاختبارات، والترحيل في واجهة تقنية منظمة ومناسبة للدعم الفني فقط.</p>
+            <div class="dev-hero__meta">
+                <span><i class="bi bi-shield-check"></i> الحالة: مستقرة</span>
+                <span><i class="bi bi-clock-history"></i> آخر فحص: {{ last_check|default('الآن') }}</span>
+            </div>
+        </div>
+
+        <div class="dev-health-orb" aria-label="System health OK">
+            <span>OK</span>
+            <small>System Health</small>
+        </div>
+    </header>
+
+    <section class="dev-pulse-card">
+        <div class="dev-panel-title">
+            <div>
+                <h2>نبض النظام</h2>
+                <p>مؤشر بصري سريع لحالة النظام والخدمات الأساسية.</p>
+            </div>
+            <span class="dev-status-pill is-ok"><i class="bi bi-activity"></i> نبض مستقر</span>
+        </div>
+        <div class="dev-pulse-line">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none" role="img" aria-label="System pulse chart">
+                <defs>
+                    <linearGradient id="pulseGradient" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0%" stop-color="#22c55e" />
+                        <stop offset="55%" stop-color="#38bdf8" />
+                        <stop offset="100%" stop-color="#6366f1" />
+                    </linearGradient>
+                </defs>
+                <path class="pulse-grid-line" d="M0 78 H1200" />
+                <path class="pulse-path" d="M0 78 H560 L590 78 L620 38 L650 96 L680 78 H1200" />
+            </svg>
+        </div>
+    </section>
+
+    <section class="dev-metrics-grid">
+        <article class="dev-metric"><span>Database Size</span><strong>{{ db_size|default('0.5 MB') }}</strong><i class="bi bi-database"></i></article>
+        <article class="dev-metric"><span>Routes</span><strong>{{ routes_count|default(114) }}</strong><i class="bi bi-diagram-3"></i></article>
+        <article class="dev-metric"><span>Users</span><strong>{{ users_count|default(2) }}</strong><i class="bi bi-person"></i></article>
+        <article class="dev-metric"><span>Accounts</span><strong>{{ accounts_count|default(87) }}</strong><i class="bi bi-credit-card-2-front"></i></article>
+        <article class="dev-metric"><span>Customers</span><strong>{{ customers_count|default(2) }}</strong><i class="bi bi-people"></i></article>
+        <article class="dev-metric"><span>Suppliers</span><strong>{{ suppliers_count|default(3) }}</strong><i class="bi bi-truck"></i></article>
+        <article class="dev-metric"><span>Products</span><strong>{{ products_count|default(2) }}</strong><i class="bi bi-box-seam"></i></article>
+        <article class="dev-metric is-featured"><span>Posted Journals</span><strong>{{ posted_journals|default(38) }}</strong><i class="bi bi-file-earmark-check"></i></article>
+    </section>
+
+    <section class="dev-actions-section">
+        <div class="dev-panel-title">
+            <div>
+                <h2>الإجراءات السريعة</h2>
+                <p>أوامر تشغيل واضحة مع ألوان موحدة حسب درجة الخطورة.</p>
+            </div>
+        </div>
+
+        <div class="dev-actions-grid">
+            <article class="dev-action-card">
+                <div class="dev-action-icon primary"><i class="bi bi-file-earmark-spreadsheet"></i></div>
+                <h3>Excel Import</h3>
+                <p>رفع بيانات Excel جاهزة من ملف واحد أثناء التهيئة.</p>
+                <a class="dev-btn primary" href="/dev/import-data"><i class="bi bi-upload"></i> فتح شاشة الاستيراد</a>
+            </article>
+
+            <article class="dev-action-card">
+                <div class="dev-action-icon warning"><i class="bi bi-database-gear"></i></div>
+                <h3>Migration</h3>
+                <p>تفعيل تحديثات قاعدة البيانات بأمان مع الاحتفاظ بالبيانات.</p>
+                <a class="dev-btn warning" href="/dev/run-migrations"><i class="bi bi-arrow-repeat"></i> تشغيل Migration</a>
+            </article>
+
+            <article class="dev-action-card">
+                <div class="dev-action-icon success"><i class="bi bi-clipboard2-pulse"></i></div>
+                <h3>Ultimate Test</h3>
+                <p>اختبار شامل للـ Routes والـ Schema والدورة المحاسبية.</p>
+                <a class="dev-btn success" href="/dev/run-test"><i class="bi bi-play-fill"></i> تشغيل الاختبار</a>
+            </article>
+
+            <article class="dev-action-card">
+                <div class="dev-action-icon danger"><i class="bi bi-rocket-takeoff"></i></div>
+                <h3>Auto Deploy</h3>
+                <p>سحب آخر نسخة من GitHub ثم تشغيل التحديث والاختبار.</p>
+                <a class="dev-btn danger" href="/dev/deploy"><i class="bi bi-cloud-arrow-down"></i> تشغيل Deploy</a>
+            </article>
+
+            <article class="dev-action-card">
+                <div class="dev-action-icon dark"><i class="bi bi-heart-pulse"></i></div>
+                <h3>System Health</h3>
+                <p>مراقبة حالة قاعدة البيانات والنسخ الاحتياطي والتحديثات.</p>
+                <a class="dev-btn dark" href="/dev/health"><i class="bi bi-heart-pulse"></i> فتح Health</a>
+            </article>
+
+            <article class="dev-action-card">
+                <div class="dev-action-icon primary"><i class="bi bi-shield-lock"></i></div>
+                <h3>Manual Backup</h3>
+                <p>إنشاء نسخة احتياطية جاهزة قبل أي عملية حساسة.</p>
+                <a class="dev-btn primary" href="/dev/backup-now"><i class="bi bi-download"></i> إنشاء Backup</a>
+            </article>
+        </div>
+    </section>
+
+    <section class="dev-table-card">
+        <div class="dev-panel-title">
+            <div>
+                <h2>آخر الفحوصات</h2>
+                <p>ملخص سريع لحالة أهم مكونات النظام.</p>
+            </div>
+            <a href="/dev-control" class="dev-link"><i class="bi bi-arrow-clockwise"></i> تحديث</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="dev-table">
+                <thead>
+                    <tr>
+                        <th>الفحص</th>
+                        <th>الحالة</th>
+                        <th>التفاصيل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><i class="bi bi-database"></i> ملف قاعدة البيانات</td>
+                        <td><span class="dev-badge ok">سليم</span></td>
+                        <td>{{ db_path|default('database.db') }}</td>
+                    </tr>
+                    <tr>
+                        <td><i class="bi bi-diagram-3"></i> مسارات النظام</td>
+                        <td><span class="dev-badge ok">جاهز</span></td>
+                        <td>{{ routes_count|default(114) }} route متاح</td>
+                    </tr>
+                    <tr>
+                        <td><i class="bi bi-journal-check"></i> القيود المرحلة</td>
+                        <td><span class="dev-badge ok">مرحل</span></td>
+                        <td>{{ posted_journals|default(38) }} قيد منشور</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+{% endblock %}

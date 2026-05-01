@@ -1,180 +1,148 @@
 {% extends "layout.html" %}
-{% block title %}لوحة التحكم{% endblock %}
-
 {% block content %}
-<div class="dashboard-hero dashboard-hero-premium">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_main_dashboard.css') }}">
+
+{% set sales_total = total_sales|default(sales_total|default(0)) %}
+{% set purchases_total = total_purchases|default(purchases_total|default(0)) %}
+{% set inventory_value = inventory_value|default(stock_value|default(0)) %}
+{% set net_profit = net_profit|default(profit|default(0)) %}
+{% set customers_count = customers_count|default(customers|default(0)) %}
+{% set suppliers_count = suppliers_count|default(suppliers|default(0)) %}
+{% set products_count = products_count|default(products|default(0)) %}
+{% set journal_count = journal_count|default(journals_count|default(0)) %}
+{% set sales_orders_count = sales_orders_count|default(0) %}
+{% set purchase_orders_count = purchase_orders_count|default(0) %}
+{% set receipt_notes_count = receipt_notes_count|default(0) %}
+{% set payment_notes_count = payment_notes_count|default(0) %}
+{% set customer_debt = customer_debt|default(total_customers_balance|default(0)) %}
+{% set supplier_debt = supplier_debt|default(total_suppliers_balance|default(0)) %}
+{% set low_stock_count = low_stock_count|default(0) %}
+{% set overdue_customers = overdue_customers|default(0) %}
+{% set overdue_suppliers = overdue_suppliers|default(0) %}
+
+<div class="lx-dash">
+  <section class="lx-hero">
     <div>
-        <div class="eyebrow">نظرة تنفيذية سريعة</div>
-        <h2 class="dashboard-title">صورة لحظية عن المبيعات والمشتريات والسيولة والمخزون</h2>
-        <p class="hero-text">
-            تقدر من هنا تتابع أهم المؤشرات التشغيلية والمحاسبية، وتدخل بسرعة إلى الشاشات الأساسية لبدء دورة العمل أو مراجعة الموقف الحالي.
-        </p>
+      <span class="lx-eyebrow">LedgerX Command Center</span>
+      <h1>لوحة تشغيل الأعمال</h1>
+      <p>نظرة تنفيذية على المبيعات، المشتريات، المخزون، الحسابات، والمؤشرات التي تحتاج متابعة يومية.</p>
+      <div class="lx-hero-actions">
+        <a href="{{ url_for('sales') }}" class="lx-btn lx-btn-primary">فاتورة بيع جديدة</a>
+        <a href="{{ url_for('receipts') }}" class="lx-btn lx-btn-light">سند قبض</a>
+        <a href="{{ url_for('trial') }}" class="lx-btn lx-btn-light">ميزان المراجعة</a>
+      </div>
     </div>
-    <div class="hero-actions">
-        <a href="/sales-orders" class="btn btn-primary">أمر بيع جديد</a>
-        <a href="/purchase-orders" class="btn btn-outline-secondary">أمر شراء جديد</a>
-        <a href="/journal" class="btn btn-outline-secondary">القيود اليومية</a>
+    <div class="lx-hero-panel">
+      <div class="lx-pulse"></div>
+      <div>
+        <strong>System Status</strong>
+        <span>النظام يعمل بصورة مستقرة</span>
+      </div>
     </div>
-</div>
+  </section>
 
-<div class="metric-grid metric-grid-premium mb-3">
-    <a class="dashboard-link" href="/sales">
-        <article class="card metric-card metric-accent sales-card p-3">
-            <div class="metric-top">
-                <span class="metric-icon icon-sales"><i class="bi bi-graph-up-arrow"></i></span>
-                <div class="metric-label">إجمالي المبيعات</div>
-            </div>
-            <div class="metric-value money" data-value="{{ sales_total }}">{{ sales_total }}</div>
-            <div class="metric-note">يشمل فواتير البيع المالية والمخزنية</div>
-        </article>
-    </a>
+  <section class="lx-kpi-grid lx-kpi-main">
+    <div class="lx-kpi lx-kpi-green">
+      <div class="lx-icon">🛒</div>
+      <span>إجمالي المبيعات</span>
+      <strong>{{ "{:,.2f}".format(sales_total|float) }}</strong>
+      <small>قيمة فواتير البيع المسجلة</small>
+    </div>
+    <div class="lx-kpi lx-kpi-purple">
+      <div class="lx-icon">🧾</div>
+      <span>إجمالي المشتريات</span>
+      <strong>{{ "{:,.2f}".format(purchases_total|float) }}</strong>
+      <small>قيمة فواتير الموردين</small>
+    </div>
+    <div class="lx-kpi lx-kpi-blue">
+      <div class="lx-icon">📦</div>
+      <span>قيمة المخزون</span>
+      <strong>{{ "{:,.2f}".format(inventory_value|float) }}</strong>
+      <small>حسب الوحدة والتكلفة</small>
+    </div>
+    <div class="lx-kpi lx-kpi-orange">
+      <div class="lx-icon">📈</div>
+      <span>صافي الربح</span>
+      <strong>{{ "{:,.2f}".format(net_profit|float) }}</strong>
+      <small>الربح ناقص المصروفات</small>
+    </div>
+  </section>
 
-    <a class="dashboard-link" href="/purchases">
-        <article class="card metric-card metric-accent purchases-card p-3">
-            <div class="metric-top">
-                <span class="metric-icon icon-purchases"><i class="bi bi-cart-check"></i></span>
-                <div class="metric-label">إجمالي المشتريات</div>
-            </div>
-            <div class="metric-value money" data-value="{{ purchases_total }}">{{ purchases_total }}</div>
-            <div class="metric-note">إجمالي فواتير الموردين المرحلة</div>
-        </article>
-    </a>
+  <section class="lx-kpi-grid lx-kpi-small">
+    <a class="lx-mini-card" href="{{ url_for('customers') }}"><span>👥 العملاء</span><strong>{{ customers_count }}</strong></a>
+    <a class="lx-mini-card" href="{{ url_for('suppliers') }}"><span>🚚 الموردون</span><strong>{{ suppliers_count }}</strong></a>
+    <a class="lx-mini-card" href="{{ url_for('products') }}"><span>📦 الأصناف</span><strong>{{ products_count }}</strong></a>
+    <a class="lx-mini-card" href="{{ url_for('journal') }}"><span>📘 القيود</span><strong>{{ journal_count }}</strong></a>
+    <a class="lx-mini-card" href="{{ url_for('sales_orders') }}"><span>📋 أوامر البيع</span><strong>{{ sales_orders_count }}</strong></a>
+    <a class="lx-mini-card" href="{{ url_for('purchase_orders') }}"><span>🛍 أوامر الشراء</span><strong>{{ purchase_orders_count }}</strong></a>
+  </section>
 
-    <a class="dashboard-link" href="/reports/inventory">
-        <article class="card metric-card metric-accent inventory-card p-3">
-            <div class="metric-top">
-                <span class="metric-icon icon-inventory"><i class="bi bi-box-seam"></i></span>
-                <div class="metric-label">قيمة المخزون</div>
-            </div>
-            <div class="metric-value money" data-value="{{ inventory_value }}">{{ inventory_value }}</div>
-            <div class="metric-note">بحسب الكمية الحالية وسعر التكلفة</div>
-        </article>
-    </a>
-
-    <a class="dashboard-link" href="/receipts">
-        <article class="card metric-card metric-accent customer-card p-3">
-            <div class="metric-top">
-                <span class="metric-icon icon-cash"><i class="bi bi-wallet2"></i></span>
-                <div class="metric-label">صافي الحركة النقدية</div>
-            </div>
-            <div class="metric-value money" data-value="{{ net_cash_movement }}">{{ net_cash_movement }}</div>
-            <div class="metric-note">إجمالي القبض مطروحًا منه الصرف</div>
-        </article>
-    </a>
-</div>
-
-<div class="metric-grid metric-grid-secondary mb-3">
-    <article class="card metric-mini-card p-3">
-        <div class="metric-mini-head"><i class="bi bi-people"></i><span>العملاء</span></div>
-        <div class="metric-mini-value">{{ customers_count }}</div>
-        <div class="metric-note">عملاء مسجلون بالنظام</div>
-    </article>
-    <article class="card metric-mini-card p-3">
-        <div class="metric-mini-head"><i class="bi bi-truck"></i><span>الموردون</span></div>
-        <div class="metric-mini-value">{{ suppliers_count }}</div>
-        <div class="metric-note">موردون صالحون للتعامل</div>
-    </article>
-    <article class="card metric-mini-card p-3">
-        <div class="metric-mini-head"><i class="bi bi-tags"></i><span>الأصناف</span></div>
-        <div class="metric-mini-value">{{ products_count }}</div>
-        <div class="metric-note">أصناف ومنتجات مسجلة</div>
-    </article>
-    <article class="card metric-mini-card p-3">
-        <div class="metric-mini-head"><i class="bi bi-journal-text"></i><span>القيود</span></div>
-        <div class="metric-mini-value">{{ entries }}</div>
-        <div class="metric-note">إجمالي القيود المسجلة</div>
-    </article>
-    <article class="card metric-mini-card p-3">
-        <div class="metric-mini-head"><i class="bi bi-clipboard-check"></i><span>أوامر البيع</span></div>
-        <div class="metric-mini-value">{{ sales_orders_count }}</div>
-        <div class="metric-note">أوامر البيع الحالية</div>
-    </article>
-    <article class="card metric-mini-card p-3">
-        <div class="metric-mini-head"><i class="bi bi-bag-check"></i><span>أوامر الشراء</span></div>
-        <div class="metric-mini-value">{{ purchase_orders_count }}</div>
-        <div class="metric-note">أوامر الشراء الحالية</div>
-    </article>
-    <article class="card metric-mini-card p-3">
-        <div class="metric-mini-head"><i class="bi bi-box-arrow-up-left"></i><span>أذون الصرف</span></div>
-        <div class="metric-mini-value">{{ delivery_notes_count }}</div>
-        <div class="metric-note">حركات صرف من المخازن</div>
-    </article>
-    <article class="card metric-mini-card p-3">
-        <div class="metric-mini-head"><i class="bi bi-box-arrow-in-down"></i><span>أذون الإضافة</span></div>
-        <div class="metric-mini-value">{{ receipt_notes_count }}</div>
-        <div class="metric-note">حركات إضافة واستلام</div>
-    </article>
-</div>
-
-<div class="workspace-grid">
-    <section class="section-panel">
-        <div class="panel-head">
-            <div>
-                <h3>مؤشرات تحتاج انتباه</h3>
-                <span>ملخص سريع للوضع التشغيلي الحالي</span>
-            </div>
+  <section class="lx-main-grid">
+    <div class="lx-card">
+      <div class="lx-card-head">
+        <div>
+          <h2>تشغيل سريع</h2>
+          <p>أكثر العمليات اليومية استخدامًا</p>
         </div>
-        <div class="status-list dashboard-status-list">
-            <div class="status-item">
-                <strong>الأصناف منخفضة الرصيد</strong>
-                <span>{{ low_stock_count }} صنف يحتاج متابعة أو إعادة طلب.</span>
-            </div>
-            <div class="status-item">
-                <strong>مديونيات العملاء</strong>
-                <span class="money" data-value="{{ customer_balance_total }}">{{ customer_balance_total }}</span>
-            </div>
-            <div class="status-item">
-                <strong>مديونيات الموردين</strong>
-                <span class="money" data-value="{{ supplier_balance_total }}">{{ supplier_balance_total }}</span>
-            </div>
-            <div class="status-item">
-                <strong>فواتير عملاء متأخرة</strong>
-                <span>{{ overdue_customer_invoices }} مستند يحتاج متابعة.</span>
-            </div>
-            <div class="status-item">
-                <strong>فواتير موردين متأخرة</strong>
-                <span>{{ overdue_supplier_invoices }} مستند يحتاج مراجعة.</span>
-            </div>
-            <div class="status-item">
-                <strong>إجمالي قيمة القيود</strong>
-                <span class="money" data-value="{{ total }}">{{ total }}</span>
-            </div>
-        </div>
-    </section>
+        <span class="lx-tag">Quick Actions</span>
+      </div>
+      <div class="lx-action-grid">
+        <a href="{{ url_for('sales') }}" class="lx-action"><b>فاتورة بيع</b><span>تسجيل عملية بيع</span><i>↗</i></a>
+        <a href="{{ url_for('purchases') }}" class="lx-action"><b>فاتورة شراء</b><span>تسجيل فاتورة مورد</span><i>↗</i></a>
+        <a href="{{ url_for('receipts') }}" class="lx-action"><b>سند قبض</b><span>تحصيل من عميل</span><i>↗</i></a>
+        <a href="{{ url_for('payments') }}" class="lx-action"><b>سند صرف</b><span>صرف لمورد أو حساب</span><i>↗</i></a>
+        <a href="{{ url_for('products') }}" class="lx-action"><b>الأصناف</b><span>أسعار وأرصدة</span><i>↗</i></a>
+        <a href="/reports/profit-loss" class="lx-action"><b>الأرباح والخسائر</b><span>تقرير إداري سريع</span><i>↗</i></a>
+        <a href="/hr/" class="lx-action"><b>إدارة الموارد البشرية</b><span>موظفين وحضور ورواتب</span><i>↗</i></a>
+      </div>
+    </div>
 
-    <section class="section-panel">
-        <div class="panel-head">
-            <div>
-                <h3>روابط سريعة</h3>
-                <span>أسرع مسارات التشغيل اليومية</span>
-            </div>
+    <div class="lx-card lx-monitor">
+      <div class="lx-card-head">
+        <div>
+          <h2>مؤشرات تحتاج متابعة</h2>
+          <p>أهم نقاط النشاط والخطر في النظام اليومي</p>
         </div>
-        <div class="action-grid dashboard-action-grid">
-            <a href="/customers" class="action-tile">
-                <strong>العملاء</strong>
-                <span>إضافة ومتابعة البيانات الأساسية</span>
-            </a>
-            <a href="/suppliers" class="action-tile">
-                <strong>الموردون</strong>
-                <span>إدارة الموردين والبيانات الضريبية</span>
-            </a>
-            <a href="/products" class="action-tile">
-                <strong>الأصناف</strong>
-                <span>تحديث الأصناف والأسعار والأرصدة</span>
-            </a>
-            <a href="/sales-deliveries" class="action-tile">
-                <strong>أذون الصرف</strong>
-                <span>صرف الأصناف من أوامر البيع</span>
-            </a>
-            <a href="/purchase-receipts" class="action-tile">
-                <strong>أذون الإضافة</strong>
-                <span>استلام الأصناف من أوامر الشراء</span>
-            </a>
-            <a href="/trial-balance" class="action-tile">
-                <strong>ميزان المراجعة</strong>
-                <span>مراجعة الأرصدة والحركة النهائية</span>
-            </a>
-        </div>
-    </section>
+        <span class="lx-tag">Monitoring</span>
+      </div>
+      <div class="lx-watch-list">
+        <div class="lx-watch warn"><span>الأصناف منخفضة الرصيد</span><strong>{{ low_stock_count }}</strong></div>
+        <div class="lx-watch"><span>مديونيات العملاء</span><strong>{{ "{:,.2f}".format(customer_debt|float) }}</strong></div>
+        <div class="lx-watch"><span>مديونيات الموردين</span><strong>{{ "{:,.2f}".format(supplier_debt|float) }}</strong></div>
+        <div class="lx-watch danger"><span>فواتير عملاء متأخرة</span><strong>{{ overdue_customers }}</strong></div>
+        <div class="lx-watch danger-soft"><span>فواتير موردين متأخرة</span><strong>{{ overdue_suppliers }}</strong></div>
+        <div class="lx-watch"><span>أذون الإضافة</span><strong>{{ receipt_notes_count }}</strong></div>
+        <div class="lx-watch"><span>أذون الصرف</span><strong>{{ payment_notes_count }}</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-card">
+    <div class="lx-card-head">
+      <div>
+        <h2>ملخص الإدارة</h2>
+        <p>قراءة سريعة لحركة النظام</p>
+      </div>
+      <a href="/dev-control" class="lx-btn lx-btn-light">مركز التحكم الفني</a>
+    </div>
+    <div class="lx-summary-grid">
+      <div>
+        <span>Sales Flow</span>
+        <div class="lx-bar"><i style="width:78%"></i></div>
+      </div>
+      <div>
+        <span>Inventory Control</span>
+        <div class="lx-bar"><i style="width:64%"></i></div>
+      </div>
+      <div>
+        <span>Accounting Posting</span>
+        <div class="lx-bar"><i style="width:86%"></i></div>
+      </div>
+      <div>
+        <span>HR Readiness</span>
+        <div class="lx-bar"><i style="width:72%"></i></div>
+      </div>
+    </div>
+  </section>
 </div>
 {% endblock %}

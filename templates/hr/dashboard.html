@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+.hr-shell{direction:rtl;font-family:inherit}
+.hr-hero{background:linear-gradient(135deg,#2563eb 0%,#4f46e5 55%,#7c3aed 100%);border-radius:24px;padding:24px;color:#fff;box-shadow:0 18px 45px rgba(37,99,235,.22);margin-bottom:22px;position:relative;overflow:hidden}
+.hr-hero:before{content:"";position:absolute;inset:-70px auto auto -70px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.13)}
+.hr-hero h1{font-size:28px;font-weight:800;margin:0 0 8px}
+.hr-hero p{margin:0;color:rgba(255,255,255,.86)}
+.hr-hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.hr-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:.2s;background:#eef2ff;color:#1d4ed8}
+.hr-btn:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(15,23,42,.12)}
+.hr-btn-light{background:rgba(255,255,255,.94);color:#1d4ed8}
+.hr-btn-primary{background:#2563eb;color:#fff}
+.hr-btn-success{background:#10b981;color:#fff}
+.hr-btn-danger{background:#ef4444;color:#fff}
+.hr-btn-warning{background:#f59e0b;color:#fff}
+.hr-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.hr-grid-2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+.hr-card{background:#fff;border:1px solid #eef2f7;border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(15,23,42,.06);transition:.2s;margin-bottom:16px}
+.hr-card:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(15,23,42,.09)}
+.hr-stat{position:relative;overflow:hidden}
+.hr-stat .icon{width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:#eff6ff;color:#2563eb;font-size:20px;margin-bottom:12px}
+.hr-stat span{display:block;color:#64748b;font-size:13px;margin-bottom:5px}
+.hr-stat strong{font-size:27px;color:#0f172a;font-weight:900}
+.hr-stat small{display:block;color:#94a3b8;margin-top:5px}
+.hr-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.hr-section-title h2{margin:0;font-size:18px;font-weight:900;color:#0f172a}
+.hr-table-wrap{overflow:auto;border-radius:18px;border:1px solid #eef2f7}
+.hr-table{width:100%;border-collapse:collapse;background:#fff;min-width:760px}
+.hr-table th{background:#f8fafc;color:#475569;font-size:13px;padding:13px;text-align:right;border-bottom:1px solid #eef2f7;white-space:nowrap}
+.hr-table td{padding:13px;color:#334155;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.hr-table tr:hover td{background:#fbfdff}
+.hr-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;background:#f1f5f9;color:#475569;white-space:nowrap}
+.hr-badge-success{background:#dcfce7;color:#15803d}
+.hr-badge-warning{background:#fef3c7;color:#92400e}
+.hr-badge-danger{background:#fee2e2;color:#b91c1c}
+.hr-badge-info{background:#dbeafe;color:#1d4ed8}
+.hr-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.hr-form-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hr-field label{display:block;font-size:13px;font-weight:800;color:#475569;margin-bottom:6px}
+.hr-field input,.hr-field select,.hr-field textarea{width:100%;border:1px solid #e2e8f0;border-radius:14px;padding:10px 12px;background:#fff;color:#0f172a;outline:none;transition:.2s}
+.hr-field input:focus,.hr-field select:focus,.hr-field textarea:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.10)}
+.hr-field textarea{min-height:42px;resize:vertical}
+.hr-full{grid-column:1/-1}
+.hr-muted{color:#64748b;font-size:13px}
+.hr-empty{text-align:center;padding:28px;color:#64748b;background:#f8fafc;border-radius:18px}
+.hr-actions-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hr-progress{height:9px;background:#e2e8f0;border-radius:999px;overflow:hidden;min-width:120px}
+.hr-progress span{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#2563eb);border-radius:999px}
+.hr-kpi-line{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.hr-kpi-line:last-child{border-bottom:0}
+.hr-mini-nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.hr-mini-nav a{border-radius:14px;padding:10px 13px;background:#fff;border:1px solid #e2e8f0;color:#334155;text-decoration:none;font-weight:800;box-shadow:0 8px 20px rgba(15,23,42,.04)}
+.hr-mini-nav a:hover{background:#eff6ff;color:#2563eb}
+@media(max-width:1100px){.hr-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hr-grid-2{grid-template-columns:1fr}.hr-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.hr-grid,.hr-form,.hr-form-2{grid-template-columns:1fr}.hr-hero{padding:20px}.hr-hero h1{font-size:23px}.hr-card{padding:14px}}
+</style>
+
+<div class="hr-shell">
+  <div class="hr-hero">
+    <h1>إدارة الموارد البشرية</h1>
+    <p>لوحة تشغيل ذكية لمتابعة الموظفين والحضور والانصراف وطلبات الإجازات في مكان واحد.</p>
+    <div class="hr-hero-actions">
+      <a class="hr-btn hr-btn-light" href="{{ url_for('hr.employees') }}">إضافة / إدارة موظف</a>
+      <a class="hr-btn hr-btn-light" href="{{ url_for('hr.attendance') }}">تسجيل حضور</a>
+      <a class="hr-btn hr-btn-light" href="{{ url_for('hr.leaves') }}">طلبات الإجازات</a>
+    </div>
+  </div>
+  
+<div class="hr-mini-nav">
+  <a href="{{ url_for('hr.dashboard') }}">🏠 لوحة HR</a>
+  <a href="{{ url_for('hr.employees') }}">👥 الموظفون</a>
+  <a href="{{ url_for('hr.attendance') }}">⏱️ الحضور</a>
+  <a href="{{ url_for('hr.leaves') }}">🏖️ الإجازات</a>
+  <a href="{{ url_for('hr.reports') }}">📊 التقارير</a>
+  <a href="{{ url_for('hr.payroll') }}">Payroll الرواتب</a>
+</div>
+
+  <div class="hr-grid">
+    <div class="hr-card hr-stat"><div class="icon">👥</div><span>الموظفون النشطون</span><strong>{{ stats.employees or 0 }}</strong><small>إجمالي قوة العمل الحالية</small></div>
+    <div class="hr-card hr-stat"><div class="icon">✅</div><span>حضور اليوم</span><strong>{{ stats.present_today or 0 }}</strong><small>موظفون تم تسجيل حضورهم</small></div>
+    <div class="hr-card hr-stat"><div class="icon">⏳</div><span>تأخيرات اليوم</span><strong>{{ stats.late_today or 0 }}</strong><small>حالات تأخير مسجلة</small></div>
+    <div class="hr-card hr-stat"><div class="icon">🏖️</div><span>إجازات معلقة</span><strong>{{ stats.pending_leaves or 0 }}</strong><small>بانتظار الموافقة</small></div>
+  </div>
+  <div class="hr-grid-2">
+    <div class="hr-card">
+      <div class="hr-section-title"><h2>آخر سجلات الحضور</h2><a class="hr-btn" href="{{ url_for('hr.attendance') }}">عرض الكل</a></div>
+      {% if recent_attendance %}
+      <div class="hr-table-wrap"><table class="hr-table">
+        <thead><tr><th>الموظف</th><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>تأخير</th><th>الحالة</th></tr></thead>
+        <tbody>
+        {% for r in recent_attendance %}
+          <tr>
+            <td><strong>{{ r.full_name }}</strong></td><td>{{ r.work_date }}</td><td>{{ r.check_in or '-' }}</td><td>{{ r.check_out or '-' }}</td>
+            <td>{{ r.late_minutes or 0 }} دقيقة</td>
+            <td><span class="hr-badge {{ 'hr-badge-success' if r.status=='present' else 'hr-badge-danger' }}">{{ 'حاضر' if r.status=='present' else 'غائب' }}</span></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}<div class="hr-empty">لا توجد سجلات حضور بعد.</div>{% endif %}
+    </div>
+    <div class="hr-card">
+      <div class="hr-section-title"><h2>طلبات الإجازات المعلقة</h2><a class="hr-btn" href="{{ url_for('hr.leaves') }}">مراجعة</a></div>
+      {% if pending_leaves %}
+        {% for l in pending_leaves %}
+        <div class="hr-kpi-line">
+          <div><strong>{{ l.full_name }}</strong><div class="hr-muted">{{ l.leave_type or 'إجازة' }} · {{ l.start_date }} إلى {{ l.end_date }}</div></div>
+          <span class="hr-badge hr-badge-warning">{{ l.days }} يوم</span>
+        </div>
+        {% endfor %}
+      {% else %}<div class="hr-empty">لا توجد طلبات معلقة حاليًا.</div>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

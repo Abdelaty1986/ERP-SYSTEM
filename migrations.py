@@ -26,7 +26,7 @@ from typing import Callable, Iterable
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "database.db")
 BACKUP_DIR = os.path.join(BASE_DIR, "backups", "migrations")
-LATEST_SCHEMA_VERSION = 6
+LATEST_SCHEMA_VERSION = 8
 
 
 def connect(db_path: str) -> sqlite3.Connection:
@@ -272,6 +272,232 @@ def migration_006_indexes(cur: sqlite3.Cursor) -> None:
     create_index_if_missing(cur, "idx_payments_supplier_status", "payment_vouchers", "supplier_id, status")
 
 
+def migration_007_hr_payroll_hardening(cur: sqlite3.Cursor) -> None:
+    """HR and payroll safety schema for employee codes, departments, and posting controls."""
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS departments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            status TEXT NOT NULL DEFAULT 'active',
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    add_column_if_missing(cur, "employees", "employee_code", "TEXT")
+    add_column_if_missing(cur, "employees", "department_id", "INTEGER")
+    add_column_if_missing(cur, "employees", "is_active", "INTEGER NOT NULL DEFAULT 1")
+
+    add_column_if_missing(cur, "payroll_runs", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
+    add_column_if_missing(cur, "payroll_runs", "payment_method", "TEXT NOT NULL DEFAULT 'accrued'")
+    add_column_if_missing(cur, "payroll_runs", "allowances_journal_id", "INTEGER")
+    add_column_if_missing(cur, "payroll_runs", "deductions_journal_id", "INTEGER")
+    add_column_if_missing(cur, "payroll_runs", "payment_journal_id", "INTEGER")
+    add_column_if_missing(cur, "payroll_runs", "posted_at", "TEXT")
+    add_column_if_missing(cur, "payroll_runs", "posted_by", "TEXT")
+
+    add_column_if_missing(cur, "payroll_lines", "benefits", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "incentives", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "overtime", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "advances", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "penalties", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "absence_deduction", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "tardiness_deduction", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "total_deductions", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
+
+    create_index_if_missing(cur, "idx_departments_name", "departments", "name")
+    create_index_if_missing(cur, "idx_employees_department_id", "employees", "department_id")
+    create_index_if_missing(cur, "idx_employees_is_active", "employees", "is_active, status")
+    create_index_if_missing(cur, "idx_payroll_runs_period", "payroll_runs", "period")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_employees_employee_code ON employees(employee_code)")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_payroll_lines_run_employee ON payroll_lines(run_id, employee_id)")
+
+    for department_name in [
+        "الإدارة", "الحسابات", "المبيعات", "المشتريات", "المخازن", "الموارد البشرية",
+        "تكنولوجيا المعلومات", "خدمة العملاء", "التشغيل", "الصيانة", "التسويق",
+        "الشئون القانونية", "الأمن", "النظافة",
+    ]:
+        cur.execute("INSERT OR IGNORE INTO departments(name) VALUES (?)", (department_name,))
+
+
+def migration_008_enterprise_hr_blueprint(cur: sqlite3.Cursor) -> None:
+    """Enterprise HR blueprint tables and payroll posting metadata."""
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS hr_departments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            notes TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS hr_employees (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee_code TEXT UNIQUE,
+            full_name TEXT NOT NULL,
+            national_id TEXT,
+            phone TEXT,
+            email TEXT,
+            department_id INTEGER,
+            job_title TEXT,
+            hire_date TEXT,
+            base_salary REAL DEFAULT 0,
+            work_start TEXT DEFAULT '09:00',
+            work_end TEXT DEFAULT '17:00',
+            annual_leave_balance REAL DEFAULT 21,
+            status TEXT DEFAULT 'active',
+            is_active INTEGER NOT NULL DEFAULT 1,
+            notes TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS hr_payroll_runs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            payroll_month TEXT NOT NULL UNIQUE,
+            run_date TEXT NOT NULL,
+            status TEXT DEFAULT 'draft',
+            posting_status TEXT DEFAULT 'unposted',
+            payment_method TEXT DEFAULT 'accrued',
+            total_gross REAL DEFAULT 0,
+            total_deductions REAL DEFAULT 0,
+            total_net REAL DEFAULT 0,
+            journal_id INTEGER,
+            payment_journal_id INTEGER,
+            notes TEXT,
+            posted_at TEXT,
+            posted_by TEXT,
+            created_by TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS hr_payroll_lines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            run_id INTEGER NOT NULL,
+            employee_id INTEGER NOT NULL,
+            base_salary REAL DEFAULT 0,
+            allowance_amount REAL DEFAULT 0,
+            bonus_amount REAL DEFAULT 0,
+            incentive_amount REAL DEFAULT 0,
+            overtime_amount REAL DEFAULT 0,
+            insurance_amount REAL DEFAULT 0,
+            tax_amount REAL DEFAULT 0,
+            loan_amount REAL DEFAULT 0,
+            penalty_amount REAL DEFAULT 0,
+            late_deduction REAL DEFAULT 0,
+            absence_deduction REAL DEFAULT 0,
+            other_deduction REAL DEFAULT 0,
+            gross_salary REAL DEFAULT 0,
+            total_deductions REAL DEFAULT 0,
+            net_salary REAL DEFAULT 0,
+            present_days INTEGER DEFAULT 0,
+            absent_days INTEGER DEFAULT 0,
+            late_minutes INTEGER DEFAULT 0,
+            early_minutes INTEGER DEFAULT 0,
+            overtime_minutes INTEGER DEFAULT 0,
+            posting_status TEXT DEFAULT 'unposted',
+            journal_id INTEGER,
+            notes TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS hr_salary_adjustments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee_id INTEGER NOT NULL,
+            adjustment_month TEXT NOT NULL,
+            adjustment_type TEXT NOT NULL DEFAULT 'allowance',
+            title TEXT NOT NULL,
+            amount REAL DEFAULT 0,
+            notes TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS hr_payroll_rules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            late_deduction_per_min REAL DEFAULT 0,
+            absent_day_deduction_rate REAL DEFAULT 1,
+            overtime_rate_per_hour REAL DEFAULT 0,
+            salary_expense_account_code TEXT DEFAULT '5110',
+            variable_compensation_account_code TEXT DEFAULT '5115',
+            salary_payable_account_code TEXT DEFAULT '2310',
+            insurance_payable_account_code TEXT DEFAULT '2220',
+            tax_payable_account_code TEXT DEFAULT '2340',
+            deductions_payable_account_code TEXT DEFAULT '2330',
+            cash_account_code TEXT DEFAULT '1100',
+            bank_account_code TEXT DEFAULT '1200',
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    add_column_if_missing(cur, "hr_employees", "employee_code", "TEXT")
+    add_column_if_missing(cur, "hr_employees", "national_id", "TEXT")
+    add_column_if_missing(cur, "hr_employees", "phone", "TEXT")
+    add_column_if_missing(cur, "hr_employees", "email", "TEXT")
+    add_column_if_missing(cur, "hr_employees", "department_id", "INTEGER")
+    add_column_if_missing(cur, "hr_employees", "job_title", "TEXT")
+    add_column_if_missing(cur, "hr_employees", "hire_date", "TEXT")
+    add_column_if_missing(cur, "hr_employees", "base_salary", "REAL DEFAULT 0")
+    add_column_if_missing(cur, "hr_employees", "status", "TEXT DEFAULT 'active'")
+    add_column_if_missing(cur, "hr_employees", "is_active", "INTEGER NOT NULL DEFAULT 1")
+    add_column_if_missing(cur, "hr_payroll_runs", "posting_status", "TEXT DEFAULT 'unposted'")
+    add_column_if_missing(cur, "hr_payroll_runs", "payment_method", "TEXT DEFAULT 'accrued'")
+    add_column_if_missing(cur, "hr_payroll_runs", "posted_at", "TEXT")
+    add_column_if_missing(cur, "hr_payroll_runs", "posted_by", "TEXT")
+    add_column_if_missing(cur, "hr_payroll_runs", "journal_id", "INTEGER")
+    add_column_if_missing(cur, "hr_payroll_runs", "payment_journal_id", "INTEGER")
+    add_column_if_missing(cur, "hr_payroll_runs", "notes", "TEXT")
+    add_column_if_missing(cur, "hr_payroll_runs", "created_by", "TEXT")
+    for column in [
+        ("allowance_amount", "REAL DEFAULT 0"),
+        ("bonus_amount", "REAL DEFAULT 0"),
+        ("incentive_amount", "REAL DEFAULT 0"),
+        ("overtime_amount", "REAL DEFAULT 0"),
+        ("insurance_amount", "REAL DEFAULT 0"),
+        ("tax_amount", "REAL DEFAULT 0"),
+        ("loan_amount", "REAL DEFAULT 0"),
+        ("penalty_amount", "REAL DEFAULT 0"),
+        ("late_deduction", "REAL DEFAULT 0"),
+        ("absence_deduction", "REAL DEFAULT 0"),
+        ("other_deduction", "REAL DEFAULT 0"),
+        ("gross_salary", "REAL DEFAULT 0"),
+        ("total_deductions", "REAL DEFAULT 0"),
+        ("net_salary", "REAL DEFAULT 0"),
+        ("posting_status", "TEXT DEFAULT 'unposted'"),
+        ("journal_id", "INTEGER"),
+        ("created_at", "TEXT"),
+    ]:
+        add_column_if_missing(cur, "hr_payroll_lines", column[0], column[1])
+    create_index_if_missing(cur, "idx_hr_departments_name", "hr_departments", "name")
+    create_index_if_missing(cur, "idx_hr_employees_active", "hr_employees", "is_active, status")
+    create_index_if_missing(cur, "idx_hr_employees_department", "hr_employees", "department_id")
+    create_index_if_missing(cur, "idx_hr_payroll_runs_month", "hr_payroll_runs", "payroll_month")
+    create_index_if_missing(cur, "idx_hr_payroll_lines_run_employee", "hr_payroll_lines", "run_id, employee_id")
+    create_index_if_missing(cur, "idx_hr_salary_adjustments_employee_month", "hr_salary_adjustments", "employee_id, adjustment_month")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_hr_employees_employee_code ON hr_employees(employee_code)")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_hr_payroll_lines_run_employee ON hr_payroll_lines(run_id, employee_id)")
+    for department_name in [
+        "الإدارة", "الحسابات", "المبيعات", "المشتريات", "المخازن", "الموارد البشرية",
+        "تكنولوجيا المعلومات", "خدمة العملاء", "التشغيل", "الصيانة", "التسويق",
+        "الشئون القانونية", "الأمن", "النظافة",
+    ]:
+        cur.execute("INSERT OR IGNORE INTO hr_departments(name) VALUES (?)", (department_name,))
+
+
 MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (1, "core metadata tables", migration_001_core_tables),
     (2, "permissions safety", migration_002_permissions_safety),
@@ -279,6 +505,8 @@ MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (4, "document sequences", migration_004_document_sequences),
     (5, "optional columns", migration_005_optional_columns),
     (6, "performance indexes", migration_006_indexes),
+    (7, "hr payroll hardening", migration_007_hr_payroll_hardening),
+    (8, "enterprise hr blueprint", migration_008_enterprise_hr_blueprint),
 ]
 
 

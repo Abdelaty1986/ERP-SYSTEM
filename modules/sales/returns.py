@@ -1,6 +1,7 @@
 import json
 
 from flask import flash, redirect, render_template, request, url_for
+from modules.accounting.ledger_engine import post_simple_entry
 
 
 def _invoice_product_options(cur, invoice_type, invoice_id):
@@ -120,9 +121,30 @@ def build_sales_returns_view(deps):
                     cur.execute("SELECT name,purchase_price FROM products WHERE id=?", (product_id,))
                     product = cur.fetchone()
                     cost_total = quantity * (product[1] or 0)
-                    journal_id = create_auto_journal(cur, date_value, f"مردود بيع - {product[0]}", "4200", credit_code, total)
-                    tax_journal_id = create_auto_journal(cur, date_value, f"ضريبة مردود بيع - {product[0]}", "2200", credit_code, tax_amount) if tax_amount > 0 else None
-                    cogs_journal_id = create_auto_journal(cur, date_value, f"عكس تكلفة مردود بيع - {product[0]}", "1400", "6100", cost_total) if cost_total > 0 else None
+                    journal_id = post_simple_entry(
+                        cur=cur,
+                        date=date_value,
+                        description=f"مردود بيع - {product[0]}",
+                        debit_code="4200",
+                        credit_code=credit_code,
+                        amount=total,
+                    )
+                    tax_journal_id = post_simple_entry(
+                        cur=cur,
+                        date=date_value,
+                        description=f"ضريبة مردود بيع - {product[0]}",
+                        debit_code="2200",
+                        credit_code=credit_code,
+                        amount=tax_amount,
+                    ) if tax_amount > 0 else None
+                    cogs_journal_id = post_simple_entry(
+                        cur=cur,
+                        date=date_value,
+                        description=f"عكس تكلفة مردود بيع - {product[0]}",
+                        debit_code="1400",
+                        credit_code="6100",
+                        amount=cost_total,
+                    ) if cost_total > 0 else None
                     cur.execute(
                         """
                         INSERT INTO sales_returns(date,sales_invoice_id,product_id,quantity,unit_price,total,tax_amount,grand_total,cost_total,journal_id,tax_journal_id,cogs_journal_id,po_ref,gr_ref,notes)

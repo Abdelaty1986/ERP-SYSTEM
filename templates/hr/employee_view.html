@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+.hr-shell{direction:rtl}
+.hr-hero{background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 60%,#0f766e 100%);color:#fff;border-radius:24px;padding:24px;margin-bottom:18px}
+.hr-hero h1{margin:0 0 8px;font-size:28px;font-weight:900}.hr-hero p{margin:0;color:rgba(255,255,255,.84)}
+.hr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hr-card{background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:18px;box-shadow:0 14px 32px rgba(15,23,42,.06)}
+.hr-stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:16px}
+.hr-stat span{display:block;color:#64748b;font-size:13px}.hr-stat strong{display:block;margin-top:6px;color:#0f172a;font-size:18px}
+.hr-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.hr-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.hr-btn-soft{background:#eef2ff;color:#1d4ed8}.hr-btn-warning{background:#f59e0b;color:#fff}
+@media(max-width:900px){.hr-grid{grid-template-columns:1fr}}
+</style>
+
+<div class="hr-shell">
+  <div class="hr-hero">
+    <h1>بطاقة الموظف</h1>
+    <p>عرض البيانات الثابتة للموظف وربطها بسجل الرواتب بدون خلط بين ملف الموظف وشيت المرتب الشهري.</p>
+  </div>
+
+  <div class="hr-actions">
+    <a class="hr-btn hr-btn-warning" href="{{ url_for('hr.employee_edit', employee_id=employee.id) }}">تعديل البيانات</a>
+    <a class="hr-btn hr-btn-soft" href="{{ url_for('hr.employees') }}">رجوع للموظفين</a>
+  </div>
+
+  <div class="hr-grid">
+    <div class="hr-stat"><span>كود الموظف</span><strong>{{ employee.employee_code or '-' }}</strong></div>
+    <div class="hr-stat"><span>الاسم</span><strong>{{ employee.full_name }}</strong></div>
+    <div class="hr-stat"><span>الحالة</span><strong>{{ 'نشط' if employee.normalized_status == 'active' else 'غير نشط' }}</strong></div>
+    <div class="hr-stat"><span>القسم</span><strong>{{ employee.department_name or '-' }}</strong></div>
+    <div class="hr-stat"><span>الوظيفة</span><strong>{{ employee.job_title or '-' }}</strong></div>
+    <div class="hr-stat"><span>تاريخ التعيين</span><strong>{{ employee.hire_date or '-' }}</strong></div>
+    <div class="hr-stat"><span>الراتب الأساسي</span><strong>{{ "%.2f"|format(employee.base_salary or 0) }}</strong></div>
+    <div class="hr-stat"><span>الهاتف</span><strong>{{ employee.phone or '-' }}</strong></div>
+    <div class="hr-stat"><span>البريد الإلكتروني</span><strong>{{ employee.email or '-' }}</strong></div>
+    <div class="hr-stat"><span>الرقم القومي</span><strong>{{ employee.national_id or '-' }}</strong></div>
+    <div class="hr-stat"><span>عدد مسيرات الرواتب</span><strong>{{ payroll_summary.runs_count or 0 }}</strong></div>
+    <div class="hr-stat"><span>آخر شهر رواتب</span><strong>{{ payroll_summary.last_month or '-' }}</strong></div>
+  </div>
+
+  {% if employee.notes %}
+  <div class="hr-card" style="margin-top:16px">
+    <strong style="display:block;margin-bottom:8px;color:#0f172a">ملاحظات</strong>
+    <div style="color:#475569;line-height:1.9">{{ employee.notes }}</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

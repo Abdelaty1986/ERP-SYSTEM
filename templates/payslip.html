@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+.slip-shell{direction:rtl}.slip-actions{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:16px}
+.slip-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.slip-print{background:#2563eb;color:#fff}.slip-back{background:#e2e8f0;color:#0f172a}
+.slip-card{width:210mm;max-width:100%;margin:0 auto;background:#fff;border:1px solid #dbe3ee;border-radius:22px;box-shadow:0 18px 45px rgba(15,23,42,.08);overflow:hidden}
+.slip-header{background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 55%,#0ea5e9 100%);color:#fff;padding:24px}.slip-header h2{margin:0 0 6px;font-size:28px;font-weight:900}.slip-header p{margin:0;color:rgba(255,255,255,.86)}
+.slip-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:18px}.slip-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:12px}.slip-box span{display:block;color:#64748b;font-size:12px;font-weight:800}.slip-box strong{display:block;margin-top:5px;color:#0f172a}
+.slip-table{width:100%;border-collapse:collapse}.slip-table th,.slip-table td{padding:12px;border-bottom:1px solid #edf2f7;text-align:right}.slip-table th{background:#f8fafc;color:#475569;font-size:13px}
+.slip-section{padding:0 18px 18px 18px}.slip-total{background:#f8fafc;border:1px dashed #94a3b8;border-radius:18px;padding:14px;margin:18px}
+@media print{
+  .no-print{display:none!important}
+  body{background:#fff}
+  .slip-card{width:100%;max-width:none;border:0;box-shadow:none;border-radius:0}
+}
+@media(max-width:800px){.slip-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+
+<div class="slip-shell">
+  <div class="slip-actions no-print">
+    <a class="slip-btn slip-back" href="javascript:history.back()">رجوع</a>
+    <button class="slip-btn slip-print" onclick="window.print()">طباعة / PDF</button>
+  </div>
+
+  <div class="slip-card">
+    <div class="slip-header">
+      <h2>شيت مرتب</h2>
+      <p>نموذج طباعة مناسب للمراجعة والحفظ وأرشفة المرتبات.</p>
+    </div>
+
+    <div class="slip-grid">
+      <div class="slip-box"><span>كود الموظف</span><strong>{{ payslip.employee_code }}</strong></div>
+      <div class="slip-box"><span>اسم الموظف</span><strong>{{ payslip.employee_name }}</strong></div>
+      <div class="slip-box"><span>القسم</span><strong>{{ payslip.department_name }}</strong></div>
+      <div class="slip-box"><span>الوظيفة</span><strong>{{ payslip.job_title }}</strong></div>
+      <div class="slip-box"><span>الشهر</span><strong>{{ payslip.period }}</strong></div>
+      <div class="slip-box"><span>الراتب الأساسي</span><strong>{{ "%.2f"|format(payslip.base_salary) }}</strong></div>
+      <div class="slip-box"><span>إجمالي المستحقات</span><strong>{{ "%.2f"|format(payslip.gross_salary) }}</strong></div>
+      <div class="slip-box"><span>صافي الراتب</span><strong>{{ "%.2f"|format(payslip.net_salary) }}</strong></div>
+    </div>
+
+    <div class="slip-section">
+      <table class="slip-table">
+        <thead>
+          <tr>
+            <th>تفاصيل المستحقات</th>
+            <th>القيمة</th>
+            <th>تفاصيل الاستقطاعات</th>
+            <th>القيمة</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>العلاوات</td><td>{{ "%.2f"|format(payslip.allowances) }}</td><td>التأمينات</td><td>{{ "%.2f"|format(payslip.insurance_employee) }}</td></tr>
+          <tr><td>البدلات</td><td>{{ "%.2f"|format(payslip.benefits) }}</td><td>الضرائب</td><td>{{ "%.2f"|format(payslip.tax) }}</td></tr>
+          <tr><td>الحوافز</td><td>{{ "%.2f"|format(payslip.incentives) }}</td><td>السلف</td><td>{{ "%.2f"|format(payslip.advances) }}</td></tr>
+          <tr><td>الإضافي</td><td>{{ "%.2f"|format(payslip.overtime) }}</td><td>الجزاءات</td><td>{{ "%.2f"|format(payslip.penalties) }}</td></tr>
+          <tr><td>إجمالي المستحقات</td><td>{{ "%.2f"|format(payslip.gross_salary) }}</td><td>الغياب / التأخير</td><td>{{ "%.2f"|format(payslip.absence_deduction + payslip.tardiness_deduction) }}</td></tr>
+          <tr><td>-</td><td>-</td><td>استقطاعات أخرى</td><td>{{ "%.2f"|format(payslip.other_deductions) }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="slip-total">
+      <strong>إجمالي الاستقطاعات:</strong> {{ "%.2f"|format(payslip.total_deductions) }}
+      <br>
+      <strong>صافي الراتب المستحق:</strong> {{ "%.2f"|format(payslip.net_salary) }}
+    </div>
+  </div>
+</div>
+{% endblock %}

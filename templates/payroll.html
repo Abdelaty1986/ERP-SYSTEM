@@ -1,61 +1,119 @@
 {% extends "layout.html" %}
-
 {% block content %}
+<style>
+.pay-shell{direction:rtl}.pay-hero{background:linear-gradient(135deg,#1e293b 0%,#1d4ed8 55%,#0891b2 100%);border-radius:24px;padding:24px;color:#fff;box-shadow:0 18px 45px rgba(15,23,42,.18);margin-bottom:22px}
+.pay-hero h2{margin:0 0 8px;font-size:28px;font-weight:900}.pay-hero p{margin:0;color:rgba(255,255,255,.84);line-height:1.8}
+.pay-card{background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(15,23,42,.06);margin-bottom:16px}
+.pay-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.pay-field label{display:block;margin-bottom:6px;font-size:13px;font-weight:800;color:#475569}
+.pay-field input,.pay-field select{width:100%;border:1px solid #dbe3ee;border-radius:14px;padding:10px 12px}.pay-actions{display:flex;gap:8px;align-items:end}
+.pay-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.pay-btn-primary{background:#2563eb;color:#fff}.pay-btn-soft{background:#eef2ff;color:#1d4ed8}
+.pay-section{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}.pay-section h3{margin:0;font-size:18px;font-weight:900}.pay-section p{margin:6px 0 0;color:#64748b;font-size:13px}
+.pay-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:18px}.pay-table{width:100%;border-collapse:collapse;min-width:1050px}.pay-table th{background:#f8fafc;color:#475569;padding:12px;text-align:right;font-size:13px;border-bottom:1px solid #e2e8f0}
+.pay-table td{padding:12px;color:#334155;border-bottom:1px solid #f1f5f9}.pay-badge{display:inline-flex;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800}
+.pay-success{background:#dcfce7;color:#15803d}.pay-warning{background:#fef3c7;color:#92400e}.pay-info{background:#dbeafe;color:#1d4ed8}
+@media(max-width:900px){.pay-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:680px){.pay-grid{grid-template-columns:1fr}}
+</style>
 
-<div class="page-head">
-    <div>
-        <h2>كشوف المرتبات</h2>
-        <div class="eyebrow">{{ active_count }} موظف نشط جاهز للاحتساب</div>
+<div class="pay-shell">
+  <div class="pay-hero">
+    <h2>كشوف المرتبات</h2>
+    <p>{{ active_count }} موظف نشط جاهز للدخول في كشف الرواتب. يتم إنشاء الكشف كمسودة أولًا، ثم اعتماده محاسبيًا بشكل منفصل وآمن لمنع الترحيل المكرر.</p>
+  </div>
+
+  {% if can_write("hr") %}
+  <div class="pay-card">
+    <div class="pay-section">
+      <div>
+        <h3>إنشاء كشف مرتبات جديد</h3>
+        <p>طريقة السداد تحدد هل سيبقى القيد في الرواتب المستحقة أو سيتم توليد قيد صرف مباشر على الصندوق أو البنك.</p>
+      </div>
     </div>
+    <form method="post" class="pay-grid">
+      <div class="pay-field">
+        <label>الفترة</label>
+        <input type="month" name="period" required>
+      </div>
+      <div class="pay-field">
+        <label>تاريخ القيد</label>
+        <input type="date" name="date" required>
+      </div>
+      <div class="pay-field">
+        <label>طريقة السداد</label>
+        <select name="payment_method">
+          <option value="accrued">استحقاق</option>
+          <option value="cash">صندوق</option>
+          <option value="bank">بنك</option>
+        </select>
+      </div>
+      <div class="pay-field">
+        <label>ملاحظات</label>
+        <input name="notes" placeholder="ملاحظات تشغيل أو مراجعة">
+      </div>
+      <div class="pay-actions">
+        <button class="pay-btn pay-btn-primary" type="submit">إنشاء الكشف</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="pay-card">
+    <div class="pay-section">
+      <div>
+        <h3>الكشوف الحالية</h3>
+        <p>تظهر الحالة التشغيلية والحالة المحاسبية وطريقة السداد وروابط المتابعة.</p>
+      </div>
+    </div>
+    <div class="pay-table-wrap">
+      <table class="pay-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>الفترة</th>
+            <th>التاريخ</th>
+            <th>إجمالي المستحقات</th>
+            <th>إجمالي الاستقطاعات</th>
+            <th>حصة الشركة في التأمينات</th>
+            <th>الصافي</th>
+            <th>الحالة</th>
+            <th>الترحيل</th>
+            <th>طريقة السداد</th>
+            <th>قيود رئيسية</th>
+            <th>تفاصيل</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for run in runs %}
+          <tr>
+            <td>{{ run.id }}</td>
+            <td><strong>{{ run.period }}</strong></td>
+            <td>{{ run.date }}</td>
+            <td>{{ "%.2f"|format(run.total_gross) }}</td>
+            <td>{{ "%.2f"|format(run.total_employee_deductions) }}</td>
+            <td>{{ "%.2f"|format(run.total_company_insurance) }}</td>
+            <td><strong>{{ "%.2f"|format(run.total_net) }}</strong></td>
+            <td>
+              <span class="pay-badge {{ 'pay-success' if run.status == 'paid' else 'pay-info' if run.status == 'posted' else 'pay-warning' }}">
+                {{ 'مدفوع' if run.status == 'paid' else 'مرحل' if run.status == 'posted' else 'مسودة' }}
+              </span>
+            </td>
+            <td>
+              <span class="pay-badge {{ 'pay-success' if run.posting_status == 'posted' else 'pay-warning' }}">
+                {{ 'تم الترحيل' if run.posting_status == 'posted' else 'غير مرحل' }}
+              </span>
+            </td>
+            <td>{{ payment_method_label(run.payment_method) }}</td>
+            <td>{{ run.journal_id or '-' }} / {{ run.payment_journal_id or '-' }}</td>
+            <td><a class="pay-btn pay-btn-soft" href="/payroll/{{ run.id }}">عرض</a></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="12" style="text-align:center;color:#64748b;padding:24px">لا توجد كشوف مرتبات حتى الآن.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-
-{% if can_write("hr") %}
-<form method="POST" class="card p-3 mb-3 no-print">
-    <div class="row g-2">
-        <div class="col-md-2">
-            <label class="form-label">الفترة</label>
-            <input type="month" name="period" class="form-control" required>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">تاريخ القيد</label>
-            <input type="date" name="date" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">ملاحظات</label>
-            <input type="text" name="notes" class="form-control">
-        </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-success w-100">إنشاء وترحيل</button>
-        </div>
-    </div>
-</form>
-{% endif %}
-
-<table class="table table-bordered align-middle">
-<tr>
-    <th>#</th>
-    <th>الفترة</th>
-    <th>التاريخ</th>
-    <th>الإجمالي</th>
-    <th>استقطاعات الموظفين</th>
-    <th>تأمينات الشركة</th>
-    <th>الصافي</th>
-    <th>الحالة</th>
-    <th class="no-print">تفاصيل</th>
-</tr>
-{% for run in runs %}
-<tr>
-    <td>{{ run[0] }}</td>
-    <td>{{ run[1] }}</td>
-    <td>{{ run[2] }}</td>
-    <td>{{ run[3] }}</td>
-    <td>{{ run[4] }}</td>
-    <td>{{ run[5] }}</td>
-    <td>{{ run[6] }}</td>
-    <td>{% if run[7] == "posted" %}مرحل{% else %}غير مرحل{% endif %}</td>
-    <td class="no-print"><a class="btn btn-primary btn-sm" href="/payroll/{{ run[0] }}">عرض</a></td>
-</tr>
-{% endfor %}
-</table>
-
 {% endblock %}

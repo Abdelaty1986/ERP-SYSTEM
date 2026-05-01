@@ -1,0 +1,107 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+.hr-shell{direction:rtl}.hr-hero{background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 55%,#0891b2 100%);border-radius:24px;padding:24px;color:#fff;margin-bottom:20px}
+.hr-hero h1{margin:0 0 8px;font-size:28px;font-weight:900}.hr-hero p{margin:0;color:rgba(255,255,255,.84);line-height:1.8}
+.hr-card{background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(15,23,42,.06);margin-bottom:16px}
+.hr-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.hr-kpi{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:16px}.hr-kpi span{display:block;color:#64748b;font-size:13px}.hr-kpi strong{display:block;color:#0f172a;font-size:26px;font-weight:900;margin-top:6px}
+.hr-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:18px}.hr-table{width:100%;border-collapse:collapse;min-width:1450px}
+.hr-table th{background:#f8fafc;color:#475569;padding:12px;text-align:right;font-size:13px;border-bottom:1px solid #e2e8f0}.hr-table td{padding:12px;color:#334155;border-bottom:1px solid #f1f5f9}
+.hr-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.hr-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.hr-btn-primary{background:#2563eb;color:#fff}.hr-btn-success{background:#10b981;color:#fff}.hr-btn-soft{background:#eef2ff;color:#1d4ed8}
+.hr-badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800}.hr-badge-success{background:#dcfce7;color:#15803d}.hr-badge-warning{background:#fef3c7;color:#92400e}.hr-badge-info{background:#dbeafe;color:#1d4ed8}
+.hr-note{background:#f8fafc;border:1px dashed #94a3b8;border-radius:18px;padding:14px;color:#334155;line-height:1.8}
+@media(max-width:950px){.hr-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.hr-kpis{grid-template-columns:1fr}}
+</style>
+
+<div class="hr-shell">
+  <div class="hr-hero">
+    <h1>تفاصيل مسير رواتب شهر {{ run.payroll_month }}</h1>
+    <p>مراجعة تفصيلية لكل موظف قبل الاعتماد، مع ربط مباشر إلى شيت المرتب والطباعة.</p>
+  </div>
+
+  <div class="hr-actions">
+    <a class="hr-btn hr-btn-soft" href="{{ url_for('hr.payroll') }}">رجوع للرواتب</a>
+    {% if run.status == 'draft' %}
+    <form method="post" action="{{ url_for('hr.payroll_post', run_id=run.id) }}">
+      <button class="hr-btn hr-btn-primary" type="submit">اعتماد وترحيل المسير</button>
+    </form>
+    {% elif run.status == 'posted' %}
+    <form method="post" action="{{ url_for('hr.payroll_pay', run_id=run.id) }}">
+      <button class="hr-btn hr-btn-success" type="submit">تسجيل الصرف</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="hr-kpis">
+    <div class="hr-kpi"><span>إجمالي المستحقات</span><strong>{{ "%.2f"|format(run.total_gross or 0) }}</strong></div>
+    <div class="hr-kpi"><span>إجمالي الاستقطاعات</span><strong>{{ "%.2f"|format(run.total_deductions or 0) }}</strong></div>
+    <div class="hr-kpi"><span>صافي الرواتب</span><strong>{{ "%.2f"|format(run.total_net or 0) }}</strong></div>
+    <div class="hr-kpi"><span>الحالة</span><strong>{{ 'مدفوع' if run.status == 'paid' else 'مرحل' if run.status == 'posted' else 'مسودة' }}</strong></div>
+  </div>
+
+  <div class="hr-card">
+    <div class="hr-note">
+      حالة الترحيل: <strong>{{ run.posting_status or 'unposted' }}</strong><br>
+      القيد الرئيسي: <strong>{{ run.journal_id or '-' }}</strong><br>
+      قيد الصرف: <strong>{{ run.payment_journal_id or '-' }}</strong><br>
+      طريقة السداد: <strong>{{ 'بنك' if run.payment_method == 'bank' else 'خزنة' if run.payment_method == 'cash' else 'رواتب مستحقة' }}</strong>
+    </div>
+  </div>
+
+  <div class="hr-card">
+    <div class="hr-table-wrap">
+      <table class="hr-table">
+        <thead>
+          <tr>
+            <th>الموظف</th>
+            <th>القسم</th>
+            <th>الوظيفة</th>
+            <th>أساسي</th>
+            <th>علاوات</th>
+            <th>بدلات/حوافز</th>
+            <th>إضافي</th>
+            <th>إجمالي المستحقات</th>
+            <th>تأمينات</th>
+            <th>ضرائب</th>
+            <th>سلف</th>
+            <th>جزاءات</th>
+            <th>غياب/تأخير</th>
+            <th>استقطاعات أخرى</th>
+            <th>إجمالي الاستقطاعات</th>
+            <th>صافي الراتب</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for line in lines %}
+          <tr>
+            <td><strong>{{ line.full_name }}</strong><div style="color:#64748b;font-size:12px">{{ line.employee_code or '-' }}</div></td>
+            <td>{{ line.department_name or '-' }}</td>
+            <td>{{ line.job_title or '-' }}</td>
+            <td>{{ "%.2f"|format(line.base_salary or 0) }}</td>
+            <td>{{ "%.2f"|format(line.bonus_amount or 0) }}</td>
+            <td>{{ "%.2f"|format((line.allowance_amount or 0) + (line.incentive_amount or 0)) }}</td>
+            <td>{{ "%.2f"|format(line.overtime_amount or 0) }}</td>
+            <td>{{ "%.2f"|format(line.gross_salary or 0) }}</td>
+            <td>{{ "%.2f"|format(line.insurance_amount or 0) }}</td>
+            <td>{{ "%.2f"|format(line.tax_amount or 0) }}</td>
+            <td>{{ "%.2f"|format(line.loan_amount or 0) }}</td>
+            <td>{{ "%.2f"|format(line.penalty_amount or 0) }}</td>
+            <td>{{ "%.2f"|format((line.late_deduction or 0) + (line.absence_deduction or 0)) }}</td>
+            <td>{{ "%.2f"|format(line.other_deduction or 0) }}</td>
+            <td>{{ "%.2f"|format(line.total_deductions or 0) }}</td>
+            <td><strong>{{ "%.2f"|format(line.net_salary or 0) }}</strong></td>
+            <td><a class="hr-btn hr-btn-soft" href="{{ url_for('hr.payroll_payslip', run_id=run.id, employee_id=line.employee_id) }}">شيت المرتب</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="17" style="text-align:center;color:#64748b">لا توجد سطور في هذا المسير.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,26 +1,16 @@
 """
 Ledger Engine
 -------------
-نواة مركزية آمنة لإنشاء القيود المحاسبية.
-
-ملاحظة مهمة:
-النسخة الحالية من قاعدة البيانات تستخدم جدول journal بشكل مبسط:
-- debit_account_id
-- credit_account_id
-- amount
-
-لذلك هذه النواة تدعم هذا الشكل الحالي، مع تجهيز دوال مستقبلية
-للتحول لاحقًا إلى قيود متعددة الأطراف بدون كسر النظام.
+محرك مركزي آمن لتسجيل القيود البسيطة في جدول journal.
+في المرحلة الحالية يعتمد على نفس هيكل الجداول الحالي:
+journal(date, description, debit_account_id, credit_account_id, amount, status, source_type, source_id, cost_center_id)
+والـ ledger يتم بناؤه لاحقًا من journal عن طريق rebuild_ledger() الموجود في app.py.
 """
 
-
-def get_account_id_by_code(cur, account_code):
-    """إرجاع ID الحساب من كود شجرة الحسابات."""
-    cur.execute("SELECT id FROM accounts WHERE code=?", (str(account_code),))
+def get_account_id(cur, account_code):
+    cur.execute("SELECT id FROM accounts WHERE code=?", (account_code,))
     row = cur.fetchone()
-    if not row:
-        raise ValueError(f"الحساب غير موجود في شجرة الحسابات: {account_code}")
-    return row[0]
+    return row[0] if row else None
 
 
 def post_simple_entry(
@@ -33,39 +23,47 @@ def post_simple_entry(
     source_type="auto",
     source_id=None,
     cost_center_id=None,
+    status="posted",
 ):
     """
-    إنشاء قيد بسيط من طرفين متوافق مع جدول journal الحالي.
+    تسجيل قيد بسيط: طرف مدين وطرف دائن.
 
-    مثال:
-        post_simple_entry(cur, date, "فاتورة بيع", "1100", "4100", 1000)
-
-    يرجع:
-        journal_id
+    يرجع journal_id.
+    لا يعمل commit هنا؛ الـ commit مسؤولية الشاشة/العملية التي تستدعيه.
     """
-    amount = float(amount or 0)
-    if amount <= 0:
-        raise ValueError("مبلغ القيد يجب أن يكون أكبر من صفر")
-    if str(debit_code) == str(credit_code):
-        raise ValueError("لا يمكن أن يكون الحساب المدين هو نفسه الحساب الدائن")
+    try:
+        amount = float(amount or 0)
+    except (TypeError, ValueError):
+        amount = 0
 
-    debit_account_id = get_account_id_by_code(cur, debit_code)
-    credit_account_id = get_account_id_by_code(cur, credit_code)
+    if amount <= 0:
+        return None
+
+    debit_id = get_account_id(cur, debit_code)
+    credit_id = get_account_id(cur, credit_code)
+
+    if not debit_id:
+        raise ValueError(f"الحساب المدين غير موجود أو كوده غير صحيح: {debit_code}")
+    if not credit_id:
+        raise ValueError(f"الحساب الدائن غير موجود أو كوده غير صحيح: {credit_code}")
+    if debit_id == credit_id:
+        raise ValueError("لا يمكن أن يكون الحساب المدين هو نفسه الحساب الدائن.")
 
     cur.execute(
         """
         INSERT INTO journal(
-            date, description, debit_account_id, credit_account_id, amount,
-            status, source_type, source_id, cost_center_id
+            date, description, debit_account_id, credit_account_id,
+            amount, status, source_type, source_id, cost_center_id
         )
-        VALUES (?, ?, ?, ?, ?, 'posted', ?, ?, ?)
+        VALUES (?,?,?,?,?,?,?,?,?)
         """,
         (
             date,
             description,
-            debit_account_id,
-            credit_account_id,
+            debit_id,
+            credit_id,
             amount,
+            status,
             source_type or "auto",
             source_id,
             cost_center_id,
@@ -74,43 +72,27 @@ def post_simple_entry(
     return cur.lastrowid
 
 
-def post_entry(cur, date, description, lines, source_type="auto", source_id=None, cost_center_id=None):
+def post_entries(cur, entries, source_type="auto", source_id=None):
     """
-    واجهة مستقبلية للقيود متعددة الأطراف.
-
-    حاليًا تدعم فقط قيد من طرفين حتى تظل متوافقة مع جدول journal الحالي.
-    lines = [
-        {"account_code": "1100", "debit": 1000, "credit": 0},
-        {"account_code": "4100", "debit": 0, "credit": 1000},
+    تسجيل أكثر من قيد بسيط في عملية واحدة.
+    entries = [
+        {"date": "...", "description": "...", "debit_code": "...", "credit_code": "...", "amount": ...},
     ]
     """
-    debit_lines = [line for line in lines if float(line.get("debit", 0) or 0) > 0]
-    credit_lines = [line for line in lines if float(line.get("credit", 0) or 0) > 0]
-
-    total_debit = sum(float(line.get("debit", 0) or 0) for line in lines)
-    total_credit = sum(float(line.get("credit", 0) or 0) for line in lines)
-
-    if round(total_debit, 2) != round(total_credit, 2):
-        raise ValueError("القيد غير متوازن")
-    if len(debit_lines) != 1 or len(credit_lines) != 1:
-        raise ValueError("النظام الحالي يدعم قيدًا بسيطًا من مدين واحد ودائن واحد فقط")
-
-    debit_line = debit_lines[0]
-    credit_line = credit_lines[0]
-    debit_code = debit_line.get("account_code") or debit_line.get("code")
-    credit_code = credit_line.get("account_code") or credit_line.get("code")
-
-    if not debit_code or not credit_code:
-        raise ValueError("يجب إرسال account_code لكل طرف في القيد")
-
-    return post_simple_entry(
-        cur,
-        date,
-        description,
-        debit_code,
-        credit_code,
-        total_debit,
-        source_type=source_type,
-        source_id=source_id,
-        cost_center_id=cost_center_id,
-    )
+    journal_ids = []
+    for entry in entries:
+        journal_id = post_simple_entry(
+            cur=cur,
+            date=entry.get("date"),
+            description=entry.get("description"),
+            debit_code=entry.get("debit_code"),
+            credit_code=entry.get("credit_code"),
+            amount=entry.get("amount"),
+            source_type=entry.get("source_type", source_type),
+            source_id=entry.get("source_id", source_id),
+            cost_center_id=entry.get("cost_center_id"),
+            status=entry.get("status", "posted"),
+        )
+        if journal_id:
+            journal_ids.append(journal_id)
+    return journal_ids

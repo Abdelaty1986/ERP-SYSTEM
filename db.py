@@ -70,6 +70,7 @@ DEFAULT_ACCOUNTS = [
     ("5000", "مصروفات التشغيل", "مصروفات"),
     ("5100", "مصروفات إدارية وعمومية", "مصروفات"),
     ("5110", "مرتبات الإدارة", "مصروفات"),
+    ("5115", "بدلات وحوافز وأجر إضافي", "مصروفات"),
     ("5120", "إيجار إداري", "مصروفات"),
     ("5130", "اتصالات وإنترنت", "مصروفات"),
     ("5140", "مهمات مكتبية", "مصروفات"),
@@ -96,7 +97,7 @@ DEFAULT_ACCOUNTS = [
 ]
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.environ.get("ERP_DB_PATH", os.path.join(BASE_DIR, "database.db"))
 INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
 BOOTSTRAP_CREDENTIALS_FILE = os.path.join(INSTANCE_DIR, "initial_admin_credentials.txt")
 
@@ -796,11 +797,24 @@ def init_db():
 
     cur.execute(
         """
+        CREATE TABLE IF NOT EXISTS departments(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            status TEXT NOT NULL DEFAULT 'active',
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+
+    cur.execute(
+        """
         CREATE TABLE IF NOT EXISTS employees(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             code TEXT UNIQUE,
+            employee_code TEXT UNIQUE,
             name TEXT NOT NULL,
             department TEXT,
+            department_id INTEGER,
             job_title TEXT,
             hire_date TEXT,
             base_salary REAL NOT NULL DEFAULT 0,
@@ -809,6 +823,7 @@ def init_db():
             insurance_company REAL NOT NULL DEFAULT 0,
             tax REAL NOT NULL DEFAULT 0,
             status TEXT NOT NULL DEFAULT 'active',
+            is_active INTEGER NOT NULL DEFAULT 1,
             notes TEXT
         )
         """
@@ -825,10 +840,17 @@ def init_db():
             total_company_insurance REAL NOT NULL DEFAULT 0,
             total_net REAL NOT NULL DEFAULT 0,
             status TEXT NOT NULL DEFAULT 'posted',
+            posting_status TEXT NOT NULL DEFAULT 'unposted',
+            payment_method TEXT NOT NULL DEFAULT 'accrued',
             journal_id INTEGER,
+            allowances_journal_id INTEGER,
             tax_journal_id INTEGER,
             insurance_journal_id INTEGER,
             company_insurance_journal_id INTEGER,
+            deductions_journal_id INTEGER,
+            payment_journal_id INTEGER,
+            posted_at TEXT,
+            posted_by TEXT,
             notes TEXT
         )
         """
@@ -842,12 +864,21 @@ def init_db():
             employee_id INTEGER NOT NULL,
             base_salary REAL NOT NULL DEFAULT 0,
             allowances REAL NOT NULL DEFAULT 0,
+            benefits REAL NOT NULL DEFAULT 0,
+            incentives REAL NOT NULL DEFAULT 0,
+            overtime REAL NOT NULL DEFAULT 0,
             insurance_employee REAL NOT NULL DEFAULT 0,
             insurance_company REAL NOT NULL DEFAULT 0,
             tax REAL NOT NULL DEFAULT 0,
+            advances REAL NOT NULL DEFAULT 0,
+            penalties REAL NOT NULL DEFAULT 0,
+            absence_deduction REAL NOT NULL DEFAULT 0,
+            tardiness_deduction REAL NOT NULL DEFAULT 0,
             other_deductions REAL NOT NULL DEFAULT 0,
             gross_salary REAL NOT NULL DEFAULT 0,
+            total_deductions REAL NOT NULL DEFAULT 0,
             net_salary REAL NOT NULL DEFAULT 0,
+            posting_status TEXT NOT NULL DEFAULT 'unposted',
             FOREIGN KEY(run_id) REFERENCES payroll_runs(id),
             FOREIGN KEY(employee_id) REFERENCES employees(id)
         )
@@ -1018,7 +1049,9 @@ def init_db():
     add_column_if_missing(cur, "payment_vouchers", "cancelled_at", "TEXT")
     add_column_if_missing(cur, "payment_vouchers", "cancel_reason", "TEXT")
     add_column_if_missing(cur, "employees", "code", "TEXT")
+    add_column_if_missing(cur, "employees", "employee_code", "TEXT")
     add_column_if_missing(cur, "employees", "department", "TEXT")
+    add_column_if_missing(cur, "employees", "department_id", "INTEGER")
     add_column_if_missing(cur, "employees", "job_title", "TEXT")
     add_column_if_missing(cur, "employees", "hire_date", "TEXT")
     add_column_if_missing(cur, "employees", "base_salary", "REAL NOT NULL DEFAULT 0")
@@ -1027,12 +1060,41 @@ def init_db():
     add_column_if_missing(cur, "employees", "insurance_company", "REAL NOT NULL DEFAULT 0")
     add_column_if_missing(cur, "employees", "tax", "REAL NOT NULL DEFAULT 0")
     add_column_if_missing(cur, "employees", "status", "TEXT NOT NULL DEFAULT 'active'")
+    add_column_if_missing(cur, "employees", "is_active", "INTEGER NOT NULL DEFAULT 1")
     add_column_if_missing(cur, "employees", "notes", "TEXT")
+    add_column_if_missing(cur, "payroll_runs", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
+    add_column_if_missing(cur, "payroll_runs", "payment_method", "TEXT NOT NULL DEFAULT 'accrued'")
+    add_column_if_missing(cur, "payroll_runs", "allowances_journal_id", "INTEGER")
+    add_column_if_missing(cur, "payroll_runs", "deductions_journal_id", "INTEGER")
+    add_column_if_missing(cur, "payroll_runs", "payment_journal_id", "INTEGER")
+    add_column_if_missing(cur, "payroll_runs", "posted_at", "TEXT")
+    add_column_if_missing(cur, "payroll_runs", "posted_by", "TEXT")
+    add_column_if_missing(cur, "payroll_lines", "benefits", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "incentives", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "overtime", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "advances", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "penalties", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "absence_deduction", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "tardiness_deduction", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "total_deductions", "REAL NOT NULL DEFAULT 0")
+    add_column_if_missing(cur, "payroll_lines", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
 
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_products_barcode_value ON products(barcode_value)")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_departments_name ON departments(name)")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_employees_employee_code ON employees(employee_code)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_employees_department_id ON employees(department_id)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_employees_is_active ON employees(is_active, status)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_payroll_runs_period ON payroll_runs(period)")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_payroll_lines_run_employee ON payroll_lines(run_id, employee_id)")
 
     cur.execute("UPDATE sales_invoices SET grand_total=total + tax_amount WHERE grand_total=0")
     cur.execute("UPDATE purchase_invoices SET grand_total=total + tax_amount WHERE grand_total=0")
+    for department_name in (
+        "الإدارة", "الحسابات", "المبيعات", "المشتريات", "المخازن", "الموارد البشرية",
+        "تكنولوجيا المعلومات", "خدمة العملاء", "التشغيل", "الصيانة", "التسويق",
+        "الشئون القانونية", "الأمن", "النظافة"
+    ):
+        cur.execute("INSERT OR IGNORE INTO departments(name) VALUES (?)", (department_name,))
     cur.execute(
         """
         INSERT INTO sales_order_lines(order_id,product_id,quantity,unit_price,total,tax_rate,tax_amount,grand_total)

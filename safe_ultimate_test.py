@@ -211,9 +211,9 @@ def print_report(mode, results, before_fp, after_fp):
 
     line("FINAL RESULT")
     if errors:
-        print("FAILED ❌")
+        print("FAILED")
     else:
-        print("PASSED ✅")
+        print("PASSED")
 
     summary = {
         "mode": mode,
@@ -232,7 +232,7 @@ def main():
     args = parser.parse_args()
 
     if not ORIGINAL_DB.exists():
-        print(f"❌ database.db not found at: {ORIGINAL_DB}")
+        print(f"database.db not found at: {ORIGINAL_DB}")
         return 1
 
     before_fp = db_fingerprint(ORIGINAL_DB)

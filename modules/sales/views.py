@@ -2,6 +2,7 @@
 
 from flask import flash, redirect, render_template, request, url_for
 from modules.sales.taxing import invoice_totals, parse_flag, taxable_line
+from modules.accounting.ledger_engine import post_entries
 from modules.sales.advanced import (
     build_financial_sales_view,
     build_purchase_invoice_from_receipt_view,
@@ -440,16 +441,65 @@ def build_sales_view(deps):
                 debit_code = "1300" if payment_type == "credit" else "1100"
                 group_posted = is_group_posted(cur, "sales")
                 doc_no = next_document_number(cur, "sales")
-                journal_id = create_auto_journal(cur, date_value, f"فاتورة بيع {doc_no} - {product[0]}", debit_code, "4100", total) if group_posted else None
+                journal_id = None
                 tax_journal_id = None
                 withholding_journal_id = None
-                if group_posted and tax_amount > 0:
-                    tax_journal_id = create_auto_journal(cur, date_value, f"ضريبة قيمة مضافة على فاتورة بيع {doc_no} - {product[0]}", debit_code, "2200", tax_amount)
-                if group_posted and withholding_amount > 0:
-                    withholding_journal_id = create_auto_journal(cur, date_value, f"ضريبة خصم وإضافة عميل على فاتورة بيع {doc_no}", "1510", debit_code, withholding_amount)
                 cogs_journal_id = None
-                if group_posted and cost_total > 0:
-                    cogs_journal_id = create_auto_journal(cur, date_value, f"تكلفة بضاعة مباعة {doc_no} - {product[0]}", "6100", "1400", cost_total)
+
+                if group_posted:
+                    entry_specs = []
+                    entry_roles = []
+
+                    entry_specs.append({
+                        "date": date_value,
+                        "description": f"فاتورة بيع {doc_no} - {product[0]}",
+                        "debit_code": debit_code,
+                        "credit_code": "4100",
+                        "amount": total,
+                        "source_type": "sales",
+                    })
+                    entry_roles.append("main")
+
+                    if tax_amount > 0:
+                        entry_specs.append({
+                            "date": date_value,
+                            "description": f"ضريبة قيمة مضافة على فاتورة بيع {doc_no} - {product[0]}",
+                            "debit_code": debit_code,
+                            "credit_code": "2200",
+                            "amount": tax_amount,
+                            "source_type": "sales",
+                        })
+                        entry_roles.append("tax")
+
+                    if withholding_amount > 0:
+                        entry_specs.append({
+                            "date": date_value,
+                            "description": f"ضريبة خصم وإضافة عميل على فاتورة بيع {doc_no}",
+                            "debit_code": "1510",
+                            "credit_code": debit_code,
+                            "amount": withholding_amount,
+                            "source_type": "sales",
+                        })
+                        entry_roles.append("withholding")
+
+                    if cost_total > 0:
+                        entry_specs.append({
+                            "date": date_value,
+                            "description": f"تكلفة بضاعة مباعة {doc_no} - {product[0]}",
+                            "debit_code": "6100",
+                            "credit_code": "1400",
+                            "amount": cost_total,
+                            "source_type": "sales",
+                        })
+                        entry_roles.append("cogs")
+
+                    posted_journal_ids = post_entries(cur, entry_specs, source_type="sales")
+                    role_to_journal_id = dict(zip(entry_roles, posted_journal_ids))
+
+                    journal_id = role_to_journal_id.get("main")
+                    tax_journal_id = role_to_journal_id.get("tax")
+                    withholding_journal_id = role_to_journal_id.get("withholding")
+                    cogs_journal_id = role_to_journal_id.get("cogs")
                 cur.execute(
                     """
                     INSERT INTO sales_invoices(

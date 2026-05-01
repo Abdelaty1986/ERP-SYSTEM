@@ -1,55 +1,105 @@
 {% extends "layout.html" %}
-
 {% block content %}
+<style>
+.prd-shell{direction:rtl}.prd-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}
+.prd-head h2{margin:0;font-size:26px;font-weight:900}.prd-head p{margin:6px 0 0;color:#64748b}
+.prd-actions{display:flex;gap:8px;flex-wrap:wrap}.prd-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.prd-primary{background:#2563eb;color:#fff}.prd-soft{background:#eef2ff;color:#1d4ed8}.prd-print{background:#e2e8f0;color:#0f172a}
+.prd-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.prd-card{background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(15,23,42,.06)}
+.prd-card span{display:block;color:#64748b;font-size:13px;font-weight:800}.prd-card strong{display:block;color:#0f172a;font-size:28px;font-weight:950;margin-top:6px}
+.prd-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:18px;background:#fff}.prd-table{width:100%;border-collapse:collapse;min-width:1400px}.prd-table th{background:#f8fafc;color:#475569;padding:12px;text-align:right;font-size:13px;border-bottom:1px solid #e2e8f0}
+.prd-table td{padding:12px;color:#334155;border-bottom:1px solid #f1f5f9;vertical-align:middle}.prd-badge{display:inline-flex;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800}.prd-success{background:#dcfce7;color:#15803d}.prd-warning{background:#fef3c7;color:#92400e}.prd-info{background:#dbeafe;color:#1d4ed8}
+.prd-note{background:#fff;border:1px dashed #94a3b8;border-radius:18px;padding:14px;line-height:1.8;margin-top:16px}
+@media(max-width:900px){.prd-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:680px){.prd-metrics{grid-template-columns:1fr}.prd-head{flex-direction:column}}
+</style>
 
-<div class="page-head">
+<div class="prd-shell">
+  <div class="prd-head">
     <div>
-        <h2>تفاصيل كشف مرتبات {{ run[1] }}</h2>
-        <div class="eyebrow">تاريخ القيد: {{ run[2] }} - الحالة: {{ run[7] }}</div>
+      <h2>تفاصيل كشف المرتبات {{ run.period }}</h2>
+      <p>تاريخ القيد {{ run.date }} | الحالة التشغيلية {{ run.status }} | الحالة المحاسبية {{ run.posting_status }} | طريقة السداد {{ payment_method_label(run.payment_method) }}</p>
     </div>
-    <button class="btn btn-outline-secondary no-print" onclick="window.print()">طباعة</button>
+    <div class="prd-actions no-print">
+      {% if can_write("hr") and run.posting_status != 'posted' %}
+      <form method="post" action="/payroll/{{ run.id }}/post">
+        <button class="prd-btn prd-primary" type="submit">اعتماد وترحيل</button>
+      </form>
+      {% endif %}
+      <a class="prd-btn prd-soft" href="/payroll">الرجوع للكشوف</a>
+      <button class="prd-btn prd-print" onclick="window.print()">طباعة</button>
+    </div>
+  </div>
+
+  <div class="prd-metrics">
+    <div class="prd-card"><span>إجمالي المستحقات</span><strong>{{ "%.2f"|format(run.total_gross) }}</strong></div>
+    <div class="prd-card"><span>إجمالي الاستقطاعات</span><strong>{{ "%.2f"|format(run.total_employee_deductions) }}</strong></div>
+    <div class="prd-card"><span>حصة الشركة في التأمينات</span><strong>{{ "%.2f"|format(run.total_company_insurance) }}</strong></div>
+    <div class="prd-card"><span>صافي الرواتب</span><strong>{{ "%.2f"|format(run.total_net) }}</strong></div>
+  </div>
+
+  <div class="prd-table-wrap">
+    <table class="prd-table">
+      <thead>
+        <tr>
+          <th>الكود</th>
+          <th>الموظف</th>
+          <th>القسم</th>
+          <th>الوظيفة</th>
+          <th>الأساسي</th>
+          <th>العلاوات</th>
+          <th>البدلات</th>
+          <th>الحوافز</th>
+          <th>الإضافي</th>
+          <th>تأمينات</th>
+          <th>ضرائب</th>
+          <th>سلف</th>
+          <th>جزاءات</th>
+          <th>غياب/تأخير</th>
+          <th>أخرى</th>
+          <th>إجمالي الاستقطاعات</th>
+          <th>الصافي</th>
+          <th class="no-print">Payslip</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for line in lines %}
+        <tr>
+          <td><strong>{{ line.employee_code }}</strong></td>
+          <td>{{ line.employee_name }}</td>
+          <td>{{ line.department_name or '-' }}</td>
+          <td>{{ line.job_title or '-' }}</td>
+          <td>{{ "%.2f"|format(line.base_salary) }}</td>
+          <td>{{ "%.2f"|format(line.allowances) }}</td>
+          <td>{{ "%.2f"|format(line.benefits) }}</td>
+          <td>{{ "%.2f"|format(line.incentives) }}</td>
+          <td>{{ "%.2f"|format(line.overtime) }}</td>
+          <td>{{ "%.2f"|format(line.insurance_employee) }}</td>
+          <td>{{ "%.2f"|format(line.tax) }}</td>
+          <td>{{ "%.2f"|format(line.advances) }}</td>
+          <td>{{ "%.2f"|format(line.penalties) }}</td>
+          <td>{{ "%.2f"|format(line.absence_deduction + line.tardiness_deduction) }}</td>
+          <td>{{ "%.2f"|format(line.other_deductions) }}</td>
+          <td>{{ "%.2f"|format(line.total_deductions) }}</td>
+          <td><strong>{{ "%.2f"|format(line.net_salary) }}</strong></td>
+          <td class="no-print"><a class="prd-btn prd-soft" href="/payroll/{{ run.id }}/payslip/{{ line.employee_id }}">عرض</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prd-note">
+    <strong>قيود مرتبطة بالكشف:</strong>
+    الأساسي {{ run.journal_id or '-' }} |
+    البدلات {{ run.allowances_journal_id or '-' }} |
+    الضرائب {{ run.tax_journal_id or '-' }} |
+    التأمينات {{ run.insurance_journal_id or '-' }} |
+    حصة الشركة {{ run.company_insurance_journal_id or '-' }} |
+    الاستقطاعات الأخرى {{ run.deductions_journal_id or '-' }} |
+    الصرف {{ run.payment_journal_id or '-' }}
+    {% if run.notes %}
+    <br><strong>ملاحظات:</strong> {{ run.notes }}
+    {% endif %}
+  </div>
 </div>
-
-<div class="row g-3 mb-3">
-    <div class="col-md-3"><div class="card metric-card p-3"><div class="metric-label">إجمالي المستحق</div><div class="metric-value">{{ run[3] }}</div></div></div>
-    <div class="col-md-3"><div class="card metric-card p-3"><div class="metric-label">استقطاعات الموظفين</div><div class="metric-value">{{ run[4] }}</div></div></div>
-    <div class="col-md-3"><div class="card metric-card p-3"><div class="metric-label">تأمينات الشركة</div><div class="metric-value">{{ run[5] }}</div></div></div>
-    <div class="col-md-3"><div class="card metric-card p-3"><div class="metric-label">الصافي المستحق</div><div class="metric-value">{{ run[6] }}</div></div></div>
-</div>
-
-<table class="table table-bordered align-middle">
-<tr>
-    <th>الكود</th>
-    <th>الموظف</th>
-    <th>القسم</th>
-    <th>الوظيفة</th>
-    <th>الأساسي</th>
-    <th>البدلات</th>
-    <th>تأمينات موظف</th>
-    <th>تأمينات شركة</th>
-    <th>ضريبة</th>
-    <th>الإجمالي</th>
-    <th>الصافي</th>
-</tr>
-{% for line in lines %}
-<tr>
-    <td>{{ line[0] or "" }}</td>
-    <td>{{ line[1] }}</td>
-    <td>{{ line[2] or "" }}</td>
-    <td>{{ line[3] or "" }}</td>
-    <td>{{ line[4] }}</td>
-    <td>{{ line[5] }}</td>
-    <td>{{ line[6] }}</td>
-    <td>{{ line[7] }}</td>
-    <td>{{ line[8] }}</td>
-    <td>{{ line[10] }}</td>
-    <td>{{ line[11] }}</td>
-</tr>
-{% endfor %}
-</table>
-
-{% if run[8] %}
-<p><b>ملاحظات:</b> {{ run[8] }}</p>
-{% endif %}
-
 {% endblock %}

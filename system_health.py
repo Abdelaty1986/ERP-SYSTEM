@@ -16,6 +16,11 @@ REQUIRED_TABLES = [
     "posting_control", "document_sequences", "schema_migrations",
 ]
 
+HR_OPTIONAL_TABLES = [
+    "departments", "employees", "payroll_runs", "payroll_lines",
+    "hr_departments", "hr_employees", "hr_payroll_runs", "hr_payroll_lines",
+]
+
 
 def _connect(db_path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path, timeout=30)
@@ -77,6 +82,10 @@ def build_system_health(db_path: str, app, get_migration_status_func) -> dict:
             stats["suppliers"] = _safe_count(cur, "suppliers") or 0
             stats["products"] = _safe_count(cur, "products") or 0
             stats["journal_rows"] = _safe_count(cur, "journal") or 0
+            stats["employees"] = _safe_count(cur, "employees") or 0
+            stats["payroll_runs"] = _safe_count(cur, "payroll_runs") or 0
+            stats["hr_employees"] = _safe_count(cur, "hr_employees") or 0
+            stats["hr_payroll_runs"] = _safe_count(cur, "hr_payroll_runs") or 0
 
             try:
                 cur.execute("SELECT COUNT(*) FROM journal WHERE status='posted'")
@@ -102,6 +111,14 @@ def build_system_health(db_path: str, app, get_migration_status_func) -> dict:
                 migration_status = {"rows": [], "pending": "?", "current_version": "?", "latest_version": "?"}
                 add_check("Migration version", False, str(exc))
 
+            available_hr_tables = [t for t in HR_OPTIONAL_TABLES if _table_exists(cur, t)]
+            add_check(
+                "HR/Payroll module",
+                bool(available_hr_tables),
+                "متاح: " + ", ".join(available_hr_tables) if available_hr_tables else "جداول الموارد البشرية غير موجودة بعد",
+                "success" if available_hr_tables else "warning",
+            )
+
             conn.close()
         except Exception as exc:
             migration_status = {"rows": [], "pending": "?", "current_version": "?", "latest_version": "?"}
@@ -111,7 +128,7 @@ def build_system_health(db_path: str, app, get_migration_status_func) -> dict:
 
     routes = sorted(str(rule) for rule in app.url_map.iter_rules())
     stats["routes"] = len(routes)
-    important_routes = ["/dashboard", "/login", "/sales", "/purchases", "/system-health"]
+    important_routes = ["/dashboard", "/login", "/sales", "/purchases", "/system-health", "/employees", "/payroll", "/hr/employees", "/hr/payroll"]
     missing_routes = [r for r in important_routes if r not in routes]
     add_check(
         "Important routes",

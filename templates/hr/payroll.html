@@ -1,0 +1,162 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+.hr-shell{direction:rtl;font-family:inherit}
+.hr-hero{background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 55%,#0891b2 100%);border-radius:24px;padding:24px;color:#fff;box-shadow:0 18px 45px rgba(37,99,235,.22);margin-bottom:22px}
+.hr-hero h1{font-size:28px;font-weight:900;margin:0 0 8px}.hr-hero p{margin:0;color:rgba(255,255,255,.86);line-height:1.8}
+.hr-card{background:#fff;border:1px solid #eef2f7;border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(15,23,42,.06);margin-bottom:16px}
+.hr-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.hr-section-title h2{margin:0;font-size:18px;font-weight:900;color:#0f172a}.hr-section-title p{margin:5px 0 0;color:#64748b;font-size:13px}
+.hr-table-wrap{overflow:auto;border-radius:18px;border:1px solid #eef2f7}
+.hr-table{width:100%;border-collapse:collapse;background:#fff;min-width:980px}
+.hr-table th{background:#f8fafc;color:#475569;font-size:13px;padding:13px;text-align:right;border-bottom:1px solid #eef2f7;white-space:nowrap}
+.hr-table td{padding:13px;color:#334155;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.hr-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800}
+.hr-badge-success{background:#dcfce7;color:#15803d}.hr-badge-warning{background:#fef3c7;color:#92400e}.hr-badge-danger{background:#fee2e2;color:#b91c1c}.hr-badge-info{background:#dbeafe;color:#1d4ed8}
+.hr-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.hr-field label{display:block;font-size:13px;font-weight:800;color:#475569;margin-bottom:6px}
+.hr-field input,.hr-field select,.hr-field textarea{width:100%;border:1px solid #e2e8f0;border-radius:14px;padding:10px 12px;background:#fff;color:#0f172a}
+.hr-field textarea{min-height:42px;resize:vertical}.hr-full{grid-column:1/-1}
+.hr-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;background:#eef2ff;color:#1d4ed8}
+.hr-btn-primary{background:#2563eb;color:#fff}.hr-btn-success{background:#10b981;color:#fff}
+.hr-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.hr-kpi{background:#fff;border:1px solid #eef2f7;border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(15,23,42,.06)}.hr-kpi span{display:block;color:#64748b;font-size:13px;font-weight:800}.hr-kpi strong{display:block;font-size:28px;color:#0f172a;font-weight:950;margin-top:6px}
+.hr-panels{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.hr-note{background:#f8fafc;border:1px dashed #94a3b8;border-radius:18px;padding:14px;color:#334155;line-height:1.8}
+@media(max-width:1100px){.hr-form,.hr-kpi-grid,.hr-panels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.hr-form,.hr-kpi-grid,.hr-panels{grid-template-columns:1fr}.hr-hero{padding:20px}.hr-card{padding:14px}}
+</style>
+
+<div class="hr-shell">
+  <div class="hr-hero">
+    <h1>تشغيل الرواتب</h1>
+    <p>مسير الرواتب يجمع ملف الموظف الثابت مع التسويات الشهرية والحضور، ثم ينشئ قيدًا محاسبيًا فقط عند الاعتماد. لا يتم إنشاء أي قيد أثناء الحفظ كمسودة.</p>
+  </div>
+
+  <div class="hr-kpi-grid">
+    <div class="hr-kpi"><span>مسيرات الرواتب</span><strong>{{ runs|length }}</strong></div>
+    <div class="hr-kpi"><span>الموظفون النشطون</span><strong>{{ employees|length }}</strong></div>
+    <div class="hr-kpi"><span>تسويات شهر {{ month }}</span><strong>{{ adjustments|length }}</strong></div>
+    <div class="hr-kpi"><span>الترحيل المحاسبي</span><strong>عند الاعتماد</strong></div>
+  </div>
+
+  <div class="hr-card">
+    <div class="hr-section-title">
+      <div>
+        <h2>الربط المحاسبي</h2>
+        <p>القيد المقترح يفصل بين الأجر الأساسي، المتغيرات، التأمينات، الضرائب والاستقطاعات الأخرى بدون تكرار حسابات.</p>
+      </div>
+    </div>
+    <div class="hr-note">
+      مدين: مصروف الرواتب والأجور<br>
+      مدين: مصروف البدلات والحوافز والأجر الإضافي<br>
+      دائن: التأمينات المستحقة<br>
+      دائن: الضرائب المستحقة<br>
+      دائن: الاستقطاعات الأخرى المستحقة<br>
+      دائن: الرواتب المستحقة ثم يتم الصرف من الخزنة أو البنك عند الدفع الفعلي.
+    </div>
+  </div>
+
+  <div class="hr-panels">
+    <div class="hr-card">
+      <div class="hr-section-title">
+        <div><h2>إنشاء مسير رواتب</h2><p>سيتم إنشاء مسير واحد لكل شهر مع منع التكرار لنفس الشهر.</p></div>
+      </div>
+      <form method="post" action="{{ url_for('hr.payroll_generate') }}" class="hr-form">
+        <div class="hr-field"><label>شهر المسير</label><input name="payroll_month" type="month" value="{{ month }}" required></div>
+        <div class="hr-field"><label>تاريخ التشغيل</label><input name="run_date" type="date" required></div>
+        <div class="hr-field">
+          <label>طريقة السداد</label>
+          <select name="payment_method">
+            <option value="accrued">رواتب مستحقة</option>
+            <option value="cash">خزنة</option>
+            <option value="bank">بنك</option>
+          </select>
+        </div>
+        <div class="hr-field hr-full"><label>ملاحظات</label><textarea name="notes"></textarea></div>
+        <div class="hr-full"><button class="hr-btn hr-btn-primary" type="submit">إنشاء مسير الرواتب</button></div>
+      </form>
+      {% if rules %}
+      <p style="margin-top:12px;color:#64748b;font-size:13px">
+        الرواتب {{ rules.salary_expense_account_code }} | المتغيرات {{ rules.variable_compensation_account_code }} | الرواتب المستحقة {{ rules.salary_payable_account_code }} | التأمينات {{ rules.insurance_payable_account_code }} | الضرائب {{ rules.tax_payable_account_code }}
+      </p>
+      {% endif %}
+    </div>
+
+    <div class="hr-card">
+      <div class="hr-section-title">
+        <div><h2>تسوية شهرية</h2><p>تستخدم لإضافة بدلات أو ضرائب أو سلف أو جزاءات تخص شهرًا محددًا ولموظف محدد.</p></div>
+      </div>
+      <form method="post" class="hr-form">
+        <div class="hr-field"><label>الشهر</label><input name="adjustment_month" type="month" value="{{ month }}" required></div>
+        <div class="hr-field"><label>الموظف</label><select name="employee_id" required>{% for e in employees %}<option value="{{ e.id }}">{{ e.full_name }}</option>{% endfor %}</select></div>
+        <div class="hr-field">
+          <label>النوع</label>
+          <select name="adjustment_type">
+            {% for value, label in adjustment_labels.items() %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="hr-field"><label>الوصف</label><input name="title" value="تسوية مرتب" required></div>
+        <div class="hr-field"><label>المبلغ</label><input name="amount" type="number" step="0.01" required></div>
+        <div class="hr-field"><label>ملاحظات</label><input name="notes"></div>
+        <div class="hr-full"><button class="hr-btn hr-btn-success" type="submit">حفظ التسوية</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="hr-card">
+    <div class="hr-section-title">
+      <div><h2>مسيرات الرواتب</h2><p>كل شهر له مسير مستقل يمكن مراجعته ثم اعتماده أو صرفه.</p></div>
+    </div>
+    <div class="hr-table-wrap">
+      <table class="hr-table">
+        <thead><tr><th>الشهر</th><th>تاريخ التشغيل</th><th>إجمالي المستحقات</th><th>إجمالي الاستقطاعات</th><th>صافي الرواتب</th><th>الحالة</th><th>طريقة السداد</th><th>إجراءات</th></tr></thead>
+        <tbody>
+          {% for r in runs %}
+          <tr>
+            <td><strong>{{ r.payroll_month }}</strong></td>
+            <td>{{ r.run_date }}</td>
+            <td>{{ "%.2f"|format(r.total_gross or 0) }}</td>
+            <td>{{ "%.2f"|format(r.total_deductions or 0) }}</td>
+            <td><strong>{{ "%.2f"|format(r.total_net or 0) }}</strong></td>
+            <td>
+              <span class="hr-badge {{ 'hr-badge-success' if r.status == 'paid' else 'hr-badge-info' if r.status == 'posted' else 'hr-badge-warning' }}">
+                {{ 'مدفوع' if r.status == 'paid' else 'مرحل' if r.status == 'posted' else 'مسودة' }}
+              </span>
+            </td>
+            <td>{{ 'بنك' if r.payment_method == 'bank' else 'خزنة' if r.payment_method == 'cash' else 'رواتب مستحقة' }}</td>
+            <td><a class="hr-btn" href="{{ url_for('hr.payroll_detail', run_id=r.id) }}">فتح المسير</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" style="text-align:center;color:#64748b">لا توجد مسيرات رواتب بعد.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="hr-card">
+    <div class="hr-section-title"><div><h2>تسويات شهر {{ month }}</h2><p>تؤثر على شيت المرتب لنفس الشهر فقط.</p></div></div>
+    <div class="hr-table-wrap">
+      <table class="hr-table">
+        <thead><tr><th>الموظف</th><th>النوع</th><th>الوصف</th><th>المبلغ</th><th>ملاحظات</th></tr></thead>
+        <tbody>
+          {% for a in adjustments %}
+          <tr>
+            <td>{{ a.full_name }}</td>
+            <td>{{ adjustment_labels.get(a.adjustment_type, a.adjustment_type) }}</td>
+            <td>{{ a.title }}</td>
+            <td>{{ "%.2f"|format(a.amount or 0) }}</td>
+            <td>{{ a.notes or '-' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" style="text-align:center;color:#64748b">لا توجد تسويات لهذا الشهر.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

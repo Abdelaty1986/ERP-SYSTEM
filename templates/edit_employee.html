@@ -1,20 +1,87 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>تعديل الموظف</h2>
-<form method="POST" class="card p-3">
-    <div class="row g-2">
-        <div class="col-md-1"><label class="form-label">الكود</label><input type="text" name="code" value="{{ employee[1] or '' }}" class="form-control"></div>
-        <div class="col-md-2"><label class="form-label">الاسم</label><input type="text" name="name" value="{{ employee[2] }}" class="form-control" required></div>
-        <div class="col-md-2"><label class="form-label">القسم</label><input type="text" name="department" value="{{ employee[3] or '' }}" class="form-control"></div>
-        <div class="col-md-2"><label class="form-label">الوظيفة</label><input type="text" name="job_title" value="{{ employee[4] or '' }}" class="form-control"></div>
-        <div class="col-md-2"><label class="form-label">تاريخ التعيين</label><input type="date" name="hire_date" value="{{ employee[5] or '' }}" class="form-control"></div>
-        <div class="col-md-1"><label class="form-label">الأساسي</label><input type="number" step="0.01" min="0" name="base_salary" value="{{ employee[6] }}" class="form-control"></div>
-        <div class="col-md-1"><label class="form-label">بدلات</label><input type="number" step="0.01" min="0" name="allowances" value="{{ employee[7] }}" class="form-control"></div>
-        <div class="col-md-1"><label class="form-label">تأمينات موظف</label><input type="number" step="0.01" min="0" name="insurance_employee" value="{{ employee[8] }}" class="form-control"></div>
-        <div class="col-md-1"><label class="form-label">تأمينات شركة</label><input type="number" step="0.01" min="0" name="insurance_company" value="{{ employee[9] }}" class="form-control"></div>
-        <div class="col-md-1"><label class="form-label">ضريبة</label><input type="number" step="0.01" min="0" name="tax" value="{{ employee[10] }}" class="form-control"></div>
-        <div class="col-md-4"><label class="form-label">ملاحظات</label><input type="text" name="notes" value="{{ employee[11] or '' }}" class="form-control"></div>
+<style>
+.emp-shell{direction:rtl}.emp-card{background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:22px;box-shadow:0 12px 30px rgba(15,23,42,.06)}
+.emp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}.emp-head h2{margin:0;font-size:24px;font-weight:900}.emp-head p{margin:6px 0 0;color:#64748b}
+.emp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.emp-field label{display:block;margin-bottom:6px;font-size:13px;font-weight:800;color:#475569}
+.emp-field input,.emp-field select,.emp-field textarea{width:100%;border:1px solid #dbe3ee;border-radius:14px;padding:10px 12px}.emp-field textarea{min-height:60px}
+.emp-full{grid-column:1/-1}.emp-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.emp-btn{border:0;border-radius:14px;padding:10px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.emp-btn-save{background:#2563eb;color:#fff}.emp-btn-back{background:#e2e8f0;color:#0f172a}
+@media(max-width:900px){.emp-grid{grid-template-columns:1fr}}
+</style>
+
+<div class="emp-shell">
+  <div class="emp-card">
+    <div class="emp-head">
+      <div>
+        <h2>تعديل ملف الموظف</h2>
+        <p>كود الموظف ظاهر للمرجعية فقط، مع الحفاظ على ربطه المحاسبي والتشغيلي الحالي.</p>
+      </div>
+      <span style="background:#dbeafe;color:#1d4ed8;padding:8px 12px;border-radius:999px;font-weight:800">{{ employee.employee_code }}</span>
     </div>
-    <div class="mt-3"><button class="btn btn-success">حفظ</button> <a href="/employees" class="btn btn-secondary">رجوع</a></div>
-</form>
+
+    <form method="post" class="emp-grid">
+      <div class="emp-field">
+        <label>كود الموظف</label>
+        <input value="{{ employee.employee_code }}" readonly>
+      </div>
+      <div class="emp-field">
+        <label>اسم الموظف</label>
+        <input name="name" value="{{ employee.name }}" required>
+      </div>
+      <div class="emp-field">
+        <label>القسم</label>
+        <select name="department_id">
+          <option value="">بدون قسم</option>
+          {% for department in departments %}
+          <option value="{{ department.id }}" {% if employee.department_id == department.id %}selected{% endif %}>{{ department.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="emp-field">
+        <label>الوظيفة</label>
+        <input name="job_title" value="{{ employee.job_title }}">
+      </div>
+      <div class="emp-field">
+        <label>تاريخ التعيين</label>
+        <input type="date" name="hire_date" value="{{ employee.hire_date }}">
+      </div>
+      <div class="emp-field">
+        <label>الحالة</label>
+        <select name="status">
+          <option value="active" {% if employee.status == 'active' %}selected{% endif %}>نشط</option>
+          <option value="inactive" {% if employee.status == 'inactive' %}selected{% endif %}>غير نشط</option>
+        </select>
+      </div>
+      <div class="emp-field">
+        <label>الراتب الأساسي</label>
+        <input type="number" step="0.01" min="0" name="base_salary" value="{{ employee.base_salary }}">
+      </div>
+      <div class="emp-field">
+        <label>العلاوات</label>
+        <input type="number" step="0.01" min="0" name="allowances" value="{{ employee.allowances }}">
+      </div>
+      <div class="emp-field">
+        <label>تأمينات الموظف</label>
+        <input type="number" step="0.01" min="0" name="insurance_employee" value="{{ employee.insurance_employee }}">
+      </div>
+      <div class="emp-field">
+        <label>تأمينات الشركة</label>
+        <input type="number" step="0.01" min="0" name="insurance_company" value="{{ employee.insurance_company }}">
+      </div>
+      <div class="emp-field">
+        <label>ضريبة الرواتب</label>
+        <input type="number" step="0.01" min="0" name="tax" value="{{ employee.tax }}">
+      </div>
+      <div class="emp-field emp-full">
+        <label>ملاحظات</label>
+        <textarea name="notes">{{ employee.notes }}</textarea>
+      </div>
+      <div class="emp-full emp-actions">
+        <button class="emp-btn emp-btn-save" type="submit">حفظ التعديلات</button>
+        <a class="emp-btn emp-btn-back" href="/employees">الرجوع للموظفين</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

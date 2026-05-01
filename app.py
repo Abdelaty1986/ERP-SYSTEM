@@ -27,6 +27,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from db import PERMISSION_MODULES, init_db
 from migrations import get_migration_status, run_migrations
 from system_health import build_system_health
+from modules.accounting.ledger_engine import post_simple_entry
 from modules.accounting.views import (
     build_account_delete_view,
     build_account_edit_view,
@@ -61,6 +62,8 @@ from modules.hr.views import (
     build_delete_employee_view,
     build_edit_employee_view,
     build_employees_view,
+    build_payroll_post_view,
+    build_payroll_payslip_view,
     build_payroll_details_view,
     build_payroll_view,
     build_toggle_employee_view,
@@ -157,6 +160,17 @@ try:
 except ImportError:
     build_import_full_data_view = None
 
+# Optional Enterprise HR module (new /hr blueprint)
+# ضع الملف الجديد هنا: modules/hr/hr_module.py
+try:
+    from modules.hr import hr_bp as enterprise_hr_bp, init_hr_db as init_enterprise_hr_db
+except ImportError:
+    try:
+        from modules.hr.hr_module import hr_bp as enterprise_hr_bp, init_hr_db as init_enterprise_hr_db
+    except ImportError:
+        enterprise_hr_bp = None
+        init_enterprise_hr_db = None
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get(
     "ERP_DB_PATH",
@@ -191,6 +205,8 @@ def load_secret_key():
 
 app = Flask(__name__)
 app.secret_key = load_secret_key()
+app.config["DB_PATH"] = DB_PATH
+app.config["DATABASE"] = DB_PATH
 
 def init_and_migrate():
     """
@@ -200,13 +216,34 @@ def init_and_migrate():
     try:
         init_db()
         run_migrations(DB_PATH)
-        print("✅ Database initialized and migrated successfully.")
+        print("Database initialized and migrated successfully.")
     except Exception as exc:
-        print(f"❌ Database init/migration failed: {exc}")
+        print(f"Database init/migration failed: {exc}")
         raise
 
 
 init_and_migrate()
+
+
+def register_enterprise_hr_module():
+    """
+    Registers the optional Enterprise HR Blueprint (/hr) and creates its tables safely.
+    This does not touch existing employees/payroll routes and does not modify accounting data.
+    """
+    if enterprise_hr_bp is None or init_enterprise_hr_db is None:
+        print("INFO: Enterprise HR module not found. Skipping /hr blueprint registration.")
+        return
+
+    if enterprise_hr_bp.name not in app.blueprints:
+        app.register_blueprint(enterprise_hr_bp)
+
+    with app.app_context():
+        init_enterprise_hr_db()
+
+    print("OK: Enterprise HR module registered at /hr and database tables are ready.")
+
+
+register_enterprise_hr_module()
 
 
 def db():
@@ -968,19 +1005,19 @@ def get_account_id(cur, code):
 
 
 def create_auto_journal(cur, date, description, debit_code, credit_code, amount):
-    debit_id = get_account_id(cur, debit_code)
-    credit_id = get_account_id(cur, credit_code)
-    if not debit_id or not credit_id:
-        raise ValueError("الحسابات الافتراضية غير مكتملة. راجع دليل الحسابات أولًا.")
-
-    cur.execute(
-        """
-        INSERT INTO journal(date,description,debit_account_id,credit_account_id,amount,status,source_type)
-        VALUES (?,?,?,?,?,'posted','auto')
-        """,
-        (date, description, debit_id, credit_id, amount),
+    """
+    Backward-compatible wrapper.
+    أي كود قديم يستدعي create_auto_journal سيستخدم Ledger Engine الحقيقي.
+    """
+    return post_simple_entry(
+        cur=cur,
+        date=date,
+        description=description,
+        debit_code=debit_code,
+        credit_code=credit_code,
+        amount=amount,
+        source_type="auto",
     )
-    return cur.lastrowid
 
 
 def mark_journal_source(cur, source_type, source_id, *journal_ids):
@@ -1099,6 +1136,20 @@ def get_form_lines(cur):
         )
     return lines
 
+
+
+
+def post_simple_entry_adapter(cur, date, description, debit_code, credit_code, amount, source_type=None, source_id=None):
+    return post_simple_entry(
+        cur=cur,
+        date=date,
+        description=description,
+        debit_code=debit_code,
+        credit_code=credit_code,
+        amount=amount,
+        source_type=source_type or "auto",
+        source_id=source_id,
+    )
 
 def post_sales_invoice(cur, invoice_id):
     cur.execute(
@@ -1780,6 +1831,16 @@ def payroll():
 @permission_required("hr")
 def payroll_details(id):
     return build_payroll_details_view(MODULE_DEPS)(id)
+@app.route("/payroll/<int:id>/post", methods=["POST"])
+@login_required
+@permission_required("hr", write_always=True)
+def payroll_post(id):
+    return build_payroll_post_view(MODULE_DEPS)(id)
+@app.route("/payroll/<int:run_id>/payslip/<int:employee_id>")
+@login_required
+@permission_required("hr")
+def payroll_payslip(run_id, employee_id):
+    return build_payroll_payslip_view(MODULE_DEPS)(run_id, employee_id)
 @app.route("/cost-centers", methods=["GET", "POST"])
 @login_required
 @permission_required("accounting")

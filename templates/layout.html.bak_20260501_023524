@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}نظام LedgerX{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_ui.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_global_pages.css') }}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+{% set current_path = request.path %}
+
+<div class="app-shell" id="ledgerxShell">
+    <aside class="sidebar no-print" id="appSidebar" aria-label="القائمة الرئيسية">
+        <div class="brand-block">
+            {% if company_settings.logo_path %}
+            <img src="{{ company_settings.logo_path }}" alt="شعار الشركة" class="brand-logo">
+            {% else %}
+            <a href="/dashboard" class="brand-mark" aria-label="LedgerX">LX</a>
+            {% endif %}
+            <div class="brand-copy">
+                <div class="brand-title">LedgerX</div>
+                <div class="brand-subtitle">{{ company_settings.company_name or "نظام إدارة مالية ومحاسبية" }}</div>
+            </div>
+            <button type="button" class="sidebar-collapse-toggle" id="sidebarCollapseToggle" aria-label="طي القائمة" title="طي القائمة">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <nav class="side-nav">
+            <a href="/dashboard" class="side-link side-link-main{% if current_path == '/dashboard' %} active{% endif %}">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>لوحة التحكم</span>
+            </a>
+
+            {% if can_read("customers") or can_read("sales") %}
+            <details class="nav-group" {% if current_path.startswith('/customers') or current_path.startswith('/sales') or current_path.startswith('/returns/sales') or current_path.startswith('/credit-notes/sales') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-graph-up-arrow"></i><span>المبيعات</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    {% if can_read("customers") %}
+                    <a href="/customers" class="{% if current_path == '/customers' or current_path.startswith('/customers/') %}active{% endif %}"><i class="bi bi-people"></i><span>العملاء</span></a>
+                    <a href="/reports/customers" class="{% if current_path == '/reports/customers' %}active{% endif %}"><i class="bi bi-wallet2"></i><span>أرصدة العملاء</span></a>
+                    <a href="/reports/customers/aging" class="{% if current_path == '/reports/customers/aging' %}active{% endif %}"><i class="bi bi-file-earmark-text"></i><span>أعمار ديون العملاء</span></a>
+                    {% endif %}
+                    {% if can_read("sales") %}
+                    <a href="/sales-orders" class="{% if current_path == '/sales-orders' %}active{% endif %}"><i class="bi bi-clipboard-check"></i><span>أوامر البيع</span></a>
+                    <a href="/sales" class="{% if current_path == '/sales' or current_path.startswith('/sales/') and '/print' not in current_path %}active{% endif %}"><i class="bi bi-cart-check"></i><span>فواتير البيع</span></a>
+                    <a href="/sales/from-delivery" class="{% if current_path == '/sales/from-delivery' %}active{% endif %}"><i class="bi bi-box-arrow-up-right"></i><span>فاتورة بيع من أذون الصرف</span></a>
+                    <a href="/sales/financial" class="{% if current_path == '/sales/financial' %}active{% endif %}"><i class="bi bi-receipt"></i><span>فاتورة بيع مالية</span></a>
+                    <a href="/returns/sales" class="{% if current_path == '/returns/sales' %}active{% endif %}"><i class="bi bi-arrow-counterclockwise"></i><span>مردودات المبيعات</span></a>
+                    <a href="/credit-notes/sales" class="{% if current_path.startswith('/credit-notes/sales') %}active{% endif %}"><i class="bi bi-journal-minus"></i><span>إشعارات تسوية دائنة</span></a>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("suppliers") or can_read("purchases") %}
+            <details class="nav-group" {% if current_path.startswith('/suppliers') or current_path.startswith('/purchase') or current_path.startswith('/purchases') or current_path.startswith('/returns/purchases') or current_path.startswith('/debit-notes/suppliers') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bag-check-fill"></i><span>المشتريات</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    {% if can_read("suppliers") %}
+                    <a href="/suppliers" class="{% if current_path == '/suppliers' or current_path.startswith('/suppliers/') %}active{% endif %}"><i class="bi bi-truck"></i><span>الموردون</span></a>
+                    <a href="/reports/suppliers" class="{% if current_path == '/reports/suppliers' %}active{% endif %}"><i class="bi bi-wallet2"></i><span>أرصدة الموردين</span></a>
+                    <a href="/reports/suppliers/aging" class="{% if current_path == '/reports/suppliers/aging' %}active{% endif %}"><i class="bi bi-file-earmark-text"></i><span>أعمار مديونيات الموردين</span></a>
+                    {% endif %}
+                    {% if can_read("purchases") %}
+                    <a href="/purchase-orders" class="{% if current_path == '/purchase-orders' %}active{% endif %}"><i class="bi bi-bag-check"></i><span>أوامر الشراء</span></a>
+                    <a href="/purchases/from-receipt" class="{% if current_path == '/purchases/from-receipt' %}active{% endif %}"><i class="bi bi-box-arrow-in-down"></i><span>فاتورة مورد من أذون الإضافة</span></a>
+                    <a href="/purchases" class="{% if current_path == '/purchases' %}active{% endif %}"><i class="bi bi-receipt-cutoff"></i><span>فاتورة مورد مباشرة</span></a>
+                    <a href="/returns/purchases" class="{% if current_path == '/returns/purchases' %}active{% endif %}"><i class="bi bi-arrow-return-left"></i><span>مردودات المشتريات</span></a>
+                    <a href="/debit-notes/suppliers" class="{% if current_path.startswith('/debit-notes/suppliers') %}active{% endif %}"><i class="bi bi-journal-plus"></i><span>إشعارات تسوية مدينة</span></a>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("inventory") %}
+            <details class="nav-group" {% if current_path.startswith('/products') or current_path == '/product-categories' or current_path.startswith('/inventory') or current_path.startswith('/purchase-receipts') or current_path.startswith('/sales-deliveries') or current_path == '/reports/inventory' %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-box-seam-fill"></i><span>المخازن</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/products" class="{% if current_path == '/products' or current_path.startswith('/products/') %}active{% endif %}"><i class="bi bi-box-seam"></i><span>الأصناف والمنتجات</span></a>
+                    <a href="/product-categories" class="{% if current_path == '/product-categories' %}active{% endif %}"><i class="bi bi-tags"></i><span>تصنيفات الأصناف</span></a>
+                    <a href="/purchase-receipts" class="{% if current_path == '/purchase-receipts' %}active{% endif %}"><i class="bi bi-download"></i><span>أذون إضافة</span></a>
+                    <a href="/sales-deliveries" class="{% if current_path == '/sales-deliveries' %}active{% endif %}"><i class="bi bi-upload"></i><span>أذون صرف</span></a>
+                    <a href="/inventory" class="{% if current_path == '/inventory' %}active{% endif %}"><i class="bi bi-arrow-left-right"></i><span>حركة المخزون</span></a>
+                    <a href="/reports/inventory" class="{% if current_path == '/reports/inventory' %}active{% endif %}"><i class="bi bi-bar-chart"></i><span>تقرير المخزون</span></a>
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("accounting") %}
+            <details class="nav-group" {% if current_path.startswith('/accounts') or current_path.startswith('/journal') or current_path.startswith('/trial-balance') or current_path.startswith('/cost-centers') or current_path.startswith('/adjustments/customers') or current_path.startswith('/opening-balances') or current_path.startswith('/year-end') or current_path.startswith('/ledger/') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-calculator-fill"></i><span>الحسابات العامة</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/accounts" class="{% if current_path == '/accounts' or current_path.startswith('/accounts/') %}active{% endif %}"><i class="bi bi-diagram-3"></i><span>شجرة الحسابات</span></a>
+                    <a href="/journal" class="{% if current_path == '/journal' or current_path.startswith('/edit/') %}active{% endif %}"><i class="bi bi-journal-text"></i><span>القيود اليومية</span></a>
+                    <a href="/trial-balance" class="{% if current_path == '/trial-balance' %}active{% endif %}"><i class="bi bi-columns-gap"></i><span>ميزان المراجعة</span></a>
+                    <a href="/cost-centers" class="{% if current_path == '/cost-centers' %}active{% endif %}"><i class="bi bi-bullseye"></i><span>مراكز التكلفة</span></a>
+                    <a href="/adjustments/customers" class="{% if current_path.startswith('/adjustments/customers') %}active{% endif %}"><i class="bi bi-sliders"></i><span>تسويات العملاء</span></a>
+                    {% if session.get("role") == "admin" %}
+                    <a href="/opening-balances" class="{% if current_path == '/opening-balances' %}active{% endif %}"><i class="bi bi-bank"></i><span>الأرصدة الافتتاحية</span></a>
+                    <a href="/year-end" class="{% if current_path == '/year-end' %}active{% endif %}"><i class="bi bi-calendar-check"></i><span>إقفال السنة</span></a>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("receipts") or can_read("payments") %}
+            <details class="nav-group" {% if current_path.startswith('/receipts') or current_path.startswith('/payments') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-cash-stack"></i><span>الخزينة</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    {% if can_read("receipts") %}
+                    <a href="/receipts" class="{% if current_path.startswith('/receipts') %}active{% endif %}"><i class="bi bi-cash-coin"></i><span>سندات القبض</span></a>
+                    {% endif %}
+                    {% if can_read("payments") %}
+                    <a href="/payments" class="{% if current_path.startswith('/payments') %}active{% endif %}"><i class="bi bi-credit-card"></i><span>سندات الصرف</span></a>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("reports") %}
+            <details class="nav-group" {% if current_path.startswith('/reports/') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bar-chart-line-fill"></i><span>التقارير</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/reports/profit-loss" class="{% if current_path == '/reports/profit-loss' %}active{% endif %}"><i class="bi bi-graph-up"></i><span>الأرباح والخسائر</span></a>
+                    <a href="/reports/balance-sheet" class="{% if current_path == '/reports/balance-sheet' %}active{% endif %}"><i class="bi bi-building"></i><span>الميزانية العمومية</span></a>
+                    <a href="/reports/cash-flow" class="{% if current_path == '/reports/cash-flow' %}active{% endif %}"><i class="bi bi-water"></i><span>التدفقات النقدية</span></a>
+                    <a href="/reports/cost-centers" class="{% if current_path == '/reports/cost-centers' %}active{% endif %}"><i class="bi bi-pie-chart"></i><span>مراكز التكلفة</span></a>
+                    <a href="/reports/vat" class="{% if current_path == '/reports/vat' %}active{% endif %}"><i class="bi bi-percent"></i><span>ضريبة القيمة المضافة</span></a>
+                </div>
+            </details>
+            {% endif %}
+
+            {% if can_read("hr") %}
+            <details class="nav-group" {% if current_path.startswith('/employees') or current_path.startswith('/payroll') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-people-fill"></i><span>شؤون العاملين</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/employees" class="{% if current_path.startswith('/employees') %}active{% endif %}"><i class="bi bi-person-badge"></i><span>الموظفون</span></a>
+                    <a href="/payroll" class="{% if current_path.startswith('/payroll') %}active{% endif %}"><i class="bi bi-currency-exchange"></i><span>المرتبات</span></a>
+                </div>
+            </details>
+            {% endif %}
+
+            {% if session.get("role") == "admin" %}
+            <details class="nav-group" {% if current_path.startswith('/settings/company') or current_path.startswith('/fiscal-periods') or current_path.startswith('/posting-control') or current_path.startswith('/document-sequences') or current_path.startswith('/allocations') or current_path.startswith('/backup') or current_path.startswith('/audit-log') or current_path.startswith('/e-invoices') or current_path.startswith('/permissions') or current_path.startswith('/users') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-shield-lock-fill"></i><span>الإدارة</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/settings/company" class="{% if current_path == '/settings/company' %}active{% endif %}"><i class="bi bi-building-gear"></i><span>إعدادات الشركة</span></a>
+                    <a href="/fiscal-periods" class="{% if current_path.startswith('/fiscal-periods') %}active{% endif %}"><i class="bi bi-calendar-range"></i><span>الفترات المالية</span></a>
+                    <a href="/posting-control" class="{% if current_path.startswith('/posting-control') %}active{% endif %}"><i class="bi bi-lock"></i><span>الترحيل وفك الترحيل</span></a>
+                    <a href="/document-sequences" class="{% if current_path == '/document-sequences' %}active{% endif %}"><i class="bi bi-123"></i><span>ترقيم المستندات</span></a>
+                    <a href="/allocations" class="{% if current_path == '/allocations' %}active{% endif %}"><i class="bi bi-link-45deg"></i><span>ربط السداد بالفواتير</span></a>
+                    <a href="/backup" class="{% if current_path == '/backup' %}active{% endif %}"><i class="bi bi-cloud-arrow-down"></i><span>نسخ احتياطي واستعادة</span></a>
+                    <a href="/audit-log" class="{% if current_path == '/audit-log' %}active{% endif %}"><i class="bi bi-list-check"></i><span>سجل المراجعة</span></a>
+                    <a href="/e-invoices" class="{% if current_path == '/e-invoices' %}active{% endif %}"><i class="bi bi-receipt"></i><span>بوابة الضرائب</span></a>
+                    <a href="/permissions" class="{% if current_path == '/permissions' %}active{% endif %}"><i class="bi bi-shield-check"></i><span>الصلاحيات التفصيلية</span></a>
+                    <a href="/users" class="{% if current_path == '/users' %}active{% endif %}"><i class="bi bi-person-gear"></i><span>المستخدمون</span></a>
+                </div>
+            </details>
+            {% endif %}
+        </nav>
+
+        <a class="support-card no-print" href="https://wa.me/201140320867" target="_blank" rel="noopener">
+            <i class="bi bi-headset"></i>
+            <strong>الدعم الفني</strong>
+            <span>تحتاج مساعدة؟ تواصل معنا</span>
+        </a>
+    </aside>
+
+    <main class="main-panel">
+        <header class="topbar no-print">
+            <div class="topbar-title-group">
+                <button type="button" class="mobile-nav-toggle btn btn-outline-secondary" id="mobileNavToggle" aria-label="فتح القائمة" aria-expanded="false" aria-controls="appSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <div class="eyebrow">تشغيل يومي</div>
+                    <h1>نظام LedgerX</h1>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <span class="user-pill"><i class="bi bi-person-circle"></i> {{ session.get("username", "admin") }} - {{ role_label }}</span>
+                <a href="/logout" class="btn btn-danger btn-sm"><i class="bi bi-box-arrow-left"></i> خروج</a>
+            </div>
+        </header>
+
+        <section class="content-panel">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+</div>
+
+<a class="floating-support no-print" href="https://wa.me/201140320867" target="_blank" rel="noopener" title="الدعم الفني"><i class="bi bi-whatsapp"></i></a>
+
+<div class="sidebar-backdrop no-print" id="sidebarBackdrop" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/ledgerx_ui.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
