@@ -13,9 +13,10 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_ui.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_dashboard.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_global_pages.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_enterprise_theme.css') }}">
 {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="theme-enterprise">
 {% set current_path = request.path %}
 
 <div class="app-shell" id="ledgerxShell">
@@ -159,19 +160,18 @@
             {% endif %}
 
             {% if can_read("hr") %}
-            <details class="nav-group" {% if current_path.startswith('/employees') or current_path.startswith('/payroll') %}open{% endif %}>
+            <details class="nav-group" {% if current_path.startswith('/employees') or current_path.startswith('/payroll') or current_path.startswith('/hr') %}open{% endif %}>
                 <summary>
-                    <span class="nav-group-title"><i class="bi bi-people-fill"></i><span>إدارة إدارة الموارد البشرية</span></span>
+                    <span class="nav-group-title"><i class="bi bi-people-fill"></i><span>إدارة الموارد البشرية</span></span>
                     <i class="bi bi-chevron-down nav-caret"></i>
                 </summary>
                 <div class="nav-group-links">
-                    <a href="/employees" class="{% if current_path.startswith('/employees') %}active{% endif %}"><i class="bi bi-person-badge"></i><span>إدارة الموظفين</span></a>
-<a href="{{ url_for('hr.payroll') }}" class="nav-link">
-    <i class="bi bi-cash-stack"></i>
-    <span>تشغيل الرواتب</span>
-</a>
-
-                    <a href="/payroll" class="{% if current_path.startswith('/payroll') %}active{% endif %}"><i class="bi bi-currency-exchange"></i><span>المرتبات</span></a>
+                    <a href="{{ url_for('hr.dashboard') }}" class="{% if current_path == '/hr/' or current_path == '/hr' %}active{% endif %}"><i class="bi bi-grid"></i><span>لوحة HR</span></a>
+                    <a href="{{ url_for('hr.attendance') }}" class="{% if current_path.startswith('/hr/attendance') %}active{% endif %}"><i class="bi bi-calendar2-check"></i><span>الحضور والانصراف</span></a>
+                    <a href="{{ url_for('hr.leaves') }}" class="{% if current_path.startswith('/hr/leaves') %}active{% endif %}"><i class="bi bi-airplane"></i><span>الإجازات</span></a>
+                    <a href="{{ url_for('hr.reports') }}" class="{% if current_path.startswith('/hr/reports') %}active{% endif %}"><i class="bi bi-bar-chart"></i><span>تقارير HR</span></a>
+                    <a href="{{ url_for('hr.employees') }}" class="{% if current_path.startswith('/hr/employees') or current_path.startswith('/employees') %}active{% endif %}"><i class="bi bi-person-badge"></i><span>الموظفون</span></a>
+                    <a href="{{ url_for('hr.payroll') }}" class="{% if current_path.startswith('/hr/payroll') or current_path.startswith('/payroll') %}active{% endif %}"><i class="bi bi-cash-stack"></i><span>الرواتب</span></a>
                 </div>
             </details>
             {% endif %}

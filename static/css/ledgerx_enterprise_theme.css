@@ -1,0 +1,327 @@
+:root{
+  --lx-enterprise-bg:#eef3f9;
+  --lx-enterprise-surface:#ffffff;
+  --lx-enterprise-surface-2:#f8fbff;
+  --lx-enterprise-text:#10233b;
+  --lx-enterprise-muted:#66758a;
+  --lx-enterprise-line:#dbe5f0;
+  --lx-enterprise-line-strong:#c8d6e5;
+  --lx-enterprise-primary:#1f5eff;
+  --lx-enterprise-primary-2:#0f4fd6;
+  --lx-enterprise-accent:#0f766e;
+  --lx-enterprise-danger:#c0392b;
+  --lx-enterprise-warning:#b7791f;
+  --lx-enterprise-success:#12805c;
+  --lx-enterprise-shadow:0 18px 44px rgba(15,23,42,.08);
+  --lx-enterprise-shadow-sm:0 10px 24px rgba(15,23,42,.06);
+  --lx-enterprise-radius:20px;
+  --lx-enterprise-radius-sm:14px;
+}
+
+body.theme-enterprise{
+  background:
+    radial-gradient(circle at 100% 0%, rgba(31,94,255,.08), transparent 22%),
+    linear-gradient(180deg, #f8fbff 0%, var(--lx-enterprise-bg) 100%) !important;
+  color:var(--lx-enterprise-text) !important;
+}
+
+body.theme-enterprise .content-panel{
+  background:linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0)) !important;
+}
+
+body.theme-enterprise .content-panel > *{
+  margin-bottom:18px;
+}
+
+body.theme-enterprise .content-panel > *:last-child{
+  margin-bottom:0;
+}
+
+body.theme-enterprise .page-head,
+body.theme-enterprise .page-header,
+body.theme-enterprise .section-header,
+body.theme-enterprise .report-header,
+body.theme-enterprise .content-panel > h1:first-child,
+body.theme-enterprise .content-panel > h2:first-child,
+body.theme-enterprise .content-panel > .d-flex:first-child,
+body.theme-enterprise .content-panel > form.card.p-3.mb-3.no-print:first-child{
+  border:1px solid var(--lx-enterprise-line) !important;
+  background:linear-gradient(135deg, #ffffff, #f8fbff 68%, #eef4ff) !important;
+  border-radius:24px !important;
+  box-shadow:var(--lx-enterprise-shadow-sm) !important;
+}
+
+body.theme-enterprise .card,
+body.theme-enterprise .section-panel,
+body.theme-enterprise .panel,
+body.theme-enterprise .box,
+body.theme-enterprise .table-responsive,
+body.theme-enterprise .modal-content,
+body.theme-enterprise .content-panel > form,
+body.theme-enterprise .content-panel > .table-responsive,
+body.theme-enterprise .content-panel > .row > [class*="col-"] > .card{
+  border:1px solid var(--lx-enterprise-line) !important;
+  background:rgba(255,255,255,.98) !important;
+  border-radius:var(--lx-enterprise-radius) !important;
+  box-shadow:var(--lx-enterprise-shadow-sm) !important;
+}
+
+body.theme-enterprise .card-header,
+body.theme-enterprise .modal-header,
+body.theme-enterprise .table thead th,
+body.theme-enterprise table thead th{
+  background:linear-gradient(180deg, #f9fbff, #edf4fb) !important;
+}
+
+body.theme-enterprise .card-header,
+body.theme-enterprise .modal-header{
+  border-bottom:1px solid var(--lx-enterprise-line) !important;
+}
+
+body.theme-enterprise .card-body{
+  padding:20px !important;
+}
+
+body.theme-enterprise .table,
+body.theme-enterprise table{
+  color:var(--lx-enterprise-text);
+}
+
+body.theme-enterprise .table thead th,
+body.theme-enterprise table thead th{
+  color:#2d4059 !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  border-bottom:1px solid var(--lx-enterprise-line-strong) !important;
+  letter-spacing:.2px;
+}
+
+body.theme-enterprise .table tbody td,
+body.theme-enterprise table tbody td{
+  border-color:#edf2f7 !important;
+  font-weight:600;
+}
+
+body.theme-enterprise .table tbody tr:hover td,
+body.theme-enterprise table tbody tr:hover td{
+  background:#f8fbff !important;
+}
+
+body.theme-enterprise label,
+body.theme-enterprise .form-label{
+  color:#304257 !important;
+  font-size:12.5px !important;
+  font-weight:900 !important;
+  letter-spacing:.15px;
+}
+
+body.theme-enterprise .form-control,
+body.theme-enterprise .form-select,
+body.theme-enterprise input[type="text"],
+body.theme-enterprise input[type="number"],
+body.theme-enterprise input[type="date"],
+body.theme-enterprise input[type="email"],
+body.theme-enterprise input[type="password"],
+body.theme-enterprise input[type="month"],
+body.theme-enterprise textarea,
+body.theme-enterprise select{
+  min-height:46px !important;
+  border:1px solid var(--lx-enterprise-line) !important;
+  border-radius:var(--lx-enterprise-radius-sm) !important;
+  background:#fff !important;
+  color:var(--lx-enterprise-text) !important;
+  padding:11px 13px !important;
+}
+
+body.theme-enterprise .form-control:focus,
+body.theme-enterprise .form-select:focus,
+body.theme-enterprise input:focus,
+body.theme-enterprise textarea:focus,
+body.theme-enterprise select:focus{
+  border-color:#8cb4ff !important;
+  box-shadow:0 0 0 4px rgba(31,94,255,.10) !important;
+}
+
+body.theme-enterprise .btn{
+  min-height:40px;
+  border-radius:13px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  letter-spacing:.15px;
+}
+
+body.theme-enterprise .btn-primary{
+  background:linear-gradient(135deg, var(--lx-enterprise-primary), var(--lx-enterprise-primary-2)) !important;
+  border-color:var(--lx-enterprise-primary) !important;
+}
+
+body.theme-enterprise .btn-success{
+  background:linear-gradient(135deg, #12a674, var(--lx-enterprise-success)) !important;
+  border-color:#12a674 !important;
+}
+
+body.theme-enterprise .btn-secondary,
+body.theme-enterprise .btn-outline-secondary{
+  background:#fff !important;
+  border-color:var(--lx-enterprise-line) !important;
+  color:#42566d !important;
+}
+
+body.theme-enterprise .btn-outline-primary{
+  background:#f7faff !important;
+  border-color:#cfe0ff !important;
+  color:var(--lx-enterprise-primary) !important;
+}
+
+body.theme-enterprise .btn-danger{
+  background:#fff8f7 !important;
+  border-color:#f6c8c0 !important;
+  color:var(--lx-enterprise-danger) !important;
+}
+
+body.theme-enterprise .badge,
+body.theme-enterprise .user-pill{
+  border-radius:999px !important;
+}
+
+body.theme-enterprise .alert{
+  border-radius:16px !important;
+  border-width:1px !important;
+}
+
+body.theme-enterprise .dropdown-menu{
+  border:1px solid var(--lx-enterprise-line) !important;
+  border-radius:16px !important;
+  box-shadow:var(--lx-enterprise-shadow) !important;
+}
+
+body.theme-enterprise .sidebar{
+  background:rgba(255,255,255,.95) !important;
+}
+
+body.theme-enterprise .topbar{
+  background:rgba(255,255,255,.9) !important;
+}
+
+body.theme-enterprise .content-panel .row.g-2,
+body.theme-enterprise .content-panel .row.g-3,
+body.theme-enterprise .content-panel .row.g-4{
+  --bs-gutter-y:.9rem;
+}
+
+body.theme-enterprise .hr-card,
+body.theme-enterprise .hr-kpi,
+body.theme-enterprise .hr-stat,
+body.theme-enterprise .payslip-paper,
+body.theme-enterprise .prd-card,
+body.theme-enterprise .pay-card,
+body.theme-enterprise .emp-card{
+  border-color:var(--lx-enterprise-line) !important;
+  box-shadow:var(--lx-enterprise-shadow-sm) !important;
+}
+
+body.theme-enterprise.theme-standalone{
+  min-height:100vh;
+}
+
+body.theme-enterprise .login-wrap{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:minmax(320px, 1.05fr) minmax(340px, .95fr);
+  gap:32px;
+  align-items:center;
+  padding:36px;
+  max-width:1180px;
+  margin:0 auto;
+}
+
+body.theme-enterprise .login-intro{
+  background:linear-gradient(135deg, #163a70 0%, #1f5eff 58%, #1792c8 100%);
+  border-radius:32px;
+  color:#fff;
+  padding:40px;
+  box-shadow:0 30px 70px rgba(21,60,120,.22);
+}
+
+body.theme-enterprise .login-intro .brand-mark{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:none;
+}
+
+body.theme-enterprise .login-intro h1{
+  font-size:34px;
+  line-height:1.25;
+  margin:22px 0 14px;
+  color:#fff;
+}
+
+body.theme-enterprise .login-intro p{
+  color:rgba(255,255,255,.88);
+  max-width:560px;
+}
+
+body.theme-enterprise .login-points{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+
+body.theme-enterprise .login-points span{
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  padding:9px 14px;
+  font-size:13px;
+  font-weight:800;
+}
+
+body.theme-enterprise .login-card{
+  border:1px solid var(--lx-enterprise-line) !important;
+  border-radius:30px !important;
+  box-shadow:var(--lx-enterprise-shadow) !important;
+  overflow:hidden;
+}
+
+body.theme-enterprise .login-card .card-body{
+  padding:36px !important;
+}
+
+body.theme-enterprise .print-page{
+  max-width:1120px;
+  margin:24px auto;
+  padding:28px;
+  background:#fff;
+  border:1px solid var(--lx-enterprise-line);
+  border-radius:24px;
+  box-shadow:var(--lx-enterprise-shadow-sm);
+}
+
+@media (max-width:980px){
+  body.theme-enterprise .login-wrap{
+    grid-template-columns:1fr;
+    padding:18px;
+  }
+
+  body.theme-enterprise .login-intro{
+    padding:28px;
+  }
+
+  body.theme-enterprise .login-intro h1{
+    font-size:28px;
+  }
+}
+
+@media print{
+  body.theme-enterprise .print-page{
+    box-shadow:none;
+    border:0;
+    border-radius:0;
+    margin:0;
+    padding:0;
+  }
+}

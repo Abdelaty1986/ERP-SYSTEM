@@ -5,8 +5,9 @@
 <title>{{ doc_type }} #{{ doc[0] }}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
 <link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_enterprise_theme.css') }}">
 </head>
-<body class="print-body">
+<body class="print-body theme-enterprise theme-standalone">
 <div class="print-page">
     <div class="print-actions no-print">
         <button class="btn btn-primary" onclick="window.print()">طباعة</button>

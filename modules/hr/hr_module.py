@@ -63,6 +63,17 @@ PAYROLL_ADJUSTMENT_LABELS = {
 }
 
 
+DEFAULT_TAX_BRACKETS = (
+    (40000.0, 0.00),
+    (55000.0, 0.10),
+    (70000.0, 0.15),
+    (200000.0, 0.20),
+    (400000.0, 0.225),
+    (1200000.0, 0.25),
+    (None, 0.275),
+)
+
+
 def _db_path() -> str:
     return current_app.config.get("DATABASE") or current_app.config.get("DB_PATH") or "database.db"
 
@@ -197,6 +208,78 @@ def _days_between(start_date: str, end_date: str) -> int:
         return max(1, (end - start).days + 1)
     except Exception:
         return 1
+
+
+def _scheduled_daily_minutes(employee: sqlite3.Row | None) -> int:
+    minutes = _minutes_between(
+        employee["work_start"] if employee else "09:00",
+        employee["work_end"] if employee else "17:00",
+    )
+    return minutes if minutes > 0 else (8 * 60)
+
+
+def _rule_float(rules: sqlite3.Row | None, key: str, default: float) -> float:
+    if not rules:
+        return default
+    try:
+        return float(rules[key] or default)
+    except (TypeError, ValueError, KeyError):
+        return default
+
+
+def _hourly_rate(base_salary: float, employee: sqlite3.Row | None, rules: sqlite3.Row | None) -> float:
+    monthly_work_days = max(1.0, _rule_float(rules, "monthly_work_days", 26.0))
+    daily_hours = _scheduled_daily_minutes(employee) / 60
+    monthly_hours = monthly_work_days * daily_hours
+    if base_salary <= 0 or monthly_hours <= 0:
+        return 0.0
+    return base_salary / monthly_hours
+
+
+def _progressive_tax(annual_taxable_income: float) -> float:
+    taxable = max(0.0, float(annual_taxable_income or 0))
+    tax_total = 0.0
+    lower_limit = 0.0
+    for upper_limit, rate in DEFAULT_TAX_BRACKETS:
+        if upper_limit is None:
+            taxable_slice = max(0.0, taxable - lower_limit)
+        else:
+            taxable_slice = max(0.0, min(taxable, upper_limit) - lower_limit)
+        if taxable_slice > 0:
+            tax_total += taxable_slice * rate
+        if upper_limit is None or taxable <= upper_limit:
+            break
+        lower_limit = upper_limit
+    return tax_total
+
+
+def _employee_insurance_amount(base_salary: float, rules: sqlite3.Row | None) -> tuple[float, float]:
+    if base_salary <= 0:
+        return 0.0, 0.0
+    minimum_salary = _rule_float(rules, "social_insurance_min_salary", 2700.0)
+    maximum_salary = _rule_float(rules, "social_insurance_max_salary", 16700.0)
+    insurance_rate = _rule_float(rules, "employee_insurance_rate", 0.11)
+    insurance_base = max(minimum_salary, min(base_salary, maximum_salary))
+    return round(insurance_base * insurance_rate, 2), round(insurance_base, 2)
+
+
+def _employer_insurance_amount(insurance_base_salary: float, rules: sqlite3.Row | None) -> float:
+    if insurance_base_salary <= 0:
+        return 0.0
+    employer_rate = _rule_float(rules, "employer_insurance_rate", 0.1875)
+    return round(insurance_base_salary * employer_rate, 2)
+
+
+def _monthly_salary_tax(
+    gross_salary: float,
+    attendance_deductions: float,
+    employee_insurance_amount: float,
+    rules: sqlite3.Row | None,
+) -> float:
+    annual_exemption = _rule_float(rules, "annual_salary_tax_exemption", 20000.0)
+    monthly_taxable = max(0.0, gross_salary - attendance_deductions - employee_insurance_amount)
+    annual_taxable = max(0.0, (monthly_taxable * 12) - annual_exemption)
+    return round(_progressive_tax(annual_taxable) / 12, 2)
 
 
 def _next_employee_code(cur: sqlite3.Cursor) -> str:
@@ -334,8 +417,16 @@ def init_hr_db() -> None:
             late_deduction_per_min REAL DEFAULT 0,
             absent_day_deduction_rate REAL DEFAULT 1,
             overtime_rate_per_hour REAL DEFAULT 0,
+            overtime_multiplier REAL DEFAULT 1.35,
+            monthly_work_days REAL DEFAULT 26,
+            employee_insurance_rate REAL DEFAULT 0.11,
+            employer_insurance_rate REAL DEFAULT 0.1875,
+            social_insurance_min_salary REAL DEFAULT 2700,
+            social_insurance_max_salary REAL DEFAULT 16700,
+            annual_salary_tax_exemption REAL DEFAULT 20000,
             salary_expense_account_code TEXT DEFAULT '5110',
             variable_compensation_account_code TEXT DEFAULT '5115',
+            employer_insurance_expense_account_code TEXT DEFAULT '5116',
             salary_payable_account_code TEXT DEFAULT '2310',
             insurance_payable_account_code TEXT DEFAULT '2220',
             tax_payable_account_code TEXT DEFAULT '2340',
@@ -393,12 +484,17 @@ def init_hr_db() -> None:
             run_id INTEGER NOT NULL,
             employee_id INTEGER NOT NULL,
             base_salary REAL DEFAULT 0,
+            hourly_rate REAL DEFAULT 0,
+            scheduled_work_hours REAL DEFAULT 0,
             allowance_amount REAL DEFAULT 0,
             bonus_amount REAL DEFAULT 0,
             incentive_amount REAL DEFAULT 0,
             overtime_amount REAL DEFAULT 0,
             insurance_amount REAL DEFAULT 0,
+            employer_insurance_amount REAL DEFAULT 0,
+            insurance_base_salary REAL DEFAULT 0,
             tax_amount REAL DEFAULT 0,
+            taxable_salary REAL DEFAULT 0,
             loan_amount REAL DEFAULT 0,
             penalty_amount REAL DEFAULT 0,
             late_deduction REAL DEFAULT 0,
@@ -436,8 +532,16 @@ def init_hr_db() -> None:
             ("is_active", "INTEGER NOT NULL DEFAULT 1"),
         ],
         "hr_payroll_rules": [
+            ("overtime_multiplier", "REAL DEFAULT 1.35"),
+            ("monthly_work_days", "REAL DEFAULT 26"),
+            ("employee_insurance_rate", "REAL DEFAULT 0.11"),
+            ("employer_insurance_rate", "REAL DEFAULT 0.1875"),
+            ("social_insurance_min_salary", "REAL DEFAULT 2700"),
+            ("social_insurance_max_salary", "REAL DEFAULT 16700"),
+            ("annual_salary_tax_exemption", "REAL DEFAULT 20000"),
             ("salary_expense_account_code", "TEXT DEFAULT '5110'"),
             ("variable_compensation_account_code", "TEXT DEFAULT '5115'"),
+            ("employer_insurance_expense_account_code", "TEXT DEFAULT '5116'"),
             ("salary_payable_account_code", "TEXT DEFAULT '2310'"),
             ("insurance_payable_account_code", "TEXT DEFAULT '2220'"),
             ("tax_payable_account_code", "TEXT DEFAULT '2340'"),
@@ -456,9 +560,14 @@ def init_hr_db() -> None:
             ("created_by", "TEXT"),
         ],
         "hr_payroll_lines": [
+            ("hourly_rate", "REAL DEFAULT 0"),
+            ("scheduled_work_hours", "REAL DEFAULT 0"),
             ("incentive_amount", "REAL DEFAULT 0"),
             ("insurance_amount", "REAL DEFAULT 0"),
+            ("employer_insurance_amount", "REAL DEFAULT 0"),
+            ("insurance_base_salary", "REAL DEFAULT 0"),
             ("tax_amount", "REAL DEFAULT 0"),
+            ("taxable_salary", "REAL DEFAULT 0"),
             ("loan_amount", "REAL DEFAULT 0"),
             ("penalty_amount", "REAL DEFAULT 0"),
             ("posting_status", "TEXT DEFAULT 'unposted'"),
@@ -504,8 +613,16 @@ def init_hr_db() -> None:
                 late_deduction_per_min,
                 absent_day_deduction_rate,
                 overtime_rate_per_hour,
+                overtime_multiplier,
+                monthly_work_days,
+                employee_insurance_rate,
+                employer_insurance_rate,
+                social_insurance_min_salary,
+                social_insurance_max_salary,
+                annual_salary_tax_exemption,
                 salary_expense_account_code,
                 variable_compensation_account_code,
+                employer_insurance_expense_account_code,
                 salary_payable_account_code,
                 insurance_payable_account_code,
                 tax_payable_account_code,
@@ -513,7 +630,7 @@ def init_hr_db() -> None:
                 cash_account_code,
                 bank_account_code
             )
-            VALUES (0, 1, 0, '5110', '5115', '2310', '2220', '2340', '2330', '1100', '1200')
+            VALUES (0, 1, 0, 1.35, 26, 0.11, 0.1875, 2700, 16700, 20000, '5110', '5115', '5116', '2310', '2220', '2340', '2330', '1100', '1200')
             """
         )
     else:
@@ -528,6 +645,10 @@ def init_hr_db() -> None:
                 variable_compensation_account_code = CASE
                     WHEN variable_compensation_account_code IS NULL OR variable_compensation_account_code = '' THEN '5115'
                     ELSE variable_compensation_account_code
+                END,
+                employer_insurance_expense_account_code = CASE
+                    WHEN employer_insurance_expense_account_code IS NULL OR employer_insurance_expense_account_code = '' THEN '5116'
+                    ELSE employer_insurance_expense_account_code
                 END,
                 salary_payable_account_code = CASE
                     WHEN salary_payable_account_code IS NULL OR salary_payable_account_code IN ('', '2300') THEN '2310'
@@ -552,11 +673,40 @@ def init_hr_db() -> None:
                 bank_account_code = CASE
                     WHEN bank_account_code IS NULL OR bank_account_code = '' THEN '1200'
                     ELSE bank_account_code
+                END,
+                overtime_multiplier = CASE
+                    WHEN overtime_multiplier IS NULL OR overtime_multiplier <= 0 THEN 1.35
+                    ELSE overtime_multiplier
+                END,
+                monthly_work_days = CASE
+                    WHEN monthly_work_days IS NULL OR monthly_work_days <= 0 THEN 26
+                    ELSE monthly_work_days
+                END,
+                employee_insurance_rate = CASE
+                    WHEN employee_insurance_rate IS NULL OR employee_insurance_rate <= 0 THEN 0.11
+                    ELSE employee_insurance_rate
+                END,
+                employer_insurance_rate = CASE
+                    WHEN employer_insurance_rate IS NULL OR employer_insurance_rate <= 0 THEN 0.1875
+                    ELSE employer_insurance_rate
+                END,
+                social_insurance_min_salary = CASE
+                    WHEN social_insurance_min_salary IS NULL OR social_insurance_min_salary <= 0 THEN 2700
+                    ELSE social_insurance_min_salary
+                END,
+                social_insurance_max_salary = CASE
+                    WHEN social_insurance_max_salary IS NULL OR social_insurance_max_salary <= 0 THEN 16700
+                    ELSE social_insurance_max_salary
+                END,
+                annual_salary_tax_exemption = CASE
+                    WHEN annual_salary_tax_exemption IS NULL OR annual_salary_tax_exemption < 0 THEN 20000
+                    ELSE annual_salary_tax_exemption
                 END
             """
         )
 
     _ensure_payroll_accounts(cur)
+    _ensure_account(cur, "5116", "مساهمة الشركة في التأمينات الاجتماعية", "مصروفات")
     conn.commit()
     conn.close()
 
@@ -1038,6 +1188,63 @@ def payroll():
     conn = get_db()
     cur = conn.cursor()
     if request.method == "POST":
+        form_action = request.form.get("form_action") or "add_adjustment"
+        if form_action == "update_rules":
+            rules_row = cur.execute("SELECT id FROM hr_payroll_rules ORDER BY id DESC LIMIT 1").fetchone()
+            if rules_row:
+                cur.execute(
+                    """
+                    UPDATE hr_payroll_rules
+                    SET
+                        late_deduction_per_min=?,
+                        absent_day_deduction_rate=?,
+                        overtime_rate_per_hour=?,
+                        overtime_multiplier=?,
+                        monthly_work_days=?,
+                        employee_insurance_rate=?,
+                        employer_insurance_rate=?,
+                        social_insurance_min_salary=?,
+                        social_insurance_max_salary=?,
+                        annual_salary_tax_exemption=?,
+                        salary_expense_account_code=?,
+                        variable_compensation_account_code=?,
+                        employer_insurance_expense_account_code=?,
+                        salary_payable_account_code=?,
+                        insurance_payable_account_code=?,
+                        tax_payable_account_code=?,
+                        deductions_payable_account_code=?,
+                        cash_account_code=?,
+                        bank_account_code=?
+                    WHERE id=?
+                    """,
+                    (
+                        float(request.form.get("late_deduction_per_min") or 0),
+                        float(request.form.get("absent_day_deduction_rate") or 1),
+                        float(request.form.get("overtime_rate_per_hour") or 0),
+                        float(request.form.get("overtime_multiplier") or 1.35),
+                        float(request.form.get("monthly_work_days") or 26),
+                        float(request.form.get("employee_insurance_rate") or 0.11),
+                        float(request.form.get("employer_insurance_rate") or 0.1875),
+                        float(request.form.get("social_insurance_min_salary") or 2700),
+                        float(request.form.get("social_insurance_max_salary") or 16700),
+                        float(request.form.get("annual_salary_tax_exemption") or 20000),
+                        request.form.get("salary_expense_account_code") or "5110",
+                        request.form.get("variable_compensation_account_code") or "5115",
+                        request.form.get("employer_insurance_expense_account_code") or "5116",
+                        request.form.get("salary_payable_account_code") or "2310",
+                        request.form.get("insurance_payable_account_code") or "2220",
+                        request.form.get("tax_payable_account_code") or "2340",
+                        request.form.get("deductions_payable_account_code") or "2330",
+                        request.form.get("cash_account_code") or "1100",
+                        request.form.get("bank_account_code") or "1200",
+                        rules_row["id"],
+                    ),
+                )
+                conn.commit()
+            conn.close()
+            flash("تم تحديث قواعد الرواتب بنجاح.", "success")
+            return redirect(url_for("hr.payroll", month=request.form.get("adjustment_month") or date.today().strftime("%Y-%m")))
+
         employee_id = request.form.get("employee_id")
         adjustment_month = request.form.get("adjustment_month") or date.today().strftime("%Y-%m")
         adjustment_type = request.form.get("adjustment_type") or "allowance"
@@ -1097,9 +1304,10 @@ def payroll_generate():
         return redirect(url_for("hr.payroll_detail", run_id=existing["id"]))
 
     rules = cur.execute("SELECT * FROM hr_payroll_rules ORDER BY id DESC LIMIT 1").fetchone()
-    late_rate = float(rules["late_deduction_per_min"] or 0) if rules else 0
-    absent_rate = float(rules["absent_day_deduction_rate"] or 1) if rules else 1
-    overtime_rate = float(rules["overtime_rate_per_hour"] or 0) if rules else 0
+    late_rate = _rule_float(rules, "late_deduction_per_min", 0.0)
+    absent_rate = _rule_float(rules, "absent_day_deduction_rate", 1.0)
+    overtime_rate = _rule_float(rules, "overtime_rate_per_hour", 0.0)
+    overtime_multiplier = _rule_float(rules, "overtime_multiplier", 1.35)
 
     cur.execute(
         """
@@ -1142,7 +1350,8 @@ def payroll_generate():
         adjustment_map = {row["adjustment_type"]: float(row["amount"] or 0) for row in adjustment_rows}
 
         base_salary = float(employee["base_salary"] or 0)
-        daily_salary = base_salary / 30 if base_salary else 0
+        hourly_rate = _hourly_rate(base_salary, employee, rules)
+        scheduled_work_hours = round(_scheduled_daily_minutes(employee) / 60, 2)
         present_days = int(attendance["present_days"] or 0)
         absent_days = int(attendance["absent_days"] or 0)
         late_minutes = int(attendance["late_minutes"] or 0)
@@ -1152,14 +1361,23 @@ def payroll_generate():
         allowance_amount = adjustment_map.get("allowance", 0.0)
         bonus_amount = adjustment_map.get("bonus", 0.0)
         incentive_amount = adjustment_map.get("incentive", 0.0)
-        insurance_amount = adjustment_map.get("insurance", 0.0)
+        insurance_amount, insurance_base_salary = _employee_insurance_amount(base_salary, rules)
+        if "insurance" in adjustment_map:
+            insurance_amount = adjustment_map.get("insurance", 0.0)
+        employer_insurance_amount = _employer_insurance_amount(insurance_base_salary, rules)
         tax_amount = adjustment_map.get("tax", 0.0)
         loan_amount = adjustment_map.get("loan", 0.0)
         penalty_amount = adjustment_map.get("penalty", 0.0)
         other_deduction = adjustment_map.get("deduction", 0.0)
-        overtime_amount = adjustment_map.get("overtime", 0.0) + ((overtime_minutes / 60) * overtime_rate)
-        tardiness_deduction = (late_minutes + early_minutes) * late_rate
-        absence_deduction = absent_days * daily_salary * absent_rate
+        derived_overtime_rate = overtime_rate if overtime_rate > 0 else (hourly_rate * overtime_multiplier)
+        overtime_amount = adjustment_map.get("overtime", 0.0) + ((overtime_minutes / 60) * derived_overtime_rate)
+        minute_rate = late_rate if late_rate > 0 else (hourly_rate / 60)
+        tardiness_deduction = (late_minutes + early_minutes) * minute_rate
+        absence_deduction = absent_days * scheduled_work_hours * hourly_rate * absent_rate
+        attendance_deductions = tardiness_deduction + absence_deduction
+        taxable_salary = max(0.0, base_salary + allowance_amount + bonus_amount + incentive_amount + overtime_amount - attendance_deductions)
+        if "tax" not in adjustment_map:
+            tax_amount = _monthly_salary_tax(gross_salary=taxable_salary, attendance_deductions=0.0, employee_insurance_amount=insurance_amount, rules=rules)
 
         gross_salary = base_salary + allowance_amount + bonus_amount + incentive_amount + overtime_amount
         line_total_deductions = (
@@ -1180,25 +1398,31 @@ def payroll_generate():
         cur.execute(
             """
             INSERT INTO hr_payroll_lines(
-                run_id, employee_id, base_salary, allowance_amount, bonus_amount,
-                incentive_amount, overtime_amount, insurance_amount, tax_amount,
-                loan_amount, penalty_amount, late_deduction, absence_deduction,
+                run_id, employee_id, base_salary, hourly_rate, scheduled_work_hours,
+                allowance_amount, bonus_amount, incentive_amount, overtime_amount,
+                insurance_amount, employer_insurance_amount, insurance_base_salary,
+                tax_amount, taxable_salary, loan_amount, penalty_amount, late_deduction, absence_deduction,
                 other_deduction, gross_salary, total_deductions, net_salary,
                 present_days, absent_days, late_minutes, early_minutes, overtime_minutes,
                 posting_status
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unposted')
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unposted')
             """,
             (
                 run_id,
                 employee["id"],
                 round(base_salary, 2),
+                round(hourly_rate, 2),
+                round(scheduled_work_hours, 2),
                 round(allowance_amount, 2),
                 round(bonus_amount, 2),
                 round(incentive_amount, 2),
                 round(overtime_amount, 2),
                 round(insurance_amount, 2),
+                round(employer_insurance_amount, 2),
+                round(insurance_base_salary, 2),
                 round(tax_amount, 2),
+                round(taxable_salary, 2),
                 round(loan_amount, 2),
                 round(penalty_amount, 2),
                 round(tardiness_deduction, 2),
@@ -1329,6 +1553,7 @@ def payroll_post(run_id: int):
             COALESCE(SUM(base_salary), 0) AS base_salary_total,
             COALESCE(SUM(allowance_amount + bonus_amount + incentive_amount + overtime_amount), 0) AS variable_total,
             COALESCE(SUM(insurance_amount), 0) AS insurance_total,
+            COALESCE(SUM(employer_insurance_amount), 0) AS employer_insurance_total,
             COALESCE(SUM(tax_amount), 0) AS tax_total,
             COALESCE(SUM(loan_amount + penalty_amount + late_deduction + absence_deduction + other_deduction), 0) AS other_deductions_total
         FROM hr_payroll_lines
@@ -1341,6 +1566,7 @@ def payroll_post(run_id: int):
         _ensure_payroll_accounts(cur)
         salary_expense_code = rules["salary_expense_account_code"] or "5110"
         variable_code = rules["variable_compensation_account_code"] or "5115"
+        employer_insurance_expense_code = rules["employer_insurance_expense_account_code"] or "5116"
         payable_code = rules["salary_payable_account_code"] or "2310"
         insurance_code = rules["insurance_payable_account_code"] or "2220"
         tax_code = rules["tax_payable_account_code"] or "2340"
@@ -1366,6 +1592,19 @@ def payroll_post(run_id: int):
             )
             if first_journal_id is None and journal_id is not None:
                 first_journal_id = journal_id
+
+        employer_insurance_journal = _create_journal_by_codes(
+            cur,
+            run["run_date"],
+            f"Employer social insurance contribution for payroll month {month}",
+            employer_insurance_expense_code,
+            insurance_code,
+            totals["employer_insurance_total"],
+            source_type="hr_payroll",
+            source_id=run_id,
+        )
+        if first_journal_id is None and employer_insurance_journal is not None:
+            first_journal_id = employer_insurance_journal
 
         cur.execute(
             """

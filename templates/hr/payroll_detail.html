@@ -60,11 +60,13 @@
             <th>القسم</th>
             <th>الوظيفة</th>
             <th>أساسي</th>
+            <th>أجر الساعة</th>
             <th>علاوات</th>
             <th>بدلات/حوافز</th>
             <th>إضافي</th>
             <th>إجمالي المستحقات</th>
             <th>تأمينات</th>
+            <th>تأمين شركة</th>
             <th>ضرائب</th>
             <th>سلف</th>
             <th>جزاءات</th>
@@ -82,11 +84,13 @@
             <td>{{ line.department_name or '-' }}</td>
             <td>{{ line.job_title or '-' }}</td>
             <td>{{ "%.2f"|format(line.base_salary or 0) }}</td>
+            <td>{{ "%.2f"|format(line.hourly_rate or 0) }}</td>
             <td>{{ "%.2f"|format(line.bonus_amount or 0) }}</td>
             <td>{{ "%.2f"|format((line.allowance_amount or 0) + (line.incentive_amount or 0)) }}</td>
             <td>{{ "%.2f"|format(line.overtime_amount or 0) }}</td>
             <td>{{ "%.2f"|format(line.gross_salary or 0) }}</td>
             <td>{{ "%.2f"|format(line.insurance_amount or 0) }}</td>
+            <td>{{ "%.2f"|format(line.employer_insurance_amount or 0) }}</td>
             <td>{{ "%.2f"|format(line.tax_amount or 0) }}</td>
             <td>{{ "%.2f"|format(line.loan_amount or 0) }}</td>
             <td>{{ "%.2f"|format(line.penalty_amount or 0) }}</td>
@@ -97,7 +101,7 @@
             <td><a class="hr-btn hr-btn-soft" href="{{ url_for('hr.payroll_payslip', run_id=run.id, employee_id=line.employee_id) }}">شيت المرتب</a></td>
           </tr>
           {% else %}
-          <tr><td colspan="17" style="text-align:center;color:#64748b">لا توجد سطور في هذا المسير.</td></tr>
+          <tr><td colspan="19" style="text-align:center;color:#64748b">لا توجد سطور في هذا المسير.</td></tr>
           {% endfor %}
         </tbody>
       </table>
