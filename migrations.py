@@ -26,7 +26,7 @@ from typing import Callable, Iterable
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "database.db")
 BACKUP_DIR = os.path.join(BASE_DIR, "backups", "migrations")
-LATEST_SCHEMA_VERSION = 16
+LATEST_SCHEMA_VERSION = 17
 
 
 def connect(db_path: str) -> sqlite3.Connection:
@@ -967,6 +967,193 @@ def migration_016_invoice_number_guards(cur: sqlite3.Cursor) -> None:
     create_unique_index_if_clean(cur, "ux_purchase_invoices_invoice_number", "purchase_invoices", "invoice_number")
 
 
+def migration_017_banks_module(cur: sqlite3.Cursor) -> None:
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS banks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            branch TEXT,
+            account_number TEXT,
+            iban TEXT,
+            currency TEXT NOT NULL DEFAULT 'EGP',
+            opening_balance REAL NOT NULL DEFAULT 0,
+            current_balance REAL NOT NULL DEFAULT 0,
+            gl_account_id INTEGER,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_by TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bank_transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            bank_id INTEGER NOT NULL,
+            related_bank_id INTEGER,
+            txn_group TEXT,
+            txn_type TEXT NOT NULL,
+            doc_no TEXT,
+            txn_date TEXT NOT NULL,
+            description TEXT,
+            reference_no TEXT,
+            amount REAL NOT NULL DEFAULT 0,
+            signed_amount REAL NOT NULL DEFAULT 0,
+            counterparty_account_id INTEGER,
+            journal_id INTEGER,
+            balance_before REAL NOT NULL DEFAULT 0,
+            balance_after REAL NOT NULL DEFAULT 0,
+            status TEXT NOT NULL DEFAULT 'posted',
+            notes TEXT,
+            source_type TEXT,
+            source_id INTEGER,
+            created_by TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bank_reconciliations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            bank_id INTEGER NOT NULL,
+            doc_no TEXT,
+            statement_date TEXT NOT NULL,
+            from_date TEXT,
+            to_date TEXT,
+            opening_balance REAL NOT NULL DEFAULT 0,
+            system_balance REAL NOT NULL DEFAULT 0,
+            statement_balance REAL NOT NULL DEFAULT 0,
+            difference_amount REAL NOT NULL DEFAULT 0,
+            status TEXT NOT NULL DEFAULT 'draft',
+            notes TEXT,
+            journal_id INTEGER,
+            created_by TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bank_reconciliation_lines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            reconciliation_id INTEGER NOT NULL,
+            line_date TEXT,
+            description TEXT,
+            reference_no TEXT,
+            amount REAL NOT NULL DEFAULT 0,
+            matched_transaction_id INTEGER,
+            match_status TEXT NOT NULL DEFAULT 'unmatched',
+            difference_amount REAL NOT NULL DEFAULT 0,
+            notes TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS receivable_checks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            doc_no TEXT,
+            check_number TEXT NOT NULL,
+            bank_id INTEGER NOT NULL,
+            customer_id INTEGER NOT NULL,
+            due_date TEXT NOT NULL,
+            amount REAL NOT NULL DEFAULT 0,
+            status TEXT NOT NULL DEFAULT 'portfolio',
+            notes TEXT,
+            received_journal_id INTEGER,
+            deposit_journal_id INTEGER,
+            bounce_journal_id INTEGER,
+            bank_transaction_id INTEGER,
+            created_by TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS payable_checks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            doc_no TEXT,
+            check_number TEXT NOT NULL,
+            bank_id INTEGER NOT NULL,
+            supplier_id INTEGER NOT NULL,
+            due_date TEXT NOT NULL,
+            amount REAL NOT NULL DEFAULT 0,
+            status TEXT NOT NULL DEFAULT 'issued',
+            notes TEXT,
+            issue_journal_id INTEGER,
+            cash_journal_id INTEGER,
+            cancel_journal_id INTEGER,
+            bank_transaction_id INTEGER,
+            created_by TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    create_unique_index_if_clean(cur, "ux_bank_reconciliations_doc_no", "bank_reconciliations", "doc_no")
+    if not index_exists(cur, "ux_bank_transactions_type_doc"):
+        cur.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_bank_transactions_type_doc
+            ON bank_transactions(txn_type, doc_no)
+            WHERE NULLIF(TRIM(COALESCE(doc_no, '')), '') IS NOT NULL
+            """
+        )
+    if not index_exists(cur, "ux_receivable_checks_bank_number"):
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS ux_receivable_checks_bank_number ON receivable_checks(bank_id, check_number)")
+    if not index_exists(cur, "ux_payable_checks_bank_number"):
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS ux_payable_checks_bank_number ON payable_checks(bank_id, check_number)")
+
+    if table_exists(cur, "document_sequences"):
+        for row in [
+            ("banks", "BNK", 1),
+            ("bank_transactions", "BTX", 1),
+            ("bank_transfers", "BTR", 1),
+            ("bank_reconciliations", "BRC", 1),
+            ("receivable_checks", "RCH", 1),
+            ("payable_checks", "PCH", 1),
+        ]:
+            cur.execute("INSERT OR IGNORE INTO document_sequences(doc_type,prefix,next_number) VALUES (?,?,?)", row)
+
+    if table_exists(cur, "accounts"):
+        for code, name, account_type in [
+            ("1195", "أوراق قبض", "أصول"),
+            ("2195", "أوراق دفع", "خصوم"),
+            ("5295", "عمولات بنكية", "مصروفات"),
+            ("4295", "فوائد بنكية", "إيرادات"),
+            ("5395", "فروق تسوية بنكية", "مصروفات"),
+            ("3195", "رصيد افتتاحي للبنوك", "حقوق ملكية"),
+        ]:
+            cur.execute("SELECT 1 FROM accounts WHERE code=?", (code,))
+            if not cur.fetchone():
+                cur.execute("INSERT INTO accounts(code,name,type) VALUES (?,?,?)", (code, name, account_type))
+
+    if table_exists(cur, "role_permissions"):
+        for role, level in [
+            ("admin", "write"),
+            ("accountant", "write"),
+            ("customer_accountant", "read"),
+            ("supplier_accountant", "read"),
+            ("warehouse", "read"),
+            ("hr_officer", "none"),
+            ("gl_accountant", "write"),
+            ("manager", "write"),
+            ("sales", "read"),
+            ("viewer", "read"),
+        ]:
+            cur.execute(
+                """
+                INSERT OR IGNORE INTO role_permissions(role, permission_key, access_level)
+                VALUES (?, 'banks', ?)
+                """,
+                (role, level),
+            )
+
+
 def collect_requested_table_columns(cur: sqlite3.Cursor) -> dict[str, list[str]]:
     table_names = {"purchase_invoice_lines", "sales_invoice_lines", "suppliers", "journal", "ledger"}
     table_names.update(get_line_tables(cur))
@@ -990,6 +1177,7 @@ MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (14, "invoice line unit compatibility columns", migration_014_invoice_line_unit_compatibility),
     (15, "document guards and expanded roles", migration_015_document_guards_and_roles),
     (16, "invoice number compatibility and uniqueness guards", migration_016_invoice_number_guards),
+    (17, "banks module and bank instruments", migration_017_banks_module),
 ]
 
 

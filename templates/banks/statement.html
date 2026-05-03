@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">البنوك</div>
+        <h2>كشف حساب بنك</h2>
+        <p class="page-subtitle">عرض كل الحركات مع الرصيد قبل وبعد كل حركة وإمكانية التصفية والتصدير.</p>
+    </div>
+</div>
+
+<section class="panel-block panel-block-muted no-print mb-3">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">البنك</label>
+            <select name="bank_id" class="form-control">
+                <option value="">اختر البنك</option>
+                {% for item in banks %}
+                <option value="{{ item[0] }}" {% if bank and bank[0] == item[0] %}selected{% endif %}>{{ item[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">من تاريخ</label>
+            <input type="date" name="from_date" class="form-control" value="{{ from_date or '' }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">إلى تاريخ</label>
+            <input type="date" name="to_date" class="form-control" value="{{ to_date or '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">نوع الحركة</label>
+            <select name="txn_type" class="form-control">
+                <option value="">كل الحركات</option>
+                {% for item in transaction_types %}
+                <option value="{{ item[0] }}" {% if txn_type == item[0] %}selected{% endif %}>{{ item[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-primary w-100">عرض</button>
+            {% if bank %}
+            <a href="{{ url_for('bank_statement', bank_id=bank[0], from_date=from_date, to_date=to_date, txn_type=txn_type, format='excel') }}" class="btn btn-success w-100">Excel</a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+
+{% if bank %}
+<section class="panel-block panel-block-muted mb-3">
+    <div class="row g-3">
+        <div class="col-md-4"><strong>البنك:</strong> {{ bank[1] }}</div>
+        <div class="col-md-4"><strong>الرصيد الافتتاحي للفترة:</strong> {{ opening_balance }}</div>
+        <div class="col-md-4"><strong>الرصيد الحالي:</strong> {{ bank[7] }}</div>
+    </div>
+</section>
+{% endif %}
+
+<section class="panel-block panel-block-muted">
+    <div class="table-shell">
+        <table class="table table-bordered align-middle">
+            <tr>
+                <th>#</th>
+                <th>التاريخ</th>
+                <th>المستند</th>
+                <th>النوع</th>
+                <th>الوصف</th>
+                <th>المرجع</th>
+                <th>المبلغ</th>
+                <th>الأثر</th>
+                <th>رصيد قبل</th>
+                <th>رصيد بعد</th>
+            </tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ dict(transaction_types).get(row[3], row[3]) }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] or '' }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ row[7] }}</td>
+                <td>{{ row[8] }}</td>
+                <td>{{ row[9] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

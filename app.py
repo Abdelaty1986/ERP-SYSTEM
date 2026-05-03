@@ -41,6 +41,21 @@ from modules.accounting.views import (
     build_trial_export_view,
     build_trial_view,
 )
+from modules.banks import (
+    build_bank_delete_view,
+    build_bank_edit_view,
+    build_bank_reconciliation_detail_view,
+    build_bank_reconciliation_view,
+    build_bank_statement_view,
+    build_bank_toggle_view,
+    build_bank_transactions_view,
+    build_bank_transfers_view,
+    build_banks_view,
+    build_payable_check_action_view,
+    build_payable_checks_view,
+    build_receivable_check_action_view,
+    build_receivable_checks_view,
+)
 from modules.admin.views import (
     build_audit_log_view,
     build_backup_restore_view,
@@ -337,6 +352,7 @@ ROLE_PERMISSIONS = {
         "purchases": "write",
         "receipts": "write",
         "payments": "write",
+        "banks": "write",
         "hr": "write",
         "reports": "write",
         "e_invoices": "write",
@@ -350,6 +366,7 @@ ROLE_PERMISSIONS = {
         "purchases": "write",
         "receipts": "write",
         "payments": "write",
+        "banks": "write",
         "hr": "write",
         "reports": "read",
         "e_invoices": "write",
@@ -359,6 +376,7 @@ ROLE_PERMISSIONS = {
         "inventory": "read",
         "sales": "write",
         "receipts": "write",
+        "banks": "read",
         "reports": "read",
     },
     "viewer": {
@@ -370,6 +388,7 @@ ROLE_PERMISSIONS = {
         "purchases": "read",
         "receipts": "read",
         "payments": "read",
+        "banks": "read",
         "hr": "read",
         "reports": "read",
         "e_invoices": "read",
@@ -390,6 +409,7 @@ ROLE_PERMISSIONS.update({
         "customers": "write",
         "sales": "write",
         "receipts": "write",
+        "banks": "read",
         "reports": "read",
         "e_invoices": "write",
     },
@@ -397,20 +417,24 @@ ROLE_PERMISSIONS.update({
         "suppliers": "write",
         "purchases": "write",
         "payments": "write",
+        "banks": "read",
         "reports": "read",
     },
     "warehouse": {
         "inventory": "write",
         "sales": "read",
         "purchases": "read",
+        "banks": "read",
         "reports": "read",
     },
     "hr_officer": {
         "hr": "write",
+        "banks": "none",
         "reports": "read",
     },
     "gl_accountant": {
         "accounting": "write",
+        "banks": "write",
         "reports": "write",
         "e_invoices": "read",
     },
@@ -423,6 +447,7 @@ ROLE_PERMISSIONS.update({
         "purchases": "write",
         "receipts": "write",
         "payments": "write",
+        "banks": "write",
         "hr": "write",
         "reports": "write",
         "e_invoices": "write",
@@ -3528,6 +3553,97 @@ def withholding_tax_report():
     return build_withholding_tax_report_view(MODULE_DEPS)()
 
 
+@app.route("/banks", methods=["GET", "POST"])
+@login_required
+@permission_required("banks")
+def banks():
+    return build_banks_view(MODULE_DEPS)()
+
+
+@app.route("/banks/<int:bank_id>/edit", methods=["GET", "POST"])
+@login_required
+@permission_required("banks", write_always=True)
+def edit_bank(bank_id):
+    return build_bank_edit_view(MODULE_DEPS)(bank_id)
+
+
+@app.route("/banks/<int:bank_id>/toggle", methods=["POST"])
+@login_required
+@permission_required("banks", write_always=True)
+def toggle_bank(bank_id):
+    return build_bank_toggle_view(MODULE_DEPS)(bank_id)
+
+
+@app.route("/banks/<int:bank_id>/delete", methods=["POST"])
+@login_required
+@permission_required("banks", write_always=True)
+def delete_bank(bank_id):
+    return build_bank_delete_view(MODULE_DEPS)(bank_id)
+
+
+@app.route("/banks/transactions", methods=["GET", "POST"])
+@login_required
+@permission_required("banks")
+def bank_transactions():
+    return build_bank_transactions_view(MODULE_DEPS)()
+
+
+@app.route("/banks/transfers", methods=["GET", "POST"])
+@login_required
+@permission_required("banks")
+def bank_transfers():
+    return build_bank_transfers_view(MODULE_DEPS)()
+
+
+@app.route("/banks/statements")
+@login_required
+@permission_required("banks")
+def bank_statement():
+    return build_bank_statement_view(MODULE_DEPS)()
+
+
+@app.route("/banks/reconciliation", methods=["GET", "POST"])
+@login_required
+@permission_required("banks")
+def bank_reconciliation():
+    return build_bank_reconciliation_view(MODULE_DEPS)()
+
+
+@app.route("/banks/reconciliation/<int:reconciliation_id>")
+@login_required
+@permission_required("banks")
+def bank_reconciliation_detail(reconciliation_id):
+    return build_bank_reconciliation_detail_view(MODULE_DEPS)(reconciliation_id)
+
+
+@app.route("/banks/checks/receivable", methods=["GET", "POST"])
+@login_required
+@permission_required("banks")
+def receivable_checks():
+    return build_receivable_checks_view(MODULE_DEPS)()
+
+
+@app.route("/banks/checks/receivable/<int:check_id>/action", methods=["POST"])
+@login_required
+@permission_required("banks", write_always=True)
+def receivable_check_action(check_id):
+    return build_receivable_check_action_view(MODULE_DEPS)(check_id)
+
+
+@app.route("/banks/checks/payable", methods=["GET", "POST"])
+@login_required
+@permission_required("banks")
+def payable_checks():
+    return build_payable_checks_view(MODULE_DEPS)()
+
+
+@app.route("/banks/checks/payable/<int:check_id>/action", methods=["POST"])
+@login_required
+@permission_required("banks", write_always=True)
+def payable_check_action(check_id):
+    return build_payable_check_action_view(MODULE_DEPS)(check_id)
+
+
 @app.route("/audit-log")
 @login_required
 @admin_required
@@ -4271,6 +4387,19 @@ app.view_functions["cancel_purchase_receipt"] = login_required(permission_requir
 app.view_functions["edit_purchase_invoice"] = login_required(permission_required("purchases", write_always=True)(build_edit_purchase_invoice_view(MODULE_DEPS)))
 app.view_functions["receipts"] = login_required(permission_required("receipts")(build_receipts_view(MODULE_DEPS)))
 app.view_functions["payments"] = login_required(permission_required("payments")(build_payments_view(MODULE_DEPS)))
+app.view_functions["banks"] = login_required(permission_required("banks")(build_banks_view(MODULE_DEPS)))
+app.view_functions["edit_bank"] = login_required(permission_required("banks", write_always=True)(build_bank_edit_view(MODULE_DEPS)))
+app.view_functions["toggle_bank"] = login_required(permission_required("banks", write_always=True)(build_bank_toggle_view(MODULE_DEPS)))
+app.view_functions["delete_bank"] = login_required(permission_required("banks", write_always=True)(build_bank_delete_view(MODULE_DEPS)))
+app.view_functions["bank_transactions"] = login_required(permission_required("banks")(build_bank_transactions_view(MODULE_DEPS)))
+app.view_functions["bank_transfers"] = login_required(permission_required("banks")(build_bank_transfers_view(MODULE_DEPS)))
+app.view_functions["bank_statement"] = login_required(permission_required("banks")(build_bank_statement_view(MODULE_DEPS)))
+app.view_functions["bank_reconciliation"] = login_required(permission_required("banks")(build_bank_reconciliation_view(MODULE_DEPS)))
+app.view_functions["bank_reconciliation_detail"] = login_required(permission_required("banks")(build_bank_reconciliation_detail_view(MODULE_DEPS)))
+app.view_functions["receivable_checks"] = login_required(permission_required("banks")(build_receivable_checks_view(MODULE_DEPS)))
+app.view_functions["receivable_check_action"] = login_required(permission_required("banks", write_always=True)(build_receivable_check_action_view(MODULE_DEPS)))
+app.view_functions["payable_checks"] = login_required(permission_required("banks")(build_payable_checks_view(MODULE_DEPS)))
+app.view_functions["payable_check_action"] = login_required(permission_required("banks", write_always=True)(build_payable_check_action_view(MODULE_DEPS)))
 app.view_functions["print_receipt"] = login_required(permission_required("receipts")(build_print_receipt_view(MODULE_DEPS)))
 app.view_functions["print_payment"] = login_required(permission_required("payments")(build_print_payment_view(MODULE_DEPS)))
 app.view_functions["cancel_receipt"] = login_required(permission_required("receipts", write_always=True)(build_cancel_receipt_view(MODULE_DEPS)))

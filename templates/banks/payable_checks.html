@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">أوراق الدفع</div>
+        <h2>الشيكات الصادرة</h2>
+        <p class="page-subtitle">إصدار وتسليم وصرف وإلغاء الشيكات الصادرة مع الربط البنكي والمحاسبي.</p>
+    </div>
+</div>
+
+<section class="panel-block panel-block-muted mb-3">
+    <form method="POST" class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">رقم المستند</label>
+            <input type="text" name="doc_no" class="form-control" placeholder="تلقائي">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">رقم الشيك</label>
+            <input type="text" name="check_number" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">البنك</label>
+            <select name="bank_id" class="form-control" required>
+                <option value="">اختر البنك</option>
+                {% for bank in banks %}
+                <option value="{{ bank[0] }}">{{ bank[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">المورد</label>
+            <select name="supplier_id" class="form-control" required>
+                <option value="">اختر المورد</option>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier[0] }}">{{ supplier[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">الاستحقاق</label>
+            <input type="date" name="due_date" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">المبلغ</label>
+            <input type="number" step="0.01" min="0.01" name="amount" class="form-control" required>
+        </div>
+        <div class="col-md-8">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" name="notes" class="form-control">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">إصدار شيك</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted mb-3">
+    <div class="row g-3">
+        <div class="col-md-4"><div class="card p-3"><strong>شيكات مستحقة اليوم</strong><div>{{ due_rows|length }}</div></div></div>
+        <div class="col-md-4"><div class="card p-3"><strong>شيكات متأخرة</strong><div>{{ overdue_rows|length }}</div></div></div>
+        <div class="col-md-4"><div class="card p-3"><strong>شيكات ملغاة</strong><div>{{ cancelled_rows|length }}</div></div></div>
+    </div>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="table-shell">
+        <table class="table table-bordered align-middle">
+            <tr>
+                <th>#</th>
+                <th>المستند</th>
+                <th>رقم الشيك</th>
+                <th>البنك</th>
+                <th>المورد</th>
+                <th>الاستحقاق</th>
+                <th>المبلغ</th>
+                <th>الحالة</th>
+                <th class="no-print">إجراءات</th>
+            </tr>
+            {% for row in rows %}
+            <tr class="{% if row[7] == 'cancelled' %}table-danger{% endif %}">
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ status_map.get(row[7], row[7]) }}</td>
+                <td class="no-print">
+                    {% if row[7] == 'issued' %}
+                    <form method="POST" action="{{ url_for('payable_check_action', check_id=row[0]) }}" class="d-inline">
+                        <input type="hidden" name="action" value="deliver">
+                        <button class="btn btn-outline-primary btn-sm mb-1">تسليم</button>
+                    </form>
+                    {% endif %}
+                    {% if row[7] in ['issued', 'delivered'] %}
+                    <form method="POST" action="{{ url_for('payable_check_action', check_id=row[0]) }}" class="d-inline">
+                        <input type="hidden" name="action" value="cash">
+                        <button class="btn btn-success btn-sm mb-1">صرف</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('payable_check_action', check_id=row[0]) }}" class="d-inline">
+                        <input type="hidden" name="action" value="cancel">
+                        <button class="btn btn-danger btn-sm mb-1">إلغاء</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">البنوك</div>
+        <h2>تفاصيل تسوية بنكية</h2>
+        <p class="page-subtitle">الحركات المطابقة وغير المطابقة الناتجة من عملية التسوية.</p>
+    </div>
+</div>
+
+<section class="panel-block panel-block-muted mb-3">
+    <div class="row g-3">
+        <div class="col-md-4"><strong>البنك:</strong> {{ reconciliation[11] }}</div>
+        <div class="col-md-4"><strong>المستند:</strong> {{ reconciliation[1] }}</div>
+        <div class="col-md-4"><strong>الحالة:</strong> {{ reconciliation[9] }}</div>
+        <div class="col-md-4"><strong>رصيد النظام:</strong> {{ reconciliation[6] }}</div>
+        <div class="col-md-4"><strong>رصيد الكشف:</strong> {{ reconciliation[7] }}</div>
+        <div class="col-md-4"><strong>الفرق:</strong> {{ reconciliation[8] }}</div>
+    </div>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="table-shell">
+        <table class="table table-bordered align-middle">
+            <tr>
+                <th>التاريخ</th>
+                <th>الوصف</th>
+                <th>المرجع</th>
+                <th>المبلغ</th>
+                <th>الحالة</th>
+                <th>حركة النظام المطابقة</th>
+                <th>فرق السطر</th>
+            </tr>
+            {% for row in lines %}
+            <tr class="{% if row[4] == 'unmatched' %}table-warning{% endif %}">
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] or '' }}</td>
+                <td>{{ row[2] or '' }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] or '' }} {{ row[6] or '' }}</td>
+                <td>{{ row[7] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -145,6 +145,24 @@
             </details>
             {% endif %}
 
+            {% if can_read("banks") %}
+            <details class="nav-group" {% if current_path.startswith('/banks') %}open{% endif %}>
+                <summary>
+                    <span class="nav-group-title"><i class="bi bi-bank2"></i><span>البنوك</span></span>
+                    <i class="bi bi-chevron-down nav-caret"></i>
+                </summary>
+                <div class="nav-group-links">
+                    <a href="/banks" class="{% if current_path == '/banks' or current_path.startswith('/banks/') and current_path.endswith('/edit') %}active{% endif %}"><i class="bi bi-bank"></i><span>الحسابات البنكية</span></a>
+                    <a href="/banks/transactions" class="{% if current_path == '/banks/transactions' %}active{% endif %}"><i class="bi bi-arrow-left-right"></i><span>حركة بنكية</span></a>
+                    <a href="/banks/transfers" class="{% if current_path == '/banks/transfers' %}active{% endif %}"><i class="bi bi-shuffle"></i><span>تحويل بنكي</span></a>
+                    <a href="/banks/statements" class="{% if current_path == '/banks/statements' %}active{% endif %}"><i class="bi bi-journal-text"></i><span>كشف حساب بنك</span></a>
+                    <a href="/banks/reconciliation" class="{% if current_path.startswith('/banks/reconciliation') %}active{% endif %}"><i class="bi bi-check2-square"></i><span>تسوية بنكية</span></a>
+                    <a href="/banks/checks/receivable" class="{% if current_path.startswith('/banks/checks/receivable') %}active{% endif %}"><i class="bi bi-wallet2"></i><span>أوراق القبض</span></a>
+                    <a href="/banks/checks/payable" class="{% if current_path.startswith('/banks/checks/payable') %}active{% endif %}"><i class="bi bi-receipt"></i><span>أوراق الدفع</span></a>
+                </div>
+            </details>
+            {% endif %}
+
             {% if can_read("reports") %}
             <details class="nav-group" {% if current_path.startswith('/reports/') %}open{% endif %}>
                 <summary>

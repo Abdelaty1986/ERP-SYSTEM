@@ -4,13 +4,15 @@ import os
 import shutil
 import sqlite3
 import sys
+import time
 import traceback
 from datetime import datetime
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 ORIGINAL_DB = BASE_DIR / "database.db"
-TEMP_DB = BASE_DIR / "database_ultimate_test_temp.db"
+TMP_DIR = BASE_DIR / "tests" / "tmp"
+TEMP_DB = TMP_DIR / "database_ultimate_test_temp.db"
 
 READ_ONLY_ENDPOINTS = [
     "/",
@@ -30,6 +32,13 @@ READ_ONLY_ENDPOINTS = [
     "/receipts",
     "/payments",
     "/inventory",
+    "/banks",
+    "/banks/transactions",
+    "/banks/transfers",
+    "/banks/statements",
+    "/banks/reconciliation",
+    "/banks/checks/receivable",
+    "/banks/checks/payable",
     "/reports/customers",
     "/reports/suppliers",
     "/employees",
@@ -67,11 +76,43 @@ def assert_safe_db(db_path: Path):
         raise RuntimeError("Unsafe test blocked: test database points to the original database.db")
 
 
+def sqlite_sidecar_paths(db_path: Path):
+    return [
+        db_path,
+        Path(str(db_path) + "-journal"),
+        Path(str(db_path) + "-wal"),
+        Path(str(db_path) + "-shm"),
+    ]
+
+
+def unlink_with_retry(path: Path, retries: int = 5, delay: float = 0.5):
+    last_error = None
+    for attempt in range(retries):
+        try:
+            if path.exists():
+                path.unlink()
+            return
+        except PermissionError as exc:
+            last_error = exc
+            if attempt == retries - 1:
+                raise
+            time.sleep(delay)
+    if last_error:
+        raise last_error
+
+
+def cleanup_sqlite_artifacts(db_path: Path):
+    assert_safe_db(db_path)
+    for path in sqlite_sidecar_paths(db_path):
+        if path.exists():
+            unlink_with_retry(path)
+
+
 def copy_database():
     if not ORIGINAL_DB.exists():
         raise FileNotFoundError(f"Original database not found: {ORIGINAL_DB}")
-    if TEMP_DB.exists():
-        TEMP_DB.unlink()
+    TMP_DIR.mkdir(parents=True, exist_ok=True)
+    cleanup_sqlite_artifacts(TEMP_DB)
     shutil.copy2(ORIGINAL_DB, TEMP_DB)
     assert_safe_db(TEMP_DB)
     return TEMP_DB
@@ -79,16 +120,14 @@ def copy_database():
 
 def cleanup_temp_database():
     try:
-        if TEMP_DB.exists():
-            TEMP_DB.unlink()
+        cleanup_sqlite_artifacts(TEMP_DB)
     except Exception as exc:
         print(f"Warning: could not delete temp database: {exc}")
 
 
 def check_tables(db_path: Path):
     results = []
-    conn = sqlite3.connect(str(db_path))
-    try:
+    with sqlite3.connect(str(db_path)) as conn:
         cur = conn.cursor()
         cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
         existing = {row[0] for row in cur.fetchall()}
@@ -97,16 +136,13 @@ def check_tables(db_path: Path):
                 results.append(("OK", f"table exists: {table}"))
             else:
                 results.append(("ERROR", f"missing table: {table}"))
-    finally:
-        conn.close()
     return results
 
 
 def run_temp_write_check(db_path: Path):
     assert_safe_db(db_path)
     tag = "SAFE_ULTIMATE_TEST_" + datetime.now().strftime("%Y%m%d%H%M%S")
-    conn = sqlite3.connect(str(db_path))
-    try:
+    with sqlite3.connect(str(db_path)) as conn:
         cur = conn.cursor()
         cur.execute(
             """
@@ -125,8 +161,6 @@ def run_temp_write_check(db_path: Path):
         cur.execute("SELECT COUNT(*) FROM safe_ultimate_test_log WHERE tag=?", (tag,))
         count = cur.fetchone()[0]
         return [("OK", "write check passed on TEMP database only")] if count == 1 else [("ERROR", "write check failed on TEMP database")]
-    finally:
-        conn.close()
 
 
 def import_flask_app(db_path: Path):

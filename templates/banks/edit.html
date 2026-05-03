@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">البنوك</div>
+        <h2>تعديل بنك</h2>
+        <p class="page-subtitle">تحديث بيانات البنك بدون التأثير على الحركات التاريخية المسجلة.</p>
+    </div>
+</div>
+
+<section class="panel-block panel-block-muted">
+    <form method="POST" class="row g-2">
+        <div class="col-md-3">
+            <label class="form-label">اسم البنك</label>
+            <input type="text" name="name" class="form-control" value="{{ bank[1] }}" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">الفرع</label>
+            <input type="text" name="branch" class="form-control" value="{{ bank[2] or '' }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">رقم الحساب</label>
+            <input type="text" name="account_number" class="form-control" value="{{ bank[3] or '' }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">IBAN</label>
+            <input type="text" name="iban" class="form-control" value="{{ bank[4] or '' }}">
+        </div>
+        <div class="col-md-1">
+            <label class="form-label">العملة</label>
+            <input type="text" name="currency" class="form-control" value="{{ bank[5] }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">حساب الأستاذ المرتبط</label>
+            <select name="gl_account_id" class="form-control" required>
+                {% for account in accounts %}
+                <option value="{{ account[0] }}" {% if account[0] == bank[8] %}selected{% endif %}>{{ account[1] }} - {{ account[2] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">الحالة</label>
+            <select name="is_active" class="form-control">
+                <option value="1" {% if bank[9] %}selected{% endif %}>نشط</option>
+                <option value="0" {% if not bank[9] %}selected{% endif %}>غير نشط</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">حفظ التعديلات</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

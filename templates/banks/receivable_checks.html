@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">أوراق القبض</div>
+        <h2>الشيكات الواردة</h2>
+        <p class="page-subtitle">تسجيل الشيكات الواردة ومتابعة الإيداع والتحصيل والارتجاع وربطها بالحركات البنكية والقيود.</p>
+    </div>
+</div>
+
+<section class="panel-block panel-block-muted mb-3">
+    <form method="POST" class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">رقم المستند</label>
+            <input type="text" name="doc_no" class="form-control" placeholder="تلقائي">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">رقم الشيك</label>
+            <input type="text" name="check_number" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">البنك</label>
+            <select name="bank_id" class="form-control" required>
+                <option value="">اختر البنك</option>
+                {% for bank in banks %}
+                <option value="{{ bank[0] }}">{{ bank[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">العميل</label>
+            <select name="customer_id" class="form-control" required>
+                <option value="">اختر العميل</option>
+                {% for customer in customers %}
+                <option value="{{ customer[0] }}">{{ customer[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">الاستحقاق</label>
+            <input type="date" name="due_date" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">المبلغ</label>
+            <input type="number" step="0.01" min="0.01" name="amount" class="form-control" required>
+        </div>
+        <div class="col-md-8">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" name="notes" class="form-control">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">استلام شيك</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted mb-3">
+    <div class="row g-3">
+        <div class="col-md-4"><div class="card p-3"><strong>شيكات مستحقة اليوم</strong><div>{{ due_rows|length }}</div></div></div>
+        <div class="col-md-4"><div class="card p-3"><strong>شيكات متأخرة</strong><div>{{ overdue_rows|length }}</div></div></div>
+        <div class="col-md-4"><div class="card p-3"><strong>شيكات مرتجعة</strong><div>{{ bounced_rows|length }}</div></div></div>
+    </div>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="table-shell">
+        <table class="table table-bordered align-middle">
+            <tr>
+                <th>#</th>
+                <th>المستند</th>
+                <th>رقم الشيك</th>
+                <th>البنك</th>
+                <th>العميل</th>
+                <th>الاستحقاق</th>
+                <th>المبلغ</th>
+                <th>الحالة</th>
+                <th class="no-print">إجراءات</th>
+            </tr>
+            {% for row in rows %}
+            <tr class="{% if row[7] == 'bounced' %}table-danger{% endif %}">
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ status_map.get(row[7], row[7]) }}</td>
+                <td class="no-print">
+                    {% if row[7] == 'portfolio' %}
+                    <form method="POST" action="{{ url_for('receivable_check_action', check_id=row[0]) }}" class="d-inline">
+                        <input type="hidden" name="action" value="deposit">
+                        <button class="btn btn-outline-primary btn-sm mb-1">إيداع</button>
+                    </form>
+                    {% endif %}
+                    {% if row[7] in ['portfolio', 'deposited'] %}
+                    <form method="POST" action="{{ url_for('receivable_check_action', check_id=row[0]) }}" class="d-inline">
+                        <input type="hidden" name="action" value="collect">
+                        <button class="btn btn-success btn-sm mb-1">تحصيل</button>
+                    </form>
+                    {% endif %}
+                    {% if row[7] in ['portfolio', 'deposited', 'collected'] %}
+                    <form method="POST" action="{{ url_for('receivable_check_action', check_id=row[0]) }}" class="d-inline">
+                        <input type="hidden" name="action" value="bounce">
+                        <button class="btn btn-danger btn-sm mb-1">رفض</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

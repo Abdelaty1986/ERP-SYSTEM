@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">البنوك</div>
+        <h2>تسوية بنكية</h2>
+        <p class="page-subtitle">مطابقة كشف البنك مع النظام وتسجيل الفرق عند الحاجة مع تقرير للحركات غير المطابقة.</p>
+    </div>
+</div>
+
+<section class="panel-block panel-block-muted mb-3">
+    <form method="POST" class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">البنك</label>
+            <select name="bank_id" class="form-control" required>
+                <option value="">اختر البنك</option>
+                {% for bank in banks %}
+                <option value="{{ bank[0] }}">{{ bank[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">تاريخ الكشف</label>
+            <input type="date" name="statement_date" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">من تاريخ</label>
+            <input type="date" name="from_date" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">إلى تاريخ</label>
+            <input type="date" name="to_date" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">رقم المستند</label>
+            <input type="text" name="doc_no" class="form-control" placeholder="تلقائي">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">رصيد الكشف</label>
+            <input type="number" step="0.01" name="statement_balance" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">حساب فرق التسوية</label>
+            <select name="difference_account_id" class="form-control">
+                {% for account in accounts %}
+                <option value="{{ account[0] }}">{{ account[1] }} - {{ account[2] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+            <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" name="post_difference" value="1" id="postDifference">
+                <label class="form-check-label" for="postDifference">ترحيل فرق التسوية تلقائيًا</label>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" name="notes" class="form-control">
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">سطور كشف البنك يدويًا</label>
+            <textarea name="lines_text" class="form-control" rows="6" placeholder="YYYY-MM-DD|AMOUNT|REFERENCE|DESCRIPTION"></textarea>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">حفظ التسوية</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="table-shell">
+        <table class="table table-bordered align-middle">
+            <tr>
+                <th>#</th>
+                <th>البنك</th>
+                <th>المستند</th>
+                <th>التاريخ</th>
+                <th>رصيد النظام</th>
+                <th>رصيد الكشف</th>
+                <th>الفرق</th>
+                <th>الحالة</th>
+                <th>عرض</th>
+            </tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ row[7] }}</td>
+                <td><a href="{{ url_for('bank_reconciliation_detail', reconciliation_id=row[0]) }}" class="btn btn-outline-primary btn-sm">تفاصيل</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

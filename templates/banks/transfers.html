@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">البنوك</div>
+        <h2>تحويل بنكي</h2>
+        <p class="page-subtitle">تحويل آمن من بنك إلى بنك مع مستند واحد وقيد مزدوج واحد وربط بالحركتين.</p>
+    </div>
+</div>
+
+<section class="panel-block panel-block-muted mb-3">
+    <form method="POST" class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">من بنك</label>
+            <select name="source_bank_id" class="form-control" required>
+                <option value="">اختر</option>
+                {% for bank in banks %}
+                <option value="{{ bank[0] }}">{{ bank[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">إلى بنك</label>
+            <select name="target_bank_id" class="form-control" required>
+                <option value="">اختر</option>
+                {% for bank in banks %}
+                <option value="{{ bank[0] }}">{{ bank[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">التاريخ</label>
+            <input type="date" name="txn_date" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">رقم المستند</label>
+            <input type="text" name="doc_no" class="form-control" placeholder="تلقائي">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">المبلغ</label>
+            <input type="number" step="0.01" min="0.01" name="amount" class="form-control" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">المرجع</label>
+            <input type="text" name="reference_no" class="form-control">
+        </div>
+        <div class="col-md-8">
+            <label class="form-label">الوصف</label>
+            <input type="text" name="description" class="form-control" value="تحويل بنكي">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" name="notes" class="form-control">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">تنفيذ التحويل</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="table-shell">
+        <table class="table table-bordered align-middle">
+            <tr>
+                <th>#</th>
+                <th>من بنك</th>
+                <th>إلى بنك</th>
+                <th>التاريخ</th>
+                <th>المستند</th>
+                <th>المبلغ</th>
+                <th>المرجع</th>
+            </tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] or '' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}
