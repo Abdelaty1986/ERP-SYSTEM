@@ -26,7 +26,7 @@ from typing import Callable, Iterable
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "database.db")
 BACKUP_DIR = os.path.join(BASE_DIR, "backups", "migrations")
-LATEST_SCHEMA_VERSION = 10
+LATEST_SCHEMA_VERSION = 11
 
 
 def connect(db_path: str) -> sqlite3.Connection:
@@ -602,7 +602,7 @@ def migration_010_order_units(cur: sqlite3.Cursor) -> None:
         add_column_if_missing(cur, table_name, "conversion_factor", "REAL NOT NULL DEFAULT 1")
         add_column_if_missing(cur, table_name, "quantity_base", "REAL")
 
-    cur.execute("SELECT id FROM measurement_units WHERE name='ظˆط­ط¯ط©'")
+    cur.execute("SELECT id FROM measurement_units WHERE name='وحدة'")
     default_unit_row = cur.fetchone()
     default_unit_id = default_unit_row[0] if default_unit_row else None
 
@@ -618,7 +618,7 @@ def migration_010_order_units(cur: sqlite3.Cursor) -> None:
                 UPDATE {table_name}
                 SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
                     quantity_base = COALESCE(quantity_base, {quantity_column} * COALESCE(NULLIF(conversion_factor, 0), 1)),
-                    unit_name = COALESCE(unit_name, 'ظˆط­ط¯ط©'),
+                    unit_name = COALESCE(unit_name, 'وحدة'),
                     unit_id = COALESCE(unit_id, ?)
                 """,
                 (default_unit_id,),
@@ -676,6 +676,116 @@ def migration_010_order_units(cur: sqlite3.Cursor) -> None:
     )
 
 
+def migration_011_invoice_schema_fixes(cur: sqlite3.Cursor) -> None:
+    """Fix invoice line totals, VAT fields, tax identifiers, and unit metadata safely."""
+    for table_name in ("sales_invoice_lines", "purchase_invoice_lines"):
+        add_column_if_missing(cur, table_name, "grand_total", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "vat_amount", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "unit_id", "INTEGER")
+        add_column_if_missing(cur, table_name, "unit_name", "TEXT")
+        add_column_if_missing(cur, table_name, "conversion_factor", "REAL NOT NULL DEFAULT 1")
+        add_column_if_missing(cur, table_name, "quantity_base", "REAL")
+
+        if table_exists(cur, table_name):
+            cur.execute(f"PRAGMA table_info({table_name})")
+            cols = {row[1] for row in cur.fetchall()}
+
+            # Normalize conversion factor safely.
+            if "conversion_factor" in cols:
+                cur.execute(
+                    f"""
+                    UPDATE {table_name}
+                    SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1)
+                    """
+                )
+
+            # Fill quantity_base only if quantity exists.
+            if "quantity_base" in cols and "quantity" in cols and "conversion_factor" in cols:
+                cur.execute(
+                    f"""
+                    UPDATE {table_name}
+                    SET quantity_base = COALESCE(quantity_base, quantity * COALESCE(NULLIF(conversion_factor, 0), 1))
+                    """
+                )
+
+            # Fill unit name safely.
+            if "unit_name" in cols:
+                cur.execute(
+                    f"""
+                    UPDATE {table_name}
+                    SET unit_name = COALESCE(unit_name, 'وحدة')
+                    """
+                )
+
+            # Fill VAT amount from whichever tax column exists.
+            if "vat_amount" in cols:
+                if "tax_amount" in cols:
+                    cur.execute(
+                        f"""
+                        UPDATE {table_name}
+                        SET vat_amount = COALESCE(vat_amount, tax_amount, 0)
+                        """
+                    )
+                else:
+                    cur.execute(
+                        f"""
+                        UPDATE {table_name}
+                        SET vat_amount = COALESCE(vat_amount, 0)
+                        """
+                    )
+
+            # Fill grand_total using available columns only.
+            if "grand_total" in cols:
+                if "total" in cols and "tax_amount" in cols:
+                    cur.execute(
+                        f"""
+                        UPDATE {table_name}
+                        SET grand_total = COALESCE(grand_total, total + COALESCE(tax_amount, 0))
+                        """
+                    )
+                elif "total" in cols and "vat_amount" in cols:
+                    cur.execute(
+                        f"""
+                        UPDATE {table_name}
+                        SET grand_total = COALESCE(grand_total, total + COALESCE(vat_amount, 0))
+                        """
+                    )
+                elif "total" in cols:
+                    cur.execute(
+                        f"""
+                        UPDATE {table_name}
+                        SET grand_total = COALESCE(grand_total, total)
+                        """
+                    )
+                elif "quantity" in cols and "unit_price" in cols:
+                    cur.execute(
+                        f"""
+                        UPDATE {table_name}
+                        SET grand_total = COALESCE(grand_total, quantity * unit_price)
+                        """
+                    )
+                else:
+                    cur.execute(
+                        f"""
+                        UPDATE {table_name}
+                        SET grand_total = COALESCE(grand_total, 0)
+                        """
+                    )
+
+    add_column_if_missing(cur, "suppliers", "tax_id", "TEXT")
+    add_column_if_missing(cur, "customers", "tax_id", "TEXT")
+    add_column_if_missing(cur, "ledger", "vat_amount", "REAL DEFAULT 0")
+    add_column_if_missing(cur, "journal", "vat_amount", "REAL DEFAULT 0")
+
+    if table_exists(cur, "ledger"):
+        cur.execute("UPDATE ledger SET vat_amount = COALESCE(vat_amount, 0)")
+    if table_exists(cur, "journal"):
+        cur.execute("UPDATE journal SET vat_amount = COALESCE(vat_amount, 0)")
+
+    create_index_if_missing(cur, "idx_sales_invoice_lines_invoice", "sales_invoice_lines", "invoice_id")
+    create_index_if_missing(cur, "idx_purchase_invoice_lines_invoice", "purchase_invoice_lines", "invoice_id")
+
+
 MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (1, "core metadata tables", migration_001_core_tables),
     (2, "permissions safety", migration_002_permissions_safety),
@@ -687,6 +797,7 @@ MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (8, "enterprise hr blueprint", migration_008_enterprise_hr_blueprint),
     (9, "measurement units and product conversions", migration_009_measurement_units),
     (10, "order unit metadata and warehouse conversion safety", migration_010_order_units),
+    (11, "invoice schema fixes for units and vat", migration_011_invoice_schema_fixes),
 ]
 
 
