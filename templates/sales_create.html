@@ -1,0 +1,170 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المبيعات</div>
+        <h2>إنشاء فاتورة بيع</h2>
+        <p class="page-subtitle">فاتورة واحدة برأس واحد وبنود متعددة، مع خصم المخزون مرة واحدة فقط عند الترحيل.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/sales/invoices" class="btn btn-outline-secondary">فواتير المبيعات</a>
+        <a href="/sales-orders" class="btn btn-outline-secondary">أوامر البيع</a>
+    </div>
+</div>
+
+{% if sales_order_id %}
+<div class="alert alert-info">يتم الآن تحويل أمر البيع رقم {{ sales_order_id }} إلى فاتورة واحدة فقط بكل البنود.</div>
+{% endif %}
+
+{% if can_write("sales") %}
+<section class="panel-block no-print">
+    <form method="POST">
+        <input type="hidden" name="sales_order_id" value="{{ sales_order_id }}">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">التاريخ</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">نوع السداد</label>
+                <select name="payment_type" class="form-select">
+                    <option value="cash">نقدي</option>
+                    <option value="credit">آجل</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">العميل</label>
+                <select name="customer_id" class="form-select">
+                    <option value="">بدون عميل</option>
+                    {% for c in customers %}
+                    <option value="{{ c[0] }}" {% if selected_customer_id and selected_customer_id == c[0] %}selected{% endif %}>{{ c[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">الاستحقاق</label>
+                <input type="date" name="due_date" class="form-control" value="{{ selected_due_date or '' }}">
+            </div>
+            <div class="col-md-1">
+                <label class="form-label">VAT %</label>
+                <input type="number" step="0.01" min="0" name="tax_rate" value="14" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">PO Ref</label>
+                <input type="text" name="po_ref" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">GR Ref</label>
+                <input type="text" name="gr_ref" class="form-control">
+            </div>
+            <div class="col-md-10">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" name="notes" class="form-control" value="{{ selected_notes or '' }}">
+            </div>
+        </div>
+
+        <div class="table-shell mt-3">
+            <table class="table table-bordered align-middle" id="sales-lines">
+                <thead>
+                    <tr>
+                        <th>الصنف</th>
+                        <th>الوحدة</th>
+                        <th>الكمية</th>
+                        <th>السعر</th>
+                        <th class="no-print">حذف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in initial_lines %}
+                    <tr>
+                        <td>
+                            <select name="product_id[]" class="form-select product-select" required>
+                                <option value="">اختر الصنف</option>
+                                {% for p in products %}
+                                <option value="{{ p[0] }}" {% if line.get("product_id") == p[0] %}selected{% endif %}>{{ p[1] }} - رصيد {{ p[3] }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select name="unit_id[]" class="form-select unit-select" data-selected-unit="{{ line.get('unit_id', '') }}" required>
+                                <option value="">اختر الوحدة</option>
+                            </select>
+                        </td>
+                        <td><input type="number" step="0.01" min="0.01" name="quantity[]" class="form-control" value="{{ line.get('quantity', '') }}" required></td>
+                        <td><input type="number" step="0.01" min="0.01" name="unit_price[]" class="form-control line-price" value="{{ line.get('unit_price', '') }}" required></td>
+                        <td class="no-print"><button type="button" class="btn btn-danger btn-sm remove-line">حذف</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex gap-2 mt-3 flex-wrap">
+            <button type="button" class="btn btn-outline-secondary" id="add-sales-line">إضافة صنف</button>
+            <button class="btn btn-success">حفظ الفاتورة</button>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+<script>
+const salesUnitsMap = {{ product_units_json|safe }};
+
+function syncUnitOptions(row, purpose) {
+    const productSelect = row.querySelector(".product-select");
+    const unitSelect = row.querySelector(".unit-select");
+    const priceInput = row.querySelector(".line-price");
+    const productMeta = salesUnitsMap[String(productSelect.value)] || null;
+    const selectedUnit = unitSelect.dataset.selectedUnit || "";
+    unitSelect.innerHTML = '<option value="">اختر الوحدة</option>';
+    if (!productMeta || !productMeta.units.length) {
+        return;
+    }
+    productMeta.units.forEach((unit) => {
+        const option = document.createElement("option");
+        option.value = unit.unit_id;
+        option.textContent = `${unit.unit_name} x ${unit.conversion_factor}`;
+        option.dataset.price = purpose === "purchase" ? (unit.purchase_price || "") : (unit.sale_price || "");
+        if (String(unit.unit_id) === String(selectedUnit || productMeta.default_unit_id)) {
+            option.selected = true;
+        }
+        unitSelect.appendChild(option);
+    });
+    if (!priceInput.value) {
+        priceInput.value = unitSelect.selectedOptions[0]?.dataset?.price || "";
+    }
+}
+
+function bindInvoiceLines(tableId, addBtnId, purpose) {
+    const table = document.getElementById(tableId);
+    table.querySelectorAll("tbody tr").forEach((row) => syncUnitOptions(row, purpose));
+    table.addEventListener("change", (event) => {
+        const row = event.target.closest("tr");
+        if (event.target.classList.contains("product-select")) {
+            row.querySelector(".unit-select").dataset.selectedUnit = "";
+            row.querySelector(".line-price").value = "";
+            syncUnitOptions(row, purpose);
+        }
+        if (event.target.classList.contains("unit-select")) {
+            row.querySelector(".line-price").value = event.target.selectedOptions[0]?.dataset?.price || row.querySelector(".line-price").value;
+        }
+    });
+    table.addEventListener("click", (event) => {
+        if (!event.target.classList.contains("remove-line")) return;
+        if (table.querySelectorAll("tbody tr").length > 1) {
+            event.target.closest("tr").remove();
+        }
+    });
+    document.getElementById(addBtnId).addEventListener("click", () => {
+        const row = table.querySelector("tbody tr").cloneNode(true);
+        row.querySelectorAll("input").forEach((input) => input.value = "");
+        row.querySelector(".product-select").value = "";
+        row.querySelector(".unit-select").dataset.selectedUnit = "";
+        row.querySelector(".unit-select").innerHTML = '<option value="">اختر الوحدة</option>';
+        table.querySelector("tbody").appendChild(row);
+    });
+}
+
+bindInvoiceLines("sales-lines", "add-sales-line", "sale");
+</script>
+{% endblock %}

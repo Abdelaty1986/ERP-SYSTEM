@@ -26,7 +26,7 @@ from typing import Callable, Iterable
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "database.db")
 BACKUP_DIR = os.path.join(BASE_DIR, "backups", "migrations")
-LATEST_SCHEMA_VERSION = 11
+LATEST_SCHEMA_VERSION = 13
 
 
 def connect(db_path: str) -> sqlite3.Connection:
@@ -67,6 +67,26 @@ def add_column_if_missing(cur: sqlite3.Cursor, table: str, column: str, definiti
 def create_index_if_missing(cur: sqlite3.Cursor, index_name: str, table: str, columns: str) -> None:
     if table_exists(cur, table) and not index_exists(cur, index_name):
         cur.execute(f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} ({columns})")
+
+
+def get_table_columns(cur: sqlite3.Cursor, table_name: str) -> list[str]:
+    if not table_exists(cur, table_name):
+        return []
+    cur.execute(f"PRAGMA table_info({table_name})")
+    return [row[1] for row in cur.fetchall()]
+
+
+def get_line_tables(cur: sqlite3.Cursor) -> list[str]:
+    cur.execute(
+        """
+        SELECT name
+        FROM sqlite_master
+        WHERE type='table'
+          AND name LIKE '%_lines'
+        ORDER BY name
+        """
+    )
+    return [row[0] for row in cur.fetchall()]
 
 
 def ensure_migration_tables(cur: sqlite3.Cursor) -> None:
@@ -786,6 +806,36 @@ def migration_011_invoice_schema_fixes(cur: sqlite3.Cursor) -> None:
     create_index_if_missing(cur, "idx_purchase_invoice_lines_invoice", "purchase_invoice_lines", "invoice_id")
 
 
+def migration_012_safe_sqlite_column_sync(cur: sqlite3.Cursor) -> None:
+    """Safely add requested columns without dropping data and verify schemas."""
+    add_column_if_missing(cur, "purchase_invoice_lines", "grand_total", "REAL DEFAULT 0")
+    add_column_if_missing(cur, "sales_invoice_lines", "grand_total", "REAL DEFAULT 0")
+
+    for table_name in get_line_tables(cur):
+        add_column_if_missing(cur, table_name, "unit_id", "INTEGER")
+        add_column_if_missing(cur, table_name, "unit_name", "TEXT")
+        add_column_if_missing(cur, table_name, "conversion_factor", "REAL DEFAULT 1")
+        add_column_if_missing(cur, table_name, "quantity_base", "REAL")
+
+    add_column_if_missing(cur, "suppliers", "tax_id", "TEXT")
+    add_column_if_missing(cur, "journal", "vat_amount", "REAL DEFAULT 0")
+    add_column_if_missing(cur, "ledger", "vat_amount", "REAL DEFAULT 0")
+
+
+def migration_013_invoice_order_links(cur: sqlite3.Cursor) -> None:
+    """Ensure invoice headers can safely link back to their source orders."""
+    add_column_if_missing(cur, "sales_invoices", "sales_order_id", "INTEGER")
+    add_column_if_missing(cur, "purchase_invoices", "purchase_order_id", "INTEGER")
+    create_index_if_missing(cur, "idx_sales_invoices_sales_order_id", "sales_invoices", "sales_order_id")
+    create_index_if_missing(cur, "idx_purchase_invoices_purchase_order_id", "purchase_invoices", "purchase_order_id")
+
+
+def collect_requested_table_columns(cur: sqlite3.Cursor) -> dict[str, list[str]]:
+    table_names = {"purchase_invoice_lines", "sales_invoice_lines", "suppliers", "journal", "ledger"}
+    table_names.update(get_line_tables(cur))
+    return {table_name: get_table_columns(cur, table_name) for table_name in sorted(table_names) if table_exists(cur, table_name)}
+
+
 MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (1, "core metadata tables", migration_001_core_tables),
     (2, "permissions safety", migration_002_permissions_safety),
@@ -798,6 +848,8 @@ MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (9, "measurement units and product conversions", migration_009_measurement_units),
     (10, "order unit metadata and warehouse conversion safety", migration_010_order_units),
     (11, "invoice schema fixes for units and vat", migration_011_invoice_schema_fixes),
+    (12, "safe sqlite column sync for invoice, lines, suppliers, and journals", migration_012_safe_sqlite_column_sync),
+    (13, "invoice header links back to source orders", migration_013_invoice_order_links),
 ]
 
 
@@ -842,12 +894,14 @@ def run_migrations(db_path: str = DEFAULT_DB_PATH) -> dict:
         set_meta(cur, "schema_version", str(LATEST_SCHEMA_VERSION))
         set_meta(cur, "last_migration_run", datetime.now().isoformat(timespec="seconds"))
         conn.commit()
+        schema_columns = collect_requested_table_columns(cur)
         return {
             "ok": True,
             "db_path": db_path,
             "backup_path": backup_path,
             "current_version": LATEST_SCHEMA_VERSION,
             "applied": applied,
+            "table_columns": schema_columns,
         }
     finally:
         conn.close()
@@ -881,3 +935,5 @@ if __name__ == "__main__":
     path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_DB_PATH
     result = run_migrations(path)
     print(result)
+    for table_name, columns in result.get("table_columns", {}).items():
+        print(f"{table_name}: {', '.join(columns)}")

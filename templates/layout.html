@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -56,7 +56,8 @@
                     {% endif %}
                     {% if can_read("sales") %}
                     <a href="/sales-orders" class="{% if current_path == '/sales-orders' %}active{% endif %}"><i class="bi bi-clipboard-check"></i><span>أوامر البيع</span></a>
-                    <a href="/sales" class="{% if current_path == '/sales' or current_path.startswith('/sales/') and '/print' not in current_path %}active{% endif %}"><i class="bi bi-cart-check"></i><span>فواتير البيع</span></a>
+                    <a href="/sales" class="{% if current_path == '/sales' %}active{% endif %}"><i class="bi bi-cart-plus"></i><span>إنشاء فاتورة بيع</span></a>
+                    <a href="/sales/invoices" class="{% if current_path == '/sales/invoices' or (current_path.startswith('/sales/') and current_path != '/sales' and '/print' not in current_path and '/from-delivery' not in current_path and '/financial' not in current_path) %}active{% endif %}"><i class="bi bi-cart-check"></i><span>فواتير المبيعات</span></a>
                     <a href="/sales/from-delivery" class="{% if current_path == '/sales/from-delivery' %}active{% endif %}"><i class="bi bi-box-arrow-up-right"></i><span>فاتورة بيع من أذون الصرف</span></a>
                     <a href="/sales/financial" class="{% if current_path == '/sales/financial' %}active{% endif %}"><i class="bi bi-receipt"></i><span>فاتورة بيع مالية</span></a>
                     <a href="/returns/sales" class="{% if current_path == '/returns/sales' %}active{% endif %}"><i class="bi bi-arrow-counterclockwise"></i><span>مردودات المبيعات</span></a>
@@ -81,7 +82,8 @@
                     {% if can_read("purchases") %}
                     <a href="/purchase-orders" class="{% if current_path == '/purchase-orders' %}active{% endif %}"><i class="bi bi-bag-check"></i><span>أوامر الشراء</span></a>
                     <a href="/purchases/from-receipt" class="{% if current_path == '/purchases/from-receipt' %}active{% endif %}"><i class="bi bi-box-arrow-in-down"></i><span>فاتورة مورد من أذون الإضافة</span></a>
-                    <a href="/purchases" class="{% if current_path == '/purchases' %}active{% endif %}"><i class="bi bi-receipt-cutoff"></i><span>فاتورة مورد مباشرة</span></a>
+                    <a href="/purchases" class="{% if current_path == '/purchases' %}active{% endif %}"><i class="bi bi-bag-plus"></i><span>إنشاء فاتورة شراء</span></a>
+                    <a href="/purchases/invoices" class="{% if current_path == '/purchases/invoices' or (current_path.startswith('/purchases/') and current_path != '/purchases' and '/from-receipt' not in current_path) %}active{% endif %}"><i class="bi bi-receipt-cutoff"></i><span>فواتير المشتريات</span></a>
                     <a href="/returns/purchases" class="{% if current_path == '/returns/purchases' %}active{% endif %}"><i class="bi bi-arrow-return-left"></i><span>مردودات المشتريات</span></a>
                     <a href="/debit-notes/suppliers" class="{% if current_path.startswith('/debit-notes/suppliers') %}active{% endif %}"><i class="bi bi-journal-plus"></i><span>إشعارات تسوية مدينة</span></a>
                     {% endif %}
@@ -249,3 +251,5 @@
 {% block extra_js %}{% endblock %}
 </body>
 </html>
+
+

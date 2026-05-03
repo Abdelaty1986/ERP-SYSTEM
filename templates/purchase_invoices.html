@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المشتريات</div>
+        <h2>فواتير المشتريات</h2>
+        <p class="page-subtitle">سجل فواتير الموردين السابقة مع حالة الترحيل وإجراءات العرض والطباعة والتعديل أو الإلغاء.</p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/purchases" class="btn btn-outline-secondary">إنشاء فاتورة شراء</a>
+    </div>
+</div>
+
+<section class="panel-block panel-block-muted">
+    {% if invoices %}
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <tr>
+                <th>#</th>
+                <th>رقم الفاتورة</th>
+                <th>التاريخ</th>
+                <th>المورد</th>
+                <th class="money">الإجمالي</th>
+                <th>حالة الترحيل</th>
+                <th>عدد البنود</th>
+                <th class="no-print">إجراءات</th>
+            </tr>
+            {% for i in invoices %}
+            <tr class="{% if i[5] == 'cancelled' %}table-danger{% endif %}">
+                <td>{{ i[0] }}</td>
+                <td>{{ i[1] or ('PUR-' ~ i[0]) }}</td>
+                <td>{{ i[2] }}</td>
+                <td>{{ i[3] }}</td>
+                <td class="money" data-value="{{ i[4] }}">{{ i[4] }}</td>
+                <td>{% if i[5] == 'draft' %}غير مرحلة{% elif i[5] == 'cancelled' %}ملغاة{% else %}مرحلة{% endif %}</td>
+                <td>{{ i[8] }}</td>
+                <td class="no-print">
+                    <a href="/purchases/{{ i[0] }}" class="btn btn-outline-primary btn-sm mb-1">عرض</a>
+                    <a href="/purchases/{{ i[0] }}/print" class="btn btn-primary btn-sm mb-1">طباعة</a>
+                    {% if can_write("purchases") and i[5] == 'draft' %}
+                    <a href="/purchases/{{ i[0] }}/edit" class="btn btn-warning btn-sm mb-1">تعديل</a>
+                    {% endif %}
+                    {% if can_write("purchases") and i[5] in ['draft', 'posted'] %}
+                    <form method="POST" action="/purchases/{{ i[0] }}/cancel" class="d-inline">
+                        <input type="hidden" name="reason" value="{% if i[5] == 'draft' %}حذف مسودة{% else %}إلغاء فاتورة{% endif %}">
+                        <button class="btn btn-danger btn-sm mb-1" onclick="return confirm('هل تريد المتابعة؟');">{% if i[5] == 'draft' %}حذف{% else %}إلغاء{% endif %}</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد فواتير مشتريات مسجلة حاليًا.</div>
+    {% endif %}
+</section>
+{% endblock %}

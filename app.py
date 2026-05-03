@@ -156,7 +156,9 @@ from modules.sales.treasury import (
     build_receipts_view,
 )
 from modules.sales.views import (
+    build_purchase_invoices_view,
     build_purchases_view,
+    build_sales_invoices_view,
     build_sales_view,
 )
 
@@ -1283,6 +1285,232 @@ def unpost_purchase_invoice(cur, invoice_id):
     cur.execute("UPDATE purchase_invoices SET status='draft', journal_id=NULL, tax_journal_id=NULL, withholding_journal_id=NULL WHERE id=?", (invoice_id,))
 
 
+def _sales_invoice_lines_for_posting(cur, invoice_id):
+    cur.execute(
+        """
+        SELECT
+            product_id,
+            COALESCE(quantity, 0),
+            COALESCE(unit_price, 0),
+            COALESCE(total, 0),
+            COALESCE(cost_total, 0),
+            COALESCE(quantity_base, quantity, 0)
+        FROM sales_invoice_lines
+        WHERE invoice_id=?
+        ORDER BY id
+        """,
+        (invoice_id,),
+    )
+    lines = cur.fetchall()
+    if lines:
+        return lines
+    cur.execute(
+        """
+        SELECT
+            product_id,
+            COALESCE(quantity, 0),
+            COALESCE(unit_price, 0),
+            COALESCE(total, 0),
+            COALESCE(cost_total, 0),
+            COALESCE(quantity, 0)
+        FROM sales_invoices
+        WHERE id=? AND product_id IS NOT NULL
+        """,
+        (invoice_id,),
+    )
+    fallback = cur.fetchone()
+    return [fallback] if fallback else []
+
+
+def _purchase_invoice_lines_for_posting(cur, invoice_id):
+    cur.execute(
+        """
+        SELECT
+            product_id,
+            COALESCE(quantity, 0),
+            COALESCE(unit_price, 0),
+            COALESCE(total, 0),
+            COALESCE(quantity_base, quantity, 0)
+        FROM purchase_invoice_lines
+        WHERE invoice_id=?
+        ORDER BY id
+        """,
+        (invoice_id,),
+    )
+    lines = cur.fetchall()
+    if lines:
+        return lines
+    cur.execute(
+        """
+        SELECT
+            product_id,
+            COALESCE(quantity, 0),
+            COALESCE(unit_price, 0),
+            COALESCE(total, 0),
+            COALESCE(quantity, 0)
+        FROM purchase_invoices
+        WHERE id=? AND product_id IS NOT NULL
+        """,
+        (invoice_id,),
+    )
+    fallback = cur.fetchone()
+    return [fallback] if fallback else []
+
+
+def post_sales_invoice(cur, invoice_id):
+    cur.execute(
+        """
+        SELECT date,doc_no,total,cost_total,tax_amount,withholding_amount,payment_type,status
+        FROM sales_invoices
+        WHERE id=?
+        """,
+        (invoice_id,),
+    )
+    row = cur.fetchone()
+    if not row or row[7] != "draft":
+        return
+    date_value, doc_no, total, cost_total, tax_amount, withholding_amount, payment_type, _ = row
+    lines = _sales_invoice_lines_for_posting(cur, invoice_id)
+    if not lines:
+        raise ValueError(f"لا توجد بنود على فاتورة البيع رقم {invoice_id}.")
+
+    for product_id, _quantity, _unit_price, _line_total, _line_cost_total, quantity_base in lines:
+        cur.execute("SELECT stock_quantity FROM products WHERE id=?", (product_id,))
+        product = cur.fetchone()
+        if not product or product[0] < quantity_base:
+            raise ValueError(f"رصيد الصنف غير كاف لترحيل فاتورة البيع رقم {invoice_id}.")
+
+    debit_code = "1300" if payment_type == "credit" else "1100"
+    invoice_label = doc_no or str(invoice_id)
+    journal_id = create_auto_journal(cur, date_value, f"فاتورة بيع {invoice_label}", debit_code, "4100", total)
+    tax_journal_id = create_auto_journal(cur, date_value, f"ضريبة قيمة مضافة على فاتورة بيع {invoice_label}", debit_code, "2200", tax_amount) if tax_amount > 0 else None
+    withholding_journal_id = create_auto_journal(cur, date_value, f"ضريبة خصم وإضافة عميل على فاتورة بيع {invoice_label}", "1510", debit_code, withholding_amount) if withholding_amount > 0 else None
+    cogs_journal_id = create_auto_journal(cur, date_value, f"تكلفة بضاعة مباعة لفاتورة بيع {invoice_label}", "6100", "1400", cost_total) if cost_total > 0 else None
+    mark_journal_source(cur, "sales", invoice_id, journal_id, tax_journal_id, withholding_journal_id, cogs_journal_id)
+
+    for product_id, _quantity, _unit_price, _line_total, _line_cost_total, quantity_base in lines:
+        cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity_base, product_id))
+        cur.execute(
+            """
+            INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
+            VALUES (?,?,?,?,?,?,?)
+            """,
+            (date_value, product_id, "out", -quantity_base, "sale", invoice_id, f"ترحيل فاتورة بيع {invoice_label}"),
+        )
+
+    cur.execute(
+        """
+        UPDATE sales_invoices
+        SET status='posted', journal_id=?, tax_journal_id=?, withholding_journal_id=?, cogs_journal_id=?
+        WHERE id=?
+        """,
+        (journal_id, tax_journal_id, withholding_journal_id, cogs_journal_id, invoice_id),
+    )
+
+
+def unpost_sales_invoice(cur, invoice_id):
+    cur.execute(
+        """
+        SELECT journal_id,tax_journal_id,withholding_journal_id,cogs_journal_id,status
+        FROM sales_invoices
+        WHERE id=?
+        """,
+        (invoice_id,),
+    )
+    row = cur.fetchone()
+    if not row or row[4] != "posted":
+        return
+    journal_id, tax_journal_id, withholding_journal_id, cogs_journal_id, _ = row
+    lines = _sales_invoice_lines_for_posting(cur, invoice_id)
+    for product_id, _quantity, _unit_price, _line_total, _line_cost_total, quantity_base in lines:
+        cur.execute("UPDATE products SET stock_quantity=stock_quantity+? WHERE id=?", (quantity_base, product_id))
+    cur.execute("DELETE FROM inventory_movements WHERE reference_type='sale' AND reference_id=?", (invoice_id,))
+    delete_journal_rows(cur, journal_id, tax_journal_id, withholding_journal_id, cogs_journal_id)
+    cur.execute(
+        """
+        UPDATE sales_invoices
+        SET status='draft', journal_id=NULL, tax_journal_id=NULL, withholding_journal_id=NULL, cogs_journal_id=NULL
+        WHERE id=?
+        """,
+        (invoice_id,),
+    )
+
+
+def post_purchase_invoice(cur, invoice_id):
+    cur.execute(
+        """
+        SELECT date,doc_no,total,tax_amount,withholding_amount,payment_type,status
+        FROM purchase_invoices
+        WHERE id=?
+        """,
+        (invoice_id,),
+    )
+    row = cur.fetchone()
+    if not row or row[6] != "draft":
+        return
+    date_value, doc_no, total, tax_amount, withholding_amount, payment_type, _ = row
+    lines = _purchase_invoice_lines_for_posting(cur, invoice_id)
+    if not lines:
+        raise ValueError(f"لا توجد بنود على فاتورة الشراء رقم {invoice_id}.")
+
+    for product_id, _quantity, _unit_price, _line_total, _quantity_base in lines:
+        cur.execute("SELECT 1 FROM products WHERE id=?", (product_id,))
+        if not cur.fetchone():
+            raise ValueError(f"الصنف المرتبط بفاتورة الشراء رقم {invoice_id} غير موجود.")
+
+    credit_code = "2100" if payment_type == "credit" else "1100"
+    withholding_debit = "2100" if payment_type == "credit" else "1100"
+    invoice_label = doc_no or str(invoice_id)
+    journal_id = create_auto_journal(cur, date_value, f"فاتورة شراء {invoice_label}", "1400", credit_code, total)
+    tax_journal_id = create_auto_journal(cur, date_value, f"ضريبة قيمة مضافة على فاتورة شراء {invoice_label}", "1500", credit_code, tax_amount) if tax_amount > 0 else None
+    withholding_journal_id = create_auto_journal(cur, date_value, f"ضريبة خصم وإضافة مورد على فاتورة شراء {invoice_label}", withholding_debit, "2230", withholding_amount) if withholding_amount > 0 else None
+    mark_journal_source(cur, "purchases", invoice_id, journal_id, tax_journal_id, withholding_journal_id)
+
+    for product_id, _quantity, unit_price, _line_total, quantity_base in lines:
+        cur.execute(
+            "UPDATE products SET stock_quantity=stock_quantity+?, purchase_price=? WHERE id=?",
+            (quantity_base, unit_price, product_id),
+        )
+        cur.execute(
+            """
+            INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
+            VALUES (?,?,?,?,?,?,?)
+            """,
+            (date_value, product_id, "in", quantity_base, "purchase", invoice_id, f"ترحيل فاتورة شراء {invoice_label}"),
+        )
+
+    cur.execute(
+        "UPDATE purchase_invoices SET status='posted', journal_id=?, tax_journal_id=?, withholding_journal_id=? WHERE id=?",
+        (journal_id, tax_journal_id, withholding_journal_id, invoice_id),
+    )
+
+
+def unpost_purchase_invoice(cur, invoice_id):
+    cur.execute(
+        """
+        SELECT journal_id,tax_journal_id,withholding_journal_id,status
+        FROM purchase_invoices
+        WHERE id=?
+        """,
+        (invoice_id,),
+    )
+    row = cur.fetchone()
+    if not row or row[3] != "posted":
+        return
+    journal_id, tax_journal_id, withholding_journal_id, _ = row
+    lines = _purchase_invoice_lines_for_posting(cur, invoice_id)
+    for product_id, _quantity, _unit_price, _line_total, quantity_base in lines:
+        cur.execute("SELECT stock_quantity FROM products WHERE id=?", (product_id,))
+        stock = cur.fetchone()
+        if not stock or stock[0] < quantity_base:
+            raise ValueError(f"رصيد الصنف غير كاف لفك ترحيل فاتورة الشراء رقم {invoice_id}.")
+    for product_id, _quantity, _unit_price, _line_total, quantity_base in lines:
+        cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity_base, product_id))
+    cur.execute("DELETE FROM inventory_movements WHERE reference_type='purchase' AND reference_id=?", (invoice_id,))
+    delete_journal_rows(cur, journal_id, tax_journal_id, withholding_journal_id)
+    cur.execute("UPDATE purchase_invoices SET status='draft', journal_id=NULL, tax_journal_id=NULL, withholding_journal_id=NULL WHERE id=?", (invoice_id,))
+
+
 def post_voucher(cur, table, source_type, voucher_id):
     party_table = "customers" if source_type == "receipts" else "suppliers"
     party_id_col = "customer_id" if source_type == "receipts" else "supplier_id"
@@ -1696,6 +1924,11 @@ def product_barcode(id):
 @permission_required("sales")
 def sales():
     return build_sales_view(MODULE_DEPS)()
+@app.route("/sales/invoices")
+@login_required
+@permission_required("sales")
+def sales_invoices():
+    return build_sales_invoices_view(MODULE_DEPS)()
 @app.route("/sales-orders", methods=["GET", "POST"])
 @login_required
 @permission_required("sales")
@@ -1721,6 +1954,11 @@ def financial_sales():
 @permission_required("purchases")
 def purchases():
     return build_purchases_view(MODULE_DEPS)()
+@app.route("/purchases/invoices")
+@login_required
+@permission_required("purchases")
+def purchase_invoices():
+    return build_purchase_invoices_view(MODULE_DEPS)()
 @app.route("/purchase-orders", methods=["GET", "POST"])
 @login_required
 @permission_required("purchases")
@@ -2104,10 +2342,20 @@ def purchases_multi():
 @permission_required("sales")
 def print_sale(id):
     return build_print_sale_view(MODULE_DEPS)(id)
+@app.route("/sales/<int:id>")
+@login_required
+@permission_required("sales")
+def view_sale(id):
+    return build_print_sale_view(MODULE_DEPS)(id)
 @app.route("/purchases/<int:id>/print")
 @login_required
 @permission_required("purchases")
 def print_purchase(id):
+    return build_print_purchase_view(MODULE_DEPS)(id)
+@app.route("/purchases/<int:id>")
+@login_required
+@permission_required("purchases")
+def view_purchase(id):
     return build_print_purchase_view(MODULE_DEPS)(id)
 @app.route("/purchase-orders/<int:id>/print")
 @login_required

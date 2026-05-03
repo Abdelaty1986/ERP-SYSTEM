@@ -285,6 +285,197 @@ def _build_product_units_map(cur, purpose="sale"):
     return product_rows, data
 
 
+def _existing_invoice_for_order(cur, invoice_table, order_column, order_id):
+    if not order_id:
+        return None
+    cur.execute(
+        f"""
+        SELECT id, doc_no, status
+        FROM {invoice_table}
+        WHERE {order_column}=?
+          AND COALESCE(status, 'draft') != 'cancelled'
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (order_id,),
+    )
+    return cur.fetchone()
+
+
+def _invoice_form_lines(cur, deps, purpose="sale", vat_rate=14, withholding_rate=0, withholding_enabled=False):
+    parse_positive_amount = deps["parse_positive_amount"]
+    product_ids = request.form.getlist("product_id[]") or request.form.getlist("product_id")
+    unit_ids = request.form.getlist("unit_id[]") or request.form.getlist("unit_id")
+    quantities = request.form.getlist("quantity[]") or request.form.getlist("quantity")
+    unit_prices = request.form.getlist("unit_price[]") or request.form.getlist("unit_price")
+    lines = []
+    for idx, raw_product_id in enumerate(product_ids):
+        product_id = int(parse_positive_amount(raw_product_id) or 0)
+        unit_id = int(parse_positive_amount(unit_ids[idx] if idx < len(unit_ids) else 0) or 0) or None
+        quantity = parse_positive_amount(quantities[idx] if idx < len(quantities) else 0)
+        unit_price = parse_positive_amount(unit_prices[idx] if idx < len(unit_prices) else 0)
+        if product_id <= 0 and quantity <= 0 and unit_price <= 0:
+            continue
+        cur.execute("SELECT name, stock_quantity, purchase_price FROM products WHERE id=?", (product_id,))
+        product = cur.fetchone()
+        if not product or quantity <= 0 or unit_price <= 0:
+            return []
+        unit_meta = _resolve_product_unit(cur, product_id, unit_id, purpose)
+        quantity_base = round(quantity * float(unit_meta["conversion_factor"] or 1), 4)
+        line = taxable_line(
+            quantity * unit_price,
+            vat_enabled=True,
+            withholding_enabled=withholding_enabled,
+            vat_rate=vat_rate,
+            withholding_rate=withholding_rate,
+        )
+        lines.append(
+            {
+                "product_id": product_id,
+                "product_name": product[0],
+                "stock_quantity": float(product[1] or 0),
+                "purchase_price": float(product[2] or 0),
+                "quantity": quantity,
+                "unit_price": unit_price,
+                "total": line["subtotal"],
+                "tax_rate": line["vat_rate"],
+                "tax_amount": line["vat_amount"],
+                "withholding_rate": line["withholding_rate"],
+                "withholding_amount": line["withholding_amount"],
+                "grand_total": line["grand_total"],
+                "unit_id": unit_meta["unit_id"],
+                "unit_name": unit_meta["unit_name"],
+                "conversion_factor": float(unit_meta["conversion_factor"] or 1),
+                "quantity_base": quantity_base,
+                "cost_total": round(quantity_base * float(product[2] or 0), 2) if purpose == "sale" else 0,
+            }
+        )
+    return lines
+
+
+def _sales_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, withholding_enabled):
+    cur.execute(
+        """
+        SELECT so.id,so.customer_id,so.delivery_date,COALESCE(so.notes,''),sol.product_id,p.name,
+               sol.quantity,COALESCE(sol.unit_id, NULL),COALESCE(sol.unit_name, p.unit, 'وحدة'),
+               COALESCE(NULLIF(sol.conversion_factor, 0), 1),COALESCE(sol.quantity_base, sol.quantity),
+               sol.unit_price,COALESCE(p.stock_quantity, 0),COALESCE(p.purchase_price, 0)
+        FROM sales_orders so
+        JOIN sales_order_lines sol ON sol.order_id=so.id
+        JOIN products p ON p.id=sol.product_id
+        WHERE so.id=?
+        ORDER BY sol.id
+        """,
+        (order_id,),
+    )
+    rows = cur.fetchall()
+    if not rows:
+        return None, []
+    header = {
+        "order_id": rows[0][0],
+        "customer_id": rows[0][1],
+        "due_date": rows[0][2] or "",
+        "notes": rows[0][3] or "",
+    }
+    lines = []
+    for row in rows:
+        line = taxable_line(
+            row[11] * row[6],
+            vat_enabled=True,
+            withholding_enabled=withholding_enabled,
+            vat_rate=vat_rate,
+            withholding_rate=withholding_rate,
+        )
+        lines.append(
+            {
+                "product_id": row[4],
+                "product_name": row[5],
+                "quantity": float(row[6] or 0),
+                "unit_id": row[7],
+                "unit_name": row[8],
+                "conversion_factor": float(row[9] or 1),
+                "quantity_base": float(row[10] or row[6] or 0),
+                "unit_price": float(row[11] or 0),
+                "stock_quantity": float(row[12] or 0),
+                "purchase_price": float(row[13] or 0),
+                "total": line["subtotal"],
+                "tax_rate": line["vat_rate"],
+                "tax_amount": line["vat_amount"],
+                "withholding_rate": line["withholding_rate"],
+                "withholding_amount": line["withholding_amount"],
+                "grand_total": line["grand_total"],
+                "cost_total": round(float(row[10] or row[6] or 0) * float(row[13] or 0), 2),
+            }
+        )
+    return header, lines
+
+
+def _purchase_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, withholding_enabled):
+    cur.execute(
+        """
+        SELECT po.id,po.supplier_id,po.delivery_date,COALESCE(po.notes,''),pol.product_id,p.name,
+               pol.quantity,COALESCE(pol.unit_id, NULL),COALESCE(pol.unit_name, p.unit, 'وحدة'),
+               COALESCE(NULLIF(pol.conversion_factor, 0), 1),COALESCE(pol.quantity_base, pol.quantity),
+               pol.unit_price
+        FROM purchase_orders po
+        JOIN purchase_order_lines pol ON pol.order_id=po.id
+        JOIN products p ON p.id=pol.product_id
+        WHERE po.id=?
+        ORDER BY pol.id
+        """,
+        (order_id,),
+    )
+    rows = cur.fetchall()
+    if not rows:
+        return None, []
+    header = {
+        "order_id": rows[0][0],
+        "supplier_id": rows[0][1],
+        "due_date": rows[0][2] or "",
+        "notes": rows[0][3] or "",
+    }
+    lines = []
+    for row in rows:
+        line = taxable_line(
+            row[11] * row[6],
+            vat_enabled=True,
+            withholding_enabled=withholding_enabled,
+            vat_rate=vat_rate,
+            withholding_rate=withholding_rate,
+        )
+        lines.append(
+            {
+                "product_id": row[4],
+                "product_name": row[5],
+                "quantity": float(row[6] or 0),
+                "unit_id": row[7],
+                "unit_name": row[8],
+                "conversion_factor": float(row[9] or 1),
+                "quantity_base": float(row[10] or row[6] or 0),
+                "unit_price": float(row[11] or 0),
+                "total": line["subtotal"],
+                "tax_rate": line["vat_rate"],
+                "tax_amount": line["vat_amount"],
+                "withholding_rate": line["withholding_rate"],
+                "withholding_amount": line["withholding_amount"],
+                "grand_total": line["grand_total"],
+                "cost_total": 0,
+            }
+        )
+    return header, lines
+
+
+def _invoice_line_totals(lines):
+    return {
+        "quantity": round(sum(line["quantity"] for line in lines), 4),
+        "total": round(sum(line["total"] for line in lines), 2),
+        "cost_total": round(sum(line.get("cost_total", 0) for line in lines), 2),
+        "tax_amount": round(sum(line["tax_amount"] for line in lines), 2),
+        "withholding_amount": round(sum(line["withholding_amount"] for line in lines), 2),
+        "grand_total": round(sum(line["grand_total"] for line in lines), 2),
+    }
+
+
 def _legacy_build_customer_statement_view(deps):
     db = deps["db"]
     get_company_settings = deps["get_company_settings"]
@@ -508,48 +699,48 @@ def build_sales_view(deps):
     def sales():
         conn = db()
         cur = conn.cursor()
-
+        order_id = int(parse_positive_amount(request.values.get("sales_order_id")) or 0)
+        prefilled_order = None
         if request.method == "POST":
             date_value = request.form.get("date", "").strip()
             due_date = request.form.get("due_date", "").strip()
             customer_id = request.form.get("customer_id") or None
-            product_id = request.form.get("product_id")
-            unit_id = request.form.get("unit_id") or None
             payment_type = request.form.get("payment_type", "cash")
             po_ref = request.form.get("po_ref", "").strip()
             gr_ref = request.form.get("gr_ref", "").strip()
             notes = request.form.get("notes", "").strip()
-
-            try:
-                quantity = float(request.form.get("quantity", 0) or 0)
-                unit_price = float(request.form.get("unit_price", 0) or 0)
-            except ValueError:
-                quantity = 0
-                unit_price = 0
-                flash("الكمية والسعر يجب أن يكونا أرقامًا صحيحة.", "danger")
-
-            cur.execute("SELECT name, stock_quantity, purchase_price FROM products WHERE id=?", (product_id,))
-            product = cur.fetchone()
-            product_unit = _resolve_product_unit(cur, product_id, unit_id, "sale") if product_id else None
             _, default_withholding_rate = _customer_withholding(cur, customer_id)
             vat_enabled, withholding_enabled, vat_rate, withholding_rate = _single_line_tax_selection(
                 request.form,
                 default_tax_rate,
                 default_withholding_rate,
             )
+            if order_id:
+                existing_invoice = _existing_invoice_for_order(cur, "sales_invoices", "sales_order_id", order_id)
+                if existing_invoice:
+                    flash(f"تم تحويل أمر البيع مسبقًا إلى فاتورة {existing_invoice[1] or '#' + str(existing_invoice[0])}.", "warning")
+                    conn.close()
+                    return redirect(url_for("sales_invoices"))
+                prefilled_order, lines = _sales_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, withholding_enabled)
+                if prefilled_order:
+                    customer_id = prefilled_order["customer_id"] or customer_id
+                    if not due_date:
+                        due_date = prefilled_order["due_date"]
+                    if not notes:
+                        notes = prefilled_order["notes"]
+            else:
+                lines = _invoice_form_lines(cur, deps, "sale", vat_rate, withholding_rate, withholding_enabled)
 
             if not date_value:
                 flash("التاريخ مطلوب.", "danger")
-            elif not product:
-                flash("الصنف غير موجود.", "danger")
             elif payment_type == "credit" and not customer_id:
                 flash("اختر العميل عند البيع الآجل.", "danger")
-            elif quantity <= 0 or unit_price <= 0:
-                flash("الكمية والسعر يجب أن يكونا أكبر من صفر.", "danger")
+            elif not lines:
+                flash("أضف صنفًا واحدًا على الأقل بكمية وسعر صحيحين.", "danger")
             elif vat_rate < 0 or withholding_rate < 0:
                 flash("نسب الضرائب لا يمكن أن تكون سالبة.", "danger")
-            elif (product[1] or 0) < (quantity * (product_unit["conversion_factor"] if product_unit else 1)):
-                flash("رصيد الصنف الحالي لا يكفي لإتمام البيع.", "danger")
+            elif any(line["stock_quantity"] < line["quantity_base"] for line in lines):
+                flash("رصيد المخزون الحالي لا يكفي لإتمام الفاتورة.", "danger")
             else:
                 try:
                     ensure_open_period(cur, date_value)
@@ -557,19 +748,8 @@ def build_sales_view(deps):
                     flash(str(exc), "danger")
                     conn.close()
                     return redirect(url_for("sales"))
-                line = taxable_line(
-                    quantity * unit_price,
-                    vat_enabled=vat_enabled,
-                    withholding_enabled=withholding_enabled,
-                    vat_rate=vat_rate,
-                    withholding_rate=withholding_rate,
-                )
-                quantity_base = quantity * product_unit["conversion_factor"]
-                total = line["subtotal"]
-                cost_total = quantity_base * product[2]
-                tax_amount = line["vat_amount"]
-                withholding_amount = line["withholding_amount"]
-                grand_total = line["grand_total"]
+                totals = _invoice_line_totals(lines)
+                first_line = lines[0]
                 debit_code = "1300" if payment_type == "credit" else "1100"
                 group_posted = is_group_posted(cur, "sales")
                 doc_no = next_document_number(cur, "sales")
@@ -581,53 +761,47 @@ def build_sales_view(deps):
                 if group_posted:
                     entry_specs = []
                     entry_roles = []
-
                     entry_specs.append({
                         "date": date_value,
-                        "description": f"فاتورة بيع {doc_no} - {product[0]}",
+                        "description": f"فاتورة بيع {doc_no}",
                         "debit_code": debit_code,
                         "credit_code": "4100",
-                        "amount": total,
+                        "amount": totals["total"],
                         "source_type": "sales",
                     })
                     entry_roles.append("main")
-
-                    if tax_amount > 0:
+                    if totals["tax_amount"] > 0:
                         entry_specs.append({
                             "date": date_value,
-                            "description": f"ضريبة قيمة مضافة على فاتورة بيع {doc_no} - {product[0]}",
+                            "description": f"ضريبة قيمة مضافة على فاتورة بيع {doc_no}",
                             "debit_code": debit_code,
                             "credit_code": "2200",
-                            "amount": tax_amount,
+                            "amount": totals["tax_amount"],
                             "source_type": "sales",
                         })
                         entry_roles.append("tax")
-
-                    if withholding_amount > 0:
+                    if totals["withholding_amount"] > 0:
                         entry_specs.append({
                             "date": date_value,
                             "description": f"ضريبة خصم وإضافة عميل على فاتورة بيع {doc_no}",
                             "debit_code": "1510",
                             "credit_code": debit_code,
-                            "amount": withholding_amount,
+                            "amount": totals["withholding_amount"],
                             "source_type": "sales",
                         })
                         entry_roles.append("withholding")
-
-                    if cost_total > 0:
+                    if totals["cost_total"] > 0:
                         entry_specs.append({
                             "date": date_value,
-                            "description": f"تكلفة بضاعة مباعة {doc_no} - {product[0]}",
+                            "description": f"تكلفة بضاعة مباعة {doc_no}",
                             "debit_code": "6100",
                             "credit_code": "1400",
-                            "amount": cost_total,
+                            "amount": totals["cost_total"],
                             "source_type": "sales",
                         })
                         entry_roles.append("cogs")
-
                     posted_journal_ids = post_entries(cur, entry_specs, source_type="sales")
                     role_to_journal_id = dict(zip(entry_roles, posted_journal_ids))
-
                     journal_id = role_to_journal_id.get("main")
                     tax_journal_id = role_to_journal_id.get("tax")
                     withholding_journal_id = role_to_journal_id.get("withholding")
@@ -637,25 +811,25 @@ def build_sales_view(deps):
                     INSERT INTO sales_invoices(
                         date,due_date,doc_no,customer_id,product_id,quantity,unit_price,total,cost_total,
                         tax_rate,tax_amount,withholding_rate,withholding_amount,grand_total,payment_type,journal_id,tax_journal_id,withholding_journal_id,cogs_journal_id,status,
-                        po_ref,gr_ref,notes
+                        po_ref,gr_ref,notes,sales_order_id
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
                     (
                         date_value,
                         due_date,
                         doc_no,
                         customer_id,
-                        product_id,
-                        quantity,
-                        unit_price,
-                        total,
-                        cost_total,
+                        first_line["product_id"],
+                        totals["quantity"],
+                        first_line["unit_price"],
+                        totals["total"],
+                        totals["cost_total"],
                         vat_rate,
-                        tax_amount,
+                        totals["tax_amount"],
                         withholding_rate,
-                        withholding_amount,
-                        grand_total,
+                        totals["withholding_amount"],
+                        totals["grand_total"],
                         payment_type,
                         journal_id,
                         tax_journal_id,
@@ -665,75 +839,80 @@ def build_sales_view(deps):
                         po_ref,
                         gr_ref,
                         notes,
+                        order_id or None,
                     ),
                 )
                 invoice_id = cur.lastrowid
-                cur.execute(
-                    """
-                    INSERT INTO sales_invoice_lines(
-                        invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
-                        unit_id,unit_name,conversion_factor,quantity_base
-                    )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                    """,
-                    (
-                        invoice_id,
-                        product_id,
-                        quantity,
-                        unit_price,
-                        total,
-                        1 if vat_enabled else 0,
-                        1 if withholding_enabled else 0,
-                        vat_rate,
-                        withholding_rate,
-                        tax_amount,
-                        withholding_amount,
-                        grand_total,
-                        product_unit["unit_id"],
-                        product_unit["unit_name"],
-                        product_unit["conversion_factor"],
-                        quantity_base,
-                    ),
-                )
-                mark_journal_source(cur, "sales", invoice_id, journal_id, tax_journal_id, withholding_journal_id, cogs_journal_id)
-                if group_posted:
-                    cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity_base, product_id))
+                for line in lines:
                     cur.execute(
                         """
-                        INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
-                        VALUES (?,?,?,?,?,?,?)
+                        INSERT INTO sales_invoice_lines(
+                            invoice_id,product_id,quantity,unit_price,total,cost_total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
+                            unit_id,unit_name,conversion_factor,quantity_base
+                        )
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
-                        (date_value, product_id, "out", -quantity_base, "sale", invoice_id, f"فاتورة بيع - {product_unit['unit_name']}"),
+                        (
+                            invoice_id,
+                            line["product_id"],
+                            line["quantity"],
+                            line["unit_price"],
+                            line["total"],
+                            line["cost_total"],
+                            1 if vat_enabled else 0,
+                            1 if withholding_enabled else 0,
+                            line["tax_rate"],
+                            line["withholding_rate"],
+                            line["tax_amount"],
+                            line["withholding_amount"],
+                            line["grand_total"],
+                            line["unit_id"],
+                            line["unit_name"],
+                            line["conversion_factor"],
+                            line["quantity_base"],
+                        ),
                     )
-                log_action(cur, "create", "sales_invoice", invoice_id, f"{doc_no}; total={grand_total}; withholding={withholding_amount}")
+                mark_journal_source(cur, "sales", invoice_id, journal_id, tax_journal_id, withholding_journal_id, cogs_journal_id)
+                if group_posted:
+                    for line in lines:
+                        cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (line["quantity_base"], line["product_id"]))
+                        cur.execute(
+                            """
+                            INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
+                            VALUES (?,?,?,?,?,?,?)
+                            """,
+                            (date_value, line["product_id"], "out", -line["quantity_base"], "sale", invoice_id, f"فاتورة بيع - {line['unit_name']}"),
+                        )
+                log_action(cur, "create", "sales_invoice", invoice_id, f"{doc_no}; lines={len(lines)}; total={totals['grand_total']}")
                 conn.commit()
                 conn.close()
                 rebuild_ledger()
                 flash("تم حفظ فاتورة البيع." + (" تم ترحيلها وتحديث المخزون." if group_posted else " محفوظة كمسودة غير مرحلة."), "success")
-                return redirect(url_for("sales"))
+                return redirect(url_for("sales_invoices"))
 
         cur.execute("SELECT id,name FROM customers ORDER BY name")
         customers_rows = cur.fetchall()
         product_rows, product_units_map = _build_product_units_map(cur, "sale")
-        cur.execute(
-            """
-            SELECT s.id,s.date,COALESCE(c.name,'ط¨ظٹط¹ ظ†ظ‚ط¯ظٹ'),p.name,s.quantity,s.unit_price,
-                   s.total,s.tax_amount,s.withholding_amount,s.grand_total,s.payment_type,s.status,s.cancel_reason,s.due_date,s.doc_no,
-                   s.po_ref,s.gr_ref,s.notes
-            FROM sales_invoices s
-            LEFT JOIN customers c ON s.customer_id=c.id
-            JOIN products p ON s.product_id=p.id
-            ORDER BY s.id DESC
-            """
-        )
-        invoices = cur.fetchall()
+        initial_lines = [{}]
+        if order_id:
+            existing_invoice = _existing_invoice_for_order(cur, "sales_invoices", "sales_order_id", order_id)
+            if existing_invoice:
+                conn.close()
+                flash(f"تم تحويل أمر البيع مسبقًا إلى فاتورة {existing_invoice[1] or '#' + str(existing_invoice[0])}.", "warning")
+                return redirect(url_for("sales_invoices"))
+            prefilled_order, order_lines = _sales_order_invoice_payload(cur, order_id, default_tax_rate, 0, False)
+            if prefilled_order and order_lines:
+                initial_lines = order_lines
         conn.close()
-
         return render_template(
-            "sales.html",
+            "sales_create.html",
             customers=customers_rows,
             products=product_rows,
-            invoices=invoices,
+            initial_lines=initial_lines,
+            selected_customer_id=prefilled_order["customer_id"] if prefilled_order else None,
+            selected_due_date=prefilled_order["due_date"] if prefilled_order else "",
+            selected_notes=prefilled_order["notes"] if prefilled_order else "",
+            sales_order_id=order_id or "",
             product_units_json=json.dumps(product_units_map, ensure_ascii=False),
         )
 
@@ -755,6 +934,8 @@ def build_purchases_view(deps):
     def purchases():
         conn = db()
         cur = conn.cursor()
+        order_id = int(parse_positive_amount(request.values.get("purchase_order_id")) or 0)
+        prefilled_order = None
         if request.method == "POST":
             date_value = request.form.get("date", "").strip()
             supplier_invoice_no = request.form.get("supplier_invoice_no", "").strip()
@@ -762,27 +943,28 @@ def build_purchases_view(deps):
             due_date = request.form.get("due_date", "").strip()
             notes = request.form.get("notes", "").strip()
             supplier_id = request.form.get("supplier_id") or None
-            product_id = request.form.get("product_id")
-            unit_id = request.form.get("unit_id") or None
             payment_type = request.form.get("payment_type", "cash")
-
-            try:
-                quantity = float(request.form.get("quantity", 0) or 0)
-                unit_price = float(request.form.get("unit_price", 0) or 0)
-            except ValueError:
-                quantity = 0
-                unit_price = 0
-                flash("الكمية والسعر يجب أن يكونا أرقامًا صحيحة.", "danger")
-
-            cur.execute("SELECT name FROM products WHERE id=?", (product_id,))
-            product = cur.fetchone()
-            product_unit = _resolve_product_unit(cur, product_id, unit_id, "purchase") if product_id else None
             _, default_withholding_rate = _supplier_withholding(cur, supplier_id)
             vat_enabled, withholding_enabled, vat_rate, withholding_rate = _single_line_tax_selection(
                 request.form,
                 default_tax_rate,
                 default_withholding_rate,
             )
+            if order_id:
+                existing_invoice = _existing_invoice_for_order(cur, "purchase_invoices", "purchase_order_id", order_id)
+                if existing_invoice:
+                    flash(f"تم تحويل أمر الشراء مسبقًا إلى فاتورة {existing_invoice[1] or '#' + str(existing_invoice[0])}.", "warning")
+                    conn.close()
+                    return redirect(url_for("purchase_invoices"))
+                prefilled_order, lines = _purchase_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, withholding_enabled)
+                if prefilled_order:
+                    supplier_id = prefilled_order["supplier_id"] or supplier_id
+                    if not due_date:
+                        due_date = prefilled_order["due_date"]
+                    if not notes:
+                        notes = prefilled_order["notes"]
+            else:
+                lines = _invoice_form_lines(cur, deps, "purchase", vat_rate, withholding_rate, withholding_enabled)
 
             if not date_value:
                 flash("تاريخ التسجيل مطلوب.", "danger")
@@ -790,12 +972,10 @@ def build_purchases_view(deps):
                 flash("رقم فاتورة المورد مطلوب.", "danger")
             elif not supplier_invoice_date:
                 flash("تاريخ فاتورة المورد مطلوب.", "danger")
-            elif not product:
-                flash("الصنف غير موجود.", "danger")
             elif payment_type == "credit" and not supplier_id:
                 flash("اختر المورد عند الشراء الآجل.", "danger")
-            elif quantity <= 0 or unit_price <= 0:
-                flash("الكمية والسعر يجب أن يكونا أكبر من صفر.", "danger")
+            elif not lines:
+                flash("أضف صنفًا واحدًا على الأقل بكمية وسعر صحيحين.", "danger")
             elif vat_rate < 0 or withholding_rate < 0:
                 flash("نسب الضرائب لا يمكن أن تكون سالبة.", "danger")
             else:
@@ -805,43 +985,33 @@ def build_purchases_view(deps):
                     flash(str(exc), "danger")
                     conn.close()
                     return redirect(url_for("purchases"))
-                line = taxable_line(
-                    quantity * unit_price,
-                    vat_enabled=vat_enabled,
-                    withholding_enabled=withholding_enabled,
-                    vat_rate=vat_rate,
-                    withholding_rate=withholding_rate,
-                )
-                total = line["subtotal"]
-                tax_amount = line["vat_amount"]
-                withholding_amount = line["withholding_amount"]
-                grand_total = line["grand_total"]
-                quantity_base = quantity * product_unit["conversion_factor"]
+                totals = _invoice_line_totals(lines)
+                first_line = lines[0]
                 credit_code = "2100" if payment_type == "credit" else "1100"
                 group_posted = is_group_posted(cur, "purchases")
                 doc_no = next_document_number(cur, "purchases")
-                journal_id = create_auto_journal(cur, date_value, f"فاتورة مورد {doc_no} - {product[0]}", "1400", credit_code, total) if group_posted else None
+                journal_id = create_auto_journal(cur, date_value, f"فاتورة مورد {doc_no}", "1400", credit_code, totals["total"]) if group_posted else None
                 tax_journal_id = None
                 withholding_journal_id = None
-                if group_posted and tax_amount > 0:
+                if group_posted and totals["tax_amount"] > 0:
                     tax_journal_id = create_auto_journal(
                         cur,
                         date_value,
-                        f"ضريبة قيمة مضافة على فاتورة مورد {doc_no} - {product[0]}",
+                        f"ضريبة قيمة مضافة على فاتورة مورد {doc_no}",
                         "1500",
                         credit_code,
-                        tax_amount,
+                        totals["tax_amount"],
                     )
-                if group_posted and withholding_amount > 0:
+                if group_posted and totals["withholding_amount"] > 0:
                     withholding_debit = "2100" if payment_type == "credit" else "1100"
-                    withholding_journal_id = create_auto_journal(cur, date_value, f"ضريبة خصم وإضافة مورد على فاتورة مورد {doc_no}", withholding_debit, "2230", withholding_amount)
+                    withholding_journal_id = create_auto_journal(cur, date_value, f"ضريبة خصم وإضافة مورد على فاتورة مورد {doc_no}", withholding_debit, "2230", totals["withholding_amount"])
                 cur.execute(
                     """
                     INSERT INTO purchase_invoices(
                         date,doc_no,supplier_invoice_no,supplier_invoice_date,due_date,supplier_id,product_id,
-                        quantity,unit_price,total,tax_rate,tax_amount,withholding_rate,withholding_amount,grand_total,payment_type,journal_id,tax_journal_id,withholding_journal_id,notes,status
+                        quantity,unit_price,total,tax_rate,tax_amount,withholding_rate,withholding_amount,grand_total,payment_type,journal_id,tax_journal_id,withholding_journal_id,notes,status,purchase_order_id
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
                     (
                         date_value,
@@ -850,93 +1020,146 @@ def build_purchases_view(deps):
                         supplier_invoice_date,
                         due_date,
                         supplier_id,
-                        product_id,
-                        quantity,
-                        unit_price,
-                        total,
+                        first_line["product_id"],
+                        totals["quantity"],
+                        first_line["unit_price"],
+                        totals["total"],
                         vat_rate,
-                        tax_amount,
+                        totals["tax_amount"],
                         withholding_rate,
-                        withholding_amount,
-                        grand_total,
+                        totals["withholding_amount"],
+                        totals["grand_total"],
                         payment_type,
                         journal_id,
                         tax_journal_id,
                         withholding_journal_id,
                         notes,
                         "posted" if group_posted else "draft",
+                        order_id or None,
                     ),
                 )
                 invoice_id = cur.lastrowid
-                cur.execute(
-                    """
-                    INSERT INTO purchase_invoice_lines(
-                        invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
-                        unit_id,unit_name,conversion_factor,quantity_base
-                    )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                    """,
-                    (
-                        invoice_id,
-                        product_id,
-                        quantity,
-                        unit_price,
-                        total,
-                        1 if vat_enabled else 0,
-                        1 if withholding_enabled else 0,
-                        vat_rate,
-                        withholding_rate,
-                        tax_amount,
-                        withholding_amount,
-                        grand_total,
-                        product_unit["unit_id"],
-                        product_unit["unit_name"],
-                        product_unit["conversion_factor"],
-                        quantity_base,
-                    ),
-                )
-                mark_journal_source(cur, "purchases", invoice_id, journal_id, tax_journal_id, withholding_journal_id)
-                if group_posted:
-                    cur.execute("UPDATE products SET stock_quantity=stock_quantity+?, purchase_price=? WHERE id=?", (quantity_base, unit_price, product_id))
+                for line in lines:
                     cur.execute(
                         """
-                        INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
-                        VALUES (?,?,?,?,?,?,?)
+                        INSERT INTO purchase_invoice_lines(
+                            invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
+                            unit_id,unit_name,conversion_factor,quantity_base
+                        )
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
-                        (date_value, product_id, "in", quantity_base, "purchase", invoice_id, f"فاتورة شراء - {product_unit['unit_name']}"),
+                        (
+                            invoice_id,
+                            line["product_id"],
+                            line["quantity"],
+                            line["unit_price"],
+                            line["total"],
+                            1 if vat_enabled else 0,
+                            1 if withholding_enabled else 0,
+                            line["tax_rate"],
+                            line["withholding_rate"],
+                            line["tax_amount"],
+                            line["withholding_amount"],
+                            line["grand_total"],
+                            line["unit_id"],
+                            line["unit_name"],
+                            line["conversion_factor"],
+                            line["quantity_base"],
+                        ),
                     )
-                log_action(cur, "create", "purchase_invoice", invoice_id, f"{doc_no}; total={grand_total}; withholding={withholding_amount}")
+                mark_journal_source(cur, "purchases", invoice_id, journal_id, tax_journal_id, withholding_journal_id)
+                if group_posted:
+                    for line in lines:
+                        cur.execute("UPDATE products SET stock_quantity=stock_quantity+?, purchase_price=? WHERE id=?", (line["quantity_base"], line["unit_price"], line["product_id"]))
+                        cur.execute(
+                            """
+                            INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
+                            VALUES (?,?,?,?,?,?,?)
+                            """,
+                            (date_value, line["product_id"], "in", line["quantity_base"], "purchase", invoice_id, f"فاتورة شراء - {line['unit_name']}"),
+                        )
+                log_action(cur, "create", "purchase_invoice", invoice_id, f"{doc_no}; lines={len(lines)}; total={totals['grand_total']}")
                 conn.commit()
                 conn.close()
                 rebuild_ledger()
                 flash("تم حفظ فاتورة المورد." + (" تم ترحيلها وتحديث المخزون." if group_posted else " محفوظة كمسودة غير مرحلة."), "success")
-                return redirect(url_for("purchases"))
+                return redirect(url_for("purchase_invoices"))
 
         cur.execute("SELECT id,name FROM suppliers ORDER BY name")
         suppliers_rows = cur.fetchall()
         product_rows, product_units_map = _build_product_units_map(cur, "purchase")
-        cur.execute(
-            """
-            SELECT p.id,p.date,COALESCE(s.name,'ط´ط±ط§ط، ظ†ظ‚ط¯ظٹ'),pr.name,p.quantity,p.unit_price,
-                   p.total,p.tax_amount,p.withholding_amount,p.grand_total,p.payment_type,p.status,p.cancel_reason,
-                   p.supplier_invoice_no,p.supplier_invoice_date,p.due_date,p.doc_no
-            FROM purchase_invoices p
-            LEFT JOIN suppliers s ON p.supplier_id=s.id
-            JOIN products pr ON p.product_id=pr.id
-            ORDER BY p.id DESC
-            """
-        )
-        invoices = cur.fetchall()
+        initial_lines = [{}]
+        if order_id:
+            existing_invoice = _existing_invoice_for_order(cur, "purchase_invoices", "purchase_order_id", order_id)
+            if existing_invoice:
+                conn.close()
+                flash(f"تم تحويل أمر الشراء مسبقًا إلى فاتورة {existing_invoice[1] or '#' + str(existing_invoice[0])}.", "warning")
+                return redirect(url_for("purchase_invoices"))
+            prefilled_order, order_lines = _purchase_order_invoice_payload(cur, order_id, default_tax_rate, 0, False)
+            if prefilled_order and order_lines:
+                initial_lines = order_lines
         conn.close()
         return render_template(
-            "purchases.html",
+            "purchases_create.html",
             suppliers=suppliers_rows,
             products=product_rows,
-            invoices=invoices,
+            initial_lines=initial_lines,
+            selected_supplier_id=prefilled_order["supplier_id"] if prefilled_order else None,
+            selected_due_date=prefilled_order["due_date"] if prefilled_order else "",
+            selected_notes=prefilled_order["notes"] if prefilled_order else "",
+            purchase_order_id=order_id or "",
             product_units_json=json.dumps(product_units_map, ensure_ascii=False),
         )
 
     return purchases
+
+
+def build_sales_invoices_view(deps):
+    db = deps["db"]
+
+    def sales_invoices():
+        conn = db()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT s.id,s.doc_no,s.date,COALESCE(c.name,'بيع نقدي'),s.grand_total,s.status,COALESCE(s.cancel_reason,''),
+                   s.payment_type,COUNT(l.id),COALESCE(s.sales_order_id,0)
+            FROM sales_invoices s
+            LEFT JOIN customers c ON c.id=s.customer_id
+            LEFT JOIN sales_invoice_lines l ON l.invoice_id=s.id
+            GROUP BY s.id
+            ORDER BY s.id DESC
+            """
+        )
+        rows = cur.fetchall()
+        conn.close()
+        return render_template("sales_invoices.html", invoices=rows)
+
+    return sales_invoices
+
+
+def build_purchase_invoices_view(deps):
+    db = deps["db"]
+
+    def purchase_invoices():
+        conn = db()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT p.id,p.doc_no,p.date,COALESCE(s.name,'شراء نقدي'),p.grand_total,p.status,COALESCE(p.cancel_reason,''),
+                   p.payment_type,COUNT(l.id),COALESCE(p.purchase_order_id,0)
+            FROM purchase_invoices p
+            LEFT JOIN suppliers s ON s.id=p.supplier_id
+            LEFT JOIN purchase_invoice_lines l ON l.invoice_id=p.id
+            GROUP BY p.id
+            ORDER BY p.id DESC
+            """
+        )
+        rows = cur.fetchall()
+        conn.close()
+        return render_template("purchase_invoices.html", invoices=rows)
+
+    return purchase_invoices
 
 
 def _legacy_build_receipts_view(deps):
