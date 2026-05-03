@@ -437,8 +437,21 @@ def build_vat_report_view(deps):
                 COALESCE(c.name, 'عميل نقدي') AS party_name,
                 COALESCE(p.name, '') AS item_name,
                 COALESCE(l.total, 0) AS net_amount,
-                COALESCE(s.tax_amount, 0) AS vat_amount,
-                (COALESCE(l.total,0) + COALESCE(s.tax_amount,0) - COALESCE(s.withholding_amount,0)) AS grand_total
+                CASE
+                    WHEN COALESCE(s.total, 0) <> 0 THEN ROUND(COALESCE(s.tax_amount, 0) * COALESCE(l.total, 0) / s.total, 2)
+                    ELSE COALESCE(s.tax_amount, 0)
+                END AS vat_amount,
+                (
+                    COALESCE(l.total,0)
+                    + CASE
+                        WHEN COALESCE(s.total, 0) <> 0 THEN ROUND(COALESCE(s.tax_amount, 0) * COALESCE(l.total, 0) / s.total, 2)
+                        ELSE COALESCE(s.tax_amount, 0)
+                    END
+                    - CASE
+                        WHEN COALESCE(s.total, 0) <> 0 THEN ROUND(COALESCE(s.withholding_amount, 0) * COALESCE(l.total, 0) / s.total, 2)
+                        ELSE COALESCE(s.withholding_amount, 0)
+                    END
+                ) AS grand_total
             FROM sales_invoices s
             JOIN sales_invoice_lines l ON l.invoice_id = s.id
             LEFT JOIN products p ON p.id = l.product_id
@@ -474,8 +487,21 @@ def build_vat_report_view(deps):
                 COALESCE(s.name, 'مورد نقدي') AS party_name,
                 COALESCE(pr.name, '') AS item_name,
                 COALESCE(l.total, 0) AS net_amount,
-                COALESCE(p.tax_amount, 0) AS vat_amount,
-                (COALESCE(l.total,0) + COALESCE(p.tax_amount,0) - COALESCE(p.withholding_amount,0)) AS grand_total
+                CASE
+                    WHEN COALESCE(p.total, 0) <> 0 THEN ROUND(COALESCE(p.tax_amount, 0) * COALESCE(l.total, 0) / p.total, 2)
+                    ELSE COALESCE(p.tax_amount, 0)
+                END AS vat_amount,
+                (
+                    COALESCE(l.total,0)
+                    + CASE
+                        WHEN COALESCE(p.total, 0) <> 0 THEN ROUND(COALESCE(p.tax_amount, 0) * COALESCE(l.total, 0) / p.total, 2)
+                        ELSE COALESCE(p.tax_amount, 0)
+                    END
+                    - CASE
+                        WHEN COALESCE(p.total, 0) <> 0 THEN ROUND(COALESCE(p.withholding_amount, 0) * COALESCE(l.total, 0) / p.total, 2)
+                        ELSE COALESCE(p.withholding_amount, 0)
+                    END
+                ) AS grand_total
             FROM purchase_invoices p
             JOIN purchase_invoice_lines l ON l.invoice_id = p.id
             LEFT JOIN products pr ON pr.id = l.product_id
@@ -1022,31 +1048,97 @@ def build_withholding_tax_report_view(deps):
         cur = conn.cursor()
         cur.execute(
             """
-            SELECT s.date,s.doc_no,COALESCE(c.name,'عميل نقدي'),p.name,COALESCE(p.unit,''),l.total,COALESCE(l.withholding_rate,1),COALESCE(p.withholding_amount,0),'بيع',(l.total + COALESCE(l.vat_amount,0) - COALESCE(p.withholding_amount,0))
+            SELECT
+                s.date,
+                s.doc_no,
+                COALESCE(c.name,'عميل نقدي'),
+                prod.name,
+                COALESCE(prod.unit,''),
+                COALESCE(l.total,0),
+                COALESCE(s.withholding_rate,0),
+                CASE
+                    WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.withholding_amount,0) * COALESCE(l.total,0) / s.total, 2)
+                    ELSE COALESCE(s.withholding_amount,0)
+                END,
+                'بيع',
+                (
+                    COALESCE(l.total,0)
+                    + CASE
+                        WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.tax_amount,0) * COALESCE(l.total,0) / s.total, 2)
+                        ELSE COALESCE(s.tax_amount,0)
+                    END
+                    - CASE
+                        WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.withholding_amount,0) * COALESCE(l.total,0) / s.total, 2)
+                        ELSE COALESCE(s.withholding_amount,0)
+                    END
+                )
             FROM sales_invoices s
             JOIN sales_invoice_lines l ON l.invoice_id=s.id
-            JOIN products p ON p.id=l.product_id
+            JOIN products prod ON prod.id=l.product_id
             LEFT JOIN customers c ON c.id=s.customer_id
-            WHERE s.status='posted' AND COALESCE(l.withholding_enabled,0)=1 AND COALESCE(p.withholding_amount,0) > 0
+            WHERE s.status='posted' AND COALESCE(s.withholding_amount,0) > 0
             UNION ALL
-            SELECT s.date,s.doc_no,COALESCE(c.name,'عميل نقدي'),p.name,COALESCE(p.unit,''),s.total,COALESCE(s.withholding_rate,1),COALESCE(p.withholding_amount,0),'بيع',(s.total + COALESCE(s.tax_amount,0) - COALESCE(p.withholding_amount,0))
+            SELECT
+                s.date,
+                s.doc_no,
+                COALESCE(c.name,'عميل نقدي'),
+                prod.name,
+                COALESCE(prod.unit,''),
+                COALESCE(s.total,0),
+                COALESCE(s.withholding_rate,0),
+                COALESCE(s.withholding_amount,0),
+                'بيع',
+                (COALESCE(s.total,0) + COALESCE(s.tax_amount,0) - COALESCE(s.withholding_amount,0))
             FROM sales_invoices s
-            JOIN products p ON p.id=s.product_id
+            JOIN products prod ON prod.id=s.product_id
             LEFT JOIN customers c ON c.id=s.customer_id
-            WHERE s.status='posted' AND COALESCE(p.withholding_amount,0) > 0
+            WHERE s.status='posted' AND COALESCE(s.withholding_amount,0) > 0
               AND NOT EXISTS (SELECT 1 FROM sales_invoice_lines l WHERE l.invoice_id=s.id)
             UNION ALL
-            SELECT p.date,p.doc_no,COALESCE(s.name,'مورد نقدي'),pr.name,COALESCE(pr.unit,''),l.total,COALESCE(l.withholding_rate,1),COALESCE(p.withholding_amount,0),'شراء',(l.total + COALESCE(l.vat_amount,0) - COALESCE(p.withholding_amount,0))
+            SELECT
+                p.date,
+                p.doc_no,
+                COALESCE(sup.name,'مورد نقدي'),
+                prod.name,
+                COALESCE(prod.unit,''),
+                COALESCE(l.total,0),
+                COALESCE(p.withholding_rate,0),
+                CASE
+                    WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.withholding_amount,0) * COALESCE(l.total,0) / p.total, 2)
+                    ELSE COALESCE(p.withholding_amount,0)
+                END,
+                'شراء',
+                (
+                    COALESCE(l.total,0)
+                    + CASE
+                        WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.tax_amount,0) * COALESCE(l.total,0) / p.total, 2)
+                        ELSE COALESCE(p.tax_amount,0)
+                    END
+                    - CASE
+                        WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.withholding_amount,0) * COALESCE(l.total,0) / p.total, 2)
+                        ELSE COALESCE(p.withholding_amount,0)
+                    END
+                )
             FROM purchase_invoices p
             JOIN purchase_invoice_lines l ON l.invoice_id=p.id
-            JOIN products pr ON pr.id=l.product_id
-            LEFT JOIN suppliers s ON s.id=p.supplier_id
-            WHERE p.status='posted' AND COALESCE(l.withholding_enabled,0)=1 AND COALESCE(p.withholding_amount,0) > 0
+            JOIN products prod ON prod.id=l.product_id
+            LEFT JOIN suppliers sup ON sup.id=p.supplier_id
+            WHERE p.status='posted' AND COALESCE(p.withholding_amount,0) > 0
             UNION ALL
-            SELECT p.date,p.doc_no,COALESCE(s.name,'مورد نقدي'),pr.name,COALESCE(pr.unit,''),p.total,COALESCE(p.withholding_rate,1),COALESCE(p.withholding_amount,0),'شراء',p.grand_total
+            SELECT
+                p.date,
+                p.doc_no,
+                COALESCE(sup.name,'مورد نقدي'),
+                prod.name,
+                COALESCE(prod.unit,''),
+                COALESCE(p.total,0),
+                COALESCE(p.withholding_rate,0),
+                COALESCE(p.withholding_amount,0),
+                'شراء',
+                p.grand_total
             FROM purchase_invoices p
-            JOIN products pr ON pr.id=p.product_id
-            LEFT JOIN suppliers s ON s.id=p.supplier_id
+            JOIN products prod ON prod.id=p.product_id
+            LEFT JOIN suppliers sup ON sup.id=p.supplier_id
             WHERE p.status='posted' AND COALESCE(p.withholding_amount,0) > 0
               AND NOT EXISTS (SELECT 1 FROM purchase_invoice_lines l WHERE l.invoice_id=p.id)
             ORDER BY 1 DESC

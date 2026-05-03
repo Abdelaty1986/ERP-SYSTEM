@@ -47,7 +47,8 @@ def build_sales_invoice_from_delivery_view(deps):
                 cur.execute(
                     f"""
                     SELECT sd.id,sd.delivery_no,sd.sales_order_id,sd.customer_id,sd.product_id,sd.delivered_quantity,sd.unit_price,
-                           sd.total,sd.cost_total,sd.tax_rate,sd.tax_amount,sd.grand_total,sd.invoice_id,p.name
+                           sd.total,sd.cost_total,sd.tax_rate,sd.tax_amount,sd.grand_total,sd.invoice_id,p.name,
+                           sd.unit_id,COALESCE(sd.unit_name, p.unit, 'وحدة'),COALESCE(NULLIF(sd.conversion_factor, 0), 1),COALESCE(sd.quantity_base, sd.delivered_quantity)
                     FROM sales_delivery_notes sd
                     JOIN products p ON p.id=sd.product_id
                     WHERE sd.id IN ({placeholders})
@@ -141,15 +142,19 @@ def build_sales_invoice_from_delivery_view(deps):
                     cur.execute(
                         """
                         INSERT INTO sales_invoice_lines(
-                            invoice_id,product_id,quantity,unit_price,total,cost_total,
+                            invoice_id,product_id,quantity,unit_id,unit_name,conversion_factor,quantity_base,unit_price,total,cost_total,
                             vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             invoice_id,
                             row[4],
                             row[5],
+                            row[14],
+                            row[15],
+                            row[16],
+                            row[17],
                             row[6],
                             line["subtotal"],
                             row[8],
@@ -336,7 +341,8 @@ def build_purchase_invoice_from_receipt_view(deps):
                 cur.execute(
                     f"""
                     SELECT pr.id,pr.receipt_no,pr.date,pr.purchase_order_id,pr.supplier_id,pr.product_id,pr.received_quantity,
-                           pr.unit_price,pr.total,pr.tax_rate,pr.tax_amount,pr.grand_total,pr.invoice_id,p.name
+                           pr.unit_price,pr.total,pr.tax_rate,pr.tax_amount,pr.grand_total,pr.invoice_id,p.name,
+                           pr.unit_id,COALESCE(pr.unit_name, p.unit, 'وحدة'),COALESCE(NULLIF(pr.conversion_factor, 0), 1),COALESCE(pr.quantity_base, pr.received_quantity)
                     FROM purchase_receipts pr
                     JOIN products p ON p.id=pr.product_id
                     WHERE pr.id IN ({placeholders})
@@ -427,15 +433,19 @@ def build_purchase_invoice_from_receipt_view(deps):
                     cur.execute(
                         """
                         INSERT INTO purchase_invoice_lines(
-                            invoice_id,product_id,quantity,unit_price,total,
+                            invoice_id,product_id,quantity,unit_id,unit_name,conversion_factor,quantity_base,unit_price,total,
                             vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             invoice_id,
                             row[5],
                             row[6],
+                            row[14],
+                            row[15],
+                            row[16],
+                            row[17],
                             row[7],
                             line["subtotal"],
                             line["vat_enabled"],

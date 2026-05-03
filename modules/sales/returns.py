@@ -8,7 +8,7 @@ def _invoice_product_options(cur, invoice_type, invoice_id):
     if invoice_type == "sales":
         cur.execute(
             """
-            SELECT sil.product_id,p.name,sil.quantity,sil.unit_price,
+            SELECT sil.product_id,p.name,sil.quantity,sil.unit_price,COALESCE(sil.conversion_factor,1),
                    COALESCE((SELECT SUM(quantity) FROM sales_returns sr WHERE sr.sales_invoice_id=sil.invoice_id AND sr.product_id=sil.product_id),0)
             FROM sales_invoice_lines sil
             JOIN products p ON p.id=sil.product_id
@@ -21,7 +21,7 @@ def _invoice_product_options(cur, invoice_type, invoice_id):
         if not rows:
             cur.execute(
                 """
-                SELECT s.product_id,p.name,s.quantity,s.unit_price,
+                SELECT s.product_id,p.name,s.quantity,s.unit_price,1,
                        COALESCE((SELECT SUM(quantity) FROM sales_returns sr WHERE sr.sales_invoice_id=s.id AND sr.product_id=s.product_id),0)
                 FROM sales_invoices s
                 JOIN products p ON p.id=s.product_id
@@ -33,7 +33,7 @@ def _invoice_product_options(cur, invoice_type, invoice_id):
     else:
         cur.execute(
             """
-            SELECT pil.product_id,p.name,pil.quantity,pil.unit_price,
+            SELECT pil.product_id,p.name,pil.quantity,pil.unit_price,COALESCE(pil.conversion_factor,1),
                    COALESCE((SELECT SUM(quantity) FROM purchase_returns pr WHERE pr.purchase_invoice_id=pil.invoice_id AND pr.product_id=pil.product_id),0)
             FROM purchase_invoice_lines pil
             JOIN products p ON p.id=pil.product_id
@@ -46,7 +46,7 @@ def _invoice_product_options(cur, invoice_type, invoice_id):
         if not rows:
             cur.execute(
                 """
-                SELECT p.product_id,pr.name,p.quantity,p.unit_price,
+                SELECT p.product_id,pr.name,p.quantity,p.unit_price,1,
                        COALESCE((SELECT SUM(quantity) FROM purchase_returns pr2 WHERE pr2.purchase_invoice_id=p.id AND pr2.product_id=p.product_id),0)
                 FROM purchase_invoices p
                 JOIN products pr ON pr.id=p.product_id
@@ -56,7 +56,7 @@ def _invoice_product_options(cur, invoice_type, invoice_id):
             )
             rows = cur.fetchall()
     result = []
-    for product_id, name, quantity, unit_price, returned_qty in rows:
+    for product_id, name, quantity, unit_price, conversion_factor, returned_qty in rows:
         available = max((quantity or 0) - (returned_qty or 0), 0)
         result.append(
             {
@@ -64,6 +64,7 @@ def _invoice_product_options(cur, invoice_type, invoice_id):
                 "name": name,
                 "quantity": quantity or 0,
                 "unit_price": unit_price or 0,
+                "conversion_factor": conversion_factor or 1,
                 "available": available,
             }
         )
@@ -120,7 +121,8 @@ def build_sales_returns_view(deps):
                     grand_total = total + tax_amount
                     cur.execute("SELECT name,purchase_price FROM products WHERE id=?", (product_id,))
                     product = cur.fetchone()
-                    cost_total = quantity * (product[1] or 0)
+                    quantity_base = quantity * (option["conversion_factor"] or 1)
+                    cost_total = quantity_base * (product[1] or 0)
                     journal_id = post_simple_entry(
                         cur=cur,
                         date=date_value,
@@ -154,10 +156,10 @@ def build_sales_returns_view(deps):
                     )
                     return_id = cur.lastrowid
                     mark_journal_source(cur, "sales_return", return_id, journal_id, tax_journal_id, cogs_journal_id)
-                    cur.execute("UPDATE products SET stock_quantity=stock_quantity+? WHERE id=?", (quantity, product_id))
+                    cur.execute("UPDATE products SET stock_quantity=stock_quantity+? WHERE id=?", (quantity_base, product_id))
                     cur.execute(
                         "INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes) VALUES (?,?,?,?,?,?,?)",
-                        (date_value, product_id, "return_in", quantity, "sales_return", return_id, notes or "مردود بيع"),
+                        (date_value, product_id, "return_in", quantity_base, "sales_return", return_id, notes or "مردود بيع"),
                     )
                     log_action(cur, "create", "sales_return", return_id, f"invoice={invoice_id}; total={grand_total}")
                 conn.commit()
@@ -224,7 +226,8 @@ def build_purchase_returns_view(deps):
                 for product_id, quantity, option in lines:
                     cur.execute("SELECT stock_quantity,name,purchase_price FROM products WHERE id=?", (product_id,))
                     product = cur.fetchone()
-                    if not product or product[0] < quantity or quantity > option["available"]:
+                    quantity_base = quantity * (option["conversion_factor"] or 1)
+                    if not product or product[0] < quantity_base or quantity > option["available"]:
                         conn.close()
                         flash("راجع الكميات المتاحة للمردود أو رصيد المخزون.", "danger")
                         return redirect(url_for("purchase_returns"))
@@ -252,10 +255,11 @@ def build_purchase_returns_view(deps):
                     )
                     return_id = cur.lastrowid
                     mark_journal_source(cur, "purchase_return", return_id, journal_id, tax_journal_id)
-                    cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity, product_id))
+                    quantity_base = quantity * (option["conversion_factor"] or 1)
+                    cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity_base, product_id))
                     cur.execute(
                         "INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes) VALUES (?,?,?,?,?,?,?)",
-                        (date_value, product_id, "return_out", -quantity, "purchase_return", return_id, notes or "مردود مشتريات"),
+                        (date_value, product_id, "return_out", -quantity_base, "purchase_return", return_id, notes or "مردود مشتريات"),
                     )
                     log_action(cur, "create", "purchase_return", return_id, f"invoice={invoice_id}; total={grand_total}")
                 conn.commit()

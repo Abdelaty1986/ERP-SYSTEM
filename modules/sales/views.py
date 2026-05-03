@@ -156,6 +156,135 @@ def _supplier_withholding(cur, supplier_id):
     return status, (1 if status == "taxable" else 0)
 
 
+def _ensure_product_unit_mapping(cur, product_id):
+    cur.execute("SELECT unit,purchase_price,sale_price FROM products WHERE id=?", (product_id,))
+    product = cur.fetchone()
+    if not product:
+        return
+    cur.execute("SELECT COUNT(*) FROM product_units WHERE product_id=?", (product_id,))
+    if cur.fetchone()[0]:
+        return
+    cur.execute(
+        """
+        INSERT OR IGNORE INTO measurement_units(name, code, description, is_active)
+        VALUES ('وحدة','UNIT','وحدة عامة للاستخدام الافتراضي',1)
+        """
+    )
+    cur.execute("SELECT id FROM measurement_units WHERE name='وحدة'")
+    unit_id = cur.fetchone()[0]
+    cur.execute(
+        """
+        INSERT INTO product_units(
+            product_id,unit_id,conversion_factor,purchase_price,sale_price,
+            is_default_purchase,is_default_sale,is_base_unit,is_active
+        )
+        VALUES (?,?,?,?,?,1,1,1,1)
+        """,
+        (product_id, unit_id, 1, float(product[1] or 0), float(product[2] or 0)),
+    )
+    cur.execute("UPDATE products SET unit=? WHERE id=?", (product[0] or "وحدة", product_id))
+
+
+def _resolve_product_unit(cur, product_id, selected_unit_id=None, purpose="sale"):
+    _ensure_product_unit_mapping(cur, product_id)
+    order_column = "pu.is_default_sale" if purpose == "sale" else "pu.is_default_purchase"
+    params = [product_id]
+    selected_clause = ""
+    if selected_unit_id:
+        selected_clause = " AND pu.unit_id=?"
+        params.append(int(selected_unit_id))
+    cur.execute(
+        f"""
+        SELECT pu.unit_id,mu.name,pu.conversion_factor,pu.purchase_price,pu.sale_price,
+               pu.is_default_purchase,pu.is_default_sale,pu.is_base_unit
+        FROM product_units pu
+        JOIN measurement_units mu ON mu.id=pu.unit_id
+        WHERE pu.product_id=? AND pu.is_active=1{selected_clause}
+        ORDER BY {order_column} DESC, pu.is_base_unit DESC, pu.id ASC
+        LIMIT 1
+        """,
+        params,
+    )
+    row = cur.fetchone()
+    if row:
+        return {
+            "unit_id": row[0],
+            "unit_name": row[1],
+            "conversion_factor": float(row[2] or 1),
+            "purchase_price": float(row[3] or 0),
+            "sale_price": float(row[4] or 0),
+            "is_default_purchase": bool(row[5]),
+            "is_default_sale": bool(row[6]),
+            "is_base_unit": bool(row[7]),
+        }
+    return {
+        "unit_id": None,
+        "unit_name": "وحدة",
+        "conversion_factor": 1.0,
+        "purchase_price": 0.0,
+        "sale_price": 0.0,
+        "is_default_purchase": True,
+        "is_default_sale": True,
+        "is_base_unit": True,
+    }
+
+
+def _build_product_units_map(cur, purpose="sale"):
+    cur.execute("SELECT id,name,stock_quantity,purchase_price,sale_price FROM products ORDER BY name")
+    raw_product_rows = cur.fetchall()
+    product_rows = []
+    data = {}
+    for product_id, name, stock_quantity, purchase_price, sale_price in raw_product_rows:
+        _ensure_product_unit_mapping(cur, product_id)
+        cur.execute(
+            """
+            SELECT pu.unit_id,mu.name,pu.conversion_factor,pu.purchase_price,pu.sale_price,
+                   pu.is_default_purchase,pu.is_default_sale,pu.is_base_unit
+            FROM product_units pu
+            JOIN measurement_units mu ON mu.id=pu.unit_id
+            WHERE pu.product_id=? AND pu.is_active=1
+            ORDER BY pu.is_base_unit DESC, pu.conversion_factor ASC, pu.id ASC
+            """,
+            (product_id,),
+        )
+        units = []
+        default_unit_id = None
+        for row in cur.fetchall():
+            unit = {
+                "unit_id": row[0],
+                "unit_name": row[1],
+                "conversion_factor": float(row[2] or 1),
+                "purchase_price": float(row[3] or purchase_price or 0),
+                "sale_price": float(row[4] or sale_price or 0),
+                "is_default_purchase": bool(row[5]),
+                "is_default_sale": bool(row[6]),
+                "is_base_unit": bool(row[7]),
+            }
+            if purpose == "sale" and unit["is_default_sale"]:
+                default_unit_id = unit["unit_id"]
+            if purpose == "purchase" and unit["is_default_purchase"]:
+                default_unit_id = unit["unit_id"]
+            units.append(unit)
+        if units and default_unit_id is None:
+            default_unit_id = units[0]["unit_id"]
+        product_rows.append(
+            (
+                product_id,
+                name,
+                float(sale_price or 0) if purpose == "sale" else float(purchase_price or 0),
+                float(stock_quantity or 0),
+            )
+        )
+        data[str(product_id)] = {
+            "product_id": product_id,
+            "name": name,
+            "stock_quantity": float(stock_quantity or 0),
+            "default_unit_id": default_unit_id,
+            "units": units,
+        }
+    return product_rows, data
+
+
 def _legacy_build_customer_statement_view(deps):
     db = deps["db"]
     get_company_settings = deps["get_company_settings"]
@@ -385,6 +514,7 @@ def build_sales_view(deps):
             due_date = request.form.get("due_date", "").strip()
             customer_id = request.form.get("customer_id") or None
             product_id = request.form.get("product_id")
+            unit_id = request.form.get("unit_id") or None
             payment_type = request.form.get("payment_type", "cash")
             po_ref = request.form.get("po_ref", "").strip()
             gr_ref = request.form.get("gr_ref", "").strip()
@@ -400,6 +530,7 @@ def build_sales_view(deps):
 
             cur.execute("SELECT name, stock_quantity, purchase_price FROM products WHERE id=?", (product_id,))
             product = cur.fetchone()
+            product_unit = _resolve_product_unit(cur, product_id, unit_id, "sale") if product_id else None
             _, default_withholding_rate = _customer_withholding(cur, customer_id)
             vat_enabled, withholding_enabled, vat_rate, withholding_rate = _single_line_tax_selection(
                 request.form,
@@ -417,7 +548,7 @@ def build_sales_view(deps):
                 flash("الكمية والسعر يجب أن يكونا أكبر من صفر.", "danger")
             elif vat_rate < 0 or withholding_rate < 0:
                 flash("نسب الضرائب لا يمكن أن تكون سالبة.", "danger")
-            elif product[1] < quantity:
+            elif (product[1] or 0) < (quantity * (product_unit["conversion_factor"] if product_unit else 1)):
                 flash("رصيد الصنف الحالي لا يكفي لإتمام البيع.", "danger")
             else:
                 try:
@@ -433,8 +564,9 @@ def build_sales_view(deps):
                     vat_rate=vat_rate,
                     withholding_rate=withholding_rate,
                 )
+                quantity_base = quantity * product_unit["conversion_factor"]
                 total = line["subtotal"]
-                cost_total = quantity * product[2]
+                cost_total = quantity_base * product[2]
                 tax_amount = line["vat_amount"]
                 withholding_amount = line["withholding_amount"]
                 grand_total = line["grand_total"]
@@ -539,9 +671,10 @@ def build_sales_view(deps):
                 cur.execute(
                     """
                     INSERT INTO sales_invoice_lines(
-                        invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total
+                        invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
+                        unit_id,unit_name,conversion_factor,quantity_base
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
                     (
                         invoice_id,
@@ -556,17 +689,21 @@ def build_sales_view(deps):
                         tax_amount,
                         withholding_amount,
                         grand_total,
+                        product_unit["unit_id"],
+                        product_unit["unit_name"],
+                        product_unit["conversion_factor"],
+                        quantity_base,
                     ),
                 )
                 mark_journal_source(cur, "sales", invoice_id, journal_id, tax_journal_id, withholding_journal_id, cogs_journal_id)
                 if group_posted:
-                    cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity, product_id))
+                    cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity_base, product_id))
                     cur.execute(
                         """
                         INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
                         VALUES (?,?,?,?,?,?,?)
                         """,
-                        (date_value, product_id, "out", -quantity, "sale", invoice_id, "فاتورة بيع"),
+                        (date_value, product_id, "out", -quantity_base, "sale", invoice_id, f"فاتورة بيع - {product_unit['unit_name']}"),
                     )
                 log_action(cur, "create", "sales_invoice", invoice_id, f"{doc_no}; total={grand_total}; withholding={withholding_amount}")
                 conn.commit()
@@ -577,8 +714,7 @@ def build_sales_view(deps):
 
         cur.execute("SELECT id,name FROM customers ORDER BY name")
         customers_rows = cur.fetchall()
-        cur.execute("SELECT id,name,sale_price,stock_quantity FROM products ORDER BY name")
-        product_rows = cur.fetchall()
+        product_rows, product_units_map = _build_product_units_map(cur, "sale")
         cur.execute(
             """
             SELECT s.id,s.date,COALESCE(c.name,'ط¨ظٹط¹ ظ†ظ‚ط¯ظٹ'),p.name,s.quantity,s.unit_price,
@@ -593,7 +729,13 @@ def build_sales_view(deps):
         invoices = cur.fetchall()
         conn.close()
 
-        return render_template("sales.html", customers=customers_rows, products=product_rows, invoices=invoices)
+        return render_template(
+            "sales.html",
+            customers=customers_rows,
+            products=product_rows,
+            invoices=invoices,
+            product_units_json=json.dumps(product_units_map, ensure_ascii=False),
+        )
 
     return sales
 
@@ -621,6 +763,7 @@ def build_purchases_view(deps):
             notes = request.form.get("notes", "").strip()
             supplier_id = request.form.get("supplier_id") or None
             product_id = request.form.get("product_id")
+            unit_id = request.form.get("unit_id") or None
             payment_type = request.form.get("payment_type", "cash")
 
             try:
@@ -633,6 +776,7 @@ def build_purchases_view(deps):
 
             cur.execute("SELECT name FROM products WHERE id=?", (product_id,))
             product = cur.fetchone()
+            product_unit = _resolve_product_unit(cur, product_id, unit_id, "purchase") if product_id else None
             _, default_withholding_rate = _supplier_withholding(cur, supplier_id)
             vat_enabled, withholding_enabled, vat_rate, withholding_rate = _single_line_tax_selection(
                 request.form,
@@ -672,6 +816,7 @@ def build_purchases_view(deps):
                 tax_amount = line["vat_amount"]
                 withholding_amount = line["withholding_amount"]
                 grand_total = line["grand_total"]
+                quantity_base = quantity * product_unit["conversion_factor"]
                 credit_code = "2100" if payment_type == "credit" else "1100"
                 group_posted = is_group_posted(cur, "purchases")
                 doc_no = next_document_number(cur, "purchases")
@@ -726,9 +871,10 @@ def build_purchases_view(deps):
                 cur.execute(
                     """
                     INSERT INTO purchase_invoice_lines(
-                        invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total
+                        invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
+                        unit_id,unit_name,conversion_factor,quantity_base
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
                     (
                         invoice_id,
@@ -743,17 +889,21 @@ def build_purchases_view(deps):
                         tax_amount,
                         withholding_amount,
                         grand_total,
+                        product_unit["unit_id"],
+                        product_unit["unit_name"],
+                        product_unit["conversion_factor"],
+                        quantity_base,
                     ),
                 )
                 mark_journal_source(cur, "purchases", invoice_id, journal_id, tax_journal_id, withholding_journal_id)
                 if group_posted:
-                    cur.execute("UPDATE products SET stock_quantity=stock_quantity+?, purchase_price=? WHERE id=?", (quantity, unit_price, product_id))
+                    cur.execute("UPDATE products SET stock_quantity=stock_quantity+?, purchase_price=? WHERE id=?", (quantity_base, unit_price, product_id))
                     cur.execute(
                         """
                         INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
                         VALUES (?,?,?,?,?,?,?)
                         """,
-                        (date_value, product_id, "in", quantity, "purchase", invoice_id, "فاتورة شراء"),
+                        (date_value, product_id, "in", quantity_base, "purchase", invoice_id, f"فاتورة شراء - {product_unit['unit_name']}"),
                     )
                 log_action(cur, "create", "purchase_invoice", invoice_id, f"{doc_no}; total={grand_total}; withholding={withholding_amount}")
                 conn.commit()
@@ -764,8 +914,7 @@ def build_purchases_view(deps):
 
         cur.execute("SELECT id,name FROM suppliers ORDER BY name")
         suppliers_rows = cur.fetchall()
-        cur.execute("SELECT id,name,purchase_price,stock_quantity FROM products ORDER BY name")
-        product_rows = cur.fetchall()
+        product_rows, product_units_map = _build_product_units_map(cur, "purchase")
         cur.execute(
             """
             SELECT p.id,p.date,COALESCE(s.name,'ط´ط±ط§ط، ظ†ظ‚ط¯ظٹ'),pr.name,p.quantity,p.unit_price,
@@ -779,7 +928,13 @@ def build_purchases_view(deps):
         )
         invoices = cur.fetchall()
         conn.close()
-        return render_template("purchases.html", suppliers=suppliers_rows, products=product_rows, invoices=invoices)
+        return render_template(
+            "purchases.html",
+            suppliers=suppliers_rows,
+            products=product_rows,
+            invoices=invoices,
+            product_units_json=json.dumps(product_units_map, ensure_ascii=False),
+        )
 
     return purchases
 

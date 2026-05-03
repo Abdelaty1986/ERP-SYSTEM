@@ -91,7 +91,7 @@ def build_cancel_sale_view(deps):
         reverse_journal(cur, cogs_journal_id, date_value, reason)
         cur.execute(
             """
-            SELECT id,date,sales_order_id,product_id,delivered_quantity,cogs_journal_id,status
+            SELECT id,date,sales_order_id,product_id,COALESCE(quantity_base, delivered_quantity),cogs_journal_id,status
             FROM sales_delivery_notes
             WHERE invoice_id=?
             ORDER BY id
@@ -124,7 +124,7 @@ def build_cancel_sale_view(deps):
         else:
             cur.execute(
                 """
-                SELECT product_id,quantity
+                SELECT product_id,COALESCE(quantity_base, quantity)
                 FROM sales_invoice_lines
                 WHERE invoice_id=?
                 ORDER BY id
@@ -298,7 +298,7 @@ def build_cancel_purchase_view(deps):
         reverse_journal(cur, withholding_journal_id, date_value, reason)
         cur.execute(
             """
-            SELECT id,date,purchase_order_id,product_id,received_quantity,journal_id,status
+            SELECT id,date,purchase_order_id,product_id,COALESCE(quantity_base, received_quantity),journal_id,status
             FROM purchase_receipts
             WHERE invoice_id=?
             ORDER BY id
@@ -337,7 +337,7 @@ def build_cancel_purchase_view(deps):
         else:
             cur.execute(
                 """
-                SELECT product_id,quantity
+                SELECT product_id,COALESCE(quantity_base, quantity)
                 FROM purchase_invoice_lines
                 WHERE invoice_id=?
                 ORDER BY id

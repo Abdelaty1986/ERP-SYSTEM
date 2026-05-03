@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المخازن</div>
+        <h2>وحدات القياس</h2>
+        <p class="page-subtitle">إدارة وحدات القياس المستخدمة في بيع وشراء الأصناف وربطها بتحويلات كل صنف.</p>
+    </div>
+</div>
+
+<section class="panel-block no-print">
+    <div class="section-title">
+        <div>
+            <h3>{% if edit_unit %}تعديل وحدة القياس{% else %}إضافة وحدة قياس{% endif %}</h3>
+            <p>يمكنك تعطيل الوحدة بدل حذفها إذا كانت مرتبطة بأصناف أو حركات سابقة.</p>
+        </div>
+    </div>
+    <form method="POST" action="{% if edit_unit %}/measurement-units/{{ edit_unit[0] }}/edit{% else %}/measurement-units/add{% endif %}">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">اسم الوحدة</label>
+                <input type="text" name="name" value="{{ edit_unit[1] if edit_unit else '' }}" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">الكود</label>
+                <input type="text" name="code" value="{{ edit_unit[2] if edit_unit else '' }}" class="form-control">
+            </div>
+            <div class="col-md-5">
+                <label class="form-label">الوصف</label>
+                <input type="text" name="description" value="{{ edit_unit[3] if edit_unit else '' }}" class="form-control">
+            </div>
+            <div class="col-md-12 d-flex gap-2">
+                <button class="btn btn-success">حفظ</button>
+                {% if edit_unit %}
+                <a href="/measurement-units" class="btn btn-outline-secondary">إلغاء</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</section>
+
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل وحدات القياس</h3>
+            <p>عرض سريع للوحدات المتاحة، أكوادها، حالتها، وإجراءات التعديل أو التعطيل أو الحذف الآمن.</p>
+        </div>
+        <span class="stat-pill">{{ units|length }} وحدة</span>
+    </div>
+    {% if units %}
+    <div class="table-shell">
+        <table class="table table-bordered table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>اسم الوحدة</th>
+                    <th>الكود</th>
+                    <th>الوصف</th>
+                    <th>الحالة</th>
+                    <th>تاريخ الإنشاء</th>
+                    <th class="no-print">إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    <td>{{ unit[1] }}</td>
+                    <td>{{ unit[2] or "-" }}</td>
+                    <td>{{ unit[3] or "-" }}</td>
+                    <td>{% if unit[4] %}نشطة{% else %}معطلة{% endif %}</td>
+                    <td>{{ unit[5] }}</td>
+                    <td class="no-print">
+                        <div class="d-flex gap-1 flex-wrap">
+                            <a href="/measurement-units?edit_id={{ unit[0] }}" class="btn btn-warning btn-sm">تعديل</a>
+                            <form method="POST" action="/measurement-units/{{ unit[0] }}/toggle" class="d-inline">
+                                <button class="btn btn-outline-secondary btn-sm">{% if unit[4] %}تعطيل{% else %}تفعيل{% endif %}</button>
+                            </form>
+                            <form method="POST" action="/measurement-units/{{ unit[0] }}/delete" class="d-inline" onsubmit="return confirm('هل تريد حذف هذه الوحدة أو تعطيلها إذا كانت مستخدمة؟');">
+                                <button class="btn btn-outline-danger btn-sm">حذف آمن</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-hint">لا توجد وحدات قياس مسجلة حاليًا.</div>
+    {% endif %}
+</section>
+{% endblock %}

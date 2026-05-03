@@ -1,52 +1,95 @@
 {% extends "layout.html" %}
 
 {% block content %}
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">المصروفات</div>
+        <h2>إدارة المصروفات</h2>
+        <p class="page-subtitle">تسجيل المصروفات اليومية ومراجعة إجمالياتها من نفس الشاشة مع تخطيط مرن يعمل بسلاسة على الموبايل والتابلت والكمبيوتر.</p>
+    </div>
+</div>
 
-<h2>المصروفات</h2>
+<div class="summary-grid">
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-cash-stack tone-red"></i><span>إجمالي المصروفات</span></div>
+        <div class="summary-value money" data-value="{{ total }}">{{ total }}</div>
+        <div class="summary-note">إجمالي قيمة المصروفات المسجلة داخل النظام.</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-card-head"><i class="bi bi-list-check tone-blue"></i><span>عدد البنود</span></div>
+        <div class="summary-value">{{ expenses|length }}</div>
+        <div class="summary-note">عدد حركات المصروفات الظاهرة في الجدول الحالي.</div>
+    </div>
+</div>
 
-<form method="POST" class="card p-3 mb-3">
+<section class="panel-block">
+    <div class="section-title">
+        <div>
+            <h3>إضافة مصروف جديد</h3>
+            <p>تم تنظيم الحقول لتلتف تلقائيًا حسب عرض الشاشة مع الحفاظ على وضوح الإدخال.</p>
+        </div>
+    </div>
 
-    <label class="form-label">التاريخ</label>
-    <input type="date" name="date" class="form-control mb-2">
+    <form method="POST">
+        <div class="row g-3">
+            <div class="col-12 col-md-6 col-xl-3">
+                <label class="form-label">التاريخ</label>
+                <input type="date" name="date" class="form-control">
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <label class="form-label">النوع</label>
+                <select name="category" class="form-select">
+                    <option>عمالة</option>
+                    <option>سماد</option>
+                    <option>بذور</option>
+                    <option>نقل</option>
+                </select>
+            </div>
+            <div class="col-12 col-xl-4">
+                <label class="form-label">البيان</label>
+                <input type="text" name="description" class="form-control">
+            </div>
+            <div class="col-12 col-md-6 col-xl-2">
+                <label class="form-label">المبلغ</label>
+                <input type="number" step="0.01" min="0.01" name="amount" class="form-control">
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+                <button class="btn btn-primary">إضافة</button>
+            </div>
+        </div>
+    </form>
+</section>
 
-    <label class="form-label">البيان</label>
-    <input type="text" name="description" class="form-control mb-2">
+<section class="panel-block panel-block-muted">
+    <div class="section-title">
+        <div>
+            <h3>سجل المصروفات</h3>
+            <p>الجداول الصغيرة أصبحت قابلة للتمرير أفقيًا على الشاشات الضيقة بدل كسر الصفحة.</p>
+        </div>
+        <span class="stat-pill">{{ expenses|length }} بند</span>
+    </div>
 
-    <label class="form-label">المبلغ</label>
-    <input type="number" step="0.01" min="0.01" name="amount" class="form-control mb-2">
-
-    <label class="form-label">النوع</label>
-    <select name="category" class="form-control mb-3">
-        <option>عمالة</option>
-        <option>سماد</option>
-        <option>بذور</option>
-        <option>نقل</option>
-    </select>
-
-    <button class="btn btn-primary">إضافة</button>
-
-</form>
-
-<h4>الإجمالي: {{ total }}</h4>
-
-<table class="table table-bordered">
-
-<tr>
-    <th>التاريخ</th>
-    <th>البيان</th>
-    <th>المبلغ</th>
-    <th>النوع</th>
-</tr>
-
-{% for e in expenses %}
-<tr>
-    <td>{{ e[1] }}</td>
-    <td>{{ e[2] }}</td>
-    <td>{{ e[3] }}</td>
-    <td>{{ e[4] }}</td>
-</tr>
-{% endfor %}
-
-</table>
-
+    <div class="table-shell">
+        <table class="table table-bordered align-middle table-hover">
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>البيان</th>
+                    <th>المبلغ</th>
+                    <th>النوع</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in expenses %}
+                <tr>
+                    <td>{{ e[1] }}</td>
+                    <td>{{ e[2] }}</td>
+                    <td class="money" data-value="{{ e[3] }}">{{ e[3] }}</td>
+                    <td>{{ e[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 {% endblock %}

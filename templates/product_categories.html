@@ -3,16 +3,16 @@
 <div class="report-hero">
     <div class="page-title-wrap">
         <div class="eyebrow">المخازن</div>
-        <h2>تصنيفات الأصناف</h2>
-        <p class="page-subtitle">إدارة التصنيفات الرئيسية والفرعية للأصناف مع التفعيل والتعطيل بدل الحذف.</p>
+        <h2>المجموعات الرئيسية</h2>
+        <p class="page-subtitle">إدارة المجموعات الرئيسية والفرعية للأصناف مع التفعيل والتعطيل بدل الحذف.</p>
     </div>
 </div>
 
 <section class="panel-block no-print">
     <div class="section-title">
         <div>
-            <h3>{% if edit_category %}تعديل التصنيف{% else %}إضافة تصنيف جديد{% endif %}</h3>
-            <p>يمكنك إضافة تصنيف رئيسي أو ربطه بتصنيف أب لإنشاء تصنيف فرعي.</p>
+            <h3>{% if edit_category %}تعديل المجموعة{% else %}إضافة مجموعة جديدة{% endif %}</h3>
+            <p>يمكنك إضافة مجموعة رئيسية أو ربطها بمجموعة أب لإنشاء مجموعة فرعية.</p>
         </div>
     </div>
     <form method="POST">
@@ -20,13 +20,13 @@
         <input type="hidden" name="category_id" value="{{ edit_category[0] if edit_category else '' }}">
         <div class="row g-3">
             <div class="col-md-4">
-                <label class="form-label">اسم التصنيف</label>
+                <label class="form-label">اسم المجموعة</label>
                 <input type="text" name="name" value="{{ edit_category[1] if edit_category else '' }}" class="form-control" required>
             </div>
             <div class="col-md-4">
-                <label class="form-label">التصنيف الأب</label>
+                <label class="form-label">المجموعة الأب</label>
                 <select name="parent_id" class="form-select">
-                    <option value="">تصنيف رئيسي</option>
+                    <option value="">مجموعة رئيسية</option>
                     {% for c in categories %}
                     {% if not edit_category or c.id != edit_category[0] %}
                     <option value="{{ c.id }}" {% if edit_category and edit_category[2] == c.id %}selected{% endif %}>{{ c.option_label }}</option>
@@ -47,16 +47,16 @@
 <section class="panel-block panel-block-muted">
     <div class="section-title">
         <div>
-            <h3>سجل التصنيفات</h3>
-            <p>يظهر التصنيف الفرعي أسفل الأب مع توضيح حالته الحالية.</p>
+            <h3>سجل المجموعات</h3>
+            <p>يظهر المسار الكامل للمجموعة مع توضيح حالتها الحالية.</p>
         </div>
-        <span class="stat-pill">{{ categories|length }} تصنيف</span>
+        <span class="stat-pill">{{ categories|length }} مجموعة</span>
     </div>
     {% if categories %}
     <div class="table-shell">
         <table class="table table-bordered align-middle table-hover">
             <tr>
-                <th>التصنيف</th>
+                <th>المجموعة</th>
                 <th>المسار</th>
                 <th>الحالة</th>
                 <th>تاريخ الإنشاء</th>
@@ -66,7 +66,7 @@
             <tr>
                 <td>{{ c.option_label }}</td>
                 <td>{{ c.full_label }}</td>
-                <td>{% if c.status == 'active' %}نشط{% else %}معطل{% endif %}</td>
+                <td>{% if c.status == 'active' %}نشطة{% else %}معطلة{% endif %}</td>
                 <td>{{ c.created_at }}</td>
                 <td class="no-print">
                     <div class="d-flex gap-1 flex-wrap">
@@ -83,7 +83,7 @@
         </table>
     </div>
     {% else %}
-    <div class="empty-hint">لا توجد تصنيفات مسجلة حاليًا.</div>
+    <div class="empty-hint">لا توجد مجموعات مسجلة حاليًا.</div>
     {% endif %}
 </section>
 {% endblock %}

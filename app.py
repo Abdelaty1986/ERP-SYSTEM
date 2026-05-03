@@ -73,6 +73,11 @@ from modules.inventory.views import (
     build_edit_product_view,
     build_inventory_report_view,
     build_inventory_view,
+    build_measurement_unit_add_view,
+    build_measurement_unit_delete_view,
+    build_measurement_unit_edit_view,
+    build_measurement_unit_toggle_view,
+    build_measurement_units_view,
     build_product_barcode_view,
     build_product_categories_view,
     build_products_view,
@@ -1741,6 +1746,31 @@ def inventory():
 @permission_required("inventory")
 def product_categories():
     return build_product_categories_view(MODULE_DEPS)()
+@app.route("/measurement-units", methods=["GET"])
+@login_required
+@permission_required("inventory")
+def measurement_units():
+    return build_measurement_units_view(MODULE_DEPS)()
+@app.route("/measurement-units/add", methods=["POST"])
+@login_required
+@permission_required("inventory", write_always=True)
+def add_measurement_unit():
+    return build_measurement_unit_add_view(MODULE_DEPS)()
+@app.route("/measurement-units/<int:id>/edit", methods=["POST"])
+@login_required
+@permission_required("inventory", write_always=True)
+def edit_measurement_unit(id):
+    return build_measurement_unit_edit_view(MODULE_DEPS)(id)
+@app.route("/measurement-units/<int:id>/toggle", methods=["POST"])
+@login_required
+@permission_required("inventory", write_always=True)
+def toggle_measurement_unit(id):
+    return build_measurement_unit_toggle_view(MODULE_DEPS)(id)
+@app.route("/measurement-units/<int:id>/delete", methods=["POST"])
+@login_required
+@permission_required("inventory", write_always=True)
+def delete_measurement_unit(id):
+    return build_measurement_unit_delete_view(MODULE_DEPS)(id)
 @app.route("/sales/<int:id>/cancel", methods=["POST"])
 @login_required
 @permission_required("sales", write_always=True)
@@ -3875,6 +3905,11 @@ app.view_functions["edit_product"] = login_required(permission_required("invento
 app.view_functions["delete_product"] = login_required(permission_required("inventory", write_always=True)(build_delete_product_view(MODULE_DEPS)))
 app.view_functions["inventory"] = login_required(permission_required("inventory")(build_inventory_view(MODULE_DEPS)))
 app.view_functions["product_categories"] = login_required(permission_required("inventory")(build_product_categories_view(MODULE_DEPS)))
+app.view_functions["measurement_units"] = login_required(permission_required("inventory")(build_measurement_units_view(MODULE_DEPS)))
+app.view_functions["add_measurement_unit"] = login_required(permission_required("inventory", write_always=True)(build_measurement_unit_add_view(MODULE_DEPS)))
+app.view_functions["edit_measurement_unit"] = login_required(permission_required("inventory", write_always=True)(build_measurement_unit_edit_view(MODULE_DEPS)))
+app.view_functions["toggle_measurement_unit"] = login_required(permission_required("inventory", write_always=True)(build_measurement_unit_toggle_view(MODULE_DEPS)))
+app.view_functions["delete_measurement_unit"] = login_required(permission_required("inventory", write_always=True)(build_measurement_unit_delete_view(MODULE_DEPS)))
 app.view_functions["inventory_report"] = login_required(permission_required("reports")(build_inventory_report_view(MODULE_DEPS)))
 app.view_functions["customer_statement"] = login_required(permission_required("customers")(build_customer_statement_view(MODULE_DEPS)))
 app.view_functions["supplier_statement"] = login_required(permission_required("suppliers")(build_supplier_statement_view(MODULE_DEPS)))

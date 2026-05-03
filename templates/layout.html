@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_enterprise_theme.css') }}">
 {% block extra_css %}{% endblock %}
 </head>
-<body class="theme-enterprise">
+<body class="theme-enterprise ledgerx-app">
 {% set current_path = request.path %}
 
 <div class="app-shell" id="ledgerxShell">
@@ -90,14 +90,15 @@
             {% endif %}
 
             {% if can_read("inventory") %}
-            <details class="nav-group" {% if current_path.startswith('/products') or current_path == '/product-categories' or current_path.startswith('/inventory') or current_path.startswith('/purchase-receipts') or current_path.startswith('/sales-deliveries') or current_path == '/reports/inventory' %}open{% endif %}>
+            <details class="nav-group" {% if current_path.startswith('/products') or current_path == '/product-categories' or current_path == '/measurement-units' or current_path.startswith('/inventory') or current_path.startswith('/purchase-receipts') or current_path.startswith('/sales-deliveries') or current_path == '/reports/inventory' %}open{% endif %}>
                 <summary>
                     <span class="nav-group-title"><i class="bi bi-box-seam-fill"></i><span>المخازن</span></span>
                     <i class="bi bi-chevron-down nav-caret"></i>
                 </summary>
                 <div class="nav-group-links">
                     <a href="/products" class="{% if current_path == '/products' or current_path.startswith('/products/') %}active{% endif %}"><i class="bi bi-box-seam"></i><span>الأصناف والمنتجات</span></a>
-                    <a href="/product-categories" class="{% if current_path == '/product-categories' %}active{% endif %}"><i class="bi bi-tags"></i><span>تصنيفات الأصناف</span></a>
+                    <a href="/product-categories" class="{% if current_path == '/product-categories' %}active{% endif %}"><i class="bi bi-tags"></i><span>المجموعات الرئيسية</span></a>
+                    <a href="/measurement-units" class="{% if current_path == '/measurement-units' %}active{% endif %}"><i class="bi bi-rulers"></i><span>وحدات القياس</span></a>
                     <a href="/purchase-receipts" class="{% if current_path == '/purchase-receipts' %}active{% endif %}"><i class="bi bi-download"></i><span>أذون إضافة</span></a>
                     <a href="/sales-deliveries" class="{% if current_path == '/sales-deliveries' %}active{% endif %}"><i class="bi bi-upload"></i><span>أذون صرف</span></a>
                     <a href="/inventory" class="{% if current_path == '/inventory' %}active{% endif %}"><i class="bi bi-arrow-left-right"></i><span>حركة المخزون</span></a>
@@ -222,7 +223,7 @@
             </div>
         </header>
 
-        <section class="content-panel">
+        <section class="content-panel" id="contentPanel">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}

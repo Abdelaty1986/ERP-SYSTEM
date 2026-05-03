@@ -143,4 +143,8 @@
     .lx-dev-grid-4, .lx-action-grid, .lx-migration-box { grid-template-columns: 1fr; }
     .lx-dev-hero { padding: 20px; border-radius: 22px; }
     .lx-mini-link { margin-inline-start: 0; }
+    .lx-panel { padding: 16px; }
+    .lx-panel-head { align-items: flex-start; flex-direction: column; }
+    .lx-action-card { grid-template-columns: 1fr; }
+    .lx-action-card button, .lx-action-card .lx-arrow { grid-column: auto; justify-self: stretch; width: 100%; }
 }

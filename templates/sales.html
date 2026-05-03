@@ -79,6 +79,12 @@
                 </select>
             </div>
             <div class="col-md-2">
+                <label class="form-label">الوحدة</label>
+                <select name="unit_id" id="sale_unit" class="form-select" required>
+                    <option value="">اختر الوحدة</option>
+                </select>
+            </div>
+            <div class="col-md-2">
                 <label class="form-label">الكمية</label>
                 <input type="number" step="0.01" min="0.01" name="quantity" class="form-control" required>
             </div>
@@ -181,9 +187,35 @@
 </section>
 
 <script>
-document.getElementById("sale_product")?.addEventListener("change", function () {
-    const option = this.options[this.selectedIndex];
-    document.getElementById("sale_price").value = option?.dataset?.price || "";
+const saleUnitsMap = {{ product_units_json|safe }};
+const saleProductSelect = document.getElementById("sale_product");
+const saleUnitSelect = document.getElementById("sale_unit");
+const salePriceInput = document.getElementById("sale_price");
+
+function fillSaleUnits() {
+    const productData = saleUnitsMap[saleProductSelect?.value || ""];
+    saleUnitSelect.innerHTML = '<option value="">اختر الوحدة</option>';
+    if (!productData) {
+        salePriceInput.value = "";
+        return;
+    }
+    (productData.units || []).forEach((unit) => {
+        const option = document.createElement("option");
+        option.value = unit.unit_id;
+        option.textContent = `${unit.unit_name} x ${unit.conversion_factor}`;
+        option.dataset.price = unit.sale_price || "";
+        if (String(unit.unit_id) === String(productData.default_unit_id)) {
+            option.selected = true;
+        }
+        saleUnitSelect.appendChild(option);
+    });
+    salePriceInput.value = saleUnitSelect.selectedOptions[0]?.dataset?.price || "";
+}
+
+saleProductSelect?.addEventListener("change", fillSaleUnits);
+saleUnitSelect?.addEventListener("change", function () {
+    salePriceInput.value = this.selectedOptions[0]?.dataset?.price || "";
 });
+fillSaleUnits();
 </script>
 {% endblock %}

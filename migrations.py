@@ -26,7 +26,7 @@ from typing import Callable, Iterable
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "database.db")
 BACKUP_DIR = os.path.join(BASE_DIR, "backups", "migrations")
-LATEST_SCHEMA_VERSION = 8
+LATEST_SCHEMA_VERSION = 10
 
 
 def connect(db_path: str) -> sqlite3.Connection:
@@ -498,6 +498,184 @@ def migration_008_enterprise_hr_blueprint(cur: sqlite3.Cursor) -> None:
         cur.execute("INSERT OR IGNORE INTO hr_departments(name) VALUES (?)", (department_name,))
 
 
+def migration_009_measurement_units(cur: sqlite3.Cursor) -> None:
+    """Inventory measurement units, product conversions, and invoice line unit metadata."""
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS measurement_units (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            code TEXT UNIQUE,
+            description TEXT,
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS product_units (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER NOT NULL,
+            unit_id INTEGER NOT NULL,
+            conversion_factor REAL NOT NULL DEFAULT 1,
+            purchase_price REAL DEFAULT 0,
+            sale_price REAL DEFAULT 0,
+            barcode TEXT,
+            is_default_purchase INTEGER DEFAULT 0,
+            is_default_sale INTEGER DEFAULT 0,
+            is_base_unit INTEGER DEFAULT 0,
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(product_id) REFERENCES products(id),
+            FOREIGN KEY(unit_id) REFERENCES measurement_units(id)
+        )
+        """
+    )
+    for table_name in ("sales_invoice_lines", "purchase_invoice_lines"):
+        add_column_if_missing(cur, table_name, "unit_id", "INTEGER")
+        add_column_if_missing(cur, table_name, "unit_name", "TEXT")
+        add_column_if_missing(cur, table_name, "conversion_factor", "REAL NOT NULL DEFAULT 1")
+        add_column_if_missing(cur, table_name, "quantity_base", "REAL")
+
+    create_index_if_missing(cur, "idx_measurement_units_name", "measurement_units", "name")
+    create_index_if_missing(cur, "idx_measurement_units_code", "measurement_units", "code")
+    create_index_if_missing(cur, "idx_product_units_product", "product_units", "product_id")
+    create_index_if_missing(cur, "idx_product_units_unit", "product_units", "unit_id")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_product_units_product_unit ON product_units(product_id, unit_id)")
+
+    defaults = [
+        ("قطعة", "PCS", "الوحدة الأساسية العامة للأصناف الفردية"),
+        ("وحدة", "UNIT", "وحدة عامة للاستخدام الافتراضي"),
+        ("علبة", "BOX", "وحدة تعبئة متوسطة"),
+        ("كرتونة", "CTN", "وحدة تعبئة كبيرة"),
+        ("كجم", "KG", "وحدة وزن"),
+        ("جرام", "G", "وحدة وزن فرعية"),
+        ("لتر", "LTR", "وحدة حجم"),
+        ("متر", "M", "وحدة طول"),
+    ]
+    for row in defaults:
+        cur.execute(
+            """
+            INSERT OR IGNORE INTO measurement_units(name, code, description, is_active)
+            VALUES (?,?,?,1)
+            """,
+            row,
+        )
+
+    cur.execute("SELECT id FROM measurement_units WHERE name='وحدة'")
+    default_unit = cur.fetchone()
+    if default_unit:
+        default_unit_id = default_unit[0]
+        cur.execute(
+            """
+            INSERT OR IGNORE INTO product_units(
+                product_id, unit_id, conversion_factor, purchase_price, sale_price,
+                is_default_purchase, is_default_sale, is_base_unit, is_active
+            )
+            SELECT p.id, ?, 1, COALESCE(p.purchase_price, 0), COALESCE(p.sale_price, 0), 1, 1, 1, 1
+            FROM products p
+            WHERE NOT EXISTS (
+                SELECT 1 FROM product_units pu WHERE pu.product_id = p.id
+            )
+            """,
+            (default_unit_id,),
+        )
+        for table_name in ("sales_invoice_lines", "purchase_invoice_lines"):
+            cur.execute(
+                f"""
+                UPDATE {table_name}
+                SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                    quantity_base = COALESCE(quantity_base, quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                    unit_name = COALESCE(unit_name, 'وحدة'),
+                    unit_id = COALESCE(unit_id, ?)
+                """,
+                (default_unit_id,),
+            )
+
+
+def migration_010_order_units(cur: sqlite3.Cursor) -> None:
+    """Add unit metadata to orders and their warehouse fulfillment documents."""
+    for table_name in ("sales_order_lines", "purchase_order_lines", "sales_delivery_notes", "purchase_receipts"):
+        add_column_if_missing(cur, table_name, "unit_id", "INTEGER")
+        add_column_if_missing(cur, table_name, "unit_name", "TEXT")
+        add_column_if_missing(cur, table_name, "conversion_factor", "REAL NOT NULL DEFAULT 1")
+        add_column_if_missing(cur, table_name, "quantity_base", "REAL")
+
+    cur.execute("SELECT id FROM measurement_units WHERE name='ظˆط­ط¯ط©'")
+    default_unit_row = cur.fetchone()
+    default_unit_id = default_unit_row[0] if default_unit_row else None
+
+    if default_unit_id:
+        for table_name, quantity_column in (
+            ("sales_order_lines", "quantity"),
+            ("purchase_order_lines", "quantity"),
+            ("sales_delivery_notes", "delivered_quantity"),
+            ("purchase_receipts", "received_quantity"),
+        ):
+            cur.execute(
+                f"""
+                UPDATE {table_name}
+                SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                    quantity_base = COALESCE(quantity_base, {quantity_column} * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                    unit_name = COALESCE(unit_name, 'ظˆط­ط¯ط©'),
+                    unit_id = COALESCE(unit_id, ?)
+                """,
+                (default_unit_id,),
+            )
+
+    cur.execute(
+        """
+        UPDATE sales_delivery_notes
+        SET unit_id = COALESCE(unit_id, (
+                SELECT sol.unit_id
+                FROM sales_order_lines sol
+                WHERE sol.id = sales_delivery_notes.sales_order_line_id
+            )),
+            unit_name = COALESCE(unit_name, (
+                SELECT sol.unit_name
+                FROM sales_order_lines sol
+                WHERE sol.id = sales_delivery_notes.sales_order_line_id
+            )),
+            conversion_factor = COALESCE(NULLIF(conversion_factor, 0), (
+                SELECT COALESCE(NULLIF(sol.conversion_factor, 0), 1)
+                FROM sales_order_lines sol
+                WHERE sol.id = sales_delivery_notes.sales_order_line_id
+            ), 1),
+            quantity_base = COALESCE(quantity_base, delivered_quantity * COALESCE((
+                SELECT COALESCE(NULLIF(sol.conversion_factor, 0), 1)
+                FROM sales_order_lines sol
+                WHERE sol.id = sales_delivery_notes.sales_order_line_id
+            ), COALESCE(NULLIF(conversion_factor, 0), 1), 1))
+        """
+    )
+    cur.execute(
+        """
+        UPDATE purchase_receipts
+        SET unit_id = COALESCE(unit_id, (
+                SELECT pol.unit_id
+                FROM purchase_order_lines pol
+                WHERE pol.id = purchase_receipts.purchase_order_line_id
+            )),
+            unit_name = COALESCE(unit_name, (
+                SELECT pol.unit_name
+                FROM purchase_order_lines pol
+                WHERE pol.id = purchase_receipts.purchase_order_line_id
+            )),
+            conversion_factor = COALESCE(NULLIF(conversion_factor, 0), (
+                SELECT COALESCE(NULLIF(pol.conversion_factor, 0), 1)
+                FROM purchase_order_lines pol
+                WHERE pol.id = purchase_receipts.purchase_order_line_id
+            ), 1),
+            quantity_base = COALESCE(quantity_base, received_quantity * COALESCE((
+                SELECT COALESCE(NULLIF(pol.conversion_factor, 0), 1)
+                FROM purchase_order_lines pol
+                WHERE pol.id = purchase_receipts.purchase_order_line_id
+            ), COALESCE(NULLIF(conversion_factor, 0), 1), 1))
+        """
+    )
+
+
 MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (1, "core metadata tables", migration_001_core_tables),
     (2, "permissions safety", migration_002_permissions_safety),
@@ -507,6 +685,8 @@ MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (6, "performance indexes", migration_006_indexes),
     (7, "hr payroll hardening", migration_007_hr_payroll_hardening),
     (8, "enterprise hr blueprint", migration_008_enterprise_hr_blueprint),
+    (9, "measurement units and product conversions", migration_009_measurement_units),
+    (10, "order unit metadata and warehouse conversion safety", migration_010_order_units),
 ]
 
 

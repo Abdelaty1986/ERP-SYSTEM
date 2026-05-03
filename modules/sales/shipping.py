@@ -85,7 +85,9 @@ def build_sales_deliveries_view(deps):
             cur.execute(
                 """
                 SELECT so.id,sol.id,so.customer_id,sol.product_id,sol.quantity,sol.unit_price,sol.tax_rate,
-                       p.name,p.purchase_price,p.stock_quantity,so.date,so.delivery_date
+                       p.name,p.purchase_price,p.stock_quantity,so.date,so.delivery_date,
+                       sol.unit_id,COALESCE(sol.unit_name, p.unit, 'وحدة'),
+                       COALESCE(NULLIF(sol.conversion_factor, 0), 1)
                 FROM sales_order_lines sol
                 JOIN sales_orders so ON so.id=sol.order_id
                 JOIN products p ON p.id=sol.product_id
@@ -118,7 +120,7 @@ def build_sales_deliveries_view(deps):
                 flash("تاريخ إذن الصرف لا يمكن أن يكون أسبق من تاريخ التسليم المحدد في أمر البيع.", "danger")
             elif delivered_quantity <= 0 or delivered_quantity > remaining:
                 flash("الكمية المنصرفة يجب أن تكون أكبر من صفر ولا تتجاوز الكمية المتبقية.", "danger")
-            elif delivered_quantity > order[9]:
+            elif delivered_quantity * (order[14] or 1) > order[9]:
                 flash("رصيد المخزون لا يكفي لإذن الصرف.", "danger")
             else:
                 try:
@@ -129,7 +131,8 @@ def build_sales_deliveries_view(deps):
                     return redirect(url_for("sales_deliveries"))
                 delivery_no = next_document_number(cur, "sales_delivery_notes")
                 total = delivered_quantity * order[5]
-                cost_total = delivered_quantity * order[8]
+                delivered_quantity_base = delivered_quantity * (order[14] or 1)
+                cost_total = delivered_quantity_base * order[8]
                 tax_amount = total * order[6] / 100
                 grand_total = total + tax_amount
                 cogs_journal_id = (
@@ -141,10 +144,10 @@ def build_sales_deliveries_view(deps):
                     """
                     INSERT INTO sales_delivery_notes(
                         delivery_no,date,sales_order_id,sales_order_line_id,customer_id,product_id,
-                        ordered_quantity,delivered_quantity,unit_price,total,cost_total,tax_rate,
+                        ordered_quantity,delivered_quantity,unit_id,unit_name,conversion_factor,quantity_base,unit_price,total,cost_total,tax_rate,
                         tax_amount,grand_total,cogs_journal_id,notes
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
                     (
                         delivery_no,
@@ -155,6 +158,10 @@ def build_sales_deliveries_view(deps):
                         order[3],
                         order[4],
                         delivered_quantity,
+                        order[12],
+                        order[13],
+                        order[14],
+                        delivered_quantity_base,
                         order[5],
                         total,
                         cost_total,
@@ -167,7 +174,8 @@ def build_sales_deliveries_view(deps):
                 )
                 delivery_id = cur.lastrowid
                 mark_journal_source(cur, "sales_delivery", delivery_id, cogs_journal_id)
-                cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (delivered_quantity, order[3]))
+                delivered_quantity = delivered_quantity_base
+                cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (delivered_quantity_base, order[3]))
                 cur.execute(
                     """
                     INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
@@ -236,7 +244,9 @@ def build_purchase_receipts_view(deps):
             notes = request.form.get("notes", "").strip()
             cur.execute(
                 """
-                SELECT po.id,pol.id,po.supplier_id,pol.product_id,pol.quantity,pol.unit_price,pol.tax_rate,p.name,po.date,po.delivery_date
+                SELECT po.id,pol.id,po.supplier_id,pol.product_id,pol.quantity,pol.unit_price,pol.tax_rate,p.name,po.date,po.delivery_date,
+                       pol.unit_id,COALESCE(pol.unit_name, p.unit, 'وحدة'),
+                       COALESCE(NULLIF(pol.conversion_factor, 0), 1)
                 FROM purchase_order_lines pol
                 JOIN purchase_orders po ON po.id=pol.order_id
                 JOIN products p ON p.id=pol.product_id
@@ -278,6 +288,7 @@ def build_purchase_receipts_view(deps):
                     return redirect(url_for("purchase_receipts"))
                 receipt_no = next_document_number(cur, "purchase_receipts")
                 total = received_quantity * order[5]
+                received_quantity_base = received_quantity * (order[12] or 1)
                 tax_amount = total * order[6] / 100
                 grand_total = total + tax_amount
                 journal_id = create_auto_journal(cur, date_value, f"إذن إضافة مخزني {receipt_no} - {order[7]}", "1400", "2150", total)
@@ -285,9 +296,9 @@ def build_purchase_receipts_view(deps):
                     """
                     INSERT INTO purchase_receipts(
                         receipt_no,date,purchase_order_id,purchase_order_line_id,supplier_id,product_id,
-                        ordered_quantity,received_quantity,unit_price,total,tax_rate,tax_amount,grand_total,journal_id,notes
+                        ordered_quantity,received_quantity,unit_id,unit_name,conversion_factor,quantity_base,unit_price,total,tax_rate,tax_amount,grand_total,journal_id,notes
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
                     (
                         receipt_no,
@@ -298,6 +309,10 @@ def build_purchase_receipts_view(deps):
                         order[3],
                         order[4],
                         received_quantity,
+                        order[10],
+                        order[11],
+                        order[12],
+                        received_quantity_base,
                         order[5],
                         total,
                         order[6],
@@ -309,7 +324,8 @@ def build_purchase_receipts_view(deps):
                 )
                 receipt_id = cur.lastrowid
                 mark_journal_source(cur, "purchase_receipt", receipt_id, journal_id)
-                cur.execute("UPDATE products SET stock_quantity=stock_quantity+?, purchase_price=? WHERE id=?", (received_quantity, order[5], order[3]))
+                received_quantity = received_quantity_base
+                cur.execute("UPDATE products SET stock_quantity=stock_quantity+?, purchase_price=? WHERE id=?", (received_quantity_base, order[5], order[3]))
                 cur.execute(
                     """
                     INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
@@ -369,7 +385,7 @@ def build_cancel_sales_delivery_view(deps):
         cur = conn.cursor()
         cur.execute(
             """
-            SELECT id,delivery_no,date,sales_order_id,product_id,delivered_quantity,cogs_journal_id,status,invoice_id
+            SELECT id,delivery_no,date,sales_order_id,product_id,delivered_quantity,COALESCE(quantity_base, delivered_quantity),cogs_journal_id,status,invoice_id
             FROM sales_delivery_notes
             WHERE id=?
             """,
@@ -380,7 +396,7 @@ def build_cancel_sales_delivery_view(deps):
             conn.close()
             flash("إذن الصرف غير موجود.", "danger")
             return redirect(url_for("sales_deliveries"))
-        delivery_id, delivery_no, date_value, sales_order_id, product_id, quantity, cogs_journal_id, status, invoice_id = row
+        delivery_id, delivery_no, date_value, sales_order_id, product_id, quantity, quantity_base, cogs_journal_id, status, invoice_id = row
         if status == "cancelled":
             conn.close()
             flash("إذن الصرف ملغى مسبقًا.", "warning")
@@ -390,13 +406,13 @@ def build_cancel_sales_delivery_view(deps):
             flash("لا يمكن إلغاء إذن الصرف بعد فوترته. ألغِ فاتورة البيع المرتبطة أولًا.", "danger")
             return redirect(url_for("sales_deliveries"))
         reverse_journal(cur, cogs_journal_id, date_value, reason)
-        cur.execute("UPDATE products SET stock_quantity=stock_quantity+? WHERE id=?", (quantity, product_id))
+        cur.execute("UPDATE products SET stock_quantity=stock_quantity+? WHERE id=?", (quantity_base, product_id))
         cur.execute(
             """
             INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
             VALUES (?,?,?,?,?,?,?)
             """,
-            (date_value, product_id, "cancel_in", quantity, "sales_delivery_cancel", delivery_id, reason),
+            (date_value, product_id, "cancel_in", quantity_base, "sales_delivery_cancel", delivery_id, reason),
         )
         cur.execute(
             """
@@ -429,7 +445,7 @@ def build_cancel_purchase_receipt_view(deps):
         cur = conn.cursor()
         cur.execute(
             """
-            SELECT id,receipt_no,date,purchase_order_id,product_id,received_quantity,journal_id,status,invoice_id
+            SELECT id,receipt_no,date,purchase_order_id,product_id,received_quantity,COALESCE(quantity_base, received_quantity),journal_id,status,invoice_id
             FROM purchase_receipts
             WHERE id=?
             """,
@@ -440,7 +456,7 @@ def build_cancel_purchase_receipt_view(deps):
             conn.close()
             flash("إذن الاستلام غير موجود.", "danger")
             return redirect(url_for("purchase_receipts"))
-        receipt_id, receipt_no, date_value, purchase_order_id, product_id, quantity, journal_id, status, invoice_id = row
+        receipt_id, receipt_no, date_value, purchase_order_id, product_id, quantity, quantity_base, journal_id, status, invoice_id = row
         if status == "cancelled":
             conn.close()
             flash("إذن الاستلام ملغى مسبقًا.", "warning")
@@ -451,18 +467,18 @@ def build_cancel_purchase_receipt_view(deps):
             return redirect(url_for("purchase_receipts"))
         cur.execute("SELECT stock_quantity FROM products WHERE id=?", (product_id,))
         stock_row = cur.fetchone()
-        if not stock_row or (stock_row[0] or 0) < quantity:
+        if not stock_row or (stock_row[0] or 0) < quantity_base:
             conn.close()
             flash("لا يمكن إلغاء إذن الاستلام لأن رصيد المخزون الحالي لا يكفي لعكس الحركة.", "danger")
             return redirect(url_for("purchase_receipts"))
         reverse_journal(cur, journal_id, date_value, reason)
-        cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity, product_id))
+        cur.execute("UPDATE products SET stock_quantity=stock_quantity-? WHERE id=?", (quantity_base, product_id))
         cur.execute(
             """
             INSERT INTO inventory_movements(date,product_id,movement_type,quantity,reference_type,reference_id,notes)
             VALUES (?,?,?,?,?,?,?)
             """,
-            (date_value, product_id, "cancel_out", -quantity, "purchase_receipt_cancel", receipt_id, reason),
+            (date_value, product_id, "cancel_out", -quantity_base, "purchase_receipt_cancel", receipt_id, reason),
         )
         cur.execute(
             """

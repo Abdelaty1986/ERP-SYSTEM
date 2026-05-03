@@ -87,6 +87,12 @@
                 </select>
             </div>
             <div class="col-md-2">
+                <label class="form-label">الوحدة</label>
+                <select name="unit_id" id="purchase_unit" class="form-select" required>
+                    <option value="">اختر الوحدة</option>
+                </select>
+            </div>
+            <div class="col-md-2">
                 <label class="form-label">الكمية</label>
                 <input type="number" step="0.01" min="0.01" name="quantity" class="form-control" required>
             </div>
@@ -177,9 +183,35 @@
 </section>
 
 <script>
-document.getElementById("purchase_product")?.addEventListener("change", function () {
-    const option = this.options[this.selectedIndex];
-    document.getElementById("purchase_price").value = option?.dataset?.price || "";
+const purchaseUnitsMap = {{ product_units_json|safe }};
+const purchaseProductSelect = document.getElementById("purchase_product");
+const purchaseUnitSelect = document.getElementById("purchase_unit");
+const purchasePriceInput = document.getElementById("purchase_price");
+
+function fillPurchaseUnits() {
+    const productData = purchaseUnitsMap[purchaseProductSelect?.value || ""];
+    purchaseUnitSelect.innerHTML = '<option value="">اختر الوحدة</option>';
+    if (!productData) {
+        purchasePriceInput.value = "";
+        return;
+    }
+    (productData.units || []).forEach((unit) => {
+        const option = document.createElement("option");
+        option.value = unit.unit_id;
+        option.textContent = `${unit.unit_name} x ${unit.conversion_factor}`;
+        option.dataset.price = unit.purchase_price || "";
+        if (String(unit.unit_id) === String(productData.default_unit_id)) {
+            option.selected = true;
+        }
+        purchaseUnitSelect.appendChild(option);
+    });
+    purchasePriceInput.value = purchaseUnitSelect.selectedOptions[0]?.dataset?.price || "";
+}
+
+purchaseProductSelect?.addEventListener("change", fillPurchaseUnits);
+purchaseUnitSelect?.addEventListener("change", function () {
+    purchasePriceInput.value = this.selectedOptions[0]?.dataset?.price || "";
 });
+fillPurchaseUnits();
 </script>
 {% endblock %}

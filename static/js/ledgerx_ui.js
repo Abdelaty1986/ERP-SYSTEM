@@ -11,6 +11,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const collapseToggle = document.getElementById("sidebarCollapseToggle");
   const backdrop = document.getElementById("sidebarBackdrop");
   const media = window.matchMedia("(max-width: 992px)");
+  const contentPanel = document.getElementById("contentPanel");
+
+  function ensureResponsiveTables() {
+    if (!contentPanel) return;
+    contentPanel.querySelectorAll("table").forEach(function (table) {
+      if (table.closest(".table-shell, .table-responsive, .pay-table-wrap, .hr-table-wrap, .lx-log-box")) return;
+      const wrapper = document.createElement("div");
+      wrapper.className = "table-shell table-shell-auto";
+      table.parentNode.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    });
+  }
 
   const savedCollapsed = localStorage.getItem("ledgerxSidebarCollapsed");
   if (savedCollapsed === "1" && !media.matches) document.body.classList.add("sidebar-collapsed");
@@ -21,6 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
     backdrop.hidden = true;
     mobileToggle.setAttribute("aria-expanded", "false");
     document.body.classList.remove("sidebar-open");
+    document.body.style.removeProperty("overflow");
   }
   function openMobileSidebar() {
     if (!sidebar || !mobileToggle || !backdrop) return;
@@ -28,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
     backdrop.hidden = false;
     mobileToggle.setAttribute("aria-expanded", "true");
     document.body.classList.add("sidebar-open");
+    document.body.style.overflow = "hidden";
   }
 
   mobileToggle?.addEventListener("click", function () {
@@ -45,9 +59,15 @@ document.addEventListener("DOMContentLoaded", function () {
     node.addEventListener("click", function () { if (media.matches) closeMobileSidebar(); });
   });
 
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") closeMobileSidebar();
+  });
+
   media.addEventListener("change", function (event) {
     closeMobileSidebar();
     if (event.matches) document.body.classList.remove("sidebar-collapsed");
     else if (localStorage.getItem("ledgerxSidebarCollapsed") === "1") document.body.classList.add("sidebar-collapsed");
   });
+
+  ensureResponsiveTables();
 });

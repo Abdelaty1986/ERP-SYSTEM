@@ -134,6 +134,157 @@ def _flatten_categories(rows, active_only=False):
     return flattened
 
 
+def _fetch_measurement_units(cur, active_only=False):
+    sql = "SELECT id,name,code,description,is_active,created_at FROM measurement_units"
+    params = []
+    if active_only:
+        sql += " WHERE is_active=1"
+    sql += " ORDER BY name"
+    cur.execute(sql, params)
+    return cur.fetchall()
+
+
+def _ensure_measurement_unit(cur, unit_name, unit_code=None, description=None):
+    normalized_name = (unit_name or "").strip() or "وحدة"
+    cur.execute("SELECT id,name FROM measurement_units WHERE name=?", (normalized_name,))
+    row = cur.fetchone()
+    if row:
+        return row[0], row[1]
+    cur.execute(
+        """
+        INSERT INTO measurement_units(name, code, description, is_active)
+        VALUES (?,?,?,1)
+        """,
+        (normalized_name, unit_code, description),
+    )
+    return cur.lastrowid, normalized_name
+
+
+def _fetch_product_units(cur, product_id, active_only=False):
+    sql = """
+        SELECT pu.id,pu.product_id,pu.unit_id,mu.name,mu.code,pu.conversion_factor,
+               pu.purchase_price,pu.sale_price,pu.barcode,pu.is_default_purchase,
+               pu.is_default_sale,pu.is_base_unit,pu.is_active,mu.is_active
+        FROM product_units pu
+        JOIN measurement_units mu ON mu.id = pu.unit_id
+        WHERE pu.product_id=?
+    """
+    params = [product_id]
+    if active_only:
+        sql += " AND pu.is_active=1 AND mu.is_active=1"
+    sql += " ORDER BY pu.is_base_unit DESC, pu.conversion_factor ASC, mu.name"
+    cur.execute(sql, params)
+    return cur.fetchall()
+
+
+def _ensure_default_product_unit(cur, product_id, product_unit_name="وحدة", purchase_price=0, sale_price=0):
+    cur.execute("SELECT COUNT(*) FROM product_units WHERE product_id=?", (product_id,))
+    if cur.fetchone()[0]:
+        return
+    unit_id, normalized_name = _ensure_measurement_unit(cur, product_unit_name or "وحدة", "UNIT", "وحدة افتراضية")
+    cur.execute(
+        """
+        INSERT INTO product_units(
+            product_id,unit_id,conversion_factor,purchase_price,sale_price,barcode,
+            is_default_purchase,is_default_sale,is_base_unit,is_active
+        )
+        VALUES (?,?,?,?,?,?,1,1,1,1)
+        """,
+        (product_id, unit_id, 1, float(purchase_price or 0), float(sale_price or 0), None),
+    )
+    cur.execute("UPDATE products SET unit=? WHERE id=?", (normalized_name, product_id))
+
+
+def _normalize_product_units(cur, product_id):
+    units = _fetch_product_units(cur, product_id)
+    if not units:
+        return
+    base_unit = next((row for row in units if row[11]), units[0])
+    sale_unit = next((row for row in units if row[10]), base_unit)
+    purchase_unit = next((row for row in units if row[9]), base_unit)
+    cur.execute(
+        "UPDATE product_units SET is_base_unit=CASE WHEN id=? THEN 1 ELSE 0 END WHERE product_id=?",
+        (base_unit[0], product_id),
+    )
+    cur.execute(
+        "UPDATE product_units SET is_default_sale=CASE WHEN id=? THEN 1 ELSE 0 END WHERE product_id=?",
+        (sale_unit[0], product_id),
+    )
+    cur.execute(
+        "UPDATE product_units SET is_default_purchase=CASE WHEN id=? THEN 1 ELSE 0 END WHERE product_id=?",
+        (purchase_unit[0], product_id),
+    )
+    cur.execute("UPDATE products SET unit=? WHERE id=?", (base_unit[3], product_id))
+
+
+def _save_product_units(cur, product_id, form, fallback_purchase_price=0, fallback_sale_price=0):
+    row_indexes = form.getlist("unit_row_index[]")
+    unit_ids = form.getlist("product_unit_id[]")
+    conversion_factors = form.getlist("product_conversion_factor[]")
+    purchase_prices = form.getlist("product_purchase_price[]")
+    sale_prices = form.getlist("product_sale_price[]")
+    barcodes = form.getlist("product_barcode[]")
+    base_row = (form.get("base_unit_row") or "").strip()
+    sale_row = (form.get("default_sale_row") or "").strip()
+    purchase_row = (form.get("default_purchase_row") or "").strip()
+
+    rows = []
+    for idx, row_key in enumerate(row_indexes):
+        unit_id = (unit_ids[idx] if idx < len(unit_ids) else "").strip()
+        if not unit_id:
+            continue
+        try:
+            conversion_factor = float((conversion_factors[idx] if idx < len(conversion_factors) else "1") or 1)
+            purchase_price = float((purchase_prices[idx] if idx < len(purchase_prices) else fallback_purchase_price) or 0)
+            sale_price = float((sale_prices[idx] if idx < len(sale_prices) else fallback_sale_price) or 0)
+        except ValueError:
+            raise ValueError("بيانات وحدات الصنف تحتوي على أرقام غير صحيحة.")
+        if conversion_factor <= 0:
+            raise ValueError("معامل التحويل يجب أن يكون أكبر من صفر.")
+        rows.append(
+            {
+                "row_key": str(row_key),
+                "unit_id": int(unit_id),
+                "conversion_factor": conversion_factor,
+                "purchase_price": purchase_price,
+                "sale_price": sale_price,
+                "barcode": (barcodes[idx] if idx < len(barcodes) else "").strip() or None,
+            }
+        )
+
+    if not rows:
+        _ensure_default_product_unit(cur, product_id, "وحدة", fallback_purchase_price, fallback_sale_price)
+        _normalize_product_units(cur, product_id)
+        return
+
+    if not base_row or not sale_row or not purchase_row:
+        raise ValueError("يجب تحديد وحدة أساسية ووحدة بيع افتراضية ووحدة شراء افتراضية.")
+
+    cur.execute("DELETE FROM product_units WHERE product_id=?", (product_id,))
+    for row in rows:
+        cur.execute(
+            """
+            INSERT INTO product_units(
+                product_id,unit_id,conversion_factor,purchase_price,sale_price,barcode,
+                is_default_purchase,is_default_sale,is_base_unit,is_active
+            )
+            VALUES (?,?,?,?,?,?,?,?,?,1)
+            """,
+            (
+                product_id,
+                row["unit_id"],
+                row["conversion_factor"],
+                row["purchase_price"],
+                row["sale_price"],
+                row["barcode"],
+                1 if row["row_key"] == purchase_row else 0,
+                1 if row["row_key"] == sale_row else 0,
+                1 if row["row_key"] == base_row else 0,
+            ),
+        )
+    _normalize_product_units(cur, product_id)
+
+
 def build_product_categories_view(deps):
     db = deps["db"]
     log_action = deps["log_action"]
@@ -192,6 +343,150 @@ def build_product_categories_view(deps):
     return product_categories
 
 
+def build_measurement_units_view(deps):
+    db = deps["db"]
+
+    def measurement_units():
+        conn = db()
+        cur = conn.cursor()
+        edit_id = request.args.get("edit_id", "").strip()
+        units = _fetch_measurement_units(cur)
+        edit_unit = None
+        if edit_id.isdigit():
+            cur.execute(
+                "SELECT id,name,code,description,is_active,created_at FROM measurement_units WHERE id=?",
+                (int(edit_id),),
+            )
+            edit_unit = cur.fetchone()
+        conn.close()
+        return render_template("measurement_units.html", units=units, edit_unit=edit_unit)
+
+    return measurement_units
+
+
+def build_measurement_unit_add_view(deps):
+    db = deps["db"]
+    log_action = deps["log_action"]
+
+    def add_measurement_unit():
+        conn = db()
+        cur = conn.cursor()
+        name = (request.form.get("name") or "").strip()
+        code = (request.form.get("code") or "").strip() or None
+        description = (request.form.get("description") or "").strip() or None
+        if not name:
+            flash("اسم الوحدة مطلوب.", "danger")
+        else:
+            try:
+                cur.execute(
+                    """
+                    INSERT INTO measurement_units(name, code, description, is_active)
+                    VALUES (?,?,?,1)
+                    """,
+                    (name, code, description),
+                )
+                log_action(cur, "create", "measurement_unit", cur.lastrowid, name)
+                conn.commit()
+                flash("تمت إضافة وحدة القياس.", "success")
+            except sqlite3.IntegrityError:
+                flash("اسم الوحدة أو كودها مستخدم بالفعل.", "danger")
+        conn.close()
+        return redirect(url_for("measurement_units"))
+
+    return add_measurement_unit
+
+
+def build_measurement_unit_edit_view(deps):
+    db = deps["db"]
+    log_action = deps["log_action"]
+
+    def edit_measurement_unit(id):
+        conn = db()
+        cur = conn.cursor()
+        name = (request.form.get("name") or "").strip()
+        code = (request.form.get("code") or "").strip() or None
+        description = (request.form.get("description") or "").strip() or None
+        if not name:
+            flash("اسم الوحدة مطلوب.", "danger")
+        else:
+            try:
+                cur.execute(
+                    """
+                    UPDATE measurement_units
+                    SET name=?, code=?, description=?
+                    WHERE id=?
+                    """,
+                    (name, code, description, id),
+                )
+                if cur.rowcount:
+                    log_action(cur, "update", "measurement_unit", id, name)
+                    conn.commit()
+                    flash("تم تعديل وحدة القياس.", "success")
+                else:
+                    flash("وحدة القياس غير موجودة.", "danger")
+            except sqlite3.IntegrityError:
+                flash("اسم الوحدة أو كودها مستخدم بالفعل.", "danger")
+        conn.close()
+        return redirect(url_for("measurement_units"))
+
+    return edit_measurement_unit
+
+
+def build_measurement_unit_toggle_view(deps):
+    db = deps["db"]
+    log_action = deps["log_action"]
+
+    def toggle_measurement_unit(id):
+        conn = db()
+        cur = conn.cursor()
+        cur.execute("SELECT id,name,is_active FROM measurement_units WHERE id=?", (id,))
+        unit = cur.fetchone()
+        if not unit:
+            conn.close()
+            flash("وحدة القياس غير موجودة.", "danger")
+            return redirect(url_for("measurement_units"))
+        new_status = 0 if unit[2] else 1
+        cur.execute("UPDATE measurement_units SET is_active=? WHERE id=?", (new_status, id))
+        log_action(cur, "update", "measurement_unit", id, f"{unit[1]}: active={new_status}")
+        conn.commit()
+        conn.close()
+        flash("تم تحديث حالة وحدة القياس.", "success")
+        return redirect(url_for("measurement_units"))
+
+    return toggle_measurement_unit
+
+
+def build_measurement_unit_delete_view(deps):
+    db = deps["db"]
+    log_action = deps["log_action"]
+
+    def delete_measurement_unit(id):
+        conn = db()
+        cur = conn.cursor()
+        cur.execute("SELECT id,name FROM measurement_units WHERE id=?", (id,))
+        unit = cur.fetchone()
+        if not unit:
+            conn.close()
+            flash("وحدة القياس غير موجودة.", "danger")
+            return redirect(url_for("measurement_units"))
+        cur.execute("SELECT COUNT(*) FROM product_units WHERE unit_id=?", (id,))
+        if cur.fetchone()[0]:
+            cur.execute("UPDATE measurement_units SET is_active=0 WHERE id=?", (id,))
+            log_action(cur, "update", "measurement_unit", id, f"{unit[1]}: safe-disabled")
+            conn.commit()
+            conn.close()
+            flash("تم تعطيل وحدة القياس لأنها مستخدمة في الأصناف.", "warning")
+            return redirect(url_for("measurement_units"))
+        cur.execute("DELETE FROM measurement_units WHERE id=?", (id,))
+        log_action(cur, "delete", "measurement_unit", id, unit[1])
+        conn.commit()
+        conn.close()
+        flash("تم حذف وحدة القياس.", "success")
+        return redirect(url_for("measurement_units"))
+
+    return delete_measurement_unit
+
+
 def build_products_view(deps):
     db = deps["db"]
 
@@ -234,11 +529,14 @@ def build_products_view(deps):
                         (code or None, name, unit, purchase_price, sale_price, supplier_id, category_id),
                     )
                     product_id = cur.lastrowid
+                    _save_product_units(cur, product_id, request.form, purchase_price, sale_price)
                     _ensure_product_barcode(cur, product_id)
                     conn.commit()
                     conn.close()
                     flash("تمت إضافة الصنف وتوليد الباركود الخاص به تلقائيًا.", "success")
                     return redirect(url_for("products"))
+                except ValueError as exc:
+                    flash(str(exc), "danger")
                 except sqlite3.IntegrityError:
                     flash("كود الصنف مستخدم بالفعل.", "danger")
 
@@ -251,6 +549,7 @@ def build_products_view(deps):
         suppliers_rows = cur.fetchall()
         category_rows = _fetch_categories(cur, active_only=True)
         category_options = _flatten_categories(category_rows, active_only=True)
+        measurement_units = _fetch_measurement_units(cur, active_only=True)
         where = []
         params = []
         if filters["q"]:
@@ -304,6 +603,7 @@ def build_products_view(deps):
             suppliers=suppliers_rows,
             filters=filters,
             categories=category_options,
+            measurement_units=measurement_units,
         )
 
     return products
@@ -389,6 +689,7 @@ def build_edit_product_view(deps):
                         """,
                         (code or None, name, unit, purchase_price, sale_price, supplier_id, category_id, id),
                     )
+                    _save_product_units(cur, id, request.form, purchase_price, sale_price)
                     _ensure_product_barcode(cur, id)
                     log_action(cur, "update", "product", id, name)
                     conn.commit()
@@ -400,8 +701,19 @@ def build_edit_product_view(deps):
         cur.execute("SELECT id,name FROM suppliers ORDER BY name")
         suppliers_rows = cur.fetchall()
         category_options = _flatten_categories(_fetch_categories(cur, active_only=True), active_only=True)
+        measurement_units = _fetch_measurement_units(cur, active_only=True)
+        _ensure_default_product_unit(cur, id, product[3], product[4], product[5])
+        product_units = _fetch_product_units(cur, id)
+        conn.commit()
         conn.close()
-        return render_template("edit_product.html", product=product, suppliers=suppliers_rows, categories=category_options)
+        return render_template(
+            "edit_product.html",
+            product=product,
+            suppliers=suppliers_rows,
+            categories=category_options,
+            measurement_units=measurement_units,
+            product_units=product_units,
+        )
 
     return edit_product
 
@@ -539,12 +851,14 @@ def build_inventory_report_view(deps):
             params.append(int(filters["category_id"]))
         cur.execute(
             """
-            SELECT p.code,p.name,p.unit,p.stock_quantity,p.purchase_price,p.sale_price,
+            SELECT p.code,p.name,COALESCE(base_unit.name, p.unit),p.stock_quantity,p.purchase_price,p.sale_price,
                    p.stock_quantity * p.purchase_price AS stock_value,
                    COALESCE(parent.name || ' / ', '') || COALESCE(pc.name,'')
             FROM products p
             LEFT JOIN product_categories pc ON pc.id=p.category_id
             LEFT JOIN product_categories parent ON parent.id=pc.parent_id
+            LEFT JOIN product_units pu ON pu.product_id=p.id AND pu.is_base_unit=1
+            LEFT JOIN measurement_units base_unit ON base_unit.id=pu.unit_id
             """
             + ("\n WHERE " + " AND ".join(where) if where else "")
             + "\n ORDER BY p.name",

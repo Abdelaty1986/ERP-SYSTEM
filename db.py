@@ -295,6 +295,38 @@ def init_db():
         )
         """
     )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS measurement_units(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            code TEXT UNIQUE,
+            description TEXT,
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS product_units(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER NOT NULL,
+            unit_id INTEGER NOT NULL,
+            conversion_factor REAL NOT NULL DEFAULT 1,
+            purchase_price REAL DEFAULT 0,
+            sale_price REAL DEFAULT 0,
+            barcode TEXT,
+            is_default_purchase INTEGER DEFAULT 0,
+            is_default_sale INTEGER DEFAULT 0,
+            is_base_unit INTEGER DEFAULT 0,
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(product_id) REFERENCES products(id),
+            FOREIGN KEY(unit_id) REFERENCES measurement_units(id)
+        )
+        """
+    )
 
     cur.execute(
         """
@@ -679,6 +711,10 @@ def init_db():
             order_id INTEGER NOT NULL,
             product_id INTEGER NOT NULL,
             quantity REAL NOT NULL CHECK(quantity > 0),
+            unit_id INTEGER,
+            unit_name TEXT,
+            conversion_factor REAL NOT NULL DEFAULT 1,
+            quantity_base REAL,
             unit_price REAL NOT NULL CHECK(unit_price >= 0),
             total REAL NOT NULL DEFAULT 0,
             tax_rate REAL NOT NULL DEFAULT 14,
@@ -701,6 +737,10 @@ def init_db():
             product_id INTEGER NOT NULL,
             ordered_quantity REAL NOT NULL DEFAULT 0,
             delivered_quantity REAL NOT NULL CHECK(delivered_quantity > 0),
+            unit_id INTEGER,
+            unit_name TEXT,
+            conversion_factor REAL NOT NULL DEFAULT 1,
+            quantity_base REAL,
             unit_price REAL NOT NULL CHECK(unit_price >= 0),
             total REAL NOT NULL DEFAULT 0,
             cost_total REAL NOT NULL DEFAULT 0,
@@ -729,6 +769,10 @@ def init_db():
             product_id INTEGER NOT NULL,
             ordered_quantity REAL NOT NULL DEFAULT 0,
             received_quantity REAL NOT NULL CHECK(received_quantity > 0),
+            unit_id INTEGER,
+            unit_name TEXT,
+            conversion_factor REAL NOT NULL DEFAULT 1,
+            quantity_base REAL,
             unit_price REAL NOT NULL CHECK(unit_price >= 0),
             total REAL NOT NULL DEFAULT 0,
             tax_rate REAL NOT NULL DEFAULT 14,
@@ -1042,6 +1086,30 @@ def init_db():
     add_column_if_missing(cur, "products", "category_id", "INTEGER")
     add_column_if_missing(cur, "products", "barcode_value", "TEXT")
     add_column_if_missing(cur, "products", "barcode_payload", "TEXT")
+    add_column_if_missing(cur, "sales_invoice_lines", "unit_id", "INTEGER")
+    add_column_if_missing(cur, "sales_invoice_lines", "unit_name", "TEXT")
+    add_column_if_missing(cur, "sales_invoice_lines", "conversion_factor", "REAL NOT NULL DEFAULT 1")
+    add_column_if_missing(cur, "sales_invoice_lines", "quantity_base", "REAL")
+    add_column_if_missing(cur, "purchase_invoice_lines", "unit_id", "INTEGER")
+    add_column_if_missing(cur, "purchase_invoice_lines", "unit_name", "TEXT")
+    add_column_if_missing(cur, "purchase_invoice_lines", "conversion_factor", "REAL NOT NULL DEFAULT 1")
+    add_column_if_missing(cur, "purchase_invoice_lines", "quantity_base", "REAL")
+    add_column_if_missing(cur, "sales_order_lines", "unit_id", "INTEGER")
+    add_column_if_missing(cur, "sales_order_lines", "unit_name", "TEXT")
+    add_column_if_missing(cur, "sales_order_lines", "conversion_factor", "REAL NOT NULL DEFAULT 1")
+    add_column_if_missing(cur, "sales_order_lines", "quantity_base", "REAL")
+    add_column_if_missing(cur, "purchase_order_lines", "unit_id", "INTEGER")
+    add_column_if_missing(cur, "purchase_order_lines", "unit_name", "TEXT")
+    add_column_if_missing(cur, "purchase_order_lines", "conversion_factor", "REAL NOT NULL DEFAULT 1")
+    add_column_if_missing(cur, "purchase_order_lines", "quantity_base", "REAL")
+    add_column_if_missing(cur, "sales_delivery_notes", "unit_id", "INTEGER")
+    add_column_if_missing(cur, "sales_delivery_notes", "unit_name", "TEXT")
+    add_column_if_missing(cur, "sales_delivery_notes", "conversion_factor", "REAL NOT NULL DEFAULT 1")
+    add_column_if_missing(cur, "sales_delivery_notes", "quantity_base", "REAL")
+    add_column_if_missing(cur, "purchase_receipts", "unit_id", "INTEGER")
+    add_column_if_missing(cur, "purchase_receipts", "unit_name", "TEXT")
+    add_column_if_missing(cur, "purchase_receipts", "conversion_factor", "REAL NOT NULL DEFAULT 1")
+    add_column_if_missing(cur, "purchase_receipts", "quantity_base", "REAL")
     add_column_if_missing(cur, "receipt_vouchers", "status", "TEXT NOT NULL DEFAULT 'posted'")
     add_column_if_missing(cur, "receipt_vouchers", "cancelled_at", "TEXT")
     add_column_if_missing(cur, "receipt_vouchers", "cancel_reason", "TEXT")
@@ -1080,6 +1148,11 @@ def init_db():
     add_column_if_missing(cur, "payroll_lines", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
 
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_products_barcode_value ON products(barcode_value)")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_measurement_units_name ON measurement_units(name)")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_measurement_units_code ON measurement_units(code)")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_product_units_product_unit ON product_units(product_id, unit_id)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_product_units_product ON product_units(product_id)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_product_units_unit ON product_units(unit_id)")
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_departments_name ON departments(name)")
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_employees_employee_code ON employees(employee_code)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_employees_department_id ON employees(department_id)")
@@ -1095,6 +1168,83 @@ def init_db():
         "الشئون القانونية", "الأمن", "النظافة"
     ):
         cur.execute("INSERT OR IGNORE INTO departments(name) VALUES (?)", (department_name,))
+    default_measurement_units = [
+        ("قطعة", "PCS", "الوحدة الأساسية العامة للأصناف الفردية"),
+        ("وحدة", "UNIT", "وحدة عامة للاستخدام الافتراضي"),
+        ("علبة", "BOX", "وحدة تعبئة متوسطة"),
+        ("كرتونة", "CTN", "وحدة تعبئة كبيرة"),
+        ("كجم", "KG", "وحدة وزن"),
+        ("جرام", "G", "وحدة وزن فرعية"),
+        ("لتر", "LTR", "وحدة حجم"),
+        ("متر", "M", "وحدة طول"),
+    ]
+    for unit_name, unit_code, unit_description in default_measurement_units:
+        cur.execute(
+            """
+            INSERT OR IGNORE INTO measurement_units(name, code, description, is_active)
+            VALUES (?,?,?,1)
+            """,
+            (unit_name, unit_code, unit_description),
+        )
+    cur.execute("SELECT id FROM measurement_units WHERE name='وحدة'")
+    default_unit_row = cur.fetchone()
+    default_unit_id = default_unit_row[0] if default_unit_row else None
+    if default_unit_id:
+        cur.execute(
+            """
+            INSERT OR IGNORE INTO product_units(
+                product_id, unit_id, conversion_factor, purchase_price, sale_price,
+                is_default_purchase, is_default_sale, is_base_unit, is_active
+            )
+            SELECT p.id, ?, 1, COALESCE(p.purchase_price, 0), COALESCE(p.sale_price, 0), 1, 1, 1, 1
+            FROM products p
+            WHERE NOT EXISTS (
+                SELECT 1 FROM product_units pu WHERE pu.product_id = p.id
+            )
+            """,
+            (default_unit_id,),
+        )
+        cur.execute(
+            """
+            UPDATE sales_invoice_lines
+            SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                quantity_base = COALESCE(quantity_base, quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                unit_name = COALESCE(unit_name, 'وحدة'),
+                unit_id = COALESCE(unit_id, ?)
+            """,
+            (default_unit_id,),
+        )
+        cur.execute(
+            """
+            UPDATE purchase_invoice_lines
+            SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                quantity_base = COALESCE(quantity_base, quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                unit_name = COALESCE(unit_name, 'وحدة'),
+                unit_id = COALESCE(unit_id, ?)
+            """,
+            (default_unit_id,),
+        )
+    if default_unit_id:
+        cur.execute(
+            """
+            UPDATE sales_order_lines
+            SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                quantity_base = COALESCE(quantity_base, quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                unit_name = COALESCE(unit_name, 'ظˆط­ط¯ط©'),
+                unit_id = COALESCE(unit_id, ?)
+            """,
+            (default_unit_id,),
+        )
+        cur.execute(
+            """
+            UPDATE purchase_order_lines
+            SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                quantity_base = COALESCE(quantity_base, quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                unit_name = COALESCE(unit_name, 'ظˆط­ط¯ط©'),
+                unit_id = COALESCE(unit_id, ?)
+            """,
+            (default_unit_id,),
+        )
     cur.execute(
         """
         INSERT INTO sales_order_lines(order_id,product_id,quantity,unit_price,total,tax_rate,tax_amount,grand_total)
@@ -1111,6 +1261,27 @@ def init_db():
         WHERE NOT EXISTS (SELECT 1 FROM purchase_order_lines pol WHERE pol.order_id=po.id)
         """
     )
+    if default_unit_id:
+        cur.execute(
+            """
+            UPDATE sales_order_lines
+            SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                quantity_base = COALESCE(quantity_base, quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                unit_name = COALESCE(unit_name, 'ظˆط­ط¯ط©'),
+                unit_id = COALESCE(unit_id, ?)
+            """,
+            (default_unit_id,),
+        )
+        cur.execute(
+            """
+            UPDATE purchase_order_lines
+            SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                quantity_base = COALESCE(quantity_base, quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                unit_name = COALESCE(unit_name, 'ظˆط­ط¯ط©'),
+                unit_id = COALESCE(unit_id, ?)
+            """,
+            (default_unit_id,),
+        )
     cur.execute(
         """
         UPDATE sales_delivery_notes
@@ -1137,6 +1308,77 @@ def init_db():
             LIMIT 1
         )
         WHERE purchase_order_line_id IS NULL
+        """
+    )
+    if default_unit_id:
+        cur.execute(
+            """
+            UPDATE sales_delivery_notes
+            SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                quantity_base = COALESCE(quantity_base, delivered_quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                unit_name = COALESCE(unit_name, 'ظˆط­ط¯ط©'),
+                unit_id = COALESCE(unit_id, ?)
+            """,
+            (default_unit_id,),
+        )
+        cur.execute(
+            """
+            UPDATE purchase_receipts
+            SET conversion_factor = COALESCE(NULLIF(conversion_factor, 0), 1),
+                quantity_base = COALESCE(quantity_base, received_quantity * COALESCE(NULLIF(conversion_factor, 0), 1)),
+                unit_name = COALESCE(unit_name, 'ظˆط­ط¯ط©'),
+                unit_id = COALESCE(unit_id, ?)
+            """,
+            (default_unit_id,),
+        )
+    cur.execute(
+        """
+        UPDATE sales_delivery_notes
+        SET unit_id = COALESCE(unit_id, (
+                SELECT sol.unit_id
+                FROM sales_order_lines sol
+                WHERE sol.id = sales_delivery_notes.sales_order_line_id
+            )),
+            unit_name = COALESCE(unit_name, (
+                SELECT sol.unit_name
+                FROM sales_order_lines sol
+                WHERE sol.id = sales_delivery_notes.sales_order_line_id
+            )),
+            conversion_factor = COALESCE(NULLIF(conversion_factor, 0), (
+                SELECT COALESCE(NULLIF(sol.conversion_factor, 0), 1)
+                FROM sales_order_lines sol
+                WHERE sol.id = sales_delivery_notes.sales_order_line_id
+            ), 1),
+            quantity_base = COALESCE(quantity_base, delivered_quantity * COALESCE((
+                SELECT COALESCE(NULLIF(sol.conversion_factor, 0), 1)
+                FROM sales_order_lines sol
+                WHERE sol.id = sales_delivery_notes.sales_order_line_id
+            ), COALESCE(NULLIF(conversion_factor, 0), 1), 1))
+        """
+    )
+    cur.execute(
+        """
+        UPDATE purchase_receipts
+        SET unit_id = COALESCE(unit_id, (
+                SELECT pol.unit_id
+                FROM purchase_order_lines pol
+                WHERE pol.id = purchase_receipts.purchase_order_line_id
+            )),
+            unit_name = COALESCE(unit_name, (
+                SELECT pol.unit_name
+                FROM purchase_order_lines pol
+                WHERE pol.id = purchase_receipts.purchase_order_line_id
+            )),
+            conversion_factor = COALESCE(NULLIF(conversion_factor, 0), (
+                SELECT COALESCE(NULLIF(pol.conversion_factor, 0), 1)
+                FROM purchase_order_lines pol
+                WHERE pol.id = purchase_receipts.purchase_order_line_id
+            ), 1),
+            quantity_base = COALESCE(quantity_base, received_quantity * COALESCE((
+                SELECT COALESCE(NULLIF(pol.conversion_factor, 0), 1)
+                FROM purchase_order_lines pol
+                WHERE pol.id = purchase_receipts.purchase_order_line_id
+            ), COALESCE(NULLIF(conversion_factor, 0), 1), 1))
         """
     )
 
