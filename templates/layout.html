@@ -83,7 +83,6 @@
                     <a href="/purchase-orders" class="{% if current_path == '/purchase-orders' %}active{% endif %}"><i class="bi bi-bag-check"></i><span>أوامر الشراء</span></a>
                     <a href="/purchases/from-receipt" class="{% if current_path == '/purchases/from-receipt' %}active{% endif %}"><i class="bi bi-box-arrow-in-down"></i><span>فاتورة مورد من أذون الإضافة</span></a>
                     <a href="/purchases" class="{% if current_path == '/purchases' %}active{% endif %}"><i class="bi bi-bag-plus"></i><span>إنشاء فاتورة شراء</span></a>
-                    <a href="/purchases/invoices" class="{% if current_path == '/purchases/invoices' or (current_path.startswith('/purchases/') and current_path != '/purchases' and '/from-receipt' not in current_path) %}active{% endif %}"><i class="bi bi-receipt-cutoff"></i><span>فواتير المشتريات</span></a>
                     <a href="/returns/purchases" class="{% if current_path == '/returns/purchases' %}active{% endif %}"><i class="bi bi-arrow-return-left"></i><span>مردودات المشتريات</span></a>
                     <a href="/debit-notes/suppliers" class="{% if current_path.startswith('/debit-notes/suppliers') %}active{% endif %}"><i class="bi bi-journal-plus"></i><span>إشعارات تسوية مدينة</span></a>
                     {% endif %}
@@ -158,6 +157,7 @@
                     <a href="/reports/cash-flow" class="{% if current_path == '/reports/cash-flow' %}active{% endif %}"><i class="bi bi-water"></i><span>التدفقات النقدية</span></a>
                     <a href="/reports/cost-centers" class="{% if current_path == '/reports/cost-centers' %}active{% endif %}"><i class="bi bi-pie-chart"></i><span>مراكز التكلفة</span></a>
                     <a href="/reports/vat" class="{% if current_path == '/reports/vat' %}active{% endif %}"><i class="bi bi-percent"></i><span>ضريبة القيمة المضافة</span></a>
+                    <a href="/reports/withholding-tax" class="{% if current_path == '/reports/withholding-tax' %}active{% endif %}"><i class="bi bi-receipt-cutoff"></i><span>الخصم والإضافة</span></a>
                 </div>
             </details>
             {% endif %}
@@ -179,7 +179,7 @@
             </details>
             {% endif %}
 
-            {% if session.get("role") == "admin" %}
+            {% if session.get("role") in ("admin", "manager") %}
             <details class="nav-group" {% if current_path.startswith('/settings/company') or current_path.startswith('/fiscal-periods') or current_path.startswith('/posting-control') or current_path.startswith('/document-sequences') or current_path.startswith('/allocations') or current_path.startswith('/backup') or current_path.startswith('/audit-log') or current_path.startswith('/e-invoices') or current_path.startswith('/permissions') or current_path.startswith('/users') %}open{% endif %}>
                 <summary>
                     <span class="nav-group-title"><i class="bi bi-shield-lock-fill"></i><span>الإدارة</span></span>

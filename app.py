@@ -101,6 +101,7 @@ from modules.reports.financial import (
     build_opening_balances_view,
     build_profit_loss_report_view,
     build_vat_report_view,
+    build_withholding_tax_report_view,
     build_year_end_view,
 )
 from modules.sales.operations import (
@@ -160,6 +161,10 @@ from modules.sales.views import (
     build_purchases_view,
     build_sales_invoices_view,
     build_sales_view,
+)
+from modules.sales.invoice_exports import (
+    build_export_sales_invoices_excel_view,
+    build_tax_portal_sales_excel_view,
 )
 
 try:
@@ -307,7 +312,7 @@ def login_required(view):
 def admin_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
-        if session.get("role") != "admin":
+        if session.get("role") not in ("admin", "manager"):
             flash("هذه الصفحة متاحة للمدير فقط.", "danger")
             return redirect(url_for("dashboard"))
         return view(*args, **kwargs)
@@ -370,6 +375,59 @@ ROLE_PERMISSIONS = {
         "e_invoices": "read",
     },
 }
+
+ROLE_LABELS.update({
+    "customer_accountant": "محاسب عملاء",
+    "supplier_accountant": "محاسب موردين",
+    "warehouse": "مخازن",
+    "hr_officer": "موارد بشرية",
+    "gl_accountant": "حسابات عامة",
+    "manager": "مدير",
+})
+
+ROLE_PERMISSIONS.update({
+    "customer_accountant": {
+        "customers": "write",
+        "sales": "write",
+        "receipts": "write",
+        "reports": "read",
+        "e_invoices": "write",
+    },
+    "supplier_accountant": {
+        "suppliers": "write",
+        "purchases": "write",
+        "payments": "write",
+        "reports": "read",
+    },
+    "warehouse": {
+        "inventory": "write",
+        "sales": "read",
+        "purchases": "read",
+        "reports": "read",
+    },
+    "hr_officer": {
+        "hr": "write",
+        "reports": "read",
+    },
+    "gl_accountant": {
+        "accounting": "write",
+        "reports": "write",
+        "e_invoices": "read",
+    },
+    "manager": {
+        "accounting": "write",
+        "customers": "write",
+        "suppliers": "write",
+        "inventory": "write",
+        "sales": "write",
+        "purchases": "write",
+        "receipts": "write",
+        "payments": "write",
+        "hr": "write",
+        "reports": "write",
+        "e_invoices": "write",
+    },
+})
 
 POSTING_GROUPS = {
     "manual_journal": {
@@ -1079,6 +1137,10 @@ def next_document_number(cur, doc_type):
     document_tables = {
         "sales": ("sales_invoices", "doc_no"),
         "purchases": ("purchase_invoices", "doc_no"),
+        "sales_orders": ("sales_orders", "doc_no"),
+        "purchase_orders": ("purchase_orders", "doc_no"),
+        "receipts": ("receipt_vouchers", "doc_no"),
+        "payments": ("payment_vouchers", "doc_no"),
         "sales_delivery_notes": ("sales_delivery_notes", "delivery_no"),
         "financial_sales": ("financial_sales_invoices", "doc_no"),
         "purchase_receipts": ("purchase_receipts", "receipt_no"),
@@ -1929,6 +1991,11 @@ def sales():
 @permission_required("sales")
 def sales_invoices():
     return build_sales_invoices_view(MODULE_DEPS)()
+@app.route("/sales-invoices/export")
+@login_required
+@permission_required("sales")
+def export_sales_invoices_excel():
+    return build_export_sales_invoices_excel_view(MODULE_DEPS)()
 @app.route("/sales-orders", methods=["GET", "POST"])
 @login_required
 @permission_required("sales")
@@ -3454,6 +3521,13 @@ def vat_report():
     return build_vat_report_view(MODULE_DEPS)()
 
 
+@app.route("/reports/withholding-tax")
+@login_required
+@permission_required("reports")
+def withholding_tax_report():
+    return build_withholding_tax_report_view(MODULE_DEPS)()
+
+
 @app.route("/audit-log")
 @login_required
 @admin_required
@@ -4064,9 +4138,26 @@ def e_invoices():
 @login_required
 @permission_required("sales")
 def export_all_sales_excel():
+    return build_tax_portal_sales_excel_view(MODULE_DEPS)()
     conn = db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM sales_invoices ORDER BY id DESC")
+    cur.execute(
+        """
+        SELECT
+            si.id,
+            si.doc_no,
+            si.date,
+            COALESCE(c.name, 'عميل نقدي') AS customer_name,
+            COALESCE(si.payment_type, '') AS payment_type,
+            COALESCE(si.total, 0) AS total_amount,
+            COALESCE(si.tax_amount, 0) AS tax_amount,
+            COALESCE(si.grand_total, 0) AS grand_total,
+            COALESCE(si.status, 'draft') AS status
+        FROM sales_invoices si
+        LEFT JOIN customers c ON si.customer_id = c.id
+        ORDER BY si.id DESC
+        """
+    )
     rows = cur.fetchall()
     headers = [description[0] for description in cur.description]
     conn.close()
@@ -4111,6 +4202,7 @@ MODULE_DEPS = {
     "LOGO_EXTENSIONS": LOGO_EXTENSIONS,
     "MAX_LOGO_SIZE": MAX_LOGO_SIZE,
     "ACCOUNT_TYPES": ACCOUNT_TYPES,
+    "ROLE_LABELS": ROLE_LABELS,
     "PERMISSION_MODULES": PERMISSION_MODULES,
     "POSTING_GROUPS": POSTING_GROUPS,
     "create_auto_journal": create_auto_journal,
@@ -4227,6 +4319,7 @@ app.view_functions["opening_balances"] = login_required(permission_required("acc
 app.view_functions["year_end"] = login_required(permission_required("accounting", write_always=True)(build_year_end_view(MODULE_DEPS)))
 app.view_functions["profit_loss_report"] = login_required(permission_required("reports")(build_profit_loss_report_view(MODULE_DEPS)))
 app.view_functions["vat_report"] = login_required(permission_required("reports")(build_vat_report_view(MODULE_DEPS)))
+app.view_functions["withholding_tax_report"] = login_required(permission_required("reports")(build_withholding_tax_report_view(MODULE_DEPS)))
 app.view_functions["backup_restore"] = login_required(admin_required(build_backup_restore_view(MODULE_DEPS)))
 app.view_functions["audit_log"] = login_required(admin_required(build_audit_log_view(MODULE_DEPS)))
 app.view_functions["permissions"] = login_required(admin_required(build_permissions_view(MODULE_DEPS)))

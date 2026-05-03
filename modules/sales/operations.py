@@ -1,4 +1,6 @@
 ﻿from flask import flash, redirect, render_template, request, url_for
+import sqlite3
+
 from modules.sales.taxing import invoice_totals, parse_flag, taxable_line
 
 
@@ -163,7 +165,7 @@ def build_edit_sale_invoice_view(deps):
     default_tax_rate = deps["DEFAULT_TAX_RATE"]
 
     def edit_sale_invoice(id):
-        from modules.sales.views import _build_product_units_map, _customer_withholding, _invoice_form_lines
+        from modules.sales.views import _build_product_units_map, _customer_withholding, _invoice_form_lines, _invoice_number_exists
 
         conn = db()
         cur = conn.cursor()
@@ -172,7 +174,7 @@ def build_edit_sale_invoice_view(deps):
             SELECT s.id,s.date,s.due_date,s.customer_id,s.tax_rate,s.payment_type,s.status,
                    COALESCE(l.vat_enabled,1),COALESCE(l.withholding_enabled,CASE WHEN COALESCE(s.withholding_rate,0)>0 THEN 1 ELSE 0 END),
                    COALESCE(l.vat_rate,s.tax_rate,14),COALESCE(l.withholding_rate,s.withholding_rate,1),
-                   COALESCE(s.notes,''),COALESCE(s.po_ref,''),COALESCE(s.gr_ref,'')
+                   COALESCE(s.notes,''),COALESCE(s.po_ref,''),COALESCE(s.gr_ref,''),COALESCE(s.invoice_number,s.doc_no,'')
             FROM sales_invoices s
             LEFT JOIN sales_invoice_lines l ON l.invoice_id=s.id
             WHERE s.id=?
@@ -192,6 +194,7 @@ def build_edit_sale_invoice_view(deps):
             return redirect(url_for("sales_invoices"))
         if request.method == "POST":
             date_value = request.form.get("date", "").strip()
+            invoice_number = (request.form.get("invoice_number") or "").strip() or (invoice[14] or "")
             due_date = request.form.get("due_date", "").strip()
             customer_id = request.form.get("customer_id") or None
             payment_type = request.form.get("payment_type", "cash")
@@ -208,6 +211,8 @@ def build_edit_sale_invoice_view(deps):
                 flash("راجع بيانات الفاتورة قبل الحفظ.", "danger")
             elif payment_type == "credit" and not customer_id:
                 flash("اختر العميل عند البيع الآجل.", "danger")
+            elif _invoice_number_exists(cur, "sales_invoices", invoice_number, exclude_id=id):
+                flash("رقم الفاتورة مستخدم بالفعل", "danger")
             else:
                 try:
                     ensure_open_period(cur, date_value)
@@ -224,34 +229,40 @@ def build_edit_sale_invoice_view(deps):
                     "grand_total": round(sum(line["grand_total"] for line in lines), 2),
                 }
                 first_line = lines[0]
-                cur.execute(
-                    """
-                    UPDATE sales_invoices
-                    SET date=?,due_date=?,customer_id=?,product_id=?,quantity=?,unit_price=?,total=?,cost_total=?,tax_rate=?,tax_amount=?,
-                        withholding_rate=?,withholding_amount=?,grand_total=?,payment_type=?,notes=?,po_ref=?,gr_ref=?
-                    WHERE id=?
-                    """,
-                    (
-                        date_value, due_date, customer_id, first_line["product_id"], totals["quantity"], first_line["unit_price"], totals["total"],
-                        totals["cost_total"], vat_rate, totals["tax_amount"], withholding_rate, totals["withholding_amount"], totals["grand_total"],
-                        payment_type, notes, po_ref, gr_ref, id,
-                    ),
-                )
+                try:
+                    cur.execute(
+                        """
+                        UPDATE sales_invoices
+                        SET date=?,due_date=?,doc_no=?,invoice_number=?,customer_id=?,product_id=?,quantity=?,unit_price=?,total=?,cost_total=?,tax_rate=?,tax_amount=?,
+                            withholding_rate=?,withholding_amount=?,grand_total=?,payment_type=?,notes=?,po_ref=?,gr_ref=?
+                        WHERE id=?
+                        """,
+                        (
+                            date_value, due_date, invoice_number, invoice_number, customer_id, first_line["product_id"], totals["quantity"], first_line["unit_price"], totals["total"],
+                            totals["cost_total"], vat_rate, totals["tax_amount"], withholding_rate, totals["withholding_amount"], totals["grand_total"],
+                            payment_type, notes, po_ref, gr_ref, id,
+                        ),
+                    )
+                except sqlite3.IntegrityError:
+                    conn.rollback()
+                    flash("رقم الفاتورة مستخدم بالفعل", "danger")
+                    conn.close()
+                    return redirect(url_for("sales_invoices"))
                 cur.execute("DELETE FROM sales_invoice_lines WHERE invoice_id=?", (id,))
                 for line in lines:
                     cur.execute(
                         """
                         INSERT INTO sales_invoice_lines(
                             invoice_id,product_id,quantity,unit_price,total,cost_total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
-                            unit_id,unit_name,conversion_factor,quantity_base
+                            unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             id, line["product_id"], line["quantity"], line["unit_price"], line["total"], line["cost_total"],
                             1 if vat_enabled else 0, 1 if withholding_enabled else 0, line["tax_rate"], line["withholding_rate"],
                             line["tax_amount"], line["withholding_amount"], line["grand_total"], line["unit_id"], line["unit_name"],
-                            line["conversion_factor"], line["quantity_base"],
+                            line["conversion_factor"], line["quantity_base"], line["selected_unit"], line["quantity"], line["quantity_base"],
                         ),
                     )
                 log_action(cur, "update", "sales_invoice", id, "draft multi-line edit")
@@ -411,7 +422,7 @@ def build_edit_purchase_invoice_view(deps):
     default_tax_rate = deps["DEFAULT_TAX_RATE"]
 
     def edit_purchase_invoice(id):
-        from modules.sales.views import _build_product_units_map, _invoice_form_lines, _supplier_withholding
+        from modules.sales.views import _build_product_units_map, _invoice_form_lines, _supplier_withholding, _invoice_number_exists
 
         conn = db()
         cur = conn.cursor()
@@ -419,7 +430,7 @@ def build_edit_purchase_invoice_view(deps):
             """
             SELECT p.id,p.date,p.supplier_invoice_no,p.supplier_invoice_date,p.due_date,p.supplier_id,p.tax_rate,p.payment_type,p.notes,p.status,
                    COALESCE(l.vat_enabled,1),COALESCE(l.withholding_enabled,CASE WHEN COALESCE(p.withholding_rate,0)>0 THEN 1 ELSE 0 END),
-                   COALESCE(l.vat_rate,p.tax_rate,14),COALESCE(l.withholding_rate,p.withholding_rate,1)
+                   COALESCE(l.vat_rate,p.tax_rate,14),COALESCE(l.withholding_rate,p.withholding_rate,1),COALESCE(p.invoice_number,p.doc_no,'')
             FROM purchase_invoices p
             LEFT JOIN purchase_invoice_lines l ON l.invoice_id=p.id
             WHERE p.id=?
@@ -439,6 +450,7 @@ def build_edit_purchase_invoice_view(deps):
             return redirect(url_for("purchase_invoices"))
         if request.method == "POST":
             date_value = request.form.get("date", "").strip()
+            invoice_number = (request.form.get("invoice_number") or "").strip() or (invoice[14] or "")
             supplier_invoice_no = request.form.get("supplier_invoice_no", "").strip()
             supplier_invoice_date = request.form.get("supplier_invoice_date", "").strip()
             due_date = request.form.get("due_date", "").strip()
@@ -455,6 +467,8 @@ def build_edit_purchase_invoice_view(deps):
                 flash("راجع بيانات فاتورة المورد قبل الحفظ.", "danger")
             elif payment_type == "credit" and not supplier_id:
                 flash("اختر المورد عند الشراء الآجل.", "danger")
+            elif _invoice_number_exists(cur, "purchase_invoices", invoice_number, exclude_id=id):
+                flash("رقم الفاتورة مستخدم بالفعل", "danger")
             else:
                 try:
                     ensure_open_period(cur, date_value)
@@ -470,33 +484,40 @@ def build_edit_purchase_invoice_view(deps):
                     "grand_total": round(sum(line["grand_total"] for line in lines), 2),
                 }
                 first_line = lines[0]
-                cur.execute(
-                    """
-                    UPDATE purchase_invoices
-                    SET date=?,supplier_invoice_no=?,supplier_invoice_date=?,due_date=?,supplier_id=?,product_id=?,quantity=?,unit_price=?,total=?,
-                        tax_rate=?,tax_amount=?,withholding_rate=?,withholding_amount=?,grand_total=?,payment_type=?,notes=?
-                    WHERE id=?
-                    """,
-                    (
-                        date_value, supplier_invoice_no, supplier_invoice_date, due_date, supplier_id, first_line["product_id"], totals["quantity"],
-                        first_line["unit_price"], totals["total"], vat_rate, totals["tax_amount"], withholding_rate, totals["withholding_amount"],
-                        totals["grand_total"], payment_type, notes, id,
-                    ),
-                )
+                try:
+                    cur.execute(
+                        """
+                        UPDATE purchase_invoices
+                        SET date=?,doc_no=?,invoice_number=?,supplier_invoice_no=?,supplier_invoice_date=?,due_date=?,supplier_id=?,product_id=?,quantity=?,unit_price=?,total=?,
+                            tax_rate=?,tax_amount=?,withholding_rate=?,withholding_amount=?,grand_total=?,payment_type=?,notes=?
+                        WHERE id=?
+                        """,
+                        (
+                            date_value, invoice_number, invoice_number, supplier_invoice_no, supplier_invoice_date, due_date, supplier_id, first_line["product_id"], totals["quantity"],
+                            first_line["unit_price"], totals["total"], vat_rate, totals["tax_amount"], withholding_rate, totals["withholding_amount"],
+                            totals["grand_total"], payment_type, notes, id,
+                        ),
+                    )
+                except sqlite3.IntegrityError:
+                    conn.rollback()
+                    flash("رقم الفاتورة مستخدم بالفعل", "danger")
+                    conn.close()
+                    return redirect(url_for("purchase_invoices"))
                 cur.execute("DELETE FROM purchase_invoice_lines WHERE invoice_id=?", (id,))
                 for line in lines:
                     cur.execute(
                         """
                         INSERT INTO purchase_invoice_lines(
                             invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
-                            unit_id,unit_name,conversion_factor,quantity_base
+                            unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             id, line["product_id"], line["quantity"], line["unit_price"], line["total"], 1 if vat_enabled else 0,
                             1 if withholding_enabled else 0, line["tax_rate"], line["withholding_rate"], line["tax_amount"], line["withholding_amount"],
                             line["grand_total"], line["unit_id"], line["unit_name"], line["conversion_factor"], line["quantity_base"],
+                            line["selected_unit"], line["quantity"], line["quantity_base"],
                         ),
                     )
                 log_action(cur, "update", "purchase_invoice", id, "draft multi-line edit")

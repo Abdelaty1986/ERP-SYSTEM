@@ -1,4 +1,5 @@
 import json
+import sqlite3
 
 from flask import flash, redirect, render_template, request, url_for
 
@@ -179,6 +180,7 @@ def build_sales_orders_view(deps):
     db = deps["db"]
     parse_iso_date = deps["parse_iso_date"]
     log_action = deps["log_action"]
+    next_document_number = deps["next_document_number"]
 
     def sales_orders():
         conn = db()
@@ -199,32 +201,50 @@ def build_sales_orders_view(deps):
             elif not lines:
                 flash("أضف صنفًا واحدًا على الأقل بكمية وسعر صحيحين.", "danger")
             else:
+                grouped_requested = {}
+                for product_id, _qty, _unit_id, _unit_name, _factor, quantity_base, *_rest in lines:
+                    grouped_requested[product_id] = round(grouped_requested.get(product_id, 0) + float(quantity_base or 0), 4)
+                for product_id, requested_base_qty in grouped_requested.items():
+                    cur.execute("SELECT COALESCE(stock_quantity, 0) FROM products WHERE id=?", (product_id,))
+                    available_base_qty = float((cur.fetchone() or [0])[0] or 0)
+                    if available_base_qty < requested_base_qty:
+                        flash("رصيد المخزون الحالي لا يكفي لإتمام أمر البيع.", "danger")
+                        conn.close()
+                        return redirect(url_for("sales_orders"))
                 total = sum(line[7] for line in lines)
                 tax_amount = sum(line[9] for line in lines)
                 grand_total = sum(line[10] for line in lines)
                 quantity = sum(line[1] for line in lines)
                 first_line = lines[0]
-                cur.execute(
-                    """
-                    INSERT INTO sales_orders(date,customer_id,product_id,quantity,unit_price,total,tax_rate,tax_amount,grand_total,payment_terms,delivery_date,notes,status)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-                    """,
-                    (
-                        date_value,
-                        customer_id,
-                        first_line[0],
-                        quantity,
-                        total / quantity if quantity else first_line[6],
-                        total,
-                        first_line[8],
-                        tax_amount,
-                        grand_total,
-                        payment_terms,
-                        delivery_date,
-                        notes,
-                        "issued",
-                    ),
-                )
+                doc_no = next_document_number(cur, "sales_orders")
+                try:
+                    cur.execute(
+                        """
+                        INSERT INTO sales_orders(doc_no,date,customer_id,product_id,quantity,unit_price,total,tax_rate,tax_amount,grand_total,payment_terms,delivery_date,notes,status)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        """,
+                        (
+                            doc_no,
+                            date_value,
+                            customer_id,
+                            first_line[0],
+                            quantity,
+                            total / quantity if quantity else first_line[6],
+                            total,
+                            first_line[8],
+                            tax_amount,
+                            grand_total,
+                            payment_terms,
+                            delivery_date,
+                            notes,
+                            "issued",
+                        ),
+                    )
+                except sqlite3.IntegrityError:
+                    conn.rollback()
+                    flash("رقم المستند مستخدم بالفعل", "danger")
+                    conn.close()
+                    return redirect(url_for("sales_orders"))
                 order_id = cur.lastrowid
                 for line in lines:
                     cur.execute(
@@ -287,6 +307,7 @@ def build_purchase_orders_view(deps):
     db = deps["db"]
     parse_iso_date = deps["parse_iso_date"]
     log_action = deps["log_action"]
+    next_document_number = deps["next_document_number"]
 
     def purchase_orders():
         conn = db()
@@ -317,28 +338,36 @@ def build_purchase_orders_view(deps):
                 grand_total = sum(line[10] for line in lines)
                 quantity = sum(line[1] for line in lines)
                 first_line = lines[0]
-                cur.execute(
-                    """
-                    INSERT INTO purchase_orders(date,supplier_id,product_id,quantity,unit_price,total,tax_rate,tax_amount,grand_total,payment_terms,delivery_date,delivery_terms,notes,status)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                    """,
-                    (
-                        date_value,
-                        supplier_id,
-                        first_line[0],
-                        quantity,
-                        total / quantity if quantity else first_line[6],
-                        total,
-                        first_line[8],
-                        tax_amount,
-                        grand_total,
-                        payment_terms,
-                        delivery_date,
-                        delivery_terms,
-                        notes,
-                        "issued",
-                    ),
-                )
+                doc_no = next_document_number(cur, "purchase_orders")
+                try:
+                    cur.execute(
+                        """
+                        INSERT INTO purchase_orders(doc_no,date,supplier_id,product_id,quantity,unit_price,total,tax_rate,tax_amount,grand_total,payment_terms,delivery_date,delivery_terms,notes,status)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        """,
+                        (
+                            doc_no,
+                            date_value,
+                            supplier_id,
+                            first_line[0],
+                            quantity,
+                            total / quantity if quantity else first_line[6],
+                            total,
+                            first_line[8],
+                            tax_amount,
+                            grand_total,
+                            payment_terms,
+                            delivery_date,
+                            delivery_terms,
+                            notes,
+                            "issued",
+                        ),
+                    )
+                except sqlite3.IntegrityError:
+                    conn.rollback()
+                    flash("رقم المستند مستخدم بالفعل", "danger")
+                    conn.close()
+                    return redirect(url_for("purchase_orders"))
                 order_id = cur.lastrowid
                 for line in lines:
                     cur.execute(

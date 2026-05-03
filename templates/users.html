@@ -25,6 +25,9 @@
                 <option value="sales">مبيعات</option>
                 <option value="viewer">مشاهدة فقط</option>
                 <option value="admin">مدير</option>
+                {% for role in allowed_roles if role not in ['accountant', 'sales', 'viewer', 'admin'] %}
+                <option value="{{ role }}">{{ role_labels.get(role, role) }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
@@ -46,7 +49,7 @@
         <tr>
             <td>{{ r[0] }}</td>
             <td>{{ r[1] }}</td>
-            <td>{{ r[2] }}</td>
+            <td>{{ role_labels.get(r[2], r[2]) }}</td>
             <td class="no-print">
                 <form method="POST" action="/users/{{ r[0] }}/change-password" class="d-flex gap-2">
                     <input type="password" name="new_password" class="form-control form-control-sm" placeholder="كلمة مرور جديدة" required>

@@ -1,3 +1,5 @@
+import sqlite3
+
 from flask import flash, redirect, render_template, request, url_for
 from modules.accounting.ledger_engine import post_simple_entry
 
@@ -209,6 +211,7 @@ def build_receipts_view(deps):
     log_action = deps["log_action"]
     rebuild_ledger = deps["rebuild_ledger"]
     is_group_posted = deps["is_group_posted"]
+    next_document_number = deps["next_document_number"]
 
     def receipts():
         conn = db()
@@ -285,24 +288,32 @@ def build_receipts_view(deps):
                         source_type="receipts",
                     )
 
-                cur.execute(
-                    """
-                    INSERT INTO receipt_vouchers(
-                        date, customer_id, amount, notes, journal_id, status, voucher_type, account_id
+                doc_no = next_document_number(cur, "receipts")
+                try:
+                    cur.execute(
+                        """
+                        INSERT INTO receipt_vouchers(
+                            date, doc_no, customer_id, amount, notes, journal_id, status, voucher_type, account_id
+                        )
+                        VALUES (?,?,?,?,?,?,?,?,?)
+                        """,
+                        (
+                            date_value,
+                            doc_no,
+                            party_id,
+                            amount,
+                            notes,
+                            journal_id,
+                            "posted" if group_posted else "draft",
+                            voucher_type,
+                            stored_account_id,
+                        ),
                     )
-                    VALUES (?,?,?,?,?,?,?,?)
-                    """,
-                    (
-                        date_value,
-                        party_id,
-                        amount,
-                        notes,
-                        journal_id,
-                        "posted" if group_posted else "draft",
-                        voucher_type,
-                        stored_account_id,
-                    ),
-                )
+                except sqlite3.IntegrityError:
+                    conn.rollback()
+                    flash("رقم المستند مستخدم بالفعل", "danger")
+                    conn.close()
+                    return redirect(url_for("receipts"))
                 voucher_id = cur.lastrowid
                 mark_journal_source(cur, "receipts", voucher_id, journal_id)
                 log_action(cur, "create", "receipt_voucher", voucher_id, f"type={voucher_type}; amount={amount}")
@@ -361,6 +372,7 @@ def build_payments_view(deps):
     log_action = deps["log_action"]
     rebuild_ledger = deps["rebuild_ledger"]
     is_group_posted = deps["is_group_posted"]
+    next_document_number = deps["next_document_number"]
 
     def payments():
         conn = db()
@@ -437,24 +449,32 @@ def build_payments_view(deps):
                         source_type="payments",
                     )
 
-                cur.execute(
-                    """
-                    INSERT INTO payment_vouchers(
-                        date, supplier_id, amount, notes, journal_id, status, voucher_type, account_id
+                doc_no = next_document_number(cur, "payments")
+                try:
+                    cur.execute(
+                        """
+                        INSERT INTO payment_vouchers(
+                            date, doc_no, supplier_id, amount, notes, journal_id, status, voucher_type, account_id
+                        )
+                        VALUES (?,?,?,?,?,?,?,?,?)
+                        """,
+                        (
+                            date_value,
+                            doc_no,
+                            party_id,
+                            amount,
+                            notes,
+                            journal_id,
+                            "posted" if group_posted else "draft",
+                            voucher_type,
+                            stored_account_id,
+                        ),
                     )
-                    VALUES (?,?,?,?,?,?,?,?)
-                    """,
-                    (
-                        date_value,
-                        party_id,
-                        amount,
-                        notes,
-                        journal_id,
-                        "posted" if group_posted else "draft",
-                        voucher_type,
-                        stored_account_id,
-                    ),
-                )
+                except sqlite3.IntegrityError:
+                    conn.rollback()
+                    flash("رقم المستند مستخدم بالفعل", "danger")
+                    conn.close()
+                    return redirect(url_for("payments"))
                 voucher_id = cur.lastrowid
                 mark_journal_source(cur, "payments", voucher_id, journal_id)
                 log_action(cur, "create", "payment_voucher", voucher_id, f"type={voucher_type}; amount={amount}")

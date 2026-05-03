@@ -104,12 +104,24 @@ def build_permissions_view(deps):
     db = deps["db"]
     permission_modules = deps["PERMISSION_MODULES"]
     log_action = deps["log_action"]
+    role_labels = deps["ROLE_LABELS"]
 
     def permissions():
         roles = [
             ("accountant", "محاسب"),
             ("sales", "مبيعات"),
             ("viewer", "مشاهدة فقط"),
+        ]
+        roles = [
+            ("accountant", role_labels.get("accountant", "محاسب")),
+            ("customer_accountant", role_labels.get("customer_accountant", "محاسب عملاء")),
+            ("supplier_accountant", role_labels.get("supplier_accountant", "محاسب موردين")),
+            ("warehouse", role_labels.get("warehouse", "مخازن")),
+            ("hr_officer", role_labels.get("hr_officer", "موارد بشرية")),
+            ("gl_accountant", role_labels.get("gl_accountant", "حسابات عامة")),
+            ("manager", role_labels.get("manager", "مدير")),
+            ("sales", role_labels.get("sales", "مبيعات")),
+            ("viewer", role_labels.get("viewer", "مشاهدة فقط")),
         ]
         access_levels = [
             ("none", "بدون صلاحية"),
@@ -167,10 +179,23 @@ def build_users_view(deps):
     db = deps["db"]
     generate_password_hash = deps["generate_password_hash"]
     log_action = deps["log_action"]
+    role_labels = deps["ROLE_LABELS"]
 
     def users():
         conn = db()
         cur = conn.cursor()
+        allowed_roles = [
+            "admin",
+            "accountant",
+            "customer_accountant",
+            "supplier_accountant",
+            "warehouse",
+            "hr_officer",
+            "gl_accountant",
+            "manager",
+            "sales",
+            "viewer",
+        ]
 
         if request.method == "POST":
             username = request.form.get("username", "").strip()
@@ -179,7 +204,7 @@ def build_users_view(deps):
 
             if not username or not password:
                 flash("اسم المستخدم وكلمة المرور مطلوبان.", "danger")
-            elif role not in ["admin", "accountant", "sales", "viewer"]:
+            elif role not in allowed_roles:
                 flash("الدور غير صحيح.", "danger")
             else:
                 try:
@@ -199,7 +224,7 @@ def build_users_view(deps):
         cur.execute("SELECT id,username,role FROM users ORDER BY id")
         rows = cur.fetchall()
         conn.close()
-        return render_template("users.html", rows=rows)
+        return render_template("users.html", rows=rows, role_labels=role_labels, allowed_roles=allowed_roles)
 
     return users
 

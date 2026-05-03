@@ -1,8 +1,15 @@
 from io import BytesIO
 
-from flask import flash, redirect, render_template, send_file, url_for
+from flask import flash, redirect, render_template, request, send_file, session, url_for
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
+
+
+def _customer_tax_number_expr(customer_columns):
+    for column_name in ("tax_registration_number", "tax_number", "tax_id"):
+        if column_name in customer_columns:
+            return f"COALESCE(NULLIF(c.{column_name}, ''), 'غير مسجل')"
+    return "'غير مسجل'"
 
 
 def _invoice_company_party(cur, invoice_id, invoice_kind):
@@ -33,7 +40,8 @@ def _invoice_lines(cur, invoice_id, invoice_kind):
     if invoice_kind == "sale":
         cur.execute(
             """
-            SELECT p.code,p.name,p.unit,l.quantity,l.unit_price,l.total,
+            SELECT p.code,p.name,COALESCE(NULLIF(l.selected_unit,''), NULLIF(l.unit_name,''), p.unit, 'وحدة'),
+                   COALESCE(l.qty,l.quantity),l.unit_price,l.total,
                    COALESCE(l.vat_enabled,1),COALESCE(l.vat_amount,0),
                    COALESCE(l.withholding_enabled,0),COALESCE(l.withholding_amount,0),
                    COALESCE(l.grand_total,l.total + COALESCE(l.vat_amount,0))
@@ -61,7 +69,8 @@ def _invoice_lines(cur, invoice_id, invoice_kind):
         return cur.fetchall()
     cur.execute(
         """
-        SELECT p.code,p.name,p.unit,l.quantity,l.unit_price,l.total,
+        SELECT p.code,p.name,COALESCE(NULLIF(l.selected_unit,''), NULLIF(l.unit_name,''), p.unit, 'وحدة'),
+               COALESCE(l.qty,l.quantity),l.unit_price,l.total,
                COALESCE(l.vat_enabled,1),COALESCE(l.vat_amount,0),
                COALESCE(l.withholding_enabled,0),COALESCE(l.withholding_amount,0),
                COALESCE(l.grand_total,l.total + COALESCE(l.vat_amount,0))
@@ -384,3 +393,104 @@ def build_export_purchase_excel_view(deps):
         return send_file(out, as_attachment=True, download_name=f"{header[1] or 'purchase-invoice'}.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     return export_purchase_excel
+
+
+def build_export_sales_invoices_excel_view(deps):
+    db = deps["db"]
+
+    def export_sales_invoices_excel():
+        from_date = (request.args.get("from_date") or "").strip()
+        to_date = (request.args.get("to_date") or "").strip()
+        if not from_date or not to_date:
+            flash("اختر من تاريخ وإلى تاريخ قبل تحميل ملف Excel.", "warning")
+            return redirect(url_for("sales_invoices"))
+
+        conn = db()
+        cur = conn.cursor()
+        sales_invoice_columns = {row[1] for row in cur.execute("PRAGMA table_info(sales_invoices)").fetchall()}
+        user_columns = {row[1] for row in cur.execute("PRAGMA table_info(users)").fetchall()} if cur.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='users'").fetchone() else set()
+
+        created_by_expr = "''"
+        join_users_sql = ""
+        if "created_by" in sales_invoice_columns:
+            if "username" in user_columns:
+                join_users_sql = "LEFT JOIN users u ON CAST(u.id AS TEXT)=CAST(si.created_by AS TEXT) OR u.username=si.created_by"
+                created_by_expr = "COALESCE(u.username, si.created_by, '')"
+            else:
+                created_by_expr = "COALESCE(si.created_by, '')"
+
+        cur.execute(
+            f"""
+            SELECT
+                si.doc_no,
+                si.date,
+                COALESCE(c.name, 'عميل نقدي') AS customer_name,
+                COALESCE(si.payment_type, '') AS payment_type,
+                COALESCE(si.total, 0) AS subtotal,
+                COALESCE(si.withholding_amount, 0) AS discount_amount,
+                COALESCE(si.tax_amount, 0) AS tax_amount,
+                COALESCE(si.grand_total, 0) AS net_amount,
+                COALESCE(si.status, 'draft') AS status,
+                {created_by_expr} AS created_by_name
+            FROM sales_invoices si
+            LEFT JOIN customers c ON si.customer_id = c.id
+            {join_users_sql}
+            WHERE si.date >= ? AND si.date <= ?
+            ORDER BY si.id DESC
+            """,
+            (from_date, to_date),
+        )
+        rows = cur.fetchall()
+        conn.close()
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Sales Invoices"
+        ws.sheet_view.rightToLeft = True
+        headers = [
+            "رقم الفاتورة",
+            "تاريخ الفاتورة",
+            "اسم العميل",
+            "نوع الدفع",
+            "الإجمالي قبل الخصم",
+            "الخصم",
+            "الضريبة",
+            "الصافي",
+            "حالة الترحيل",
+            "اسم المستخدم",
+        ]
+        ws.append(headers)
+        for idx, title in enumerate(headers, start=1):
+            cell = ws.cell(row=1, column=idx)
+            cell.font = Font(bold=True)
+            cell.alignment = Alignment(horizontal="center")
+        payment_labels = {"cash": "نقدي", "credit": "آجل"}
+        status_labels = {"draft": "غير مرحلة", "posted": "مرحلة", "cancelled": "ملغاة"}
+        for row in rows:
+            ws.append(
+                [
+                    row[0] or "",
+                    row[1] or "",
+                    row[2] or "عميل نقدي",
+                    payment_labels.get(row[3], row[3] or ""),
+                    float(row[4] or 0),
+                    float(row[5] or 0),
+                    float(row[6] or 0),
+                    float(row[7] or 0),
+                    status_labels.get(row[8], row[8] or ""),
+                    row[9] or "",
+                ]
+            )
+        for column, width in zip("ABCDEFGHIJ", [18, 16, 28, 14, 18, 14, 14, 16, 16, 20]):
+            ws.column_dimensions[column].width = width
+        out = BytesIO()
+        wb.save(out)
+        out.seek(0)
+        return send_file(
+            out,
+            as_attachment=True,
+            download_name=f"sales_invoices_{from_date}_to_{to_date}.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    return export_sales_invoices_excel

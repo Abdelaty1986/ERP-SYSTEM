@@ -396,649 +396,270 @@ def build_profit_loss_report_view(deps):
 
     return profit_loss_report
 
+def _table_columns(cur, table_name):
+    try:
+        return {row[1] for row in cur.execute(f"PRAGMA table_info({table_name})").fetchall()}
+    except Exception:
+        return set()
 
+
+def _column_value_expr(cur, table_name, alias, column_names, default="0", nullif_empty=False):
+    columns = _table_columns(cur, table_name)
+    expressions = []
+    for column_name in column_names:
+        if column_name in columns:
+            if nullif_empty:
+                expressions.append(f"NULLIF({alias}.{column_name}, '')")
+            else:
+                expressions.append(f"{alias}.{column_name}")
+    if expressions:
+        return f"COALESCE({', '.join(expressions)}, {default})"
+    return default
+
+
+def _report_tax_number_expr(cur, table_name, alias, fallback="'غير مسجل'"):
+    return _column_value_expr(
+        cur,
+        table_name,
+        alias,
+        ("tax_registration_number", "tax_number", "tax_id", "vat_number"),
+        fallback,
+        nullif_empty=True,
+    )
+
+
+def _financial_report_excel(filename, headers, rows, title):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Report"
+    ws.sheet_view.rightToLeft = True
+    ws["A1"] = title
+    ws["A1"].font = Font(bold=True)
+    for idx, header in enumerate(headers, start=1):
+        ws.cell(row=3, column=idx, value=header).font = Font(bold=True)
+    for row_idx, row in enumerate(rows, start=4):
+        for col_idx, value in enumerate(row, start=1):
+            ws.cell(row=row_idx, column=col_idx, value=value)
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 
 def build_vat_report_view(deps):
     db = deps["db"]
 
     def vat_report():
-        date_from = request.args.get("date_from", "").strip()
-        date_to = request.args.get("date_to", "").strip()
+        conn = db()
+        cur = conn.cursor()
+        date_from = (request.args.get("date_from") or "").strip()
+        date_to = (request.args.get("date_to") or "").strip()
 
-        where_sales = ["s.status='posted'"]
-        where_purchases = ["p.status='posted'"]
+        sales_tax_expr = _report_tax_number_expr(cur, "customers", "c", "'غير مسجل'")
+        supplier_tax_expr = _report_tax_number_expr(cur, "suppliers", "sup", "'غير مسجل'")
+
+        sales_qty_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("qty", "quantity"), "0")
+        sales_price_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("unit_price", "price"), "0")
+        sales_unit_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("selected_unit", "unit_name"), "p.unit", nullif_empty=True)
+        sales_line_total_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("total", "line_total", "grand_total"), f"(({sales_qty_expr}) * ({sales_price_expr}))")
+
+        purchase_qty_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("qty", "quantity"), "0")
+        purchase_price_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("unit_price", "price"), "0")
+        purchase_unit_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("selected_unit", "unit_name"), "pr.unit", nullif_empty=True)
+        purchase_line_total_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("total", "line_total", "grand_total"), f"(({purchase_qty_expr}) * ({purchase_price_expr}))")
+
+        sales_invoice_no_expr = _column_value_expr(cur, "sales_invoices", "s", ("invoice_number", "doc_no"), "'SI-' || printf('%06d', s.id)", nullif_empty=True)
+        purchase_invoice_no_expr = _column_value_expr(cur, "purchase_invoices", "p", ("invoice_number", "doc_no", "supplier_invoice_no"), "'PI-' || printf('%06d', p.id)", nullif_empty=True)
+
+        sales_conditions = ["s.status='posted'", "COALESCE(s.tax_amount,0) > 0"]
+        purchase_conditions = ["p.status='posted'", "COALESCE(p.tax_amount,0) > 0"]
         params_sales = []
         params_purchases = []
-
         if date_from:
-            where_sales.append("s.date >= ?")
-            where_purchases.append("p.date >= ?")
+            sales_conditions.append("s.date >= ?")
+            purchase_conditions.append("p.date >= ?")
             params_sales.append(date_from)
             params_purchases.append(date_from)
-
         if date_to:
-            where_sales.append("s.date <= ?")
-            where_purchases.append("p.date <= ?")
+            sales_conditions.append("s.date <= ?")
+            purchase_conditions.append("p.date <= ?")
             params_sales.append(date_to)
             params_purchases.append(date_to)
 
-        sales_where_sql = " AND ".join(where_sales)
-        purchases_where_sql = " AND ".join(where_purchases)
+        sales_where = " AND ".join(sales_conditions)
+        purchases_where = " AND ".join(purchase_conditions)
 
-        conn = db()
-        cur = conn.cursor()
-
-        cur.execute(f"""
+        cur.execute(
+            f"""
             SELECT
                 s.date,
                 'مبيعات' AS doc_type,
-                COALESCE(s.doc_no, 'SI-' || printf('%06d', s.id)) AS doc_no,
+                {sales_invoice_no_expr} AS doc_no,
                 COALESCE(c.name, 'عميل نقدي') AS party_name,
+                {sales_tax_expr} AS tax_number,
                 COALESCE(p.name, '') AS item_name,
-                COALESCE(l.total, 0) AS net_amount,
+                {sales_qty_expr} AS qty,
+                {sales_price_expr} AS unit_price,
+                COALESCE({sales_unit_expr}, 'وحدة') AS selected_unit,
+                COALESCE({sales_line_total_expr}, 0) AS net_amount,
                 CASE
-                    WHEN COALESCE(s.total, 0) <> 0 THEN ROUND(COALESCE(s.tax_amount, 0) * COALESCE(l.total, 0) / s.total, 2)
-                    ELSE COALESCE(s.tax_amount, 0)
+                    WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.tax_amount,0) * COALESCE({sales_line_total_expr},0) / s.total, 2)
+                    ELSE COALESCE(s.tax_amount,0)
                 END AS vat_amount,
                 (
-                    COALESCE(l.total,0)
-                    + CASE
-                        WHEN COALESCE(s.total, 0) <> 0 THEN ROUND(COALESCE(s.tax_amount, 0) * COALESCE(l.total, 0) / s.total, 2)
-                        ELSE COALESCE(s.tax_amount, 0)
-                    END
-                    - CASE
-                        WHEN COALESCE(s.total, 0) <> 0 THEN ROUND(COALESCE(s.withholding_amount, 0) * COALESCE(l.total, 0) / s.total, 2)
-                        ELSE COALESCE(s.withholding_amount, 0)
+                    COALESCE({sales_line_total_expr},0) +
+                    CASE
+                        WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.tax_amount,0) * COALESCE({sales_line_total_expr},0) / s.total, 2)
+                        ELSE COALESCE(s.tax_amount,0)
                     END
                 ) AS grand_total
             FROM sales_invoices s
-            JOIN sales_invoice_lines l ON l.invoice_id = s.id
-            LEFT JOIN products p ON p.id = l.product_id
-            LEFT JOIN customers c ON c.id = s.customer_id
-            WHERE {sales_where_sql} AND COALESCE(s.tax_amount,0) > 0
-
-            UNION ALL
-
-            SELECT
-                s.date,
-                'مبيعات' AS doc_type,
-                COALESCE(s.doc_no, 'SI-' || printf('%06d', s.id)) AS doc_no,
-                COALESCE(c.name, 'عميل نقدي') AS party_name,
-                COALESCE(p.name, '') AS item_name,
-                COALESCE(s.total, 0) AS net_amount,
-                COALESCE(s.tax_amount, 0) AS vat_amount,
-                (COALESCE(s.total,0) + COALESCE(s.tax_amount,0) - COALESCE(s.withholding_amount,0)) AS grand_total
-            FROM sales_invoices s
-            LEFT JOIN products p ON p.id = s.product_id
-            LEFT JOIN customers c ON c.id = s.customer_id
-            WHERE {sales_where_sql}
-              AND NOT EXISTS (SELECT 1 FROM sales_invoice_lines l2 WHERE l2.invoice_id=s.id)
-              AND COALESCE(s.tax_amount,0) > 0
-        """, params_sales + params_sales)
-
-        sales_rows = cur.fetchall()
-
-        cur.execute(f"""
-            SELECT
-                p.date,
-                'مشتريات' AS doc_type,
-                COALESCE(p.doc_no, p.supplier_invoice_no, 'PI-' || printf('%06d', p.id)) AS doc_no,
-                COALESCE(s.name, 'مورد نقدي') AS party_name,
-                COALESCE(pr.name, '') AS item_name,
-                COALESCE(l.total, 0) AS net_amount,
-                CASE
-                    WHEN COALESCE(p.total, 0) <> 0 THEN ROUND(COALESCE(p.tax_amount, 0) * COALESCE(l.total, 0) / p.total, 2)
-                    ELSE COALESCE(p.tax_amount, 0)
-                END AS vat_amount,
-                (
-                    COALESCE(l.total,0)
-                    + CASE
-                        WHEN COALESCE(p.total, 0) <> 0 THEN ROUND(COALESCE(p.tax_amount, 0) * COALESCE(l.total, 0) / p.total, 2)
-                        ELSE COALESCE(p.tax_amount, 0)
-                    END
-                    - CASE
-                        WHEN COALESCE(p.total, 0) <> 0 THEN ROUND(COALESCE(p.withholding_amount, 0) * COALESCE(l.total, 0) / p.total, 2)
-                        ELSE COALESCE(p.withholding_amount, 0)
-                    END
-                ) AS grand_total
-            FROM purchase_invoices p
-            JOIN purchase_invoice_lines l ON l.invoice_id = p.id
-            LEFT JOIN products pr ON pr.id = l.product_id
-            LEFT JOIN suppliers s ON s.id = p.supplier_id
-            WHERE {purchases_where_sql} AND COALESCE(p.tax_amount,0) > 0
+            JOIN sales_invoice_lines l ON l.invoice_id=s.id
+            LEFT JOIN products p ON p.id=l.product_id
+            LEFT JOIN customers c ON c.id=s.customer_id
+            WHERE {sales_where}
 
             UNION ALL
 
             SELECT
                 p.date,
                 'مشتريات' AS doc_type,
-                COALESCE(p.doc_no, p.supplier_invoice_no, 'PI-' || printf('%06d', p.id)) AS doc_no,
-                COALESCE(s.name, 'مورد نقدي') AS party_name,
+                {purchase_invoice_no_expr} AS doc_no,
+                COALESCE(sup.name, 'مورد نقدي') AS party_name,
+                {supplier_tax_expr} AS tax_number,
                 COALESCE(pr.name, '') AS item_name,
-                COALESCE(p.total, 0) AS net_amount,
-                COALESCE(p.tax_amount, 0) AS vat_amount,
-                (COALESCE(p.total,0) + COALESCE(p.tax_amount,0) - COALESCE(p.withholding_amount,0)) AS grand_total
+                {purchase_qty_expr} AS qty,
+                {purchase_price_expr} AS unit_price,
+                COALESCE({purchase_unit_expr}, 'وحدة') AS selected_unit,
+                COALESCE({purchase_line_total_expr},0) AS net_amount,
+                CASE
+                    WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.tax_amount,0) * COALESCE({purchase_line_total_expr},0) / p.total, 2)
+                    ELSE COALESCE(p.tax_amount,0)
+                END AS vat_amount,
+                (
+                    COALESCE({purchase_line_total_expr},0) +
+                    CASE
+                        WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.tax_amount,0) * COALESCE({purchase_line_total_expr},0) / p.total, 2)
+                        ELSE COALESCE(p.tax_amount,0)
+                    END
+                ) AS grand_total
             FROM purchase_invoices p
-            LEFT JOIN products pr ON pr.id = p.product_id
-            LEFT JOIN suppliers s ON s.id = p.supplier_id
-            WHERE {purchases_where_sql}
-              AND NOT EXISTS (SELECT 1 FROM purchase_invoice_lines l2 WHERE l2.invoice_id=p.id)
-              AND COALESCE(p.tax_amount,0) > 0
-        """, params_purchases + params_purchases)
-
-        purchase_rows = cur.fetchall()
+            JOIN purchase_invoice_lines l ON l.invoice_id=p.id
+            LEFT JOIN products pr ON pr.id=l.product_id
+            LEFT JOIN suppliers sup ON sup.id=p.supplier_id
+            WHERE {purchases_where}
+            ORDER BY 1 DESC, 3 DESC
+            """,
+            params_sales + params_purchases,
+        )
+        rows = cur.fetchall()
         conn.close()
 
-        def clean_doc_no(value):
-            value = str(value or "")
-            value = value.replace("\ufffe", "-").replace("￾", "-")
-            value = value.replace("SI000", "SI-000").replace("PI000", "PI-000")
-            return value
+        headers = ["التاريخ", "النوع", "رقم المستند", "الجهة", "الرقم الضريبي", "الصنف", "الكمية", "سعر الوحدة", "الوحدة", "الصافي", "الضريبة", "الإجمالي"]
+        if request.args.get("format") == "excel":
+            return _financial_report_excel("vat_report.xlsx", headers, rows, "تقرير ضريبة القيمة المضافة")
 
-        rows = []
-        for r in list(sales_rows) + list(purchase_rows):
-            rows.append((
-                r[0],
-                r[1],
-                clean_doc_no(r[2]),
-                r[3],
-                r[4],
-                float(r[5] or 0),
-                float(r[6] or 0),
-                float(r[7] or 0),
-            ))
-
-        rows.sort(key=lambda r: (r[0] or "", r[1] or "", r[2] or ""))
-
-        output_vat = sum(r[6] for r in rows if r[1] == "مبيعات")
-        input_vat = sum(r[6] for r in rows if r[1] == "مشتريات")
+        total_net = sum(float(row[9] or 0) for row in rows)
+        total_vat = sum(float(row[10] or 0) for row in rows)
+        total_grand = sum(float(row[11] or 0) for row in rows)
+        output_vat = sum(float(row[10] or 0) for row in rows if row[1] == "مبيعات")
+        input_vat = sum(float(row[10] or 0) for row in rows if row[1] == "مشتريات")
         net_due = output_vat - input_vat
 
-        total_net = sum(r[5] for r in rows)
-        total_vat = sum(r[6] for r in rows)
-        total_grand = sum(r[7] for r in rows)
-
-        template = """
-        {% extends "layout.html" %}
-        {% block content %}
-
-        <div class="vat-report-page" dir="rtl">
-
-            <div class="report-header">
-                <div>
-                    <h2>تقرير ضريبة القيمة المضافة</h2>
-                    <p>مخرجات المبيعات ومدخلات المشتريات للفواتير المرحلة فقط</p>
-                    {% if date_from or date_to %}
-                    <small>
-                        الفترة:
-                        {% if date_from %} من {{ date_from }} {% endif %}
-                        {% if date_to %} إلى {{ date_to }} {% endif %}
-                    </small>
-                    {% endif %}
+        return render_template_string(
+            """
+            {% extends "layout.html" %}
+            {% block content %}
+            <div class="container-fluid" dir="rtl">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="mb-1">تقرير ضريبة القيمة المضافة</h2>
+                        <div class="text-muted">يعرض الفواتير المرحلة مع الكمية وسعر الوحدة والوحدة والرقم الضريبي.</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-success" href="{{ url_for('vat_report', date_from=date_from, date_to=date_to, format='excel') }}">تحميل Excel</a>
+                        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+                    </div>
                 </div>
 
-                <div class="report-actions d-print-none">
-                    <button onclick="window.print()" class="btn-print">طباعة / PDF</button>
-                </div>
-            </div>
+                <form method="get" class="card p-3 mb-3">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">من تاريخ</label>
+                            <input class="form-control" type="date" name="date_from" value="{{ date_from }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">إلى تاريخ</label>
+                            <input class="form-control" type="date" name="date_to" value="{{ date_to }}">
+                        </div>
+                        <div class="col-md-6 d-flex gap-2">
+                            <button class="btn btn-primary">تطبيق</button>
+                            <a class="btn btn-light border" href="{{ url_for('vat_report') }}">إلغاء</a>
+                        </div>
+                    </div>
+                </form>
 
-            <form method="get" class="filter-box d-print-none">
-                <div>
-                    <label>من تاريخ</label>
-                    <input type="date" name="date_from" value="{{ date_from }}">
-                </div>
-                <div>
-                    <label>إلى تاريخ</label>
-                    <input type="date" name="date_to" value="{{ date_to }}">
-                </div>
-                <div class="filter-actions">
-                    <button type="submit">تطبيق الفلتر</button>
-                    <a href="{{ url_for('vat_report') }}">إلغاء الفلتر</a>
-                </div>
-            </form>
-
-            <div class="summary-grid">
-                <div class="summary-card output">
-                    <span>ضريبة المخرجات</span>
-                    <strong>{{ "%.2f"|format(output_vat) }}</strong>
-                    <small>ضريبة فواتير البيع</small>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ضريبة المخرجات</div><div class="fs-4 fw-bold">{{ '%.2f'|format(output_vat) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ضريبة المدخلات</div><div class="fs-4 fw-bold">{{ '%.2f'|format(input_vat) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">الصافي المستحق</div><div class="fs-4 fw-bold">{{ '%.2f'|format(net_due) }}</div></div></div>
                 </div>
 
-                <div class="summary-card input">
-                    <span>ضريبة المدخلات</span>
-                    <strong>{{ "%.2f"|format(input_vat) }}</strong>
-                    <small>ضريبة فواتير الشراء</small>
-                </div>
-
-                <div class="summary-card due">
-                    <span>الصافي المستحق</span>
-                    <strong>{{ "%.2f"|format(net_due) }}</strong>
-                    <small>موجب = مستحق، سالب = رصيد مدخلات</small>
-                </div>
-            </div>
-
-            <div class="report-table-card">
-                <div class="table-title">تفاصيل الفواتير الضريبية</div>
-
-                <div class="table-responsive">
-                    <table class="vat-table">
-                        <thead>
-                            <tr>
-                                <th>التاريخ</th>
-                                <th>النوع</th>
-                                <th>رقم المستند</th>
-                                <th>العميل / المورد</th>
-                                <th>الصنف</th>
-                                <th>الصافي قبل الضريبة</th>
-                                <th>الضريبة</th>
-                                <th>الإجمالي بعد الضريبة</th>
-                            </tr>
-                        </thead>
-
+                <div class="table-responsive card p-2">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead><tr>{% for header in headers %}<th>{{ header }}</th>{% endfor %}</tr></thead>
                         <tbody>
-                            {% for r in rows %}
+                            {% for row in rows %}
                             <tr>
-                                <td class="nowrap date-cell">{{ r[0] }}</td>
-                                <td class="nowrap">
-                                    {% if r[1] == "مبيعات" %}
-                                        <span class="badge badge-sale">مبيعات</span>
-                                    {% else %}
-                                        <span class="badge badge-purchase">مشتريات</span>
-                                    {% endif %}
-                                </td>
-                                <td class="nowrap doc-no" dir="ltr">{{ r[2] }}</td>
-                                <td class="party-cell">{{ r[3] }}</td>
-                                <td class="item-cell">{{ r[4] }}</td>
-                                <td class="num">{{ "%.2f"|format(r[5]) }}</td>
-                                <td class="num">{{ "%.2f"|format(r[6]) }}</td>
-                                <td class="num">{{ "%.2f"|format(r[7]) }}</td>
+                                <td>{{ row[0] }}</td>
+                                <td>{{ row[1] }}</td>
+                                <td dir="ltr">{{ row[2] }}</td>
+                                <td>{{ row[3] }}</td>
+                                <td>{{ row[4] }}</td>
+                                <td>{{ row[5] }}</td>
+                                <td>{{ '%.2f'|format(row[6] or 0) }}</td>
+                                <td>{{ '%.2f'|format(row[7] or 0) }}</td>
+                                <td>{{ row[8] }}</td>
+                                <td>{{ '%.2f'|format(row[9] or 0) }}</td>
+                                <td>{{ '%.2f'|format(row[10] or 0) }}</td>
+                                <td>{{ '%.2f'|format(row[11] or 0) }}</td>
                             </tr>
                             {% else %}
-                            <tr>
-                                <td colspan="8" class="empty-row">لا توجد فواتير ضريبية مرحلة.</td>
-                            </tr>
+                            <tr><td colspan="{{ headers|length }}" class="text-center text-muted">لا توجد بيانات ضمن الفترة المحددة.</td></tr>
                             {% endfor %}
                         </tbody>
-
                         <tfoot>
                             <tr>
-                                <td colspan="5">الإجمالي</td>
-                                <td class="num">{{ "%.2f"|format(total_net) }}</td>
-                                <td class="num">{{ "%.2f"|format(total_vat) }}</td>
-                                <td class="num">{{ "%.2f"|format(total_grand) }}</td>
+                                <th colspan="9">الإجمالي</th>
+                                <th>{{ '%.2f'|format(total_net) }}</th>
+                                <th>{{ '%.2f'|format(total_vat) }}</th>
+                                <th>{{ '%.2f'|format(total_grand) }}</th>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
-
-        </div>
-
-        <style>
-            .vat-report-page {
-                background: #f6f8fb;
-                padding: 24px;
-                font-family: Tahoma, Arial, sans-serif;
-                color: #1f2937;
-            }
-
-            .report-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                gap: 16px;
-                margin-bottom: 18px;
-            }
-
-            .report-header h2 {
-                margin: 0;
-                font-size: 28px;
-                font-weight: 800;
-                color: #111827;
-            }
-
-            .report-header p {
-                margin: 6px 0 0;
-                color: #6b7280;
-            }
-
-            .report-header small {
-                display: block;
-                margin-top: 6px;
-                color: #374151;
-                font-weight: 600;
-            }
-
-            .btn-print {
-                border: 0;
-                background: #2563eb;
-                color: #fff;
-                padding: 10px 18px;
-                border-radius: 10px;
-                font-weight: 700;
-                cursor: pointer;
-            }
-
-            .filter-box {
-                background: #fff;
-                border: 1px solid #e5e7eb;
-                border-radius: 16px;
-                padding: 16px;
-                margin-bottom: 18px;
-                display: flex;
-                align-items: end;
-                gap: 14px;
-                flex-wrap: wrap;
-                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
-            }
-
-            .filter-box label {
-                display: block;
-                font-size: 13px;
-                color: #6b7280;
-                margin-bottom: 6px;
-                font-weight: 700;
-            }
-
-            .filter-box input {
-                border: 1px solid #d1d5db;
-                border-radius: 10px;
-                padding: 9px 12px;
-                min-width: 180px;
-            }
-
-            .filter-actions {
-                display: flex;
-                gap: 10px;
-                align-items: center;
-            }
-
-            .filter-actions button {
-                background: #111827;
-                color: #fff;
-                border: 0;
-                border-radius: 10px;
-                padding: 10px 16px;
-                font-weight: 700;
-            }
-
-            .filter-actions a {
-                color: #6b7280;
-                text-decoration: none;
-                font-weight: 700;
-            }
-
-            .summary-grid {
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 16px;
-                margin-bottom: 20px;
-            }
-
-            .summary-card {
-                background: #fff;
-                border-radius: 18px;
-                padding: 20px;
-                border: 1px solid #e5e7eb;
-                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-            }
-
-            .summary-card span {
-                display: block;
-                color: #6b7280;
-                font-size: 14px;
-                margin-bottom: 8px;
-                font-weight: 700;
-            }
-
-            .summary-card strong {
-                display: block;
-                font-size: 30px;
-                line-height: 1.2;
-                margin-bottom: 8px;
-                direction: ltr;
-                text-align: right;
-            }
-
-            .summary-card small {
-                color: #6b7280;
-                font-weight: 600;
-            }
-
-            .summary-card.output strong { color: #dc2626; }
-            .summary-card.input strong { color: #059669; }
-            .summary-card.due strong { color: #2563eb; }
-
-            .report-table-card {
-                background: #fff;
-                border: 1px solid #e5e7eb;
-                border-radius: 18px;
-                overflow: hidden;
-                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-            }
-
-            .table-title {
-                padding: 16px 18px;
-                font-size: 18px;
-                font-weight: 800;
-                border-bottom: 1px solid #e5e7eb;
-                background: #fff;
-            }
-
-            .table-responsive {
-                width: 100%;
-                overflow-x: auto;
-            }
-
-            .vat-table {
-                width: 100%;
-                border-collapse: collapse;
-                table-layout: fixed;
-                background: #fff;
-            }
-
-            .vat-table th {
-                background: #111827;
-                color: #fff;
-                padding: 12px 10px;
-                font-size: 13px;
-                font-weight: 800;
-                border: 1px solid #1f2937;
-                text-align: center;
-                vertical-align: middle;
-            }
-
-            .vat-table td {
-                padding: 11px 10px;
-                border: 1px solid #e5e7eb;
-                font-size: 13px;
-                vertical-align: middle;
-                background: #fff;
-            }
-
-            .vat-table tbody tr:nth-child(even) td {
-                background: #f9fafb;
-            }
-
-            .vat-table tfoot td {
-                background: #f3f4f6;
-                font-weight: 900;
-                border-top: 2px solid #9ca3af;
-            }
-
-            .nowrap {
-                white-space: nowrap;
-            }
-
-            .date-cell {
-                width: 95px;
-                direction: ltr;
-                text-align: center;
-            }
-
-            .doc-no {
-                width: 100px;
-                text-align: center;
-                font-weight: 800;
-            }
-
-            .party-cell {
-                width: 160px;
-                font-weight: 700;
-            }
-
-            .item-cell {
-                width: 180px;
-            }
-
-            .num {
-                direction: ltr;
-                text-align: left;
-                white-space: nowrap;
-                font-weight: 700;
-                font-variant-numeric: tabular-nums;
-            }
-
-            .badge {
-                display: inline-block;
-                padding: 5px 9px;
-                border-radius: 999px;
-                font-size: 12px;
-                font-weight: 800;
-                white-space: nowrap;
-            }
-
-            .badge-sale {
-                background: #fee2e2;
-                color: #991b1b;
-            }
-
-            .badge-purchase {
-                background: #dcfce7;
-                color: #166534;
-            }
-
-            .empty-row {
-                text-align: center;
-                color: #6b7280;
-                padding: 28px !important;
-            }
-
-            @media (max-width: 768px) {
-                .vat-report-page {
-                    padding: 14px;
-                }
-
-                .summary-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .report-header {
-                    display: block;
-                }
-
-                .report-actions {
-                    margin-top: 12px;
-                }
-            }
-
-            @media print {
-                @page {
-                    size: A4 landscape;
-                    margin: 10mm;
-                }
-
-                .sidebar,
-                .navbar,
-                .d-print-none,
-                .btn,
-                .report-actions,
-                .filter-box {
-                    display: none !important;
-                }
-
-                html, body {
-                    background: #fff !important;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-
-                .vat-report-page {
-                    padding: 0 !important;
-                    background: #fff !important;
-                }
-
-                .report-header {
-                    margin-bottom: 12px;
-                }
-
-                .report-header h2 {
-                    font-size: 22px;
-                }
-
-                .summary-grid {
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 8px;
-                    margin-bottom: 12px;
-                }
-
-                .summary-card {
-                    box-shadow: none !important;
-                    border: 1px solid #ddd !important;
-                    border-radius: 10px;
-                    padding: 12px;
-                }
-
-                .summary-card strong {
-                    font-size: 22px;
-                }
-
-                .report-table-card {
-                    box-shadow: none !important;
-                    border-radius: 0;
-                }
-
-                .table-title {
-                    padding: 10px;
-                }
-
-                .vat-table {
-                    table-layout: fixed;
-                }
-
-                .vat-table th,
-                .vat-table td {
-                    font-size: 11px;
-                    padding: 7px 6px;
-                    line-height: 1.35;
-                }
-
-                .date-cell,
-                .doc-no,
-                .num {
-                    white-space: nowrap !important;
-                }
-            }
-        </style>
-
-        {% endblock %}
-        """
-
-        return render_template_string(
-            template,
+            {% endblock %}
+            """,
             rows=rows,
-            output_vat=output_vat,
-            input_vat=input_vat,
-            net_due=net_due,
+            headers=headers,
+            date_from=date_from,
+            date_to=date_to,
             total_net=total_net,
             total_vat=total_vat,
             total_grand=total_grand,
-            date_from=date_from,
-            date_to=date_to,
+            output_vat=output_vat,
+            input_vat=input_vat,
+            net_due=net_due,
         )
 
     return vat_report
+
 
 def build_withholding_tax_report_view(deps):
     db = deps["db"]
@@ -1046,109 +667,124 @@ def build_withholding_tax_report_view(deps):
     def withholding_tax_report():
         conn = db()
         cur = conn.cursor()
+        date_from = (request.args.get("date_from") or "").strip()
+        date_to = (request.args.get("date_to") or "").strip()
+        customer_tax_expr = _report_tax_number_expr(cur, "customers", "c", "'غير مسجل'")
+
+        conditions = ["si.status='posted'", "COALESCE(si.withholding_amount,0) > 0"]
+        params = []
+        if date_from:
+            conditions.append("si.date >= ?")
+            params.append(date_from)
+        if date_to:
+            conditions.append("si.date <= ?")
+            params.append(date_to)
+        where_sql = " AND ".join(conditions)
+
         cur.execute(
-            """
+            f"""
+            WITH ordered_lines AS (
+                SELECT
+                    sil.invoice_id,
+                    p.name AS item_name,
+                    COALESCE(NULLIF(sil.selected_unit, ''), NULLIF(sil.unit_name, ''), p.unit, 'وحدة') AS selected_unit_name
+                FROM sales_invoice_lines sil
+                JOIN products p ON p.id = sil.product_id
+                ORDER BY sil.invoice_id, sil.id
+            ),
+            line_summary AS (
+                SELECT
+                    invoice_id,
+                    GROUP_CONCAT(item_name, ' | ') AS items,
+                    GROUP_CONCAT(selected_unit_name, ' | ') AS units
+                FROM ordered_lines
+                GROUP BY invoice_id
+            )
             SELECT
-                s.date,
-                s.doc_no,
-                COALESCE(c.name,'عميل نقدي'),
-                prod.name,
-                COALESCE(prod.unit,''),
-                COALESCE(l.total,0),
-                COALESCE(s.withholding_rate,0),
-                CASE
-                    WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.withholding_amount,0) * COALESCE(l.total,0) / s.total, 2)
-                    ELSE COALESCE(s.withholding_amount,0)
-                END,
-                'بيع',
-                (
-                    COALESCE(l.total,0)
-                    + CASE
-                        WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.tax_amount,0) * COALESCE(l.total,0) / s.total, 2)
-                        ELSE COALESCE(s.tax_amount,0)
-                    END
-                    - CASE
-                        WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.withholding_amount,0) * COALESCE(l.total,0) / s.total, 2)
-                        ELSE COALESCE(s.withholding_amount,0)
-                    END
-                )
-            FROM sales_invoices s
-            JOIN sales_invoice_lines l ON l.invoice_id=s.id
-            JOIN products prod ON prod.id=l.product_id
-            LEFT JOIN customers c ON c.id=s.customer_id
-            WHERE s.status='posted' AND COALESCE(s.withholding_amount,0) > 0
-            UNION ALL
-            SELECT
-                s.date,
-                s.doc_no,
-                COALESCE(c.name,'عميل نقدي'),
-                prod.name,
-                COALESCE(prod.unit,''),
-                COALESCE(s.total,0),
-                COALESCE(s.withholding_rate,0),
-                COALESCE(s.withholding_amount,0),
-                'بيع',
-                (COALESCE(s.total,0) + COALESCE(s.tax_amount,0) - COALESCE(s.withholding_amount,0))
-            FROM sales_invoices s
-            JOIN products prod ON prod.id=s.product_id
-            LEFT JOIN customers c ON c.id=s.customer_id
-            WHERE s.status='posted' AND COALESCE(s.withholding_amount,0) > 0
-              AND NOT EXISTS (SELECT 1 FROM sales_invoice_lines l WHERE l.invoice_id=s.id)
-            UNION ALL
-            SELECT
-                p.date,
-                p.doc_no,
-                COALESCE(sup.name,'مورد نقدي'),
-                prod.name,
-                COALESCE(prod.unit,''),
-                COALESCE(l.total,0),
-                COALESCE(p.withholding_rate,0),
-                CASE
-                    WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.withholding_amount,0) * COALESCE(l.total,0) / p.total, 2)
-                    ELSE COALESCE(p.withholding_amount,0)
-                END,
-                'شراء',
-                (
-                    COALESCE(l.total,0)
-                    + CASE
-                        WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.tax_amount,0) * COALESCE(l.total,0) / p.total, 2)
-                        ELSE COALESCE(p.tax_amount,0)
-                    END
-                    - CASE
-                        WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.withholding_amount,0) * COALESCE(l.total,0) / p.total, 2)
-                        ELSE COALESCE(p.withholding_amount,0)
-                    END
-                )
-            FROM purchase_invoices p
-            JOIN purchase_invoice_lines l ON l.invoice_id=p.id
-            JOIN products prod ON prod.id=l.product_id
-            LEFT JOIN suppliers sup ON sup.id=p.supplier_id
-            WHERE p.status='posted' AND COALESCE(p.withholding_amount,0) > 0
-            UNION ALL
-            SELECT
-                p.date,
-                p.doc_no,
-                COALESCE(sup.name,'مورد نقدي'),
-                prod.name,
-                COALESCE(prod.unit,''),
-                COALESCE(p.total,0),
-                COALESCE(p.withholding_rate,0),
-                COALESCE(p.withholding_amount,0),
-                'شراء',
-                p.grand_total
-            FROM purchase_invoices p
-            JOIN products prod ON prod.id=p.product_id
-            LEFT JOIN suppliers sup ON sup.id=p.supplier_id
-            WHERE p.status='posted' AND COALESCE(p.withholding_amount,0) > 0
-              AND NOT EXISTS (SELECT 1 FROM purchase_invoice_lines l WHERE l.invoice_id=p.id)
-            ORDER BY 1 DESC
-            """
+                COALESCE(NULLIF(si.invoice_number, ''), si.doc_no) AS invoice_number,
+                si.date,
+                COALESCE(c.name, 'عميل نقدي') AS customer_name,
+                {customer_tax_expr} AS customer_tax_number,
+                COALESCE(ls.items, '') AS items,
+                COALESCE(ls.units, '') AS units,
+                COALESCE(si.grand_total, 0) AS invoice_total,
+                COALESCE(si.withholding_rate, 0) AS withholding_rate,
+                COALESCE(si.withholding_amount, 0) AS withholding_amount,
+                COALESCE(si.grand_total, 0) - COALESCE(si.withholding_amount, 0) AS net_amount
+            FROM sales_invoices si
+            LEFT JOIN customers c ON c.id = si.customer_id
+            LEFT JOIN line_summary ls ON ls.invoice_id = si.id
+            WHERE {where_sql}
+            ORDER BY si.date DESC, si.id DESC
+            """,
+            params,
         )
         rows = cur.fetchall()
-        total_withholding = sum((row[7] or 0) for row in rows)
         conn.close()
+
+        headers = ["رقم الفاتورة", "التاريخ", "العميل", "الرقم الضريبي", "الأصناف", "الوحدة", "إجمالي الفاتورة", "النسبة", "قيمة الخصم/الإضافة", "الصافي"]
         if request.args.get("format") == "excel":
-            return _tax_report_excel("withholding-tax-report.xlsx", "تقرير ضريبة الخصم والإضافة", rows, "إجمالي التقرير", total_withholding)
-        return render_template("withholding_tax_report.html", rows=rows, total_withholding=total_withholding)
+            return _financial_report_excel("withholding_tax_report.xlsx", headers, rows, "تقرير ضريبة الخصم والإضافة")
+
+        total_invoice = sum(float(row[6] or 0) for row in rows)
+        total_withholding = sum(float(row[8] or 0) for row in rows)
+        total_net = sum(float(row[9] or 0) for row in rows)
+        return render_template_string(
+            """
+            {% extends "layout.html" %}
+            {% block content %}
+            <div class="container-fluid" dir="rtl">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="mb-1">تقرير الخصم والإضافة</h2>
+                        <div class="text-muted">فواتير البيع المرحلة الخاضعة للخصم والإضافة.</div>
+                    </div>
+                    <a class="btn btn-success" href="{{ url_for('withholding_tax_report', date_from=date_from, date_to=date_to, format='excel') }}">تحميل Excel</a>
+                </div>
+
+                <form method="get" class="card p-3 mb-3">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3"><label class="form-label">من تاريخ</label><input class="form-control" type="date" name="date_from" value="{{ date_from }}"></div>
+                        <div class="col-md-3"><label class="form-label">إلى تاريخ</label><input class="form-control" type="date" name="date_to" value="{{ date_to }}"></div>
+                        <div class="col-md-6 d-flex gap-2">
+                            <button class="btn btn-primary">تطبيق</button>
+                            <a class="btn btn-light border" href="{{ url_for('withholding_tax_report') }}">إلغاء</a>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">إجمالي الفواتير</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_invoice) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">إجمالي الخصم/الإضافة</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_withholding) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">الصافي</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_net) }}</div></div></div>
+                </div>
+
+                <div class="table-responsive card p-2">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead><tr>{% for header in headers %}<th>{{ header }}</th>{% endfor %}</tr></thead>
+                        <tbody>
+                            {% for row in rows %}
+                            <tr>
+                                <td dir="ltr">{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ row[2] }}</td><td>{{ row[3] }}</td><td>{{ row[4] }}</td><td>{{ row[5] }}</td>
+                                <td>{{ '%.2f'|format(row[6] or 0) }}</td><td>{{ '%.2f'|format(row[7] or 0) }}</td><td>{{ '%.2f'|format(row[8] or 0) }}</td><td>{{ '%.2f'|format(row[9] or 0) }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="{{ headers|length }}" class="text-center text-muted">لا توجد فواتير ضمن الفترة المحددة.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endblock %}
+            """,
+            rows=rows,
+            headers=headers,
+            date_from=date_from,
+            date_to=date_to,
+            total_invoice=total_invoice,
+            total_withholding=total_withholding,
+            total_net=total_net,
+        )
 
     return withholding_tax_report
+

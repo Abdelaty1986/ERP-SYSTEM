@@ -4,7 +4,7 @@
     <div class="page-title-wrap">
         <div class="eyebrow">المشتريات</div>
         <h2>فواتير المشتريات</h2>
-        <p class="page-subtitle">سجل فواتير الموردين السابقة مع حالة الترحيل وإجراءات العرض والطباعة والتعديل أو الإلغاء.</p>
+        <p class="page-subtitle">سجل فواتير المشتريات مع حالة الترحيل وإجراءات العرض والطباعة والتعديل أو الإلغاء عند السماح.</p>
     </div>
     <div class="report-toolbar no-print">
         <a href="/purchases" class="btn btn-outline-secondary">إنشاء فاتورة شراء</a>
@@ -19,7 +19,8 @@
                 <th>#</th>
                 <th>رقم الفاتورة</th>
                 <th>التاريخ</th>
-                <th>المورد</th>
+                <th>اسم المورد</th>
+                <th>نوع الدفع</th>
                 <th class="money">الإجمالي</th>
                 <th>حالة الترحيل</th>
                 <th>عدد البنود</th>
@@ -31,6 +32,7 @@
                 <td>{{ i[1] or ('PUR-' ~ i[0]) }}</td>
                 <td>{{ i[2] }}</td>
                 <td>{{ i[3] }}</td>
+                <td>{% if i[7] == 'cash' %}نقدي{% elif i[7] == 'credit' %}آجل{% else %}{{ i[7] or '' }}{% endif %}</td>
                 <td class="money" data-value="{{ i[4] }}">{{ i[4] }}</td>
                 <td>{% if i[5] == 'draft' %}غير مرحلة{% elif i[5] == 'cancelled' %}ملغاة{% else %}مرحلة{% endif %}</td>
                 <td>{{ i[8] }}</td>

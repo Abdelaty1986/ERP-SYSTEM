@@ -4,16 +4,15 @@
     <div class="page-title-wrap">
         <div class="eyebrow">المشتريات</div>
         <h2>إنشاء فاتورة شراء</h2>
-        <p class="page-subtitle">فاتورة مورد واحدة ببنود متعددة، مع إضافة المخزون مرة واحدة فقط عند الترحيل.</p>
+        <p class="page-subtitle">إنشاء فاتورة شراء برأس واحد وبنود متعددة مع إضافة المخزون مرة واحدة فقط عند الترحيل.</p>
     </div>
     <div class="report-toolbar no-print">
-        <a href="/purchases/invoices" class="btn btn-outline-secondary">فواتير المشتريات</a>
         <a href="/purchase-orders" class="btn btn-outline-secondary">أوامر الشراء</a>
     </div>
 </div>
 
 {% if purchase_order_id %}
-<div class="alert alert-info">يتم الآن تحويل أمر الشراء رقم {{ purchase_order_id }} إلى فاتورة واحدة فقط بكل البنود.</div>
+<div class="alert alert-info">يتم الآن تحويل أمر الشراء رقم {{ purchase_order_id }} إلى فاتورة واحدة بكل البنود.</div>
 {% endif %}
 
 {% if can_write("purchases") %}
@@ -24,6 +23,10 @@
             <div class="col-md-2">
                 <label class="form-label">تاريخ التسجيل</label>
                 <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">رقم الفاتورة</label>
+                <input type="text" name="invoice_number" class="form-control" placeholder="تلقائي عند الترك فارغًا">
             </div>
             <div class="col-md-2">
                 <label class="form-label">رقم فاتورة المورد</label>

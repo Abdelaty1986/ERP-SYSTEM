@@ -26,7 +26,7 @@ from typing import Callable, Iterable
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "database.db")
 BACKUP_DIR = os.path.join(BASE_DIR, "backups", "migrations")
-LATEST_SCHEMA_VERSION = 13
+LATEST_SCHEMA_VERSION = 16
 
 
 def connect(db_path: str) -> sqlite3.Connection:
@@ -67,6 +67,30 @@ def add_column_if_missing(cur: sqlite3.Cursor, table: str, column: str, definiti
 def create_index_if_missing(cur: sqlite3.Cursor, index_name: str, table: str, columns: str) -> None:
     if table_exists(cur, table) and not index_exists(cur, index_name):
         cur.execute(f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} ({columns})")
+
+
+def create_unique_index_if_clean(cur: sqlite3.Cursor, index_name: str, table: str, column: str) -> None:
+    if not table_exists(cur, table) or not column_exists(cur, table, column) or index_exists(cur, index_name):
+        return
+    cur.execute(
+        f"""
+        SELECT {column}, COUNT(*)
+        FROM {table}
+        WHERE NULLIF(TRIM(COALESCE({column}, '')), '') IS NOT NULL
+        GROUP BY {column}
+        HAVING COUNT(*) > 1
+        LIMIT 1
+        """
+    )
+    if cur.fetchone():
+        return
+    cur.execute(
+        f"""
+        CREATE UNIQUE INDEX IF NOT EXISTS {index_name}
+        ON {table} ({column})
+        WHERE NULLIF(TRIM(COALESCE({column}, '')), '') IS NOT NULL
+        """
+    )
 
 
 def get_table_columns(cur: sqlite3.Cursor, table_name: str) -> list[str]:
@@ -830,6 +854,119 @@ def migration_013_invoice_order_links(cur: sqlite3.Cursor) -> None:
     create_index_if_missing(cur, "idx_purchase_invoices_purchase_order_id", "purchase_invoices", "purchase_order_id")
 
 
+def migration_014_invoice_line_unit_compatibility(cur: sqlite3.Cursor) -> None:
+    """Add compatibility columns for per-line units without changing legacy readers."""
+    for table_name in ("sales_invoice_lines", "purchase_invoice_lines"):
+        add_column_if_missing(cur, table_name, "selected_unit", "TEXT")
+        add_column_if_missing(cur, table_name, "qty", "REAL")
+        add_column_if_missing(cur, table_name, "base_qty", "REAL DEFAULT 0")
+        if table_exists(cur, table_name):
+            cur.execute(
+                f"""
+                UPDATE {table_name}
+                SET selected_unit = COALESCE(NULLIF(selected_unit, ''), unit_name),
+                    qty = COALESCE(qty, quantity),
+                    base_qty = COALESCE(base_qty, quantity_base, quantity)
+                """
+            )
+
+
+def migration_015_document_guards_and_roles(cur: sqlite3.Cursor) -> None:
+    """Add safe document numbering guards and expanded application roles."""
+    add_column_if_missing(cur, "sales_orders", "doc_no", "TEXT")
+    add_column_if_missing(cur, "purchase_orders", "doc_no", "TEXT")
+    add_column_if_missing(cur, "receipt_vouchers", "doc_no", "TEXT")
+    add_column_if_missing(cur, "payment_vouchers", "doc_no", "TEXT")
+
+    if table_exists(cur, "sales_orders"):
+        cur.execute("UPDATE sales_orders SET doc_no = COALESCE(NULLIF(doc_no, ''), 'SOR-' || printf('%06d', id))")
+    if table_exists(cur, "purchase_orders"):
+        cur.execute("UPDATE purchase_orders SET doc_no = COALESCE(NULLIF(doc_no, ''), 'POR-' || printf('%06d', id))")
+    if table_exists(cur, "receipt_vouchers"):
+        cur.execute("UPDATE receipt_vouchers SET doc_no = COALESCE(NULLIF(doc_no, ''), 'RCV-' || printf('%06d', id))")
+    if table_exists(cur, "payment_vouchers"):
+        cur.execute("UPDATE payment_vouchers SET doc_no = COALESCE(NULLIF(doc_no, ''), 'PAY-' || printf('%06d', id))")
+
+    if table_exists(cur, "document_sequences"):
+        for row in [
+            ("sales_orders", "SOR", 1),
+            ("purchase_orders", "POR", 1),
+            ("receipts", "RCV", 1),
+            ("payments", "PAY", 1),
+        ]:
+            cur.execute(
+                "INSERT OR IGNORE INTO document_sequences(doc_type,prefix,next_number) VALUES (?,?,?)",
+                row,
+            )
+
+    create_unique_index_if_clean(cur, "ux_sales_invoices_doc_no", "sales_invoices", "doc_no")
+    create_unique_index_if_clean(cur, "ux_purchase_invoices_doc_no", "purchase_invoices", "doc_no")
+    create_unique_index_if_clean(cur, "ux_sales_orders_doc_no", "sales_orders", "doc_no")
+    create_unique_index_if_clean(cur, "ux_purchase_orders_doc_no", "purchase_orders", "doc_no")
+    create_unique_index_if_clean(cur, "ux_receipt_vouchers_doc_no", "receipt_vouchers", "doc_no")
+    create_unique_index_if_clean(cur, "ux_payment_vouchers_doc_no", "payment_vouchers", "doc_no")
+
+    expanded_roles = {
+        "customer_accountant": "read",
+        "supplier_accountant": "read",
+        "warehouse": "read",
+        "hr_officer": "read",
+        "gl_accountant": "read",
+        "manager": "write",
+        "viewer": "read",
+    }
+    modules = [row[0] for row in (
+        ("accounting",),
+        ("customers",),
+        ("suppliers",),
+        ("inventory",),
+        ("sales",),
+        ("purchases",),
+        ("receipts",),
+        ("payments",),
+        ("hr",),
+        ("reports",),
+        ("e_invoices",),
+    )]
+    explicit = {
+        "customer_accountant": {"customers": "write", "sales": "write", "receipts": "write", "reports": "read"},
+        "supplier_accountant": {"suppliers": "write", "purchases": "write", "payments": "write", "reports": "read"},
+        "warehouse": {"inventory": "write", "sales": "read", "purchases": "read", "reports": "read"},
+        "hr_officer": {"hr": "write", "reports": "read"},
+        "gl_accountant": {"accounting": "write", "reports": "write", "receipts": "read", "payments": "read"},
+        "manager": {module: "write" for module in modules},
+        "viewer": {module: "read" for module in modules},
+    }
+    if table_exists(cur, "role_permissions"):
+        for role, fallback_level in expanded_roles.items():
+            for permission_key in modules:
+                level = explicit.get(role, {}).get(permission_key, "none")
+                if level == "none":
+                    level = fallback_level if role == "viewer" and permission_key in explicit["viewer"] else "none"
+                cur.execute(
+                    """
+                    INSERT OR IGNORE INTO role_permissions(role, permission_key, access_level)
+                    VALUES (?,?,?)
+                    """,
+                    (role, permission_key, level),
+                )
+
+
+def migration_016_invoice_number_guards(cur: sqlite3.Cursor) -> None:
+    for table_name in ("sales_invoices", "purchase_invoices"):
+        add_column_if_missing(cur, table_name, "invoice_number", "TEXT")
+        if table_exists(cur, table_name):
+            cur.execute(
+                f"""
+                UPDATE {table_name}
+                SET invoice_number = COALESCE(NULLIF(invoice_number, ''), doc_no)
+                WHERE NULLIF(TRIM(COALESCE(invoice_number, '')), '') IS NULL
+                """
+            )
+    create_unique_index_if_clean(cur, "ux_sales_invoices_invoice_number", "sales_invoices", "invoice_number")
+    create_unique_index_if_clean(cur, "ux_purchase_invoices_invoice_number", "purchase_invoices", "invoice_number")
+
+
 def collect_requested_table_columns(cur: sqlite3.Cursor) -> dict[str, list[str]]:
     table_names = {"purchase_invoice_lines", "sales_invoice_lines", "suppliers", "journal", "ledger"}
     table_names.update(get_line_tables(cur))
@@ -850,6 +987,9 @@ MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (11, "invoice schema fixes for units and vat", migration_011_invoice_schema_fixes),
     (12, "safe sqlite column sync for invoice, lines, suppliers, and journals", migration_012_safe_sqlite_column_sync),
     (13, "invoice header links back to source orders", migration_013_invoice_order_links),
+    (14, "invoice line unit compatibility columns", migration_014_invoice_line_unit_compatibility),
+    (15, "document guards and expanded roles", migration_015_document_guards_and_roles),
+    (16, "invoice number compatibility and uniqueness guards", migration_016_invoice_number_guards),
 ]
 
 

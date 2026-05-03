@@ -15,6 +15,10 @@
                 <label class="form-label">{{ "التاريخ" if is_sale else "تاريخ التسجيل" }}</label>
                 <input type="date" name="date" class="form-control" value="{{ invoice[1] or '' }}" required>
             </div>
+            <div class="col-md-2">
+                <label class="form-label">رقم الفاتورة</label>
+                <input type="text" name="invoice_number" class="form-control" value="{{ invoice[14] or '' }}" required>
+            </div>
             {% if is_sale %}
             <div class="col-md-2">
                 <label class="form-label">نوع السداد</label>
@@ -169,6 +173,7 @@ editTable.addEventListener("change", (event) => {
         syncEditUnits(row);
     }
     if (event.target.classList.contains("unit-select")) {
+        event.target.dataset.selectedUnit = event.target.value;
         row.querySelector(".line-price").value = event.target.selectedOptions[0]?.dataset?.price || row.querySelector(".line-price").value;
     }
 });

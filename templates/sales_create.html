@@ -4,7 +4,7 @@
     <div class="page-title-wrap">
         <div class="eyebrow">المبيعات</div>
         <h2>إنشاء فاتورة بيع</h2>
-        <p class="page-subtitle">فاتورة واحدة برأس واحد وبنود متعددة، مع خصم المخزون مرة واحدة فقط عند الترحيل.</p>
+        <p class="page-subtitle">إنشاء فاتورة بيع برأس واحد وبنود متعددة مع خصم المخزون مرة واحدة فقط عند الترحيل.</p>
     </div>
     <div class="report-toolbar no-print">
         <a href="/sales/invoices" class="btn btn-outline-secondary">فواتير المبيعات</a>
@@ -13,7 +13,7 @@
 </div>
 
 {% if sales_order_id %}
-<div class="alert alert-info">يتم الآن تحويل أمر البيع رقم {{ sales_order_id }} إلى فاتورة واحدة فقط بكل البنود.</div>
+<div class="alert alert-info">يتم الآن تحويل أمر البيع رقم {{ sales_order_id }} إلى فاتورة واحدة بكل البنود.</div>
 {% endif %}
 
 {% if can_write("sales") %}
@@ -24,6 +24,10 @@
             <div class="col-md-2">
                 <label class="form-label">التاريخ</label>
                 <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">رقم الفاتورة</label>
+                <input type="text" name="invoice_number" class="form-control" placeholder="تلقائي عند الترك فارغًا">
             </div>
             <div class="col-md-2">
                 <label class="form-label">نوع السداد</label>
@@ -146,6 +150,7 @@ function bindInvoiceLines(tableId, addBtnId, purpose) {
             syncUnitOptions(row, purpose);
         }
         if (event.target.classList.contains("unit-select")) {
+            event.target.dataset.selectedUnit = event.target.value;
             row.querySelector(".line-price").value = event.target.selectedOptions[0]?.dataset?.price || row.querySelector(".line-price").value;
         }
     });

@@ -4,12 +4,30 @@
     <div class="page-title-wrap">
         <div class="eyebrow">المبيعات</div>
         <h2>فواتير المبيعات</h2>
-        <p class="page-subtitle">سجل الفواتير السابقة مع حالة الترحيل وإجراءات العرض والطباعة والتعديل أو الإلغاء.</p>
+        <p class="page-subtitle">سجل فواتير المبيعات مع حالة الترحيل وإجراءات العرض والطباعة والتعديل أو الإلغاء عند السماح.</p>
     </div>
     <div class="report-toolbar no-print">
         <a href="/sales" class="btn btn-outline-secondary">إنشاء فاتورة بيع</a>
     </div>
 </div>
+
+<section class="panel-block panel-block-muted no-print">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">من تاريخ</label>
+            <input type="date" name="from_date" class="form-control" value="{{ from_date or '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">إلى تاريخ</label>
+            <input type="date" name="to_date" class="form-control" value="{{ to_date or '' }}">
+        </div>
+        <div class="col-md-6 d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-primary">تطبيق الفلتر</button>
+            <a href="/sales/invoices" class="btn btn-outline-secondary">إزالة الفلتر</a>
+            <a href="{{ url_for('export_sales_invoices_excel', from_date=from_date, to_date=to_date) }}" class="btn btn-success">تحميل فواتير المبيعات Excel</a>
+        </div>
+    </form>
+</section>
 
 <section class="panel-block panel-block-muted">
     {% if invoices %}
@@ -19,7 +37,8 @@
                 <th>#</th>
                 <th>رقم الفاتورة</th>
                 <th>التاريخ</th>
-                <th>العميل</th>
+                <th>اسم العميل</th>
+                <th>نوع الدفع</th>
                 <th class="money">الإجمالي</th>
                 <th>حالة الترحيل</th>
                 <th>عدد البنود</th>
@@ -31,6 +50,7 @@
                 <td>{{ i[1] or ('SAL-' ~ i[0]) }}</td>
                 <td>{{ i[2] }}</td>
                 <td>{{ i[3] }}</td>
+                <td>{% if i[7] == 'cash' %}نقدي{% elif i[7] == 'credit' %}آجل{% else %}{{ i[7] or '' }}{% endif %}</td>
                 <td class="money" data-value="{{ i[4] }}">{{ i[4] }}</td>
                 <td>{% if i[5] == 'draft' %}غير مرحلة{% elif i[5] == 'cancelled' %}ملغاة{% else %}مرحلة{% endif %}</td>
                 <td>{{ i[8] }}</td>
@@ -52,7 +72,7 @@
         </table>
     </div>
     {% else %}
-    <div class="empty-hint">لا توجد فواتير مبيعات مسجلة حاليًا.</div>
+    <div class="empty-hint">لا توجد فواتير مبيعات ضمن الفترة المحددة.</div>
     {% endif %}
 </section>
 {% endblock %}
