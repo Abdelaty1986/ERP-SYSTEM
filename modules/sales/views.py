@@ -3,7 +3,16 @@
 import sqlite3
 
 from flask import flash, redirect, render_template, request, url_for
-from modules.sales.taxing import invoice_totals, parse_flag, taxable_line
+from modules.sales.taxing import (
+    DEFAULT_VAT_APPLICABLE,
+    DEFAULT_VAT_RATE,
+    DEFAULT_WITHHOLDING_APPLICABLE,
+    DEFAULT_WITHHOLDING_RATE,
+    invoice_totals,
+    parse_flag,
+    parse_rate,
+    taxable_line,
+)
 from modules.accounting.ledger_engine import post_entries
 from modules.sales.advanced import (
     build_financial_sales_view,
@@ -67,10 +76,10 @@ def _order_lines_from_form(cur, deps):
 
 
 def _single_line_tax_selection(form, default_tax_rate, default_withholding_rate):
-    vat_rate = float(form.get("vat_rate", form.get("tax_rate", default_tax_rate)) or 0)
-    withholding_rate = float(form.get("withholding_rate", default_withholding_rate) or 0)
-    vat_enabled = parse_flag(form.get("vat_enabled"), True)
-    withholding_enabled = parse_flag(form.get("withholding_enabled"), default_withholding_rate > 0)
+    vat_rate = parse_rate(form.get("vat_rate", form.get("tax_rate", default_tax_rate)), default_tax_rate)
+    withholding_rate = parse_rate(form.get("withholding_rate", default_withholding_rate), default_withholding_rate)
+    vat_enabled = parse_flag(form.get("vat_enabled"), bool(DEFAULT_VAT_APPLICABLE))
+    withholding_enabled = parse_flag(form.get("withholding_enabled"), bool(default_withholding_rate > 0 or DEFAULT_WITHHOLDING_APPLICABLE))
     return vat_enabled, withholding_enabled, vat_rate, withholding_rate
 
 
@@ -310,6 +319,10 @@ def _invoice_form_lines(cur, deps, purpose="sale", vat_rate=14, withholding_rate
     unit_ids = request.form.getlist("unit_id[]") or request.form.getlist("unit_id")
     quantities = request.form.getlist("quantity[]") or request.form.getlist("quantity")
     unit_prices = request.form.getlist("unit_price[]") or request.form.getlist("unit_price")
+    vat_applicables = request.form.getlist("vat_applicable[]") or request.form.getlist("vat_applicable")
+    vat_rates = request.form.getlist("vat_rate[]") or request.form.getlist("vat_rate")
+    withholding_applicables = request.form.getlist("withholding_applicable[]") or request.form.getlist("withholding_applicable")
+    withholding_rates = request.form.getlist("withholding_rate[]") or request.form.getlist("withholding_rate")
     lines = []
     for idx, raw_product_id in enumerate(product_ids):
         product_id = int(parse_positive_amount(raw_product_id) or 0)
@@ -324,12 +337,22 @@ def _invoice_form_lines(cur, deps, purpose="sale", vat_rate=14, withholding_rate
             return []
         unit_meta = _resolve_product_unit(cur, product_id, unit_id, purpose)
         quantity_base = round(quantity * float(unit_meta["conversion_factor"] or 1), 4)
+        vat_applicable = parse_flag(vat_applicables[idx] if idx < len(vat_applicables) else None, bool(DEFAULT_VAT_APPLICABLE))
+        withholding_applicable = parse_flag(
+            withholding_applicables[idx] if idx < len(withholding_applicables) else None,
+            bool(withholding_enabled),
+        )
+        line_vat_rate = parse_rate(vat_rates[idx] if idx < len(vat_rates) else vat_rate, vat_rate or DEFAULT_VAT_RATE)
+        line_withholding_rate = parse_rate(
+            withholding_rates[idx] if idx < len(withholding_rates) else withholding_rate,
+            withholding_rate or DEFAULT_WITHHOLDING_RATE,
+        )
         line = taxable_line(
             quantity * unit_price,
-            vat_enabled=True,
-            withholding_enabled=withholding_enabled,
-            vat_rate=vat_rate,
-            withholding_rate=withholding_rate,
+            vat_enabled=vat_applicable,
+            withholding_enabled=withholding_applicable,
+            vat_rate=line_vat_rate,
+            withholding_rate=line_withholding_rate,
         )
         lines.append(
             {
@@ -339,11 +362,21 @@ def _invoice_form_lines(cur, deps, purpose="sale", vat_rate=14, withholding_rate
                 "purchase_price": float(product[2] or 0),
                 "quantity": quantity,
                 "unit_price": unit_price,
-                "total": line["subtotal"],
+                "line_subtotal": line["line_subtotal"],
+                "subtotal": line["line_subtotal"],
+                "total": line["line_subtotal"],
+                "vat_applicable": line["vat_applicable"],
+                "vat_enabled": line["vat_enabled"],
                 "tax_rate": line["vat_rate"],
+                "vat_rate": line["vat_rate"],
                 "tax_amount": line["vat_amount"],
+                "vat_amount": line["vat_amount"],
+                "withholding_applicable": line["withholding_applicable"],
+                "withholding_enabled": line["withholding_enabled"],
                 "withholding_rate": line["withholding_rate"],
                 "withholding_amount": line["withholding_amount"],
+                "line_net": line["line_net"],
+                "net_total": line["net_total"],
                 "grand_total": line["grand_total"],
                 "unit_id": unit_meta["unit_id"],
                 "unit_name": unit_meta["unit_name"],
@@ -418,7 +451,7 @@ def _sales_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, with
     for row in rows:
         line = taxable_line(
             row[11] * row[6],
-            vat_enabled=True,
+            vat_enabled=bool(DEFAULT_VAT_APPLICABLE),
             withholding_enabled=withholding_enabled,
             vat_rate=vat_rate,
             withholding_rate=withholding_rate,
@@ -436,11 +469,21 @@ def _sales_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, with
                 "unit_price": float(row[11] or 0),
                 "stock_quantity": float(row[12] or 0),
                 "purchase_price": float(row[13] or 0),
-                "total": line["subtotal"],
+                "line_subtotal": line["line_subtotal"],
+                "subtotal": line["line_subtotal"],
+                "total": line["line_subtotal"],
+                "vat_applicable": line["vat_applicable"],
+                "vat_enabled": line["vat_enabled"],
                 "tax_rate": line["vat_rate"],
+                "vat_rate": line["vat_rate"],
                 "tax_amount": line["vat_amount"],
+                "vat_amount": line["vat_amount"],
+                "withholding_applicable": line["withholding_applicable"],
+                "withholding_enabled": line["withholding_enabled"],
                 "withholding_rate": line["withholding_rate"],
                 "withholding_amount": line["withholding_amount"],
+                "line_net": line["line_net"],
+                "net_total": line["net_total"],
                 "grand_total": line["grand_total"],
                 "cost_total": round(float(row[10] or row[6] or 0) * float(row[13] or 0), 2),
             }
@@ -476,7 +519,7 @@ def _purchase_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, w
     for row in rows:
         line = taxable_line(
             row[11] * row[6],
-            vat_enabled=True,
+            vat_enabled=bool(DEFAULT_VAT_APPLICABLE),
             withholding_enabled=withholding_enabled,
             vat_rate=vat_rate,
             withholding_rate=withholding_rate,
@@ -492,11 +535,21 @@ def _purchase_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, w
                 "conversion_factor": float(row[9] or 1),
                 "quantity_base": float(row[10] or row[6] or 0),
                 "unit_price": float(row[11] or 0),
-                "total": line["subtotal"],
+                "line_subtotal": line["line_subtotal"],
+                "subtotal": line["line_subtotal"],
+                "total": line["line_subtotal"],
+                "vat_applicable": line["vat_applicable"],
+                "vat_enabled": line["vat_enabled"],
                 "tax_rate": line["vat_rate"],
+                "vat_rate": line["vat_rate"],
                 "tax_amount": line["vat_amount"],
+                "vat_amount": line["vat_amount"],
+                "withholding_applicable": line["withholding_applicable"],
+                "withholding_enabled": line["withholding_enabled"],
                 "withholding_rate": line["withholding_rate"],
                 "withholding_amount": line["withholding_amount"],
+                "line_net": line["line_net"],
+                "net_total": line["net_total"],
                 "grand_total": line["grand_total"],
                 "cost_total": 0,
             }
@@ -505,14 +558,10 @@ def _purchase_order_invoice_payload(cur, order_id, vat_rate, withholding_rate, w
 
 
 def _invoice_line_totals(lines):
-    return {
-        "quantity": round(sum(line["quantity"] for line in lines), 4),
-        "total": round(sum(line["total"] for line in lines), 2),
-        "cost_total": round(sum(line.get("cost_total", 0) for line in lines), 2),
-        "tax_amount": round(sum(line["tax_amount"] for line in lines), 2),
-        "withholding_amount": round(sum(line["withholding_amount"] for line in lines), 2),
-        "grand_total": round(sum(line["grand_total"] for line in lines), 2),
-    }
+    totals = invoice_totals(lines)
+    totals["quantity"] = round(sum(line["quantity"] for line in lines), 4)
+    totals["cost_total"] = round(sum(line.get("cost_total", 0) for line in lines), 2)
+    return totals
 
 
 def _legacy_build_customer_statement_view(deps):
@@ -854,11 +903,11 @@ def build_sales_view(deps):
                     cur.execute(
                         """
                         INSERT INTO sales_invoices(
-                            date,due_date,doc_no,invoice_number,customer_id,product_id,quantity,unit_price,total,cost_total,
-                            tax_rate,tax_amount,withholding_rate,withholding_amount,grand_total,payment_type,journal_id,tax_journal_id,withholding_journal_id,cogs_journal_id,status,
-                            po_ref,gr_ref,notes,sales_order_id
+                            date,due_date,doc_no,invoice_number,customer_id,product_id,quantity,unit_price,subtotal,total,cost_total,
+                            tax_rate,vat_total,tax_amount,withholding_rate,withholding_total,withholding_amount,net_total,grand_total,payment_type,
+                            journal_id,tax_journal_id,withholding_journal_id,cogs_journal_id,status,po_ref,gr_ref,notes,sales_order_id
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             date_value,
@@ -869,12 +918,16 @@ def build_sales_view(deps):
                             first_line["product_id"],
                             totals["quantity"],
                             first_line["unit_price"],
+                            totals["subtotal"],
                             totals["total"],
                             totals["cost_total"],
                             vat_rate,
+                            totals["vat_total"],
                             totals["tax_amount"],
                             withholding_rate,
+                            totals["withholding_total"],
                             totals["withholding_amount"],
+                            totals["net_total"],
                             totals["grand_total"],
                             payment_type,
                             journal_id,
@@ -898,24 +951,29 @@ def build_sales_view(deps):
                     cur.execute(
                         """
                         INSERT INTO sales_invoice_lines(
-                            invoice_id,product_id,quantity,unit_price,total,cost_total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
-                            unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
+                            invoice_id,product_id,quantity,unit_price,subtotal,total,cost_total,vat_applicable,vat_enabled,withholding_applicable,withholding_enabled,
+                            vat_rate,withholding_rate,vat_amount,withholding_amount,line_net,net_total,grand_total,unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             invoice_id,
                             line["product_id"],
                             line["quantity"],
                             line["unit_price"],
+                            line["line_subtotal"],
                             line["total"],
                             line["cost_total"],
-                            1 if vat_enabled else 0,
-                            1 if withholding_enabled else 0,
+                            line["vat_applicable"],
+                            line["vat_enabled"],
+                            line["withholding_applicable"],
+                            line["withholding_enabled"],
                             line["tax_rate"],
                             line["withholding_rate"],
                             line["tax_amount"],
                             line["withholding_amount"],
+                            line["line_net"],
+                            line["net_total"],
                             line["grand_total"],
                             line["unit_id"],
                             line["unit_name"],
@@ -1069,9 +1127,10 @@ def build_purchases_view(deps):
                         """
                         INSERT INTO purchase_invoices(
                             date,doc_no,invoice_number,supplier_invoice_no,supplier_invoice_date,due_date,supplier_id,product_id,
-                            quantity,unit_price,total,tax_rate,tax_amount,withholding_rate,withholding_amount,grand_total,payment_type,journal_id,tax_journal_id,withholding_journal_id,notes,status,purchase_order_id
+                            quantity,unit_price,subtotal,total,tax_rate,vat_total,tax_amount,withholding_rate,withholding_total,withholding_amount,net_total,grand_total,
+                            payment_type,journal_id,tax_journal_id,withholding_journal_id,notes,status,purchase_order_id
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             date_value,
@@ -1084,11 +1143,15 @@ def build_purchases_view(deps):
                             first_line["product_id"],
                             totals["quantity"],
                             first_line["unit_price"],
+                            totals["subtotal"],
                             totals["total"],
                             vat_rate,
+                            totals["vat_total"],
                             totals["tax_amount"],
                             withholding_rate,
+                            totals["withholding_total"],
                             totals["withholding_amount"],
+                            totals["net_total"],
                             totals["grand_total"],
                             payment_type,
                             journal_id,
@@ -1109,23 +1172,28 @@ def build_purchases_view(deps):
                     cur.execute(
                         """
                         INSERT INTO purchase_invoice_lines(
-                            invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
-                            unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
+                            invoice_id,product_id,quantity,unit_price,subtotal,total,vat_applicable,vat_enabled,withholding_applicable,withholding_enabled,
+                            vat_rate,withholding_rate,vat_amount,withholding_amount,line_net,net_total,grand_total,unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             invoice_id,
                             line["product_id"],
                             line["quantity"],
                             line["unit_price"],
+                            line["line_subtotal"],
                             line["total"],
-                            1 if vat_enabled else 0,
-                            1 if withholding_enabled else 0,
+                            line["vat_applicable"],
+                            line["vat_enabled"],
+                            line["withholding_applicable"],
+                            line["withholding_enabled"],
                             line["tax_rate"],
                             line["withholding_rate"],
                             line["tax_amount"],
                             line["withholding_amount"],
+                            line["line_net"],
+                            line["net_total"],
                             line["grand_total"],
                             line["unit_id"],
                             line["unit_name"],

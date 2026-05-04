@@ -1,4 +1,4 @@
-from flask import render_template_string, request
+﻿from flask import render_template_string, request
 from io import BytesIO
 
 from flask import flash, redirect, render_template, request, send_file, url_for
@@ -48,7 +48,7 @@ def _tax_report_excel(filename, title, rows, total_label, total_value):
     ws.sheet_view.rightToLeft = True
     ws["A1"] = title
     ws["A1"].font = Font(bold=True)
-    headers = ["التاريخ", "رقم الفاتورة", "الجهة", "الصنف", "الوحدة", "قيمة الصنف", "النسبة", "الضريبة", "النوع", "الإجمالي"]
+    headers = ["ط§ظ„طھط§ط±ظٹط®", "ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط©", "ط§ظ„ط¬ظ‡ط©", "ط§ظ„طµظ†ظپ", "ط§ظ„ظˆط­ط¯ط©", "ظ‚ظٹظ…ط© ط§ظ„طµظ†ظپ", "ط§ظ„ظ†ط³ط¨ط©", "ط§ظ„ط¶ط±ظٹط¨ط©", "ط§ظ„ظ†ظˆط¹", "ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ"]
     for idx, header in enumerate(headers, start=1):
         ws.cell(row=3, column=idx, value=header).font = Font(bold=True)
     row_idx = 3
@@ -70,14 +70,14 @@ def build_balance_sheet_report_view(deps):
     def balance_sheet_report():
         conn = db()
         cur = conn.cursor()
-        assets = _debit_balance_rows(_account_balances_by_type(cur, "أصول"))
-        liabilities = _credit_balance_rows(_account_balances_by_type(cur, "خصوم"))
-        equity = _credit_balance_rows(_account_balances_by_type(cur, "حقوق ملكية"))
-        revenue_total = sum(row[2] for row in _credit_balance_rows(_account_balances_by_type(cur, "إيرادات")))
-        expense_total = sum(row[2] for row in _debit_balance_rows(_account_balances_by_type(cur, "مصروفات")))
+        assets = _debit_balance_rows(_account_balances_by_type(cur, "ط£طµظˆظ„"))
+        liabilities = _credit_balance_rows(_account_balances_by_type(cur, "ط®طµظˆظ…"))
+        equity = _credit_balance_rows(_account_balances_by_type(cur, "ط­ظ‚ظˆظ‚ ظ…ظ„ظƒظٹط©"))
+        revenue_total = sum(row[2] for row in _credit_balance_rows(_account_balances_by_type(cur, "ط¥ظٹط±ط§ط¯ط§طھ")))
+        expense_total = sum(row[2] for row in _debit_balance_rows(_account_balances_by_type(cur, "ظ…طµط±ظˆظپط§طھ")))
         net_income = revenue_total - expense_total
         if abs(net_income) > 0.0001:
-            equity.append(("3400", "صافي ربح أو خسارة الفترة", net_income))
+            equity.append(("3400", "طµط§ظپظٹ ط±ط¨ط­ ط£ظˆ ط®ط³ط§ط±ط© ط§ظ„ظپطھط±ط©", net_income))
         total_assets = sum(row[2] for row in assets)
         total_liabilities = sum(row[2] for row in liabilities)
         total_equity = sum(row[2] for row in equity)
@@ -132,13 +132,13 @@ def build_cash_flow_report_view(deps):
 
             if other_code.startswith("18") or other_code.startswith("145"):
                 activity = "investing"
-                activity_label = "استثمارية"
+                activity_label = "ط§ط³طھط«ظ…ط§ط±ظٹط©"
             elif other_code.startswith("24") or other_code.startswith("25") or other_code.startswith("3"):
                 activity = "financing"
-                activity_label = "تمويلية"
+                activity_label = "طھظ…ظˆظٹظ„ظٹط©"
             else:
                 activity = "operating"
-                activity_label = "تشغيلية"
+                activity_label = "طھط´ط؛ظٹظ„ظٹط©"
             totals[activity] += signed_amount
             rows.append((date_value, desc, activity_label, other_code, other_name, direction, amount, signed_amount))
 
@@ -191,8 +191,8 @@ def build_cost_center_report_view(deps):
                 WHERE j.status='posted'
             )
             SELECT center_code,center_name,
-                   SUM(CASE WHEN account_type='إيرادات' THEN credit-debit ELSE 0 END) AS revenue,
-                   SUM(CASE WHEN account_type='مصروفات' THEN debit-credit ELSE 0 END) AS expense
+                   SUM(CASE WHEN account_type='ط¥ظٹط±ط§ط¯ط§طھ' THEN credit-debit ELSE 0 END) AS revenue,
+                   SUM(CASE WHEN account_type='ظ…طµط±ظˆظپط§طھ' THEN debit-credit ELSE 0 END) AS expense
             FROM lines
             GROUP BY center_code,center_name
             ORDER BY center_code,center_name
@@ -224,7 +224,7 @@ def build_opening_balances_view(deps):
             amount = parse_positive_amount(request.form.get("amount"))
             notes = request.form.get("notes", "").strip()
             if not date_value or not account_id or amount <= 0 or side not in ("debit", "credit"):
-                flash("راجع بيانات الرصيد الافتتاحي.", "danger")
+                flash("ط±ط§ط¬ط¹ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط±طµظٹط¯ ط§ظ„ط§ظپطھطھط§ط­ظٹ.", "danger")
             else:
                 try:
                     ensure_open_period(cur, date_value)
@@ -242,14 +242,14 @@ def build_opening_balances_view(deps):
                     INSERT INTO journal(date,description,debit_account_id,credit_account_id,amount,status,source_type)
                     VALUES (?,?,?,?,?,'posted','opening')
                     """,
-                    (date_value, f"رصيد افتتاحي - {notes}", debit_id, credit_id, amount),
+                    (date_value, f"ط±طµظٹط¯ ط§ظپطھطھط§ط­ظٹ - {notes}", debit_id, credit_id, amount),
                 )
                 journal_id = cur.lastrowid
                 log_action(cur, "create", "opening_balance", journal_id, f"amount={amount}")
                 conn.commit()
                 conn.close()
                 rebuild_ledger()
-                flash("تم تسجيل الرصيد الافتتاحي.", "success")
+                flash("طھظ… طھط³ط¬ظٹظ„ ط§ظ„ط±طµظٹط¯ ط§ظ„ط§ظپطھطھط§ط­ظٹ.", "success")
                 return redirect(url_for("opening_balances"))
         cur.execute("SELECT id,code,name,type FROM accounts ORDER BY code")
         accounts_rows = cur.fetchall()
@@ -286,11 +286,11 @@ def build_year_end_view(deps):
             closing_date = request.form.get("closing_date", "").strip()
             notes = request.form.get("notes", "").strip()
             if not fiscal_year or not closing_date:
-                flash("السنة وتاريخ الإقفال مطلوبان.", "danger")
+                flash("ط§ظ„ط³ظ†ط© ظˆطھط§ط±ظٹط® ط§ظ„ط¥ظ‚ظپط§ظ„ ظ…ط·ظ„ظˆط¨ط§ظ†.", "danger")
             else:
                 cur.execute("SELECT id FROM year_end_closings WHERE fiscal_year=?", (fiscal_year,))
                 if cur.fetchone():
-                    flash("تم إقفال هذه السنة من قبل.", "danger")
+                    flash("طھظ… ط¥ظ‚ظپط§ظ„ ظ‡ط°ظ‡ ط§ظ„ط³ظ†ط© ظ…ظ† ظ‚ط¨ظ„.", "danger")
                 else:
                     try:
                         ensure_open_period(cur, closing_date)
@@ -298,8 +298,8 @@ def build_year_end_view(deps):
                         flash(str(exc), "danger")
                         conn.close()
                         return redirect(url_for("year_end"))
-                    revenue_rows = _account_balances_by_type(cur, "إيرادات")
-                    expense_rows = _account_balances_by_type(cur, "مصروفات")
+                    revenue_rows = _account_balances_by_type(cur, "ط¥ظٹط±ط§ط¯ط§طھ")
+                    expense_rows = _account_balances_by_type(cur, "ظ…طµط±ظˆظپط§طھ")
                     revenue_total = 0
                     expense_total = 0
                     closing_journal_ids = []
@@ -310,9 +310,9 @@ def build_year_end_view(deps):
                         if abs(amount) <= 0.0001:
                             continue
                         if amount > 0:
-                            closing_journal_ids.append(create_auto_journal(cur, closing_date, f"إقفال إيراد {name} - {fiscal_year}", code, "3400", amount))
+                            closing_journal_ids.append(create_auto_journal(cur, closing_date, f"ط¥ظ‚ظپط§ظ„ ط¥ظٹط±ط§ط¯ {name} - {fiscal_year}", code, "3400", amount))
                         else:
-                            closing_journal_ids.append(create_auto_journal(cur, closing_date, f"إقفال مردود/خصم {name} - {fiscal_year}", "3400", code, abs(amount)))
+                            closing_journal_ids.append(create_auto_journal(cur, closing_date, f"ط¥ظ‚ظپط§ظ„ ظ…ط±ط¯ظˆط¯/ط®طµظ… {name} - {fiscal_year}", "3400", code, abs(amount)))
 
                     for code, name, debit, credit in expense_rows:
                         amount = (debit or 0) - (credit or 0)
@@ -320,18 +320,18 @@ def build_year_end_view(deps):
                         if abs(amount) <= 0.0001:
                             continue
                         if amount > 0:
-                            closing_journal_ids.append(create_auto_journal(cur, closing_date, f"إقفال مصروف {name} - {fiscal_year}", "3400", code, amount))
+                            closing_journal_ids.append(create_auto_journal(cur, closing_date, f"ط¥ظ‚ظپط§ظ„ ظ…طµط±ظˆظپ {name} - {fiscal_year}", "3400", code, amount))
                         else:
-                            closing_journal_ids.append(create_auto_journal(cur, closing_date, f"إقفال عكس مصروف {name} - {fiscal_year}", code, "3400", abs(amount)))
+                            closing_journal_ids.append(create_auto_journal(cur, closing_date, f"ط¥ظ‚ظپط§ظ„ ط¹ظƒط³ ظ…طµط±ظˆظپ {name} - {fiscal_year}", code, "3400", abs(amount)))
 
                     net_income = revenue_total - expense_total
                     if abs(net_income) < 0.0001:
                         journal_id = None
                     elif net_income > 0:
-                        journal_id = create_auto_journal(cur, closing_date, f"ترحيل صافي ربح {fiscal_year}", "3400", "3500", net_income)
+                        journal_id = create_auto_journal(cur, closing_date, f"طھط±ط­ظٹظ„ طµط§ظپظٹ ط±ط¨ط­ {fiscal_year}", "3400", "3500", net_income)
                         closing_journal_ids.append(journal_id)
                     else:
-                        journal_id = create_auto_journal(cur, closing_date, f"ترحيل صافي خسارة {fiscal_year}", "3500", "3400", abs(net_income))
+                        journal_id = create_auto_journal(cur, closing_date, f"طھط±ط­ظٹظ„ طµط§ظپظٹ ط®ط³ط§ط±ط© {fiscal_year}", "3500", "3400", abs(net_income))
                         closing_journal_ids.append(journal_id)
                     cur.execute(
                         """
@@ -346,7 +346,7 @@ def build_year_end_view(deps):
                     conn.commit()
                     conn.close()
                     rebuild_ledger()
-                    flash("تم تنفيذ قيود إقفال السنة وترحيل النتيجة.", "success")
+                    flash("طھظ… طھظ†ظپظٹط° ظ‚ظٹظˆط¯ ط¥ظ‚ظپط§ظ„ ط§ظ„ط³ظ†ط© ظˆطھط±ط­ظٹظ„ ط§ظ„ظ†طھظٹط¬ط©.", "success")
                     return redirect(url_for("year_end"))
         cur.execute("SELECT id,fiscal_year,closing_date,revenue_total,expense_total,net_income,status FROM year_end_closings ORDER BY fiscal_year DESC")
         rows = cur.fetchall()
@@ -373,7 +373,7 @@ def build_profit_loss_report_view(deps):
             SELECT a.name, COALESCE(SUM(l.debit),0) - COALESCE(SUM(l.credit),0) AS amount
             FROM accounts a
             LEFT JOIN ledger l ON a.id=l.account_id
-            WHERE a.type='مصروفات' AND a.code <> '6100'
+            WHERE a.type='ظ…طµط±ظˆظپط§طھ' AND a.code <> '6100'
             GROUP BY a.id
             ORDER BY a.code
             """
@@ -417,7 +417,7 @@ def _column_value_expr(cur, table_name, alias, column_names, default="0", nullif
     return default
 
 
-def _report_tax_number_expr(cur, table_name, alias, fallback="'غير مسجل'"):
+def _report_tax_number_expr(cur, table_name, alias, fallback="'ط؛ظٹط± ظ…ط³ط¬ظ„'"):
     return _column_value_expr(
         cur,
         table_name,
@@ -460,24 +460,28 @@ def build_vat_report_view(deps):
         date_from = (request.args.get("date_from") or "").strip()
         date_to = (request.args.get("date_to") or "").strip()
 
-        sales_tax_expr = _report_tax_number_expr(cur, "customers", "c", "'غير مسجل'")
-        supplier_tax_expr = _report_tax_number_expr(cur, "suppliers", "sup", "'غير مسجل'")
+        sales_tax_expr = _report_tax_number_expr(cur, "customers", "c", "'ط؛ظٹط± ظ…ط³ط¬ظ„'")
+        supplier_tax_expr = _report_tax_number_expr(cur, "suppliers", "sup", "'ط؛ظٹط± ظ…ط³ط¬ظ„'")
 
         sales_qty_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("qty", "quantity"), "0")
         sales_price_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("unit_price", "price"), "0")
         sales_unit_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("selected_unit", "unit_name"), "p.unit", nullif_empty=True)
-        sales_line_total_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("total", "line_total", "grand_total"), f"(({sales_qty_expr}) * ({sales_price_expr}))")
+        sales_line_total_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("subtotal", "total", "line_total"), f"(({sales_qty_expr}) * ({sales_price_expr}))")
+        sales_vat_applicable_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("vat_applicable", "vat_enabled"), "1")
+        sales_vat_amount_expr = _column_value_expr(cur, "sales_invoice_lines", "l", ("vat_amount", "tax_amount"), "0")
 
         purchase_qty_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("qty", "quantity"), "0")
         purchase_price_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("unit_price", "price"), "0")
         purchase_unit_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("selected_unit", "unit_name"), "pr.unit", nullif_empty=True)
-        purchase_line_total_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("total", "line_total", "grand_total"), f"(({purchase_qty_expr}) * ({purchase_price_expr}))")
+        purchase_line_total_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("subtotal", "total", "line_total"), f"(({purchase_qty_expr}) * ({purchase_price_expr}))")
+        purchase_vat_applicable_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("vat_applicable", "vat_enabled"), "1")
+        purchase_vat_amount_expr = _column_value_expr(cur, "purchase_invoice_lines", "l", ("vat_amount", "tax_amount"), "0")
 
         sales_invoice_no_expr = _column_value_expr(cur, "sales_invoices", "s", ("invoice_number", "doc_no"), "'SI-' || printf('%06d', s.id)", nullif_empty=True)
         purchase_invoice_no_expr = _column_value_expr(cur, "purchase_invoices", "p", ("invoice_number", "doc_no", "supplier_invoice_no"), "'PI-' || printf('%06d', p.id)", nullif_empty=True)
 
-        sales_conditions = ["s.status='posted'", "COALESCE(s.tax_amount,0) > 0"]
-        purchase_conditions = ["p.status='posted'", "COALESCE(p.tax_amount,0) > 0"]
+        sales_conditions = ["s.status='posted'", f"COALESCE({sales_vat_applicable_expr}, 1) = 1", f"COALESCE({sales_vat_amount_expr}, 0) > 0"]
+        purchase_conditions = ["p.status='posted'", f"COALESCE({purchase_vat_applicable_expr}, 1) = 1", f"COALESCE({purchase_vat_amount_expr}, 0) > 0"]
         params_sales = []
         params_purchases = []
         if date_from:
@@ -498,26 +502,17 @@ def build_vat_report_view(deps):
             f"""
             SELECT
                 s.date,
-                'مبيعات' AS doc_type,
+                'ظ…ط¨ظٹط¹ط§طھ' AS doc_type,
                 {sales_invoice_no_expr} AS doc_no,
-                COALESCE(c.name, 'عميل نقدي') AS party_name,
+                COALESCE(c.name, 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ') AS party_name,
                 {sales_tax_expr} AS tax_number,
                 COALESCE(p.name, '') AS item_name,
                 {sales_qty_expr} AS qty,
                 {sales_price_expr} AS unit_price,
-                COALESCE({sales_unit_expr}, 'وحدة') AS selected_unit,
+                COALESCE({sales_unit_expr}, 'ظˆط­ط¯ط©') AS selected_unit,
                 COALESCE({sales_line_total_expr}, 0) AS net_amount,
-                CASE
-                    WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.tax_amount,0) * COALESCE({sales_line_total_expr},0) / s.total, 2)
-                    ELSE COALESCE(s.tax_amount,0)
-                END AS vat_amount,
-                (
-                    COALESCE({sales_line_total_expr},0) +
-                    CASE
-                        WHEN COALESCE(s.total,0) <> 0 THEN ROUND(COALESCE(s.tax_amount,0) * COALESCE({sales_line_total_expr},0) / s.total, 2)
-                        ELSE COALESCE(s.tax_amount,0)
-                    END
-                ) AS grand_total
+                COALESCE({sales_vat_amount_expr}, 0) AS vat_amount,
+                COALESCE({sales_line_total_expr},0) + COALESCE({sales_vat_amount_expr},0) AS grand_total
             FROM sales_invoices s
             JOIN sales_invoice_lines l ON l.invoice_id=s.id
             LEFT JOIN products p ON p.id=l.product_id
@@ -528,26 +523,17 @@ def build_vat_report_view(deps):
 
             SELECT
                 p.date,
-                'مشتريات' AS doc_type,
+                'ظ…ط´طھط±ظٹط§طھ' AS doc_type,
                 {purchase_invoice_no_expr} AS doc_no,
-                COALESCE(sup.name, 'مورد نقدي') AS party_name,
+                COALESCE(sup.name, 'ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ') AS party_name,
                 {supplier_tax_expr} AS tax_number,
                 COALESCE(pr.name, '') AS item_name,
                 {purchase_qty_expr} AS qty,
                 {purchase_price_expr} AS unit_price,
-                COALESCE({purchase_unit_expr}, 'وحدة') AS selected_unit,
+                COALESCE({purchase_unit_expr}, 'ظˆط­ط¯ط©') AS selected_unit,
                 COALESCE({purchase_line_total_expr},0) AS net_amount,
-                CASE
-                    WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.tax_amount,0) * COALESCE({purchase_line_total_expr},0) / p.total, 2)
-                    ELSE COALESCE(p.tax_amount,0)
-                END AS vat_amount,
-                (
-                    COALESCE({purchase_line_total_expr},0) +
-                    CASE
-                        WHEN COALESCE(p.total,0) <> 0 THEN ROUND(COALESCE(p.tax_amount,0) * COALESCE({purchase_line_total_expr},0) / p.total, 2)
-                        ELSE COALESCE(p.tax_amount,0)
-                    END
-                ) AS grand_total
+                COALESCE({purchase_vat_amount_expr}, 0) AS vat_amount,
+                COALESCE({purchase_line_total_expr},0) + COALESCE({purchase_vat_amount_expr},0) AS grand_total
             FROM purchase_invoices p
             JOIN purchase_invoice_lines l ON l.invoice_id=p.id
             LEFT JOIN products pr ON pr.id=l.product_id
@@ -560,15 +546,15 @@ def build_vat_report_view(deps):
         rows = cur.fetchall()
         conn.close()
 
-        headers = ["التاريخ", "النوع", "رقم المستند", "الجهة", "الرقم الضريبي", "الصنف", "الكمية", "سعر الوحدة", "الوحدة", "الصافي", "الضريبة", "الإجمالي"]
+        headers = ["ط§ظ„طھط§ط±ظٹط®", "ط§ظ„ظ†ظˆط¹", "ط±ظ‚ظ… ط§ظ„ظ…ط³طھظ†ط¯", "ط§ظ„ط¬ظ‡ط©", "ط§ظ„ط±ظ‚ظ… ط§ظ„ط¶ط±ظٹط¨ظٹ", "ط§ظ„طµظ†ظپ", "ط§ظ„ظƒظ…ظٹط©", "ط³ط¹ط± ط§ظ„ظˆط­ط¯ط©", "ط§ظ„ظˆط­ط¯ط©", "ط§ظ„طµط§ظپظٹ", "ط§ظ„ط¶ط±ظٹط¨ط©", "ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ"]
         if request.args.get("format") == "excel":
-            return _financial_report_excel("vat_report.xlsx", headers, rows, "تقرير ضريبة القيمة المضافة")
+            return _financial_report_excel("vat_report.xlsx", headers, rows, "طھظ‚ط±ظٹط± ط¶ط±ظٹط¨ط© ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط¶ط§ظپط©")
 
         total_net = sum(float(row[9] or 0) for row in rows)
         total_vat = sum(float(row[10] or 0) for row in rows)
         total_grand = sum(float(row[11] or 0) for row in rows)
-        output_vat = sum(float(row[10] or 0) for row in rows if row[1] == "مبيعات")
-        input_vat = sum(float(row[10] or 0) for row in rows if row[1] == "مشتريات")
+        output_vat = sum(float(row[10] or 0) for row in rows if row[1] == "ظ…ط¨ظٹط¹ط§طھ")
+        input_vat = sum(float(row[10] or 0) for row in rows if row[1] == "ظ…ط´طھط±ظٹط§طھ")
         net_due = output_vat - input_vat
 
         return render_template_string(
@@ -578,36 +564,36 @@ def build_vat_report_view(deps):
             <div class="container-fluid" dir="rtl">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h2 class="mb-1">تقرير ضريبة القيمة المضافة</h2>
-                        <div class="text-muted">يعرض الفواتير المرحلة مع الكمية وسعر الوحدة والوحدة والرقم الضريبي.</div>
+                        <h2 class="mb-1">طھظ‚ط±ظٹط± ط¶ط±ظٹط¨ط© ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط¶ط§ظپط©</h2>
+                        <div class="text-muted">ظٹط¹ط±ط¶ ط§ظ„ظپظˆط§طھظٹط± ط§ظ„ظ…ط±ط­ظ„ط© ظ…ط¹ ط§ظ„ظƒظ…ظٹط© ظˆط³ط¹ط± ط§ظ„ظˆط­ط¯ط© ظˆط§ظ„ظˆط­ط¯ط© ظˆط§ظ„ط±ظ‚ظ… ط§ظ„ط¶ط±ظٹط¨ظٹ.</div>
                     </div>
                     <div class="d-flex gap-2">
-                        <a class="btn btn-success" href="{{ url_for('vat_report', date_from=date_from, date_to=date_to, format='excel') }}">تحميل Excel</a>
-                        <button class="btn btn-outline-secondary" onclick="window.print()">طباعة</button>
+                        <a class="btn btn-success" href="{{ url_for('vat_report', date_from=date_from, date_to=date_to, format='excel') }}">طھط­ظ…ظٹظ„ Excel</a>
+                        <button class="btn btn-outline-secondary" onclick="window.print()">ط·ط¨ط§ط¹ط©</button>
                     </div>
                 </div>
 
                 <form method="get" class="card p-3 mb-3">
                     <div class="row g-2 align-items-end">
                         <div class="col-md-3">
-                            <label class="form-label">من تاريخ</label>
+                            <label class="form-label">ظ…ظ† طھط§ط±ظٹط®</label>
                             <input class="form-control" type="date" name="date_from" value="{{ date_from }}">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">إلى تاريخ</label>
+                            <label class="form-label">ط¥ظ„ظ‰ طھط§ط±ظٹط®</label>
                             <input class="form-control" type="date" name="date_to" value="{{ date_to }}">
                         </div>
                         <div class="col-md-6 d-flex gap-2">
-                            <button class="btn btn-primary">تطبيق</button>
-                            <a class="btn btn-light border" href="{{ url_for('vat_report') }}">إلغاء</a>
+                            <button class="btn btn-primary">طھط·ط¨ظٹظ‚</button>
+                            <a class="btn btn-light border" href="{{ url_for('vat_report') }}">ط¥ظ„ط؛ط§ط،</a>
                         </div>
                     </div>
                 </form>
 
                 <div class="row g-3 mb-3">
-                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ضريبة المخرجات</div><div class="fs-4 fw-bold">{{ '%.2f'|format(output_vat) }}</div></div></div>
-                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ضريبة المدخلات</div><div class="fs-4 fw-bold">{{ '%.2f'|format(input_vat) }}</div></div></div>
-                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">الصافي المستحق</div><div class="fs-4 fw-bold">{{ '%.2f'|format(net_due) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ط¶ط±ظٹط¨ط© ط§ظ„ظ…ط®ط±ط¬ط§طھ</div><div class="fs-4 fw-bold">{{ '%.2f'|format(output_vat) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ط¶ط±ظٹط¨ط© ط§ظ„ظ…ط¯ط®ظ„ط§طھ</div><div class="fs-4 fw-bold">{{ '%.2f'|format(input_vat) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ط§ظ„طµط§ظپظٹ ط§ظ„ظ…ط³طھط­ظ‚</div><div class="fs-4 fw-bold">{{ '%.2f'|format(net_due) }}</div></div></div>
                 </div>
 
                 <div class="table-responsive card p-2">
@@ -630,12 +616,12 @@ def build_vat_report_view(deps):
                                 <td>{{ '%.2f'|format(row[11] or 0) }}</td>
                             </tr>
                             {% else %}
-                            <tr><td colspan="{{ headers|length }}" class="text-center text-muted">لا توجد بيانات ضمن الفترة المحددة.</td></tr>
+                            <tr><td colspan="{{ headers|length }}" class="text-center text-muted">ظ„ط§ طھظˆط¬ط¯ ط¨ظٹط§ظ†ط§طھ ط¶ظ…ظ† ط§ظ„ظپطھط±ط© ط§ظ„ظ…ط­ط¯ط¯ط©.</td></tr>
                             {% endfor %}
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="9">الإجمالي</th>
+                                <th colspan="9">ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ</th>
                                 <th>{{ '%.2f'|format(total_net) }}</th>
                                 <th>{{ '%.2f'|format(total_vat) }}</th>
                                 <th>{{ '%.2f'|format(total_grand) }}</th>
@@ -669,9 +655,13 @@ def build_withholding_tax_report_view(deps):
         cur = conn.cursor()
         date_from = (request.args.get("date_from") or "").strip()
         date_to = (request.args.get("date_to") or "").strip()
-        customer_tax_expr = _report_tax_number_expr(cur, "customers", "c", "'غير مسجل'")
+        customer_tax_expr = _report_tax_number_expr(cur, "customers", "c", "'ط؛ظٹط± ظ…ط³ط¬ظ„'")
 
-        conditions = ["si.status='posted'", "COALESCE(si.withholding_amount,0) > 0"]
+        conditions = [
+            "si.status='posted'",
+            "COALESCE(sil.withholding_applicable, sil.withholding_enabled, 0) = 1",
+            "COALESCE(sil.withholding_amount, 0) > 0",
+        ]
         params = []
         if date_from:
             conditions.append("si.date >= ?")
@@ -683,48 +673,32 @@ def build_withholding_tax_report_view(deps):
 
         cur.execute(
             f"""
-            WITH ordered_lines AS (
-                SELECT
-                    sil.invoice_id,
-                    p.name AS item_name,
-                    COALESCE(NULLIF(sil.selected_unit, ''), NULLIF(sil.unit_name, ''), p.unit, 'وحدة') AS selected_unit_name
-                FROM sales_invoice_lines sil
-                JOIN products p ON p.id = sil.product_id
-                ORDER BY sil.invoice_id, sil.id
-            ),
-            line_summary AS (
-                SELECT
-                    invoice_id,
-                    GROUP_CONCAT(item_name, ' | ') AS items,
-                    GROUP_CONCAT(selected_unit_name, ' | ') AS units
-                FROM ordered_lines
-                GROUP BY invoice_id
-            )
             SELECT
                 COALESCE(NULLIF(si.invoice_number, ''), si.doc_no) AS invoice_number,
                 si.date,
-                COALESCE(c.name, 'عميل نقدي') AS customer_name,
+                COALESCE(c.name, 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ') AS customer_name,
                 {customer_tax_expr} AS customer_tax_number,
-                COALESCE(ls.items, '') AS items,
-                COALESCE(ls.units, '') AS units,
-                COALESCE(si.grand_total, 0) AS invoice_total,
-                COALESCE(si.withholding_rate, 0) AS withholding_rate,
-                COALESCE(si.withholding_amount, 0) AS withholding_amount,
-                COALESCE(si.grand_total, 0) - COALESCE(si.withholding_amount, 0) AS net_amount
+                COALESCE(p.name, '') AS items,
+                COALESCE(NULLIF(sil.selected_unit, ''), NULLIF(sil.unit_name, ''), p.unit, 'ظˆط­ط¯ط©') AS units,
+                COALESCE(sil.subtotal, sil.total, 0) AS invoice_total,
+                COALESCE(sil.withholding_rate, 0) AS withholding_rate,
+                COALESCE(sil.withholding_amount, 0) AS withholding_amount,
+                COALESCE(sil.line_net, sil.net_total, sil.grand_total, sil.total + COALESCE(sil.vat_amount, 0) - COALESCE(sil.withholding_amount, 0)) AS net_amount
             FROM sales_invoices si
+            JOIN sales_invoice_lines sil ON sil.invoice_id = si.id
+            LEFT JOIN products p ON p.id = sil.product_id
             LEFT JOIN customers c ON c.id = si.customer_id
-            LEFT JOIN line_summary ls ON ls.invoice_id = si.id
             WHERE {where_sql}
-            ORDER BY si.date DESC, si.id DESC
+            ORDER BY si.date DESC, si.id DESC, sil.id DESC
             """,
             params,
         )
         rows = cur.fetchall()
         conn.close()
 
-        headers = ["رقم الفاتورة", "التاريخ", "العميل", "الرقم الضريبي", "الأصناف", "الوحدة", "إجمالي الفاتورة", "النسبة", "قيمة الخصم/الإضافة", "الصافي"]
+        headers = ["ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط©", "ط§ظ„طھط§ط±ظٹط®", "ط§ظ„ط¹ظ…ظٹظ„", "ط§ظ„ط±ظ‚ظ… ط§ظ„ط¶ط±ظٹط¨ظٹ", "ط§ظ„ط£طµظ†ط§ظپ", "ط§ظ„ظˆط­ط¯ط©", "ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظپط§طھظˆط±ط©", "ط§ظ„ظ†ط³ط¨ط©", "ظ‚ظٹظ…ط© ط§ظ„ط®طµظ…/ط§ظ„ط¥ط¶ط§ظپط©", "ط§ظ„طµط§ظپظٹ"]
         if request.args.get("format") == "excel":
-            return _financial_report_excel("withholding_tax_report.xlsx", headers, rows, "تقرير ضريبة الخصم والإضافة")
+            return _financial_report_excel("withholding_tax_report.xlsx", headers, rows, "طھظ‚ط±ظٹط± ط¶ط±ظٹط¨ط© ط§ظ„ط®طµظ… ظˆط§ظ„ط¥ط¶ط§ظپط©")
 
         total_invoice = sum(float(row[6] or 0) for row in rows)
         total_withholding = sum(float(row[8] or 0) for row in rows)
@@ -736,27 +710,27 @@ def build_withholding_tax_report_view(deps):
             <div class="container-fluid" dir="rtl">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h2 class="mb-1">تقرير الخصم والإضافة</h2>
-                        <div class="text-muted">فواتير البيع المرحلة الخاضعة للخصم والإضافة.</div>
+                        <h2 class="mb-1">طھظ‚ط±ظٹط± ط§ظ„ط®طµظ… ظˆط§ظ„ط¥ط¶ط§ظپط©</h2>
+                        <div class="text-muted">ظپظˆط§طھظٹط± ط§ظ„ط¨ظٹط¹ ط§ظ„ظ…ط±ط­ظ„ط© ط§ظ„ط®ط§ط¶ط¹ط© ظ„ظ„ط®طµظ… ظˆط§ظ„ط¥ط¶ط§ظپط©.</div>
                     </div>
-                    <a class="btn btn-success" href="{{ url_for('withholding_tax_report', date_from=date_from, date_to=date_to, format='excel') }}">تحميل Excel</a>
+                    <a class="btn btn-success" href="{{ url_for('withholding_tax_report', date_from=date_from, date_to=date_to, format='excel') }}">طھط­ظ…ظٹظ„ Excel</a>
                 </div>
 
                 <form method="get" class="card p-3 mb-3">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-3"><label class="form-label">من تاريخ</label><input class="form-control" type="date" name="date_from" value="{{ date_from }}"></div>
-                        <div class="col-md-3"><label class="form-label">إلى تاريخ</label><input class="form-control" type="date" name="date_to" value="{{ date_to }}"></div>
+                        <div class="col-md-3"><label class="form-label">ظ…ظ† طھط§ط±ظٹط®</label><input class="form-control" type="date" name="date_from" value="{{ date_from }}"></div>
+                        <div class="col-md-3"><label class="form-label">ط¥ظ„ظ‰ طھط§ط±ظٹط®</label><input class="form-control" type="date" name="date_to" value="{{ date_to }}"></div>
                         <div class="col-md-6 d-flex gap-2">
-                            <button class="btn btn-primary">تطبيق</button>
-                            <a class="btn btn-light border" href="{{ url_for('withholding_tax_report') }}">إلغاء</a>
+                            <button class="btn btn-primary">طھط·ط¨ظٹظ‚</button>
+                            <a class="btn btn-light border" href="{{ url_for('withholding_tax_report') }}">ط¥ظ„ط؛ط§ط،</a>
                         </div>
                     </div>
                 </form>
 
                 <div class="row g-3 mb-3">
-                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">إجمالي الفواتير</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_invoice) }}</div></div></div>
-                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">إجمالي الخصم/الإضافة</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_withholding) }}</div></div></div>
-                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">الصافي</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_net) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظپظˆط§طھظٹط±</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_invoice) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط®طµظ…/ط§ظ„ط¥ط¶ط§ظپط©</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_withholding) }}</div></div></div>
+                    <div class="col-md-4"><div class="card p-3"><div class="text-muted">ط§ظ„طµط§ظپظٹ</div><div class="fs-4 fw-bold">{{ '%.2f'|format(total_net) }}</div></div></div>
                 </div>
 
                 <div class="table-responsive card p-2">
@@ -769,7 +743,7 @@ def build_withholding_tax_report_view(deps):
                                 <td>{{ '%.2f'|format(row[6] or 0) }}</td><td>{{ '%.2f'|format(row[7] or 0) }}</td><td>{{ '%.2f'|format(row[8] or 0) }}</td><td>{{ '%.2f'|format(row[9] or 0) }}</td>
                             </tr>
                             {% else %}
-                            <tr><td colspan="{{ headers|length }}" class="text-center text-muted">لا توجد فواتير ضمن الفترة المحددة.</td></tr>
+                            <tr><td colspan="{{ headers|length }}" class="text-center text-muted">ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ط¶ظ…ظ† ط§ظ„ظپطھط±ط© ط§ظ„ظ…ط­ط¯ط¯ط©.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>

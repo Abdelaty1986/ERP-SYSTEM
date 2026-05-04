@@ -1,7 +1,7 @@
 ﻿from flask import flash, redirect, render_template, request, url_for
 import sqlite3
 
-from modules.sales.taxing import invoice_totals, parse_flag, taxable_line
+from modules.sales.taxing import DEFAULT_VAT_RATE, invoice_totals
 
 
 def _refresh_sales_order_status(cur, sales_order_id):
@@ -172,13 +172,9 @@ def build_edit_sale_invoice_view(deps):
         cur.execute(
             """
             SELECT s.id,s.date,s.due_date,s.customer_id,s.tax_rate,s.payment_type,s.status,
-                   COALESCE(l.vat_enabled,1),COALESCE(l.withholding_enabled,CASE WHEN COALESCE(s.withholding_rate,0)>0 THEN 1 ELSE 0 END),
-                   COALESCE(l.vat_rate,s.tax_rate,14),COALESCE(l.withholding_rate,s.withholding_rate,1),
                    COALESCE(s.notes,''),COALESCE(s.po_ref,''),COALESCE(s.gr_ref,''),COALESCE(s.invoice_number,s.doc_no,'')
             FROM sales_invoices s
-            LEFT JOIN sales_invoice_lines l ON l.invoice_id=s.id
             WHERE s.id=?
-            ORDER BY l.id
             LIMIT 1
             """,
             (id,),
@@ -194,7 +190,7 @@ def build_edit_sale_invoice_view(deps):
             return redirect(url_for("sales_invoices"))
         if request.method == "POST":
             date_value = request.form.get("date", "").strip()
-            invoice_number = (request.form.get("invoice_number") or "").strip() or (invoice[14] or "")
+            invoice_number = (request.form.get("invoice_number") or "").strip() or (invoice[10] or "")
             due_date = request.form.get("due_date", "").strip()
             customer_id = request.form.get("customer_id") or None
             payment_type = request.form.get("payment_type", "cash")
@@ -202,10 +198,9 @@ def build_edit_sale_invoice_view(deps):
             po_ref = request.form.get("po_ref", "").strip()
             gr_ref = request.form.get("gr_ref", "").strip()
             _, default_withholding_rate = _customer_withholding(cur, customer_id)
-            vat_enabled = parse_flag(request.form.get("vat_enabled"), True)
-            withholding_enabled = parse_flag(request.form.get("withholding_enabled"), default_withholding_rate > 0)
             vat_rate = parse_positive_amount(request.form.get("vat_rate", request.form.get("tax_rate", default_tax_rate)))
-            withholding_rate = parse_positive_amount(request.form.get("withholding_rate", default_withholding_rate or 1))
+            withholding_rate = parse_positive_amount(request.form.get("withholding_rate", default_withholding_rate or 0))
+            withholding_enabled = default_withholding_rate > 0
             lines = _invoice_form_lines(cur, deps, "sale", vat_rate, withholding_rate, withholding_enabled)
             if not date_value or not lines:
                 flash("راجع بيانات الفاتورة قبل الحفظ.", "danger")
@@ -220,27 +215,22 @@ def build_edit_sale_invoice_view(deps):
                     flash(str(exc), "danger")
                     conn.close()
                     return redirect(url_for("sales_invoices"))
-                totals = {
-                    "quantity": round(sum(line["quantity"] for line in lines), 4),
-                    "total": round(sum(line["total"] for line in lines), 2),
-                    "cost_total": round(sum(line["cost_total"] for line in lines), 2),
-                    "tax_amount": round(sum(line["tax_amount"] for line in lines), 2),
-                    "withholding_amount": round(sum(line["withholding_amount"] for line in lines), 2),
-                    "grand_total": round(sum(line["grand_total"] for line in lines), 2),
-                }
+                totals = invoice_totals(lines)
+                totals["quantity"] = round(sum(line["quantity"] for line in lines), 4)
+                totals["cost_total"] = round(sum(line["cost_total"] for line in lines), 2)
                 first_line = lines[0]
                 try:
                     cur.execute(
                         """
                         UPDATE sales_invoices
-                        SET date=?,due_date=?,doc_no=?,invoice_number=?,customer_id=?,product_id=?,quantity=?,unit_price=?,total=?,cost_total=?,tax_rate=?,tax_amount=?,
-                            withholding_rate=?,withholding_amount=?,grand_total=?,payment_type=?,notes=?,po_ref=?,gr_ref=?
+                        SET date=?,due_date=?,doc_no=?,invoice_number=?,customer_id=?,product_id=?,quantity=?,unit_price=?,subtotal=?,total=?,cost_total=?,tax_rate=?,vat_total=?,tax_amount=?,
+                            withholding_rate=?,withholding_total=?,withholding_amount=?,net_total=?,grand_total=?,payment_type=?,notes=?,po_ref=?,gr_ref=?
                         WHERE id=?
                         """,
                         (
-                            date_value, due_date, invoice_number, invoice_number, customer_id, first_line["product_id"], totals["quantity"], first_line["unit_price"], totals["total"],
-                            totals["cost_total"], vat_rate, totals["tax_amount"], withholding_rate, totals["withholding_amount"], totals["grand_total"],
-                            payment_type, notes, po_ref, gr_ref, id,
+                            date_value, due_date, invoice_number, invoice_number, customer_id, first_line["product_id"], totals["quantity"], first_line["unit_price"], totals["subtotal"],
+                            totals["total"], totals["cost_total"], vat_rate, totals["vat_total"], totals["tax_amount"], withholding_rate, totals["withholding_total"],
+                            totals["withholding_amount"], totals["net_total"], totals["grand_total"], payment_type, notes, po_ref, gr_ref, id,
                         ),
                     )
                 except sqlite3.IntegrityError:
@@ -253,15 +243,15 @@ def build_edit_sale_invoice_view(deps):
                     cur.execute(
                         """
                         INSERT INTO sales_invoice_lines(
-                            invoice_id,product_id,quantity,unit_price,total,cost_total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
-                            unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
+                            invoice_id,product_id,quantity,unit_price,subtotal,total,cost_total,vat_applicable,vat_enabled,withholding_applicable,withholding_enabled,
+                            vat_rate,withholding_rate,vat_amount,withholding_amount,line_net,net_total,grand_total,unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
-                            id, line["product_id"], line["quantity"], line["unit_price"], line["total"], line["cost_total"],
-                            1 if vat_enabled else 0, 1 if withholding_enabled else 0, line["tax_rate"], line["withholding_rate"],
-                            line["tax_amount"], line["withholding_amount"], line["grand_total"], line["unit_id"], line["unit_name"],
+                            id, line["product_id"], line["quantity"], line["unit_price"], line["line_subtotal"], line["total"], line["cost_total"],
+                            line["vat_applicable"], line["vat_enabled"], line["withholding_applicable"], line["withholding_enabled"], line["tax_rate"], line["withholding_rate"],
+                            line["tax_amount"], line["withholding_amount"], line["line_net"], line["net_total"], line["grand_total"], line["unit_id"], line["unit_name"],
                             line["conversion_factor"], line["quantity_base"], line["selected_unit"], line["quantity"], line["quantity_base"],
                         ),
                     )
@@ -272,12 +262,25 @@ def build_edit_sale_invoice_view(deps):
                 return redirect(url_for("sales_invoices"))
         cur.execute(
             """
-            SELECT product_id,quantity,unit_price,COALESCE(vat_rate, ?),COALESCE(unit_id, 0),COALESCE(unit_name, ''),COALESCE(conversion_factor, 1)
+            SELECT
+                product_id,
+                quantity,
+                unit_price,
+                COALESCE(vat_applicable, vat_enabled, 1),
+                COALESCE(vat_rate, ?, ?),
+                COALESCE(withholding_applicable, withholding_enabled, 0),
+                COALESCE(withholding_rate, 0),
+                COALESCE(vat_amount, 0),
+                COALESCE(withholding_amount, 0),
+                COALESCE(line_net, net_total, grand_total, total + COALESCE(vat_amount, 0) - COALESCE(withholding_amount, 0)),
+                COALESCE(unit_id, 0),
+                COALESCE(unit_name, ''),
+                COALESCE(conversion_factor, 1)
             FROM sales_invoice_lines
             WHERE invoice_id=?
             ORDER BY id
             """,
-            (default_tax_rate, id),
+            (default_tax_rate, DEFAULT_VAT_RATE, id),
         )
         invoice_lines = cur.fetchall()
         cur.execute("SELECT id,name FROM customers ORDER BY name")
@@ -429,12 +432,9 @@ def build_edit_purchase_invoice_view(deps):
         cur.execute(
             """
             SELECT p.id,p.date,p.supplier_invoice_no,p.supplier_invoice_date,p.due_date,p.supplier_id,p.tax_rate,p.payment_type,p.notes,p.status,
-                   COALESCE(l.vat_enabled,1),COALESCE(l.withholding_enabled,CASE WHEN COALESCE(p.withholding_rate,0)>0 THEN 1 ELSE 0 END),
-                   COALESCE(l.vat_rate,p.tax_rate,14),COALESCE(l.withholding_rate,p.withholding_rate,1),COALESCE(p.invoice_number,p.doc_no,'')
+                   COALESCE(p.invoice_number,p.doc_no,'')
             FROM purchase_invoices p
-            LEFT JOIN purchase_invoice_lines l ON l.invoice_id=p.id
             WHERE p.id=?
-            ORDER BY l.id
             LIMIT 1
             """,
             (id,),
@@ -450,7 +450,7 @@ def build_edit_purchase_invoice_view(deps):
             return redirect(url_for("purchase_invoices"))
         if request.method == "POST":
             date_value = request.form.get("date", "").strip()
-            invoice_number = (request.form.get("invoice_number") or "").strip() or (invoice[14] or "")
+            invoice_number = (request.form.get("invoice_number") or "").strip() or (invoice[10] or "")
             supplier_invoice_no = request.form.get("supplier_invoice_no", "").strip()
             supplier_invoice_date = request.form.get("supplier_invoice_date", "").strip()
             due_date = request.form.get("due_date", "").strip()
@@ -458,10 +458,9 @@ def build_edit_purchase_invoice_view(deps):
             payment_type = request.form.get("payment_type", "cash")
             notes = request.form.get("notes", "").strip()
             _, default_withholding_rate = _supplier_withholding(cur, supplier_id)
-            vat_enabled = parse_flag(request.form.get("vat_enabled"), True)
-            withholding_enabled = parse_flag(request.form.get("withholding_enabled"), default_withholding_rate > 0)
             vat_rate = parse_positive_amount(request.form.get("vat_rate", request.form.get("tax_rate", default_tax_rate)))
-            withholding_rate = parse_positive_amount(request.form.get("withholding_rate", default_withholding_rate or 1))
+            withholding_rate = parse_positive_amount(request.form.get("withholding_rate", default_withholding_rate or 0))
+            withholding_enabled = default_withholding_rate > 0
             lines = _invoice_form_lines(cur, deps, "purchase", vat_rate, withholding_rate, withholding_enabled)
             if not date_value or not supplier_invoice_no or not supplier_invoice_date or not lines:
                 flash("راجع بيانات فاتورة المورد قبل الحفظ.", "danger")
@@ -476,26 +475,21 @@ def build_edit_purchase_invoice_view(deps):
                     flash(str(exc), "danger")
                     conn.close()
                     return redirect(url_for("purchase_invoices"))
-                totals = {
-                    "quantity": round(sum(line["quantity"] for line in lines), 4),
-                    "total": round(sum(line["total"] for line in lines), 2),
-                    "tax_amount": round(sum(line["tax_amount"] for line in lines), 2),
-                    "withholding_amount": round(sum(line["withholding_amount"] for line in lines), 2),
-                    "grand_total": round(sum(line["grand_total"] for line in lines), 2),
-                }
+                totals = invoice_totals(lines)
+                totals["quantity"] = round(sum(line["quantity"] for line in lines), 4)
                 first_line = lines[0]
                 try:
                     cur.execute(
                         """
                         UPDATE purchase_invoices
-                        SET date=?,doc_no=?,invoice_number=?,supplier_invoice_no=?,supplier_invoice_date=?,due_date=?,supplier_id=?,product_id=?,quantity=?,unit_price=?,total=?,
-                            tax_rate=?,tax_amount=?,withholding_rate=?,withholding_amount=?,grand_total=?,payment_type=?,notes=?
+                        SET date=?,doc_no=?,invoice_number=?,supplier_invoice_no=?,supplier_invoice_date=?,due_date=?,supplier_id=?,product_id=?,quantity=?,unit_price=?,subtotal=?,total=?,
+                            tax_rate=?,vat_total=?,tax_amount=?,withholding_rate=?,withholding_total=?,withholding_amount=?,net_total=?,grand_total=?,payment_type=?,notes=?
                         WHERE id=?
                         """,
                         (
                             date_value, invoice_number, invoice_number, supplier_invoice_no, supplier_invoice_date, due_date, supplier_id, first_line["product_id"], totals["quantity"],
-                            first_line["unit_price"], totals["total"], vat_rate, totals["tax_amount"], withholding_rate, totals["withholding_amount"],
-                            totals["grand_total"], payment_type, notes, id,
+                            first_line["unit_price"], totals["subtotal"], totals["total"], vat_rate, totals["vat_total"], totals["tax_amount"], withholding_rate, totals["withholding_total"], totals["withholding_amount"],
+                            totals["net_total"], totals["grand_total"], payment_type, notes, id,
                         ),
                     )
                 except sqlite3.IntegrityError:
@@ -508,15 +502,15 @@ def build_edit_purchase_invoice_view(deps):
                     cur.execute(
                         """
                         INSERT INTO purchase_invoice_lines(
-                            invoice_id,product_id,quantity,unit_price,total,vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,grand_total,
-                            unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
+                            invoice_id,product_id,quantity,unit_price,subtotal,total,vat_applicable,vat_enabled,withholding_applicable,withholding_enabled,
+                            vat_rate,withholding_rate,vat_amount,withholding_amount,line_net,net_total,grand_total,unit_id,unit_name,conversion_factor,quantity_base,selected_unit,qty,base_qty
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
-                            id, line["product_id"], line["quantity"], line["unit_price"], line["total"], 1 if vat_enabled else 0,
-                            1 if withholding_enabled else 0, line["tax_rate"], line["withholding_rate"], line["tax_amount"], line["withholding_amount"],
-                            line["grand_total"], line["unit_id"], line["unit_name"], line["conversion_factor"], line["quantity_base"],
+                            id, line["product_id"], line["quantity"], line["unit_price"], line["line_subtotal"], line["total"], line["vat_applicable"], line["vat_enabled"],
+                            line["withholding_applicable"], line["withholding_enabled"], line["tax_rate"], line["withholding_rate"], line["tax_amount"], line["withholding_amount"],
+                            line["line_net"], line["net_total"], line["grand_total"], line["unit_id"], line["unit_name"], line["conversion_factor"], line["quantity_base"],
                             line["selected_unit"], line["quantity"], line["quantity_base"],
                         ),
                     )
@@ -527,12 +521,25 @@ def build_edit_purchase_invoice_view(deps):
                 return redirect(url_for("purchase_invoices"))
         cur.execute(
             """
-            SELECT product_id,quantity,unit_price,COALESCE(vat_rate, ?),COALESCE(unit_id, 0),COALESCE(unit_name, ''),COALESCE(conversion_factor, 1)
+            SELECT
+                product_id,
+                quantity,
+                unit_price,
+                COALESCE(vat_applicable, vat_enabled, 1),
+                COALESCE(vat_rate, ?, ?),
+                COALESCE(withholding_applicable, withholding_enabled, 0),
+                COALESCE(withholding_rate, 0),
+                COALESCE(vat_amount, 0),
+                COALESCE(withholding_amount, 0),
+                COALESCE(line_net, net_total, grand_total, total + COALESCE(vat_amount, 0) - COALESCE(withholding_amount, 0)),
+                COALESCE(unit_id, 0),
+                COALESCE(unit_name, ''),
+                COALESCE(conversion_factor, 1)
             FROM purchase_invoice_lines
             WHERE invoice_id=?
             ORDER BY id
             """,
-            (default_tax_rate, id),
+            (default_tax_rate, DEFAULT_VAT_RATE, id),
         )
         invoice_lines = cur.fetchall()
         cur.execute("SELECT id,name FROM suppliers ORDER BY name")

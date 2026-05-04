@@ -26,7 +26,7 @@ from typing import Callable, Iterable
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_PATH = os.path.join(BASE_DIR, "database.db")
 BACKUP_DIR = os.path.join(BASE_DIR, "backups", "migrations")
-LATEST_SCHEMA_VERSION = 17
+LATEST_SCHEMA_VERSION = 18
 
 
 def connect(db_path: str) -> sqlite3.Connection:
@@ -1154,6 +1154,90 @@ def migration_017_banks_module(cur: sqlite3.Cursor) -> None:
             )
 
 
+def migration_018_line_level_tax_totals(cur: sqlite3.Cursor) -> None:
+    """Add safe per-line tax applicability fields and invoice summary totals."""
+    invoice_tables = ("sales_invoices", "purchase_invoices")
+    line_tables = ("sales_invoice_lines", "purchase_invoice_lines")
+    item_documents = ("sales_returns", "purchase_returns", "sales_credit_notes", "supplier_debit_notes")
+
+    for table_name in invoice_tables:
+        add_column_if_missing(cur, table_name, "subtotal", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "vat_total", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "withholding_total", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "net_total", "REAL DEFAULT 0")
+        if table_exists(cur, table_name):
+            cur.execute(
+                f"""
+                UPDATE {table_name}
+                SET subtotal = COALESCE(NULLIF(subtotal, 0), total, 0),
+                    vat_total = COALESCE(NULLIF(vat_total, 0), tax_amount, 0),
+                    withholding_total = COALESCE(NULLIF(withholding_total, 0), withholding_amount, 0),
+                    net_total = COALESCE(NULLIF(net_total, 0), grand_total, COALESCE(total, 0) + COALESCE(tax_amount, 0) - COALESCE(withholding_amount, 0))
+                """
+            )
+
+    for table_name in line_tables:
+        add_column_if_missing(cur, table_name, "subtotal", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "vat_applicable", "INTEGER DEFAULT 1")
+        add_column_if_missing(cur, table_name, "withholding_applicable", "INTEGER DEFAULT 0")
+        add_column_if_missing(cur, table_name, "vat_rate", "REAL DEFAULT 14")
+        add_column_if_missing(cur, table_name, "withholding_rate", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "vat_amount", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "withholding_amount", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "line_net", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "net_total", "REAL DEFAULT 0")
+        if table_exists(cur, table_name):
+            columns = set(get_table_columns(cur, table_name))
+            tax_amount_expr = "tax_amount" if "tax_amount" in columns else "0"
+            cur.execute(
+                f"""
+                UPDATE {table_name}
+                SET subtotal = COALESCE(NULLIF(subtotal, 0), total, COALESCE(quantity, 0) * COALESCE(unit_price, 0)),
+                    vat_applicable = COALESCE(vat_applicable, vat_enabled, 1),
+                    withholding_applicable = COALESCE(withholding_applicable, withholding_enabled, 0),
+                    vat_rate = CASE
+                        WHEN COALESCE(vat_applicable, vat_enabled, 1) = 1 THEN COALESCE(vat_rate, 14)
+                        ELSE 0
+                    END,
+                    withholding_rate = CASE
+                        WHEN COALESCE(withholding_applicable, withholding_enabled, 0) = 1 THEN COALESCE(withholding_rate, 0)
+                        ELSE 0
+                    END,
+                    vat_amount = COALESCE(vat_amount, {tax_amount_expr}, 0),
+                    withholding_amount = COALESCE(withholding_amount, 0),
+                    line_net = COALESCE(NULLIF(line_net, 0), net_total, grand_total, COALESCE(subtotal, total, 0) + COALESCE(vat_amount, {tax_amount_expr}, 0) - COALESCE(withholding_amount, 0)),
+                    net_total = COALESCE(NULLIF(net_total, 0), line_net, grand_total, COALESCE(subtotal, total, 0) + COALESCE(vat_amount, {tax_amount_expr}, 0) - COALESCE(withholding_amount, 0))
+                """
+            )
+
+    for table_name in item_documents:
+        add_column_if_missing(cur, table_name, "vat_applicable", "INTEGER DEFAULT 1")
+        add_column_if_missing(cur, table_name, "withholding_applicable", "INTEGER DEFAULT 0")
+        add_column_if_missing(cur, table_name, "vat_rate", "REAL DEFAULT 14")
+        add_column_if_missing(cur, table_name, "withholding_rate", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "vat_amount", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "withholding_amount", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "subtotal", "REAL DEFAULT 0")
+        add_column_if_missing(cur, table_name, "net_total", "REAL DEFAULT 0")
+        if table_exists(cur, table_name):
+            columns = set(get_table_columns(cur, table_name))
+            tax_amount_expr = "tax_amount" if "tax_amount" in columns else "0"
+            cur.execute(
+                f"""
+                UPDATE {table_name}
+                SET subtotal = COALESCE(NULLIF(subtotal, 0), total, COALESCE(quantity, 0) * COALESCE(unit_price, 0)),
+                    vat_rate = COALESCE(vat_rate, 14),
+                    withholding_rate = COALESCE(withholding_rate, 0),
+                    vat_amount = COALESCE(vat_amount, {tax_amount_expr}, 0),
+                    withholding_amount = COALESCE(withholding_amount, 0),
+                    net_total = COALESCE(NULLIF(net_total, 0), grand_total, COALESCE(subtotal, total, 0) + COALESCE(vat_amount, {tax_amount_expr}, 0) - COALESCE(withholding_amount, 0))
+                """
+            )
+
+    create_index_if_missing(cur, "idx_sales_invoice_lines_tax_flags", "sales_invoice_lines", "invoice_id, vat_applicable, withholding_applicable")
+    create_index_if_missing(cur, "idx_purchase_invoice_lines_tax_flags", "purchase_invoice_lines", "invoice_id, vat_applicable, withholding_applicable")
+
+
 def collect_requested_table_columns(cur: sqlite3.Cursor) -> dict[str, list[str]]:
     table_names = {"purchase_invoice_lines", "sales_invoice_lines", "suppliers", "journal", "ledger"}
     table_names.update(get_line_tables(cur))
@@ -1178,6 +1262,7 @@ MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Cursor], None]]] = [
     (15, "document guards and expanded roles", migration_015_document_guards_and_roles),
     (16, "invoice number compatibility and uniqueness guards", migration_016_invoice_number_guards),
     (17, "banks module and bank instruments", migration_017_banks_module),
+    (18, "line-level tax applicability and invoice summary totals", migration_018_line_level_tax_totals),
 ]
 
 
@@ -1199,7 +1284,7 @@ def run_migrations(db_path: str = DEFAULT_DB_PATH) -> dict:
                 func(cur)
                 cur.execute(
                     """
-                    INSERT INTO schema_migrations(version,name,status,error_message)
+                    INSERT OR REPLACE INTO schema_migrations(version,name,status,error_message)
                     VALUES (?,?, 'success', NULL)
                     """,
                     (version, name),

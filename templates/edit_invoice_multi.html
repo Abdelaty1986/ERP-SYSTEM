@@ -1,195 +1,251 @@
 {% extends "layout.html" %}
 {% block content %}
 {% set is_sale = invoice_kind == "sale" %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_invoice_workspace.css') }}">
+
 <div class="report-hero">
     <div class="page-title-wrap">
         <div class="eyebrow">{{ "المبيعات" if is_sale else "المشتريات" }}</div>
-        <h2>{{ "تعديل مسودة فاتورة بيع" if is_sale else "تعديل مسودة فاتورة شراء" }}</h2>
+        <h2>{{ "تعديل مسودة فاتورة مبيعات" if is_sale else "تعديل مسودة فاتورة مشتريات" }}</h2>
+        <p class="page-subtitle">تعديل آمن للمسودة مع ضرائب اختيارية لكل سطر وحسابات مباشرة قبل الحفظ.</p>
     </div>
 </div>
 
-<section class="panel-block no-print">
-    <form method="POST">
-        <div class="row g-2">
-            <div class="col-md-2">
-                <label class="form-label">{{ "التاريخ" if is_sale else "تاريخ التسجيل" }}</label>
-                <input type="date" name="date" class="form-control" value="{{ invoice[1] or '' }}" required>
+<form method="POST">
+    <div class="invoice-workspace">
+        <div class="invoice-main">
+            <section class="invoice-card">
+                <div class="invoice-card-title">
+                    <div>
+                        <h3>Header Card</h3>
+                        <p>البيانات الرئيسية للمستند مع الحفاظ على أرقام الفاتورة ومنع التكرار.</p>
+                    </div>
+                </div>
+                <div class="invoice-grid">
+                    {% if is_sale %}
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">التاريخ</label>
+                        <input type="date" name="date" class="form-control" value="{{ invoice[1] or '' }}" required>
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">رقم الفاتورة</label>
+                        <input type="text" name="invoice_number" class="form-control" value="{{ invoice[10] or '' }}" required>
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">طريقة الدفع</label>
+                        <select name="payment_type" class="form-select">
+                            <option value="cash" {% if invoice[5] == 'cash' %}selected{% endif %}>نقدي</option>
+                            <option value="credit" {% if invoice[5] == 'credit' %}selected{% endif %}>آجل</option>
+                        </select>
+                    </div>
+                    <div class="invoice-field-span-3">
+                        <label class="form-label">العميل</label>
+                        <select name="customer_id" class="form-select">
+                            <option value="">بدون عميل</option>
+                            {% for c in customers %}
+                            <option value="{{ c[0] }}" {% if invoice[3] == c[0] %}selected{% endif %}>{{ c[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">الاستحقاق</label>
+                        <input type="date" name="due_date" class="form-control" value="{{ invoice[2] or '' }}">
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">PO Ref</label>
+                        <input type="text" name="po_ref" class="form-control" value="{{ invoice[8] or '' }}">
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">GR Ref</label>
+                        <input type="text" name="gr_ref" class="form-control" value="{{ invoice[9] or '' }}">
+                    </div>
+                    <div class="invoice-field-span-12">
+                        <label class="form-label">ملاحظات</label>
+                        <input type="text" name="notes" class="form-control" value="{{ invoice[7] or '' }}">
+                    </div>
+                    {% else %}
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">تاريخ التسجيل</label>
+                        <input type="date" name="date" class="form-control" value="{{ invoice[1] or '' }}" required>
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">رقم الفاتورة</label>
+                        <input type="text" name="invoice_number" class="form-control" value="{{ invoice[10] or '' }}" required>
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">رقم فاتورة المورد</label>
+                        <input type="text" name="supplier_invoice_no" class="form-control" value="{{ invoice[2] or '' }}" required>
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">تاريخ فاتورة المورد</label>
+                        <input type="date" name="supplier_invoice_date" class="form-control" value="{{ invoice[3] or '' }}" required>
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">الاستحقاق</label>
+                        <input type="date" name="due_date" class="form-control" value="{{ invoice[4] or '' }}">
+                    </div>
+                    <div class="invoice-field-span-2">
+                        <label class="form-label">طريقة الدفع</label>
+                        <select name="payment_type" class="form-select">
+                            <option value="cash" {% if invoice[7] == 'cash' %}selected{% endif %}>نقدي</option>
+                            <option value="credit" {% if invoice[7] == 'credit' %}selected{% endif %}>آجل</option>
+                        </select>
+                    </div>
+                    <div class="invoice-field-span-4">
+                        <label class="form-label">المورد</label>
+                        <select name="supplier_id" class="form-select">
+                            <option value="">بدون مورد</option>
+                            {% for s in suppliers %}
+                            <option value="{{ s[0] }}" {% if invoice[5] == s[0] %}selected{% endif %}>{{ s[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="invoice-field-span-12">
+                        <label class="form-label">ملاحظات</label>
+                        <input type="text" name="notes" class="form-control" value="{{ invoice[8] or '' }}">
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="invoice-card">
+                <div class="invoice-card-title">
+                    <div>
+                        <h3>Lines Grid</h3>
+                        <p>تعديل البنود بنفس تنظيم شاشة الإنشاء مع نفس الحسابات اللحظية.</p>
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary" id="add-edit-line">إضافة صنف</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="invoice-lines-table" id="invoice-lines-edit">
+                        <thead>
+                            <tr>
+                                <th>الصنف</th>
+                                <th>الوحدة</th>
+                                <th>الكمية</th>
+                                <th>السعر</th>
+                                <th>VAT</th>
+                                <th>خصم وإضافة</th>
+                                <th>إجمالي السطر</th>
+                                <th>VAT السطر</th>
+                                <th>خصم وإضافة السطر</th>
+                                <th>صافي السطر</th>
+                                <th class="no-print">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for line in lines %}
+                            <tr>
+                                <td>
+                                    <select name="product_id[]" class="form-select product-select" required>
+                                        <option value="">اختر الصنف</option>
+                                        {% for p in products %}
+                                        <option value="{{ p[0] }}" {% if line[0] == p[0] %}selected{% endif %}>{{ p[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <select name="unit_id[]" class="form-select unit-select" data-selected-unit="{{ line[10] or '' }}" required>
+                                        <option value="">اختر الوحدة</option>
+                                    </select>
+                                    <span class="invoice-meta-text unit-meta">معامل التحويل: {{ '%.4f'|format(line[12] or 1) }}</span>
+                                </td>
+                                <td>
+                                    <input type="number" step="0.01" min="0.01" name="quantity[]" class="form-control quantity-input" value="{{ line[1] }}" required>
+                                    <span class="invoice-row-feedback"></span>
+                                </td>
+                                <td>
+                                    <input type="number" step="0.01" min="0.01" name="unit_price[]" class="form-control price-input" value="{{ line[2] }}" required>
+                                    <span class="invoice-row-feedback"></span>
+                                </td>
+                                <td class="invoice-tax-cell">
+                                    <div class="invoice-switch">
+                                        <input type="checkbox" class="vat-checkbox" {% if line[3] %}checked{% endif %}>
+                                        <span>خاضع</span>
+                                    </div>
+                                    <input type="hidden" name="vat_applicable[]" class="vat-flag" value="{{ 1 if line[3] else 0 }}">
+                                    <input type="number" step="0.01" min="0" name="vat_rate[]" class="form-control invoice-rate-input vat-rate-input" value="{{ line[4] or 14 }}">
+                                </td>
+                                <td class="invoice-tax-cell">
+                                    <div class="invoice-switch">
+                                        <input type="checkbox" class="withholding-checkbox" {% if line[5] %}checked{% endif %}>
+                                        <span>خاضع</span>
+                                    </div>
+                                    <input type="hidden" name="withholding_applicable[]" class="withholding-flag" value="{{ 1 if line[5] else 0 }}">
+                                    <input type="number" step="0.01" min="0" name="withholding_rate[]" class="form-control invoice-rate-input withholding-rate-input" value="{{ line[6] or 0 }}">
+                                </td>
+                                <td><span class="invoice-readonly line-subtotal">{{ '%.2f'|format((line[1] or 0) * (line[2] or 0)) }}</span></td>
+                                <td><span class="invoice-readonly line-vat">{{ '%.2f'|format(line[7] or 0) }}</span></td>
+                                <td><span class="invoice-readonly line-withholding">{{ '%.2f'|format(line[8] or 0) }}</span></td>
+                                <td><span class="invoice-readonly line-net">{{ '%.2f'|format(line[9] or 0) }}</span></td>
+                                <td class="text-center no-print"><button type="button" class="btn btn-outline-danger btn-sm remove-line">حذف</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="invoice-actions no-print">
+                <button type="button" class="btn btn-outline-secondary" id="add-edit-line-bottom">إضافة صنف</button>
+                <button class="btn btn-success">حفظ التعديل</button>
+                <a href="{{ '/sales/invoices' if is_sale else '/purchase-invoices' }}" class="btn btn-outline-secondary">رجوع</a>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">رقم الفاتورة</label>
-                <input type="text" name="invoice_number" class="form-control" value="{{ invoice[14] or '' }}" required>
-            </div>
-            {% if is_sale %}
-            <div class="col-md-2">
-                <label class="form-label">نوع السداد</label>
-                <select name="payment_type" class="form-select">
-                    <option value="cash" {% if invoice[5] == 'cash' %}selected{% endif %}>نقدي</option>
-                    <option value="credit" {% if invoice[5] == 'credit' %}selected{% endif %}>آجل</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">العميل</label>
-                <select name="customer_id" class="form-select">
-                    <option value="">بدون عميل</option>
-                    {% for c in customers %}
-                    <option value="{{ c[0] }}" {% if invoice[3] == c[0] %}selected{% endif %}>{{ c[1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">الاستحقاق</label>
-                <input type="date" name="due_date" class="form-control" value="{{ invoice[2] or '' }}">
-            </div>
-            <div class="col-md-1">
-                <label class="form-label">VAT %</label>
-                <input type="number" step="0.01" min="0" name="tax_rate" class="form-control" value="{{ invoice[9] or invoice[4] or 14 }}">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">PO Ref</label>
-                <input type="text" name="po_ref" class="form-control" value="{{ invoice[12] or '' }}">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">GR Ref</label>
-                <input type="text" name="gr_ref" class="form-control" value="{{ invoice[13] or '' }}">
-            </div>
-            <div class="col-md-10">
-                <label class="form-label">ملاحظات</label>
-                <input type="text" name="notes" class="form-control" value="{{ invoice[11] or '' }}">
-            </div>
-            {% else %}
-            <div class="col-md-2">
-                <label class="form-label">رقم فاتورة المورد</label>
-                <input type="text" name="supplier_invoice_no" class="form-control" value="{{ invoice[2] or '' }}" required>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">تاريخ فاتورة المورد</label>
-                <input type="date" name="supplier_invoice_date" class="form-control" value="{{ invoice[3] or '' }}" required>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">الاستحقاق</label>
-                <input type="date" name="due_date" class="form-control" value="{{ invoice[4] or '' }}">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">نوع السداد</label>
-                <select name="payment_type" class="form-select">
-                    <option value="cash" {% if invoice[7] == 'cash' %}selected{% endif %}>نقدي</option>
-                    <option value="credit" {% if invoice[7] == 'credit' %}selected{% endif %}>آجل</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">VAT %</label>
-                <input type="number" step="0.01" min="0" name="tax_rate" class="form-control" value="{{ invoice[12] or invoice[6] or 14 }}">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">المورد</label>
-                <select name="supplier_id" class="form-select">
-                    <option value="">بدون مورد</option>
-                    {% for s in suppliers %}
-                    <option value="{{ s[0] }}" {% if invoice[5] == s[0] %}selected{% endif %}>{{ s[1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-12">
-                <label class="form-label">ملاحظات</label>
-                <input type="text" name="notes" class="form-control" value="{{ invoice[8] or '' }}">
-            </div>
-            {% endif %}
         </div>
 
-        <div class="table-shell mt-3">
-            <table class="table table-bordered align-middle" id="invoice-lines-edit">
-                <thead>
-                    <tr>
-                        <th>الصنف</th>
-                        <th>الوحدة</th>
-                        <th>الكمية</th>
-                        <th>السعر</th>
-                        <th class="no-print">حذف</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for line in lines %}
-                    <tr>
-                        <td>
-                            <select name="product_id[]" class="form-select product-select" required>
-                                <option value="">اختر الصنف</option>
-                                {% for p in products %}
-                                <option value="{{ p[0] }}" {% if line[0] == p[0] %}selected{% endif %}>{{ p[1] }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td>
-                            <select name="unit_id[]" class="form-select unit-select" data-selected-unit="{{ line[4] or '' }}" required>
-                                <option value="">اختر الوحدة</option>
-                            </select>
-                        </td>
-                        <td><input type="number" step="0.01" min="0.01" name="quantity[]" class="form-control" value="{{ line[1] }}" required></td>
-                        <td><input type="number" step="0.01" min="0.01" name="unit_price[]" class="form-control line-price" value="{{ line[2] }}" required></td>
-                        <td class="no-print"><button type="button" class="btn btn-danger btn-sm remove-line">حذف</button></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <aside class="invoice-summary">
+            <section class="invoice-card">
+                <div class="invoice-card-title">
+                    <div>
+                        <h3>Summary Panel</h3>
+                        <p>إجماليات محدثة فورًا قبل حفظ التعديل.</p>
+                    </div>
+                </div>
+                <div class="invoice-summary-list">
+                    <div class="invoice-summary-item">
+                        <span>إجمالي قبل الضريبة</span>
+                        <strong class="invoice-summary-value" id="edit-summary-subtotal">0.00</strong>
+                    </div>
+                    <div class="invoice-summary-item">
+                        <span>VAT</span>
+                        <strong class="invoice-summary-value" id="edit-summary-vat">0.00</strong>
+                    </div>
+                    <div class="invoice-summary-item">
+                        <span>خصم وإضافة</span>
+                        <strong class="invoice-summary-value" id="edit-summary-withholding">0.00</strong>
+                    </div>
+                    <div class="invoice-summary-item is-net">
+                        <span>الصافي النهائي</span>
+                        <strong class="invoice-summary-value summary-total" id="edit-summary-net">0.00</strong>
+                    </div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</form>
 
-        <div class="d-flex gap-2 mt-3 flex-wrap">
-            <button type="button" class="btn btn-outline-secondary" id="add-edit-line">إضافة صنف</button>
-            <button class="btn btn-success">حفظ التعديل</button>
-        </div>
-    </form>
-</section>
-
+<script src="{{ url_for('static', filename='js/ledgerx_invoice_workspace.js') }}"></script>
 <script>
-const editUnitsMap = {{ product_units_json|safe }};
-const editPurpose = "{{ 'sale' if is_sale else 'purchase' }}";
-
-function syncEditUnits(row) {
-    const productSelect = row.querySelector(".product-select");
-    const unitSelect = row.querySelector(".unit-select");
-    const priceInput = row.querySelector(".line-price");
-    const productMeta = editUnitsMap[String(productSelect.value)] || null;
-    const selectedUnit = unitSelect.dataset.selectedUnit || "";
-    unitSelect.innerHTML = '<option value="">اختر الوحدة</option>';
-    if (!productMeta || !productMeta.units.length) return;
-    productMeta.units.forEach((unit) => {
-        const option = document.createElement("option");
-        option.value = unit.unit_id;
-        option.textContent = `${unit.unit_name} x ${unit.conversion_factor}`;
-        option.dataset.price = editPurpose === "sale" ? (unit.sale_price || "") : (unit.purchase_price || "");
-        if (String(unit.unit_id) === String(selectedUnit || productMeta.default_unit_id)) {
-            option.selected = true;
+const editProducts = [
+    {% for p in products %}
+    { id: "{{ p[0] }}", label: {{ p[1]|tojson }} },
+    {% endfor %}
+];
+if (document.getElementById("invoice-lines-edit")) {
+    document.getElementById("add-edit-line-bottom").addEventListener("click", () => document.getElementById("add-edit-line").click());
+    initInvoiceWorkspace({
+        purpose: "{{ 'sale' if is_sale else 'purchase' }}",
+        tableId: "invoice-lines-edit",
+        addButtonId: "add-edit-line",
+        productUnitsMap: {{ product_units_json|safe }},
+        products: editProducts,
+        summaryIds: {
+            subtotal: "edit-summary-subtotal",
+            vat: "edit-summary-vat",
+            withholding: "edit-summary-withholding",
+            net: "edit-summary-net"
         }
-        unitSelect.appendChild(option);
     });
 }
-
-const editTable = document.getElementById("invoice-lines-edit");
-editTable.querySelectorAll("tbody tr").forEach((row) => syncEditUnits(row));
-editTable.addEventListener("change", (event) => {
-    const row = event.target.closest("tr");
-    if (event.target.classList.contains("product-select")) {
-        row.querySelector(".unit-select").dataset.selectedUnit = "";
-        row.querySelector(".line-price").value = "";
-        syncEditUnits(row);
-    }
-    if (event.target.classList.contains("unit-select")) {
-        event.target.dataset.selectedUnit = event.target.value;
-        row.querySelector(".line-price").value = event.target.selectedOptions[0]?.dataset?.price || row.querySelector(".line-price").value;
-    }
-});
-editTable.addEventListener("click", (event) => {
-    if (!event.target.classList.contains("remove-line")) return;
-    if (editTable.querySelectorAll("tbody tr").length > 1) {
-        event.target.closest("tr").remove();
-    }
-});
-document.getElementById("add-edit-line").addEventListener("click", () => {
-    const row = editTable.querySelector("tbody tr").cloneNode(true);
-    row.querySelectorAll("input").forEach((input) => input.value = "");
-    row.querySelector(".product-select").value = "";
-    row.querySelector(".unit-select").dataset.selectedUnit = "";
-    row.querySelector(".unit-select").innerHTML = '<option value="">اختر الوحدة</option>';
-    editTable.querySelector("tbody").appendChild(row);
-});
 </script>
 {% endblock %}

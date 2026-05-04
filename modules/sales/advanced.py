@@ -103,11 +103,11 @@ def build_sales_invoice_from_delivery_view(deps):
                 cur.execute(
                     """
                     INSERT INTO sales_invoices(
-                        date,due_date,doc_no,customer_id,product_id,quantity,unit_price,total,cost_total,
-                        tax_rate,tax_amount,withholding_rate,withholding_amount,grand_total,payment_type,journal_id,tax_journal_id,withholding_journal_id,cogs_journal_id,
+                        date,due_date,doc_no,customer_id,product_id,quantity,unit_price,subtotal,total,cost_total,
+                        tax_rate,vat_total,tax_amount,withholding_rate,withholding_total,withholding_amount,net_total,grand_total,payment_type,journal_id,tax_journal_id,withholding_journal_id,cogs_journal_id,
                         status,sales_order_id,sales_delivery_id,po_ref,gr_ref,notes
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
                     (
                         date_value,
@@ -118,11 +118,15 @@ def build_sales_invoice_from_delivery_view(deps):
                         quantity_total,
                         unit_price_value,
                         total,
+                        total,
                         cost_total,
                         line_rows[0][1]["vat_rate"] if line_rows else 14,
                         tax_amount,
+                        tax_amount,
                         max((line["withholding_rate"] for _, line in line_rows), default=0),
                         withholding_amount,
+                        withholding_amount,
+                        grand_total,
                         grand_total,
                         payment_type,
                         journal_id,
@@ -142,10 +146,10 @@ def build_sales_invoice_from_delivery_view(deps):
                     cur.execute(
                         """
                         INSERT INTO sales_invoice_lines(
-                            invoice_id,product_id,quantity,unit_id,unit_name,conversion_factor,quantity_base,unit_price,total,cost_total,
-                            vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount
+                            invoice_id,product_id,quantity,unit_id,unit_name,conversion_factor,quantity_base,unit_price,subtotal,total,cost_total,
+                            vat_applicable,vat_enabled,withholding_applicable,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,line_net,net_total,grand_total
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             invoice_id,
@@ -156,14 +160,20 @@ def build_sales_invoice_from_delivery_view(deps):
                             row[16],
                             row[17],
                             row[6],
+                            line["line_subtotal"],
                             line["subtotal"],
                             row[8],
+                            line["vat_applicable"],
                             line["vat_enabled"],
+                            line["withholding_applicable"],
                             line["withholding_enabled"],
                             line["vat_rate"],
                             line["withholding_rate"],
                             line["vat_amount"],
                             line["withholding_amount"],
+                            line["line_net"],
+                            line["net_total"],
+                            line["grand_total"],
                         ),
                     )
                     cur.execute("UPDATE sales_delivery_notes SET invoice_id=?, status='invoiced' WHERE id=?", (invoice_id, row[0]))
@@ -397,10 +407,10 @@ def build_purchase_invoice_from_receipt_view(deps):
                     """
                     INSERT INTO purchase_invoices(
                         date,doc_no,supplier_invoice_no,supplier_invoice_date,due_date,supplier_id,product_id,
-                        quantity,unit_price,total,tax_rate,tax_amount,withholding_rate,withholding_amount,grand_total,payment_type,journal_id,
+                        quantity,unit_price,subtotal,total,tax_rate,vat_total,tax_amount,withholding_rate,withholding_total,withholding_amount,net_total,grand_total,payment_type,journal_id,
                         tax_journal_id,withholding_journal_id,notes,status,purchase_order_id,purchase_receipt_id
                     )
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """,
                     (
                         date_value,
@@ -413,10 +423,14 @@ def build_purchase_invoice_from_receipt_view(deps):
                         quantity_total,
                         unit_price_value,
                         total,
+                        total,
                         line_rows[0][1]["vat_rate"] if line_rows else 14,
+                        tax_amount,
                         tax_amount,
                         max((line["withholding_rate"] for _, line in line_rows), default=0),
                         withholding_amount,
+                        withholding_amount,
+                        grand_total,
                         grand_total,
                         payment_type,
                         journal_id,
@@ -433,10 +447,10 @@ def build_purchase_invoice_from_receipt_view(deps):
                     cur.execute(
                         """
                         INSERT INTO purchase_invoice_lines(
-                            invoice_id,product_id,quantity,unit_id,unit_name,conversion_factor,quantity_base,unit_price,total,
-                            vat_enabled,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount
+                            invoice_id,product_id,quantity,unit_id,unit_name,conversion_factor,quantity_base,unit_price,subtotal,total,
+                            vat_applicable,vat_enabled,withholding_applicable,withholding_enabled,vat_rate,withholding_rate,vat_amount,withholding_amount,line_net,net_total,grand_total
                         )
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
                             invoice_id,
@@ -447,13 +461,19 @@ def build_purchase_invoice_from_receipt_view(deps):
                             row[16],
                             row[17],
                             row[7],
+                            line["line_subtotal"],
                             line["subtotal"],
+                            line["vat_applicable"],
                             line["vat_enabled"],
+                            line["withholding_applicable"],
                             line["withholding_enabled"],
                             line["vat_rate"],
                             line["withholding_rate"],
                             line["vat_amount"],
                             line["withholding_amount"],
+                            line["line_net"],
+                            line["net_total"],
+                            line["grand_total"],
                         ),
                     )
                     cur.execute("UPDATE purchase_receipts SET invoice_id=?, status='invoiced' WHERE id=?", (invoice_id, row[0]))

@@ -44,7 +44,7 @@ def _invoice_lines(cur, invoice_id, invoice_kind):
                    COALESCE(l.qty,l.quantity),l.unit_price,l.total,
                    COALESCE(l.vat_enabled,1),COALESCE(l.vat_amount,0),
                    COALESCE(l.withholding_enabled,0),COALESCE(l.withholding_amount,0),
-                   COALESCE(l.grand_total,l.total + COALESCE(l.vat_amount,0))
+                   COALESCE(l.line_net,l.net_total,l.grand_total,l.total + COALESCE(l.vat_amount,0) - COALESCE(l.withholding_amount,0))
             FROM sales_invoice_lines l
             JOIN products p ON p.id=l.product_id
             WHERE l.invoice_id=?
@@ -73,7 +73,7 @@ def _invoice_lines(cur, invoice_id, invoice_kind):
                COALESCE(l.qty,l.quantity),l.unit_price,l.total,
                COALESCE(l.vat_enabled,1),COALESCE(l.vat_amount,0),
                COALESCE(l.withholding_enabled,0),COALESCE(l.withholding_amount,0),
-               COALESCE(l.grand_total,l.total + COALESCE(l.vat_amount,0))
+               COALESCE(l.line_net,l.net_total,l.grand_total,l.total + COALESCE(l.vat_amount,0) - COALESCE(l.withholding_amount,0))
         FROM purchase_invoice_lines l
         JOIN products p ON p.id=l.product_id
         WHERE l.invoice_id=?
