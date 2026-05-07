@@ -26,7 +26,7 @@ def get_pending_tasks():
     ])
 
 
-def log_pipeline_run(status="SUCCESS"):
+def log_pipeline_run(status="SUCCESS", steps=None):
     if not HISTORY_FILE.exists():
         HISTORY_FILE.write_text('{"runs": []}', encoding="utf-8")
 
@@ -38,7 +38,8 @@ def log_pipeline_run(status="SUCCESS"):
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": status,
         "pending_tasks": len(pending_tasks),
-        "last_task": pending_tasks[0] if pending_tasks else None
+        "last_task": pending_tasks[0] if pending_tasks else None,
+        "steps": steps or {}
     })
 
     HISTORY_FILE.write_text(
@@ -58,29 +59,35 @@ def run_step(title, command):
 
     if result.returncode == 0:
         print("SUCCESS")
+        return "SUCCESS"
     else:
         print("FAILED")
+        return "FAILED"
 
 
 def main():
     print("\n=== LEDGERX AI DEV PIPELINE ===")
 
-    run_step(
+    steps = {}
+
+    steps["Generate Prompt"] = run_step(
         "Generate Prompt",
         "python AI_SYSTEM/generators/ai_prompt_generator.py"
     )
 
-    run_step(
+    steps["Generate Risk Report"] = run_step(
         "Generate Risk Report",
         "python AI_SYSTEM/generators/risk_report_generator.py"
     )
 
-    run_step(
+    steps["Run Validation"] = run_step(
         "Run Validation",
         "python AI_SYSTEM/validators/validation_runner.py"
     )
 
-    log_pipeline_run("SUCCESS")
+    final_status = "SUCCESS" if all(status == "SUCCESS" for status in steps.values()) else "FAILED"
+
+    log_pipeline_run(final_status, steps)
 
     print("\nPipeline Finished")
 
