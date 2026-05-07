@@ -1,0 +1,75 @@
+{
+  "sales_invoice": {
+    "criticality": "high",
+    "affected_areas": [
+      "accounting",
+      "inventory",
+      "vat",
+      "customer balance",
+      "reports"
+    ],
+    "critical_files": [
+      "modules/sales/views.py",
+      "modules/sales/operations.py",
+      "modules/accounting/ledger_engine.py",
+      "templates/sales.html",
+      "templates/edit_sale_invoice.html"
+    ],
+    "required_tests": [
+      "invoice save",
+      "journal entry",
+      "inventory movement",
+      "vat calculation",
+      "customer statement"
+    ]
+  },
+
+  "purchase_invoice": {
+    "criticality": "high",
+    "affected_areas": [
+      "inventory",
+      "supplier balance",
+      "vat",
+      "costing"
+    ],
+    "critical_files": [
+      "modules/sales/views.py",
+      "templates/purchases.html",
+      "templates/edit_purchase_invoice.html"
+    ],
+    "required_tests": [
+      "purchase save",
+      "inventory update",
+      "supplier balance",
+      "vat report"
+    ]
+  },
+
+  "ui_changes": {
+    "criticality": "medium",
+    "affected_areas": [
+      "templates",
+      "css",
+      "javascript"
+    ],
+    "required_tests": [
+      "desktop layout",
+      "mobile layout",
+      "responsive check"
+    ]
+  },
+
+  "permissions": {
+    "criticality": "high",
+    "affected_areas": [
+      "security",
+      "users",
+      "admin"
+    ],
+    "required_tests": [
+      "viewer access",
+      "admin access",
+      "route protection"
+    ]
+  }
+}
