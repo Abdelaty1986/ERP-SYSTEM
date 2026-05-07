@@ -1,0 +1,26 @@
+
+=== LEDGERX AI RISK REPORT ===
+
+Task:
+improve_invoice_workspace.md
+
+Detected Module:
+accounting
+
+Criticality:
+very_high
+
+Purpose:
+Manage chart of accounts, journal entries, ledger, trial balance, financial statements, and posting control.
+
+Possible Risks:
+- unbalanced journal entries\n- wrong account balances\n- incorrect reports\n\nCritical Files:\n- modules/accounting/ledger_engine.py\n- modules/accounting/views.py\n- financial.py\n- templates/journal.html\n- templates/ledger.html\n- templates/trial_balance.html\n- templates/balance_sheet.html\n- templates/profit_loss.html\n
+Required Actions:
+- Review affected files
+- Run migrations if needed
+- Run tests
+- Perform manual validation
+- Keep changes inside dev-ai branch
+
+Status:
+AI analysis completed.
