@@ -1,0 +1,45 @@
+You are working on LedgerX ERP.
+
+Branch:
+dev-ai
+
+Task Type:
+UI/UX Improvement
+
+Before modifying anything:
+- Read PROJECT_RULES.md
+- Read PROJECT_CONTEXT.json
+- Read AI_REVIEW_CHECKLIST.md
+- Read AI_SYSTEM/impact_matrix.json
+
+Goal:
+Improve the target screen UI/UX without breaking functionality.
+
+Requirements:
+- Preserve all Flask routes.
+- Preserve all JavaScript behavior.
+- Preserve all calculations.
+- Preserve accounting and inventory logic.
+- Do not remove fields or buttons.
+- Keep desktop as the priority.
+- Keep mobile usable.
+
+Required Output:
+1. Files changed
+2. Summary of changes
+3. Risk analysis
+4. Manual testing checklist
+5. Confirmation that business logic was preserved
+
+Validation Required:
+- Run migrations.py
+- Open affected screens
+- Test create/edit/save
+- Test totals
+- Test responsive layout
+
+Forbidden:
+- No destructive migrations
+- No route removal
+- No permission bypass
+- No accounting logic rewrite unless explicitly requested
