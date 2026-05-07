@@ -1,0 +1,42 @@
+.invoice-entry-form .row.g-2 {
+    row-gap: 1rem !important;
+}
+
+.invoice-entry-form {
+    background: #fff;
+    border-radius: 18px;
+    padding: 1.25rem;
+}
+
+.invoice-entry-form .form-label {
+    font-weight: 600;
+    margin-bottom: .45rem;
+}
+
+.invoice-entry-form .form-control,
+.invoice-entry-form .form-select {
+    min-height: 46px;
+    border-radius: 12px;
+}
+
+.invoice-entry-form .btn-success {
+    min-width: 220px;
+    min-height: 48px;
+    font-weight: 700;
+    border-radius: 14px;
+}
+
+@media (min-width: 1200px) {
+
+    .invoice-entry-form .col-md-2 {
+        width: 16.666666%;
+    }
+
+    .invoice-entry-form .col-md-3 {
+        width: 25%;
+    }
+
+    .invoice-entry-form {
+        padding: 1.75rem;
+    }
+}
