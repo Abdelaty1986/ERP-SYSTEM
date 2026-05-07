@@ -1,15 +1,15 @@
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-PROJECT_RULES = ROOT / "PROJECT_RULES.md"
-PROJECT_CONTEXT = ROOT / "PROJECT_CONTEXT.json"
-CHANGE_ANALYZER = ROOT / "AI_SYSTEM" / "CHANGE_ANALYZER.md"
-MODULE_MAP = ROOT / "AI_SYSTEM" / "module_map.json"
-IMPACT_MATRIX = ROOT / "AI_SYSTEM" / "impact_matrix.json"
-TASKS_DIR = ROOT / "AI_TASKS" / "pending"
-OUTPUT_DIR = ROOT / "AI_TASKS" / "generated_prompts"
+PROJECT_RULES = PROJECT_ROOT / "PROJECT_RULES.md"
+PROJECT_CONTEXT = PROJECT_ROOT / "PROJECT_CONTEXT.json"
+CHANGE_ANALYZER = PROJECT_ROOT / "AI_SYSTEM" / "CHANGE_ANALYZER.md"
+MODULE_MAP = PROJECT_ROOT / "AI_SYSTEM" / "module_map.json"
+IMPACT_MATRIX = PROJECT_ROOT / "AI_SYSTEM" / "impact_matrix.json"
+TASKS_DIR = PROJECT_ROOT / "AI_TASKS" / "pending"
+OUTPUT_DIR = PROJECT_ROOT / "AI_TASKS" / "generated_prompts"
 
 
 def read_text(path):

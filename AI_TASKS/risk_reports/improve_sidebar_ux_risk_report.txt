@@ -1,0 +1,38 @@
+
+=== LEDGERX AI RISK REPORT ===
+
+Task:
+improve_sidebar_ux.md
+
+Detected Module:
+ui_theme
+
+Criticality:
+medium
+
+Purpose:
+Manage LedgerX layout, sidebar, dashboard, global styling, invoice workspace, and responsive UI.
+
+Possible Risks:
+- layout broken
+- mobile unusable
+- JavaScript hooks broken
+- forms visually compressed
+\nCritical Files:\n- templates/layout.html
+- templates/base.html
+- static/css/ledgerx_ui.css
+- static/css/ledgerx_global_pages.css
+- static/css/ledgerx_enterprise_theme.css
+- static/css/ledgerx_invoice_workspace.css
+- static/js/ledgerx_ui.js
+- static/js/ledgerx_invoice_workspace.js
+
+Required Actions:
+- Review affected files
+- Run migrations if needed
+- Run tests
+- Perform manual validation
+- Keep changes inside dev-ai branch
+
+Status:
+AI analysis completed.

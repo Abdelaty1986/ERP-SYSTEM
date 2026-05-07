@@ -1,0 +1,114 @@
+You are working on LedgerX ERP.
+
+IMPORTANT:
+Work only on branch: dev-ai
+Do not modify main directly.
+
+Before changing code, read and obey:
+- PROJECT_RULES.md
+- PROJECT_CONTEXT.json
+- AI_SYSTEM/core/CHANGE_ANALYZER.md
+- AI_SYSTEM/core/module_map.json
+- AI_SYSTEM/core/impact_matrix.json
+- AI_REVIEW_CHECKLIST.md
+
+Current Task:
+# Task: Improve Sidebar UX
+
+## Status
+Pending
+
+## Priority
+Medium
+
+## Goal
+Improve sidebar spacing and responsive behavior
+
+## Requirements
+- Describe required behavior
+- Preserve existing logic
+- Preserve database integrity
+- Preserve accounting integrity if applicable
+- Keep UI responsive
+
+## Notes
+Created automatically by AI task creator.
+
+## Created At
+2026-05-07 15:09:10
+
+
+Project Context:
+{
+  "project_name": "LedgerX",
+  "project_type": "Flask SQLite ERP Accounting System",
+  "stable_branch": "main",
+  "ai_development_branch": "dev-ai",
+  "priority": "Desktop-first ERP, mobile usable for monitoring and quick actions",
+  "protected_areas": [
+    "accounting journal entries",
+    "ledger",
+    "trial balance",
+    "inventory quantities",
+    "sales invoices",
+    "purchase invoices",
+    "permissions",
+    "migrations",
+    "database.db"
+  ],
+  "main_modules": [
+    "accounting",
+    "sales",
+    "purchases",
+    "inventory",
+    "reports",
+    "hr",
+    "admin",
+    "parties",
+    "einvoice"
+  ],
+  "database_rules": [
+    "never delete database.db",
+    "never drop tables",
+    "never drop columns",
+    "migrations must be non-destructive",
+    "migrations must be safe to run more than once"
+  ],
+  "development_rules": [
+    "work only on dev-ai",
+    "do not modify main directly",
+    "run migrations before accepting changes",
+    "run tests when available",
+    "manual review before merge"
+  ],
+  "current_phase": "AI safe development automation phase 1"
+}
+
+Module Map:
+{}
+
+Impact Matrix:
+{}
+
+Required Development Behavior:
+1. Analyze the request before coding.
+2. Identify affected files.
+3. Identify risk level.
+4. Make the smallest safe change.
+5. Preserve existing routes, data, permissions, accounting logic, inventory logic, and JavaScript hooks.
+6. Do not perform destructive migrations.
+7. Do not rewrite unrelated code.
+
+Required Output:
+- Summary of changes
+- Files changed
+- Risk analysis
+- Tests run
+- Manual testing checklist
+- Any known limitations
+
+Validation:
+Run:
+python migrations.py
+
+Then run available tests where possible.

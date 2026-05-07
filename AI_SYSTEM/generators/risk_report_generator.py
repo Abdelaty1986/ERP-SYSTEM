@@ -1,14 +1,14 @@
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 TASK_DIRS = [
-    ROOT / "AI_TASKS" / "in_progress",
-    ROOT / "AI_TASKS" / "pending",
+    PROJECT_ROOT / "AI_TASKS" / "in_progress",
+    PROJECT_ROOT / "AI_TASKS" / "pending",
 ]
-MODULE_MAP = ROOT / "AI_SYSTEM" / "core" / "module_map.json"
-OUTPUT_DIR = ROOT / "AI_TASKS" / "risk_reports"
+MODULE_MAP = PROJECT_ROOT / "AI_SYSTEM" / "core" / "module_map.json"
+OUTPUT_DIR = PROJECT_ROOT / "AI_TASKS" / "risk_reports"
 
 
 def load_json(path):

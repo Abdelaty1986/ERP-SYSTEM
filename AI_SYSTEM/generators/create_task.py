@@ -2,9 +2,9 @@ from pathlib import Path
 from datetime import datetime
 import sys
 
-ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-PENDING_DIR = ROOT / "AI_TASKS" / "pending"
+PENDING_DIR = PROJECT_ROOT / "AI_TASKS" / "pending"
 
 
 TEMPLATE = """# Task: {title}

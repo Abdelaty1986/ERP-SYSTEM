@@ -2,9 +2,9 @@ from pathlib import Path
 import shutil
 import sys
 
-ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-TASK_ROOT = ROOT / "AI_TASKS"
+TASK_ROOT = PROJECT_ROOT / "AI_TASKS"
 
 STATUSES = [
     "pending",
