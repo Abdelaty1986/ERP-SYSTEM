@@ -1,0 +1,3 @@
+=== LEDGERX AI VALIDATION REPORT ===\n\nTEST: Run Migrations\nCOMMAND: python migrations.py\nSTATUS: PASSED\n\n{'ok': True, 'db_path': '/storage/emulated/0/1/ERP2/database.db', 'backup_path': '/storage/emulated/0/1/ERP2/backups/migrations/database_before_migration_20260507_134349.db', 'current_version': 8, 'applied': []}
+\n\n\n============================================================\n\nTEST: Invoice Workflow Test\nCOMMAND: python tests/invoice_workflow_test.py\nSTATUS: FAILED\n\n\n/data/data/com.termux/files/usr/bin/python: can't open file '/storage/emulated/0/1/ERP2/tests/invoice_workflow_test.py': [Errno 2] No such file or directory
+\n\n============================================================\n\n
