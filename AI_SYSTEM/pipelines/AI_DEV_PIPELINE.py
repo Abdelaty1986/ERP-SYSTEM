@@ -11,15 +11,34 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 HISTORY_FILE = ROOT / "AI_SYSTEM" / "logs" / "pipeline_history.json"
 
 
+
+
+TASKS_DIR = ROOT / "AI_TASKS" / "pending"
+
+
+def get_pending_tasks():
+    if not TASKS_DIR.exists():
+        return []
+
+    return sorted([
+        task.name
+        for task in TASKS_DIR.glob("*.md")
+    ])
+
+
 def log_pipeline_run(status="SUCCESS"):
     if not HISTORY_FILE.exists():
         HISTORY_FILE.write_text('{"runs": []}', encoding="utf-8")
 
     data = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
 
+    pending_tasks = get_pending_tasks()
+
     data["runs"].append({
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "status": status
+        "status": status,
+        "pending_tasks": len(pending_tasks),
+        "last_task": pending_tasks[0] if pending_tasks else None
     })
 
     HISTORY_FILE.write_text(
