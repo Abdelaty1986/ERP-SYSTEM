@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="report-hero">
+    <div class="page-title-wrap">
+        <div class="eyebrow">Developer Tools</div>
+        <h2>مركز تطوير الذكاء الاصطناعي</h2>
+        <p class="page-subtitle">
+            إدارة مهام التطوير، تحليل المخاطر، توليد الأوامر، وتشغيل التحقق بشكل آمن على فرع dev-ai.
+        </p>
+    </div>
+    <div class="report-toolbar no-print">
+        <a href="/dev-control" class="btn btn-outline-secondary">رجوع للوحة المطور</a>
+    </div>
+</div>
+
+<div class="summary-grid no-print">
+    <div class="summary-card">
+        <div class="summary-card-head"><span>مهام جديدة</span></div>
+        <div class="summary-value">{{ ai_status.pending }}</div>
+        <div class="summary-note">Pending Tasks</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-card-head"><span>قيد التنفيذ</span></div>
+        <div class="summary-value">{{ ai_status.in_progress }}</div>
+        <div class="summary-note">In Progress</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-card-head"><span>مكتملة</span></div>
+        <div class="summary-value">{{ ai_status.completed }}</div>
+        <div class="summary-note">Completed</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-card-head"><span>متوقفة</span></div>
+        <div class="summary-value">{{ ai_status.blocked }}</div>
+        <div class="summary-note">Blocked</div>
+    </div>
+</div>
+
+<section class="panel-block">
+    <div class="section-title">
+        <div>
+            <h3>حالة مكونات نظام AI</h3>
+            <p>تأكد أن ملفات الحوكمة والتحليل موجودة قبل تنفيذ أي تطوير.</p>
+        </div>
+    </div>
+
+    <div class="table-shell">
+        <table class="table table-bordered align-middle">
+            <tr>
+                <th>المكون</th>
+                <th>الحالة</th>
+            </tr>
+            <tr>
+                <td>PROJECT_RULES.md</td>
+                <td>{{ "✅ موجود" if ai_status.has_project_rules else "❌ غير موجود" }}</td>
+            </tr>
+            <tr>
+                <td>PROJECT_CONTEXT.json</td>
+                <td>{{ "✅ موجود" if ai_status.has_project_context else "❌ غير موجود" }}</td>
+            </tr>
+            <tr>
+                <td>module_map.json</td>
+                <td>{{ "✅ موجود" if ai_status.has_module_map else "❌ غير موجود" }}</td>
+            </tr>
+            <tr>
+                <td>impact_matrix.json</td>
+                <td>{{ "✅ موجود" if ai_status.has_impact_matrix else "❌ غير موجود" }}</td>
+            </tr>
+            <tr>
+                <td>CHANGE_ANALYZER.md</td>
+                <td>{{ "✅ موجود" if ai_status.has_change_analyzer else "❌ غير موجود" }}</td>
+            </tr>
+            <tr>
+                <td>ai_prompt_generator.py</td>
+                <td>{{ "✅ موجود" if ai_status.has_prompt_generator else "❌ غير موجود" }}</td>
+            </tr>
+            <tr>
+                <td>risk_report_generator.py</td>
+                <td>{{ "✅ موجود" if ai_status.has_risk_generator else "❌ غير موجود" }}</td>
+            </tr>
+            <tr>
+                <td>validation_runner.py</td>
+                <td>{{ "✅ موجود" if ai_status.has_validation_runner else "❌ غير موجود" }}</td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

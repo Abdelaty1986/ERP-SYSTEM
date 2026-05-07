@@ -684,6 +684,38 @@ def system_health():
     return render_template("system_health.html", health=health)
 
 
+@app.route("/dev/ai-center")
+@login_required
+@admin_required
+def ai_development_center():
+    """مركز إدارة تطوير الذكاء الاصطناعي للمشروع."""
+    ai_root = BASE_DIR / "AI_SYSTEM"
+    tasks_root = BASE_DIR / "AI_TASKS"
+
+    def count_tasks(status):
+        folder = tasks_root / status
+        if not folder.exists():
+            return 0
+        return len(list(folder.glob("*.md")))
+
+    ai_status = {
+        "pending": count_tasks("pending"),
+        "in_progress": count_tasks("in_progress"),
+        "completed": count_tasks("completed"),
+        "blocked": count_tasks("blocked"),
+        "has_project_rules": (BASE_DIR / "PROJECT_RULES.md").exists(),
+        "has_project_context": (BASE_DIR / "PROJECT_CONTEXT.json").exists(),
+        "has_module_map": (ai_root / "module_map.json").exists(),
+        "has_impact_matrix": (ai_root / "impact_matrix.json").exists(),
+        "has_change_analyzer": (ai_root / "CHANGE_ANALYZER.md").exists(),
+        "has_prompt_generator": (ai_root / "ai_prompt_generator.py").exists(),
+        "has_risk_generator": (ai_root / "risk_report_generator.py").exists(),
+        "has_validation_runner": (ai_root / "validation_runner.py").exists(),
+    }
+
+    return render_template("ai_development_center.html", ai_status=ai_status)
+
+
 @app.route("/dev-control")
 @login_required
 @admin_required
