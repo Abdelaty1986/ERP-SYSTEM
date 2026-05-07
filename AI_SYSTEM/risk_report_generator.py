@@ -3,7 +3,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-TASKS_DIR = ROOT / "AI_TASKS" / "pending"
+TASK_DIRS = [
+    ROOT / "AI_TASKS" / "in_progress",
+    ROOT / "AI_TASKS" / "pending",
+]
 MODULE_MAP = ROOT / "AI_SYSTEM" / "module_map.json"
 OUTPUT_DIR = ROOT / "AI_TASKS" / "risk_reports"
 
@@ -13,25 +16,39 @@ def load_json(path):
 
 
 def latest_task():
-    tasks = sorted(TASKS_DIR.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
+    tasks = []
+    for folder in TASK_DIRS:
+        if folder.exists():
+            tasks.extend(folder.glob("*.md"))
+    tasks = sorted(tasks, key=lambda p: p.stat().st_mtime, reverse=True)
     return tasks[0] if tasks else None
 
 
 def detect_module(task_text, module_map):
     text = task_text.lower()
 
-    for module_name in module_map.keys():
-        if module_name.lower() in text:
-            return module_name
+    ui_words = ["ui", "ux", "workspace", "layout", "css", "screen", "responsive", "summary panel"]
+    if any(word in text for word in ui_words):
+        return "ui_theme"
+
+    if "purchase" in text or "supplier" in text:
+        return "purchases"
+
+    if "sales" in text or "sale" in text or "customer" in text:
+        return "sales"
 
     if "invoice" in text:
         return "sales"
 
-    if "inventory" in text:
+    if "inventory" in text or "stock" in text:
         return "inventory"
 
-    if "hr" in text:
+    if "hr" in text or "payroll" in text:
         return "hr"
+
+    for module_name in module_map.keys():
+        if module_name.lower() in text:
+            return module_name
 
     return "ui_theme"
 
@@ -64,12 +81,12 @@ Possible Risks:
 """
 
     for risk in module_info.get("risks", []):
-        report += f"- {risk}\\n"
+        report += f"- {risk}\n"
 
     report += "\\nCritical Files:\\n"
 
     for file in module_info.get("main_files", []):
-        report += f"- {file}\\n"
+        report += f"- {file}\n"
 
     report += """
 Required Actions:
