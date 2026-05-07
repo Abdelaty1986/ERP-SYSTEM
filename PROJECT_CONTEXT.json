@@ -1,0 +1,44 @@
+{
+  "project_name": "LedgerX",
+  "project_type": "Flask SQLite ERP Accounting System",
+  "stable_branch": "main",
+  "ai_development_branch": "dev-ai",
+  "priority": "Desktop-first ERP, mobile usable for monitoring and quick actions",
+  "protected_areas": [
+    "accounting journal entries",
+    "ledger",
+    "trial balance",
+    "inventory quantities",
+    "sales invoices",
+    "purchase invoices",
+    "permissions",
+    "migrations",
+    "database.db"
+  ],
+  "main_modules": [
+    "accounting",
+    "sales",
+    "purchases",
+    "inventory",
+    "reports",
+    "hr",
+    "admin",
+    "parties",
+    "einvoice"
+  ],
+  "database_rules": [
+    "never delete database.db",
+    "never drop tables",
+    "never drop columns",
+    "migrations must be non-destructive",
+    "migrations must be safe to run more than once"
+  ],
+  "development_rules": [
+    "work only on dev-ai",
+    "do not modify main directly",
+    "run migrations before accepting changes",
+    "run tests when available",
+    "manual review before merge"
+  ],
+  "current_phase": "AI safe development automation phase 1"
+}
