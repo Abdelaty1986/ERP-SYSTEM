@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 REPORTS_DIR = ROOT / "AI_TASKS" / "validation_reports"
 

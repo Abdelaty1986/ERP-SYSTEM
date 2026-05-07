@@ -7,7 +7,7 @@ TASK_DIRS = [
     ROOT / "AI_TASKS" / "in_progress",
     ROOT / "AI_TASKS" / "pending",
 ]
-MODULE_MAP = ROOT / "AI_SYSTEM" / "module_map.json"
+MODULE_MAP = ROOT / "AI_SYSTEM" / "core" / "module_map.json"
 OUTPUT_DIR = ROOT / "AI_TASKS" / "risk_reports"
 
 

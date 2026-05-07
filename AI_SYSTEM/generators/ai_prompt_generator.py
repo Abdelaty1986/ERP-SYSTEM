@@ -43,9 +43,9 @@ Do not modify main directly.
 Before changing code, read and obey:
 - PROJECT_RULES.md
 - PROJECT_CONTEXT.json
-- AI_SYSTEM/CHANGE_ANALYZER.md
-- AI_SYSTEM/module_map.json
-- AI_SYSTEM/impact_matrix.json
+- AI_SYSTEM/core/CHANGE_ANALYZER.md
+- AI_SYSTEM/core/module_map.json
+- AI_SYSTEM/core/impact_matrix.json
 - AI_REVIEW_CHECKLIST.md
 
 Current Task:
