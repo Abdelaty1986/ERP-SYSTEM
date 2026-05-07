@@ -1,0 +1,359 @@
+You are working on LedgerX ERP.
+
+IMPORTANT:
+Work only on branch: dev-ai
+Do not modify main directly.
+
+Before changing code, read and obey:
+- PROJECT_RULES.md
+- PROJECT_CONTEXT.json
+- AI_SYSTEM/CHANGE_ANALYZER.md
+- AI_SYSTEM/module_map.json
+- AI_SYSTEM/impact_matrix.json
+- AI_REVIEW_CHECKLIST.md
+
+Current Task:
+# Task: Improve Invoice Workspace UX
+
+## Status
+Pending
+
+## Priority
+High
+
+## Goal
+Improve invoice entry workspace UI/UX for desktop usage.
+
+## Requirements
+- Give invoice lines table more space.
+- Reduce summary panel width.
+- Preserve all existing logic.
+- Preserve JavaScript behavior.
+- Preserve accounting calculations.
+- Keep mobile usable.
+
+## Files Likely Affected
+- static/css/ledgerx_invoice_workspace.css
+- static/css/ledgerx_ui.css
+- templates/sales.html
+- templates/purchases.html
+
+## Forbidden
+- No database changes
+- No route changes
+- No accounting logic changes
+- No inventory logic changes
+
+## Validation
+- Open sales invoice
+- Open purchase invoice
+- Add multiple lines
+- Test totals
+- Test responsive layout
+
+## Branch
+dev-ai
+
+
+Project Context:
+{
+  "project_name": "LedgerX",
+  "project_type": "Flask SQLite ERP Accounting System",
+  "stable_branch": "main",
+  "ai_development_branch": "dev-ai",
+  "priority": "Desktop-first ERP, mobile usable for monitoring and quick actions",
+  "protected_areas": [
+    "accounting journal entries",
+    "ledger",
+    "trial balance",
+    "inventory quantities",
+    "sales invoices",
+    "purchase invoices",
+    "permissions",
+    "migrations",
+    "database.db"
+  ],
+  "main_modules": [
+    "accounting",
+    "sales",
+    "purchases",
+    "inventory",
+    "reports",
+    "hr",
+    "admin",
+    "parties",
+    "einvoice"
+  ],
+  "database_rules": [
+    "never delete database.db",
+    "never drop tables",
+    "never drop columns",
+    "migrations must be non-destructive",
+    "migrations must be safe to run more than once"
+  ],
+  "development_rules": [
+    "work only on dev-ai",
+    "do not modify main directly",
+    "run migrations before accepting changes",
+    "run tests when available",
+    "manual review before merge"
+  ],
+  "current_phase": "AI safe development automation phase 1"
+}
+
+Module Map:
+{
+  "accounting": {
+    "purpose": "Manage chart of accounts, journal entries, ledger, trial balance, financial statements, and posting control.",
+    "criticality": "very_high",
+    "main_files": [
+      "modules/accounting/ledger_engine.py",
+      "modules/accounting/views.py",
+      "financial.py",
+      "templates/journal.html",
+      "templates/ledger.html",
+      "templates/trial_balance.html",
+      "templates/balance_sheet.html",
+      "templates/profit_loss.html"
+    ],
+    "risks": [
+      "unbalanced journal entries",
+      "wrong account balances",
+      "incorrect reports"
+    ]
+  },
+  "sales": {
+    "purpose": "Manage sales invoices, sales orders, deliveries, returns, customers, VAT, and customer balances.",
+    "criticality": "very_high",
+    "main_files": [
+      "modules/sales/views.py",
+      "modules/sales/operations.py",
+      "modules/sales/orders.py",
+      "modules/sales/returns.py",
+      "modules/sales/taxing.py",
+      "templates/sales.html",
+      "templates/multi_invoice.html",
+      "templates/edit_sale_invoice.html",
+      "templates/sales_orders.html",
+      "templates/sales_deliveries.html",
+      "templates/sales_credit_notes.html"
+    ],
+    "risks": [
+      "wrong customer balance",
+      "wrong VAT",
+      "wrong inventory issue",
+      "invoice save failure"
+    ]
+  },
+  "purchases": {
+    "purpose": "Manage purchase invoices, purchase orders, purchase receipts, suppliers, VAT, and supplier balances.",
+    "criticality": "very_high",
+    "main_files": [
+      "templates/purchases.html",
+      "templates/purchases_create.html",
+      "templates/edit_purchase_invoice.html",
+      "templates/purchase_orders.html",
+      "templates/purchase_receipts.html",
+      "templates/purchase_invoice_from_receipt.html"
+    ],
+    "risks": [
+      "wrong supplier balance",
+      "wrong inventory receipt",
+      "wrong VAT",
+      "purchase posting failure"
+    ]
+  },
+  "inventory": {
+    "purpose": "Manage products, categories, units of measure, stock quantities, stock reports, and barcode-related workflows.",
+    "criticality": "high",
+    "main_files": [
+      "modules/inventory/views.py",
+      "templates/products.html",
+      "templates/product_categories.html",
+      "templates/inventory.html",
+      "templates/inventory_report.html",
+      "templates/product_barcode.html"
+    ],
+    "risks": [
+      "wrong stock balance",
+      "broken unit conversion",
+      "wrong product price",
+      "barcode mismatch"
+    ]
+  },
+  "hr": {
+    "purpose": "Manage employees, attendance, leaves, payroll, payslips, and HR reports.",
+    "criticality": "medium",
+    "main_files": [
+      "modules/hr/views.py",
+      "modules/hr/hr_module.py",
+      "modules/hr/support.py",
+      "templates/hr/dashboard.html",
+      "templates/hr/employees.html",
+      "templates/hr/attendance.html",
+      "templates/hr/leaves.html",
+      "templates/hr/payroll.html",
+      "templates/hr/payslip.html",
+      "templates/hr/reports.html"
+    ],
+    "risks": [
+      "wrong payroll",
+      "wrong attendance",
+      "permission issue"
+    ]
+  },
+  "admin_permissions": {
+    "purpose": "Manage users, roles, permissions, developer control, system health, and protected admin tools.",
+    "criticality": "very_high",
+    "main_files": [
+      "modules/admin/views.py",
+      "admin_views.py",
+      "templates/users.html",
+      "templates/permissions.html",
+      "templates/dev_control.html",
+      "templates/developer_control.html",
+      "templates/system_health.html"
+    ],
+    "risks": [
+      "viewer user can edit",
+      "admin tools exposed",
+      "route protection broken"
+    ]
+  },
+  "ui_theme": {
+    "purpose": "Manage LedgerX layout, sidebar, dashboard, global styling, invoice workspace, and responsive UI.",
+    "criticality": "medium",
+    "main_files": [
+      "templates/layout.html",
+      "templates/base.html",
+      "static/css/ledgerx_ui.css",
+      "static/css/ledgerx_global_pages.css",
+      "static/css/ledgerx_enterprise_theme.css",
+      "static/css/ledgerx_invoice_workspace.css",
+      "static/js/ledgerx_ui.js",
+      "static/js/ledgerx_invoice_workspace.js"
+    ],
+    "risks": [
+      "layout broken",
+      "mobile unusable",
+      "JavaScript hooks broken",
+      "forms visually compressed"
+    ]
+  },
+  "reports": {
+    "purpose": "Manage VAT report, withholding tax report, aging, customer/supplier reports, financial statements, and Excel/PDF outputs.",
+    "criticality": "high",
+    "main_files": [
+      "modules/reports/views.py",
+      "modules/reports/financial.py",
+      "templates/vat_report.html",
+      "templates/withholding_tax_report.html",
+      "templates/aging_report.html",
+      "templates/customers_report.html",
+      "templates/suppliers_report.html",
+      "templates/cash_flow.html"
+    ],
+    "risks": [
+      "wrong report totals",
+      "wrong tax figures",
+      "export failure"
+    ]
+  }
+}
+
+Impact Matrix:
+{
+  "sales_invoice": {
+    "criticality": "high",
+    "affected_areas": [
+      "accounting",
+      "inventory",
+      "vat",
+      "customer balance",
+      "reports"
+    ],
+    "critical_files": [
+      "modules/sales/views.py",
+      "modules/sales/operations.py",
+      "modules/accounting/ledger_engine.py",
+      "templates/sales.html",
+      "templates/edit_sale_invoice.html"
+    ],
+    "required_tests": [
+      "invoice save",
+      "journal entry",
+      "inventory movement",
+      "vat calculation",
+      "customer statement"
+    ]
+  },
+  "purchase_invoice": {
+    "criticality": "high",
+    "affected_areas": [
+      "inventory",
+      "supplier balance",
+      "vat",
+      "costing"
+    ],
+    "critical_files": [
+      "modules/sales/views.py",
+      "templates/purchases.html",
+      "templates/edit_purchase_invoice.html"
+    ],
+    "required_tests": [
+      "purchase save",
+      "inventory update",
+      "supplier balance",
+      "vat report"
+    ]
+  },
+  "ui_changes": {
+    "criticality": "medium",
+    "affected_areas": [
+      "templates",
+      "css",
+      "javascript"
+    ],
+    "required_tests": [
+      "desktop layout",
+      "mobile layout",
+      "responsive check"
+    ]
+  },
+  "permissions": {
+    "criticality": "high",
+    "affected_areas": [
+      "security",
+      "users",
+      "admin"
+    ],
+    "required_tests": [
+      "viewer access",
+      "admin access",
+      "route protection"
+    ]
+  }
+}
+
+Required Development Behavior:
+1. Analyze the request before coding.
+2. Identify affected files.
+3. Identify risk level.
+4. Make the smallest safe change.
+5. Preserve existing routes, data, permissions, accounting logic, inventory logic, and JavaScript hooks.
+6. Do not perform destructive migrations.
+7. Do not rewrite unrelated code.
+
+Required Output:
+- Summary of changes
+- Files changed
+- Risk analysis
+- Tests run
+- Manual testing checklist
+- Any known limitations
+
+Validation:
+Run:
+python migrations.py
+
+Then run available tests where possible.
