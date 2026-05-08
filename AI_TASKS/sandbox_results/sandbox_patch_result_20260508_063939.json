@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-05-08 06:39:39",
+  "mode": "SANDBOX_PATCH_APPLY_ONLY",
+  "patch_file": "/storage/emulated/0/1/ERP2/AI_TASKS/generated_patches/improve_sidebar_ux_patch_20260508_063918.json",
+  "sandbox_path": "/storage/emulated/0/1/ERP2/AI_SANDBOX",
+  "status": "FAILED",
+  "applied": [],
+  "failed": [
+    {
+      "operation": {
+        "type": "replace_text",
+        "file": "templates/dev_ai_dashboard.html",
+        "old_text": "مركز متابعة القرار الذكي، تحليل الفروقات، خطة الاختبارات، وحالة الـ Pipeline داخل LedgerX.",
+        "new_text": "مركز متابعة القرار الذكي، تحليل الفروقات، خطة الاختبارات، حالة الـ Pipeline، ونتائج بوابة الاعتماد داخل LedgerX."
+      },
+      "ok": false,
+      "message": "old_text not found in target file: templates/dev_ai_dashboard.html"
+    }
+  ],
+  "checks": [],
+  "rules": [
+    "Patch was applied inside sandbox only.",
+    "Production files were not modified.",
+    "Exact old_text match was required.",
+    "Validation must pass before human-approved production apply."
+  ]
+}

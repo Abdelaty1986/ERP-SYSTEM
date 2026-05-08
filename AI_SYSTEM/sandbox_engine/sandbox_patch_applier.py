@@ -49,6 +49,8 @@ def apply_patch_operation(operation):
     content = target.read_text(encoding="utf-8")
 
     if old_text not in content:
+        if new_text and new_text in content:
+            return True, f"Already applied in target file: {rel_file}"
         return False, f"old_text not found in target file: {rel_file}"
 
     content = content.replace(old_text, new_text, 1)
