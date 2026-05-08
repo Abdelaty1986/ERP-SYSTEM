@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-05-08 05:36:43",
+  "mode": "REVIEW_ONLY",
+  "task": "improve_sidebar_ux.md",
+  "status": "BLOCKED_BY_GUARD",
+  "files_requested": [
+    "templates/developer_control.html",
+    "templates/dev_ai_dashboard.html",
+    "static/css/ledgerx_dev_system.css"
+  ],
+  "guard": {
+    "safe": false,
+    "allowed": [
+      {
+        "file": "templates/developer_control.html",
+        "reason": ""
+      },
+      {
+        "file": "templates/dev_ai_dashboard.html",
+        "reason": ""
+      }
+    ],
+    "blocked": [
+      {
+        "file": "static/css/ledgerx_dev_system.css",
+        "reason": "Protected area matched: /ledger"
+      }
+    ]
+  },
+  "rules": [
+    "Do not auto-apply patches.",
+    "Do not modify database files.",
+    "Do not modify accounting posting logic without manual review.",
+    "Patch output is for review only."
+  ]
+}

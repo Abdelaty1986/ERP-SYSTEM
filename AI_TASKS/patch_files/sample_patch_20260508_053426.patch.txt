@@ -1,0 +1,6 @@
+# LedgerX AI Patch Draft
+# Mode: REVIEW_ONLY
+# This file is a draft for human review.
+# It must not be auto-applied.
+
+No code changes generated yet. Patch Engine initialized successfully.
