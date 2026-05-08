@@ -78,6 +78,14 @@ def process_task(task_file):
     out = LOG_DIR / f"agent_run_{task_file.stem}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
+    if status == "WAITING_FOR_APPROVAL":
+        notify = run_command(
+            "Approval Notification",
+            "python AI_SYSTEM/notification_engine/approval_notifier.py"
+        )
+        report["notification"] = notify
+        out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+
     print("Agent run report:")
     print(out)
     print("Status:", status)

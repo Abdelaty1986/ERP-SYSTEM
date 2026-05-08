@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-05-08 06:48:50",
+  "type": "APPROVAL_REQUIRED",
+  "task": "improve_sidebar_ux.md",
+  "agent_status": "WAITING_FOR_APPROVAL",
+  "gate_status": "APPROVED_FOR_REVIEW",
+  "patch_file": "/storage/emulated/0/1/ERP2/AI_TASKS/generated_patches/improve_sidebar_ux_patch_20260508_064826.json",
+  "gate_file": "/storage/emulated/0/1/ERP2/AI_TASKS/gate_reports/gate_report_20260508_064850.json",
+  "agent_file": "/storage/emulated/0/1/ERP2/AI_TASKS/agent_logs/agent_run_improve_sidebar_ux_20260508_064850.json",
+  "operations_count": 1,
+  "target_files": [
+    "templates/dev_ai_dashboard.html"
+  ],
+  "message": "LedgerX AI has a patch ready. Review and approve if safe.",
+  "approve_command": "python AI_SYSTEM/apply_engine/human_approved_apply.py --approve",
+  "reject_action": "Do nothing, or move task to blocked."
+}
