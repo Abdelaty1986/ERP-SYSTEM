@@ -728,6 +728,18 @@ def ai_dashboard():
 
     tasks_root = Path(BASE_DIR) / "AI_TASKS"
 
+    def latest_json(folder_name):
+        folder = tasks_root / folder_name
+        if not folder.exists():
+            return None
+        files = sorted(folder.glob("*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
+        if not files:
+            return None
+        try:
+            return json.loads(files[0].read_text(encoding="utf-8"))
+        except Exception:
+            return None
+
     def task_files(status):
         folder = tasks_root / status
         if not folder.exists():
@@ -753,12 +765,20 @@ def ai_dashboard():
 
     counts = {k: len(v) for k, v in tasks.items()}
     pipeline_status = get_latest_pipeline_status()
+    latest_decision = latest_json("decisions")
+    latest_diff = latest_json("diff_reports")
+    latest_test_plan = latest_json("test_plans")
+    latest_patch_plan = latest_json("patch_plans")
 
     return render_template(
         "dev_ai_dashboard.html",
         pipeline_status=pipeline_status,
         tasks=tasks,
         counts=counts,
+        latest_decision=latest_decision,
+        latest_diff=latest_diff,
+        latest_test_plan=latest_test_plan,
+        latest_patch_plan=latest_patch_plan,
     )
 
 
