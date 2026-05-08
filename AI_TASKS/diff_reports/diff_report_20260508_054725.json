@@ -1,0 +1,258 @@
+{
+  "timestamp": "2026-05-08 05:47:25",
+  "mode": "GIT_BRANCH_DIFF",
+  "changed_files_count": 62,
+  "overall_risk": "MEDIUM",
+  "requires_manual_review": true,
+  "changed_files": [
+    {
+      "file": "AI_REVIEW_CHECKLIST.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/AI_TASKS/validation_reports/validation_report_20260507_154729.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/README.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/core/CHANGE_ANALYZER.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/core/impact_matrix.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/core/module_map.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/core/pipeline_status.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/core/task_manager.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/diff_analyzer/__init__.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/diff_analyzer/smart_diff_analyzer.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/generators/ai_prompt_generator.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/generators/create_task.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/generators/risk_report_generator.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/logs/pipeline_history.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/patch_engine/__init__.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/patch_engine/patch_guard.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/patch_engine/patch_planner.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/patch_engine/patch_writer.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/pipelines/AI_DEV_PIPELINE.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/templates/task_template.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/templates/ui_upgrade_prompt.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_SYSTEM/validators/validation_runner.py",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/completed/improve_invoice_workspace.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/diff_reports/diff_report_20260508_054420.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/generated_prompts/improve_invoice_workspace_prompt.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/generated_prompts/improve_sidebar_ux_prompt.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/patch_files/sample_patch_20260508_053426.patch.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/patch_files/sample_patch_20260508_053518.patch.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/patch_plans/patch_plan_20260508_053518.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/patch_plans/patch_plan_20260508_053643.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/patch_plans/patch_plan_20260508_053820.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/patch_plans/patch_plan_20260508_053950.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/pending/improve_sidebar_ux.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/risk_reports/improve_invoice_workspace_risk_report.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/risk_reports/improve_sidebar_ux_risk_report.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260507_134349.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260507_134710.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260507_143843.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260507_154930.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260507_155700.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260507_160249.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260507_160634.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260508_020133.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260508_020247.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260508_020759.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260508_021041.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260508_021226.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASKS/validation_reports/validation_report_20260508_021807.txt",
+      "risk": "LOW"
+    },
+    {
+      "file": "AI_TASK_TEMPLATE.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "DEV_AI_BRANCH_GUIDE.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "PROJECT_CONTEXT.json",
+      "risk": "LOW"
+    },
+    {
+      "file": "PROJECT_RULES.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "PROMPT_LIBRARY.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "SAFE_DEV_WORKFLOW.md",
+      "risk": "LOW"
+    },
+    {
+      "file": "app.py",
+      "risk": "MEDIUM"
+    },
+    {
+      "file": "modules/__pycache__/__init__.cpython-313.pyc",
+      "risk": "IGNORE"
+    },
+    {
+      "file": "static/css/ledgerx_invoice_forms.css",
+      "risk": "LOW"
+    },
+    {
+      "file": "templates/ai_development_center.html",
+      "risk": "UNKNOWN"
+    },
+    {
+      "file": "templates/dev_ai_dashboard.html",
+      "risk": "LOW"
+    },
+    {
+      "file": "templates/developer_control.html",
+      "risk": "UNKNOWN"
+    },
+    {
+      "file": "templates/purchases.html",
+      "risk": "MEDIUM"
+    },
+    {
+      "file": "templates/sales.html",
+      "risk": "MEDIUM"
+    }
+  ],
+  "recommendation": "Manual review required before commit or merge."
+}

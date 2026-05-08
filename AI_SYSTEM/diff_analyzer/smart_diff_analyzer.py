@@ -41,12 +41,37 @@ def run_git(args):
     )
     return result.stdout.strip()
 
-def get_changed_files():
-    output = run_git(["diff", "--name-only", "HEAD"])
+def get_changed_files(mode="worktree"):
+    if mode == "branch":
+        output = run_git(["diff", "--name-only", "main...dev-ai"])
+    else:
+        output = run_git(["diff", "--name-only", "HEAD"])
     return [line.strip() for line in output.splitlines() if line.strip()]
 
 def classify_file(path):
     lowered = path.lower().replace("\\", "/")
+    name = Path(lowered).name
+
+    if "__pycache__" in lowered or name.endswith(".pyc"):
+        return "IGNORE"
+
+    if lowered.startswith("ai_system/") or lowered.startswith("ai_tasks/"):
+        return "LOW"
+
+    if name.endswith(".md") or name.endswith(".json"):
+        return "LOW"
+
+    if lowered.startswith("static/css/"):
+        return "LOW"
+
+    if name in {"sales.html", "purchases.html"}:
+        return "MEDIUM"
+
+    if name == "app.py":
+        return "MEDIUM"
+
+    if name in {"ledger.html", "journal.html", "migrations.py", "database.db"}:
+        return "HIGH"
 
     for pattern in HIGH_RISK_PATTERNS:
         if pattern in lowered:
@@ -62,11 +87,11 @@ def classify_file(path):
 
     return "UNKNOWN"
 
-def build_report():
-    files = get_changed_files()
+def build_report(mode="worktree"):
+    files = get_changed_files(mode)
     analyzed = []
 
-    risk_rank = {"LOW": 1, "UNKNOWN": 2, "MEDIUM": 3, "HIGH": 4}
+    risk_rank = {"IGNORE": 0, "LOW": 1, "UNKNOWN": 2, "MEDIUM": 3, "HIGH": 4}
     max_risk = "LOW"
 
     for file in files:
@@ -81,7 +106,7 @@ def build_report():
 
     report = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "mode": "GIT_WORKTREE_DIFF",
+        "mode": "GIT_BRANCH_DIFF" if mode == "branch" else "GIT_WORKTREE_DIFF",
         "changed_files_count": len(files),
         "overall_risk": max_risk if files else "NONE",
         "requires_manual_review": max_risk in ["MEDIUM", "HIGH", "UNKNOWN"],
@@ -96,7 +121,9 @@ def build_report():
     return report
 
 def main():
-    report = build_report()
+    import sys
+    mode = "branch" if len(sys.argv) > 1 and sys.argv[1] == "--branch" else "worktree"
+    report = build_report(mode)
     out = REPORTS_DIR / f"diff_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
