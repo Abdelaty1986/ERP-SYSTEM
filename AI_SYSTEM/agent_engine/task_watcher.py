@@ -83,7 +83,15 @@ def process_task(task_file):
             "Approval Notification",
             "python AI_SYSTEM/notification_engine/approval_notifier.py"
         )
+
+        telegram = run_command(
+            "Telegram Notification",
+            "python AI_SYSTEM/notification_engine/telegram_notifier.py"
+        )
+
         report["notification"] = notify
+        report["telegram_notification"] = telegram
+
         out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print("Agent run report:")
