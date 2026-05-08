@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-05-08 06:13:25",
+  "mode": "SANDBOX_ONLY",
+  "sandbox_path": "/storage/emulated/0/1/ERP2/AI_SANDBOX",
+  "status": "FAILED",
+  "checks": [
+    {
+      "command": "python -m py_compile app.py",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "ok": true
+    },
+    {
+      "command": "python AI_SYSTEM/pipelines/AI_DEV_PIPELINE.py",
+      "returncode": 1,
+      "stdout": "Generated prompt:\n/storage/emulated/0/1/ERP2/AI_SANDBOX/AI_TASKS/generated_prompts/improve_sidebar_ux_prompt.txt\nRisk report generated:\n/storage/emulated/0/1/ERP2/AI_SANDBOX/AI_TASKS/risk_reports/improve_sidebar_ux_risk_report.txt\n\\n=== Run Migrations ===\nFAILED\n\\n=== Invoice Workflow Test ===\nSKIPPED\n\\nValidation report generated:\n/storage/emulated/0/1/ERP2/AI_SANDBOX/AI_TASKS/validation_reports/validation_report_20260508_061325.txt\n\\nValidation finished with failures:\n- Run Migrations: FAILED\n\n=== LEDGERX AI DEV PIPELINE ===\n\n=== Generate Prompt ===\nSUCCESS\n\n=== Generate Risk Report ===\nSUCCESS\n\n=== Run Validation ===\nFAILED\n\nPipeline Finished\nFinal Status: FAILED\n",
+      "stderr": "",
+      "ok": false
+    }
+  ],
+  "rules": [
+    "Sandbox runner must not modify production files.",
+    "database.db is excluded from sandbox copy.",
+    "Only validation commands are executed."
+  ]
+}

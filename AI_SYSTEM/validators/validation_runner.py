@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -91,6 +92,20 @@ def main():
     print("\\nValidation report generated:")
     print(report)
 
+    failed = [
+        result for result in results
+        if result.get("status") in {"FAILED", "ERROR"}
+    ]
+
+    if failed:
+        print("\\nValidation finished with failures:")
+        for result in failed:
+            print(f"- {result.get('title')}: {result.get('status')}")
+        return False
+
+    return True
+
 
 if __name__ == "__main__":
-    main()
+    ok = main()
+    sys.exit(0 if ok else 1)

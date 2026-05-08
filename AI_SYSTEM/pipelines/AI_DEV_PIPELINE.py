@@ -115,6 +115,9 @@ def main():
     print("\nPipeline Finished")
     print("Final Status:", final_status)
 
+    return final_status == "SUCCESS"
+
 
 if __name__ == "__main__":
-    main()
+    ok = main()
+    sys.exit(0 if ok else 1)
