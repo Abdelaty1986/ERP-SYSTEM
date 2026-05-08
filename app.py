@@ -1,3 +1,4 @@
+from pathlib import Path
 import csv
 import html
 import io
@@ -690,7 +691,7 @@ def system_health():
 def ai_development_center():
     """مركز إدارة تطوير الذكاء الاصطناعي للمشروع."""
     ai_root = BASE_DIR / "AI_SYSTEM"
-    tasks_root = BASE_DIR / "AI_TASKS"
+    tasks_root = Path(BASE_DIR) / "AI_TASKS"
 
     def count_tasks(status):
         folder = tasks_root / status
@@ -714,6 +715,51 @@ def ai_development_center():
     }
 
     return render_template("ai_development_center.html", ai_status=ai_status)
+
+
+
+
+@app.route("/dev/ai-dashboard")
+@login_required
+@admin_required
+def ai_dashboard():
+    """Read-only AI automation dashboard."""
+    from AI_SYSTEM.core.pipeline_status import get_latest_pipeline_status
+
+    tasks_root = Path(BASE_DIR) / "AI_TASKS"
+
+    def task_files(status):
+        folder = tasks_root / status
+        if not folder.exists():
+            return []
+        items = []
+        for f in sorted(folder.glob("*.md")):
+            created_at = ""
+            try:
+                text = f.read_text(encoding="utf-8")
+                if "## Created At" in text:
+                    created_at = text.split("## Created At", 1)[1].strip().splitlines()[0].strip()
+            except Exception:
+                pass
+            items.append({"name": f.name, "status": status, "created_at": created_at})
+        return items
+
+    tasks = {
+        "pending": task_files("pending"),
+        "in_progress": task_files("in_progress"),
+        "completed": task_files("completed"),
+        "blocked": task_files("blocked"),
+    }
+
+    counts = {k: len(v) for k, v in tasks.items()}
+    pipeline_status = get_latest_pipeline_status()
+
+    return render_template(
+        "dev_ai_dashboard.html",
+        pipeline_status=pipeline_status,
+        tasks=tasks,
+        counts=counts,
+    )
 
 
 @app.route("/dev-control")

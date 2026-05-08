@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% block title %}AI Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_dev_system.css') }}">
+{% endblock %}
+
+{% block content %}
+{% set has_runs = pipeline_status.has_runs if pipeline_status.has_runs is defined else pipeline_status.get('has_runs', false) %}
+{% set latest = pipeline_status.latest if pipeline_status.latest is defined else pipeline_status.get('latest', {}) %}
+
+<section class="lx-dev-page">
+    <div class="lx-dev-hero">
+        <div class="lx-hero-copy">
+            <span class="lx-kicker">AI Managed ERP Development</span>
+            <h1>لوحة تحكم الأتمتة الذكية</h1>
+            <p>متابعة الـ Pipeline والمهام والتحقق الذكي داخل LedgerX.</p>
+        </div>
+    </div>
+
+    <div class="lx-dev-grid lx-dev-grid-4">
+        <article class="lx-stat-card">
+            <span class="lx-icon lx-blue"><i class="bi bi-hourglass-split"></i></span>
+            <small>Pending</small>
+            <strong>{{ counts.pending if counts.pending is defined else counts.get('pending', 0) }}</strong>
+        </article>
+
+        <article class="lx-stat-card">
+            <span class="lx-icon lx-orange"><i class="bi bi-play-circle"></i></span>
+            <small>In Progress</small>
+            <strong>{{ counts.in_progress if counts.in_progress is defined else counts.get('in_progress', 0) }}</strong>
+        </article>
+
+        <article class="lx-stat-card">
+            <span class="lx-icon lx-green"><i class="bi bi-check-circle"></i></span>
+            <small>Completed</small>
+            <strong>{{ counts.completed if counts.completed is defined else counts.get('completed', 0) }}</strong>
+        </article>
+
+        <article class="lx-stat-card">
+            <span class="lx-icon lx-red"><i class="bi bi-exclamation-triangle"></i></span>
+            <small>Blocked</small>
+            <strong>{{ counts.blocked if counts.blocked is defined else counts.get('blocked', 0) }}</strong>
+        </article>
+    </div>
+
+    <div class="lx-dev-grid lx-dev-grid-2">
+        <section class="lx-panel">
+            <div class="lx-panel-head">
+                <div>
+                    <span class="lx-kicker">Pipeline Status</span>
+                    <h2>آخر تشغيل</h2>
+                </div>
+
+                {% if has_runs %}
+                <span class="lx-badge {{ 'ok' if latest.status == 'SUCCESS' else 'bad' }}">
+                    {{ latest.status }}
+                </span>
+                {% endif %}
+            </div>
+
+            {% if has_runs %}
+            <div class="lx-check-list">
+
+                <div class="lx-check-row ok">
+                    <i class="bi bi-clock-history"></i>
+                    <div>
+                        <strong>Timestamp</strong>
+                        <span>{{ latest.timestamp }}</span>
+                    </div>
+                </div>
+
+                <div class="lx-check-row ok">
+                    <i class="bi bi-list-task"></i>
+                    <div>
+                        <strong>Pending Tasks</strong>
+                        <span>{{ latest.pending_tasks }}</span>
+                    </div>
+                </div>
+
+                <div class="lx-check-row ok">
+                    <i class="bi bi-file-earmark-code"></i>
+                    <div>
+                        <strong>Last Task</strong>
+                        <span>{{ latest.last_task or 'غير متاح' }}</span>
+                    </div>
+                </div>
+
+            </div>
+            {% else %}
+            <div class="lx-empty-state">
+                لا يوجد Pipeline History متاح.
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="lx-panel">
+            <div class="lx-panel-head">
+                <div>
+                    <span class="lx-kicker">Current Tasks</span>
+                    <h2>المهام الحالية</h2>
+                </div>
+            </div>
+
+            <div class="lx-check-list">
+                {% for task in tasks.pending %}
+                <div class="lx-check-row">
+                    <i class="bi bi-hourglass-split"></i>
+                    <div>
+                        <strong>{{ task.name }}</strong>
+                        <span>
+                            Pending
+                            {% if task.created_at %}
+                            — {{ task.created_at }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="lx-empty-state">
+                    لا توجد مهام Pending.
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}
