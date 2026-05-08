@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-05-08 06:07:46",
+  "mode": "GENERATE_ONLY",
+  "task": "improve_sidebar_ux.md",
+  "status": "PATCH_DRAFT_READY",
+  "target_files": [],
+  "instructions": [
+    "This is a generated patch draft only.",
+    "Do not auto-apply to production files.",
+    "Apply only inside sandbox after guard approval.",
+    "Human approval is required before merging."
+  ],
+  "patch_content": ""
+}
