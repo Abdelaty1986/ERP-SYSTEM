@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-05-08 05:53:32",
+  "decision": "SAFE_TO_CONTINUE",
+  "summary": {
+    "diff_risk": "MEDIUM",
+    "selected_tests": [
+      "ai_pipeline_validation",
+      "invoice_workflow_test",
+      "purchase_workflow_test",
+      "route_smoke_test",
+      "ui_smoke_test",
+      "workflow_validation"
+    ],
+    "patch_status": "SAFE_TO_REVIEW",
+    "pipeline_status": "SUCCESS"
+  },
+  "reasons": [
+    "No blocking or review conditions detected"
+  ],
+  "policy": [
+    "BLOCKED means do not merge or apply changes.",
+    "NEEDS_REVIEW means manual review is required before merge.",
+    "SAFE_TO_CONTINUE means continue development with normal validation."
+  ]
+}
