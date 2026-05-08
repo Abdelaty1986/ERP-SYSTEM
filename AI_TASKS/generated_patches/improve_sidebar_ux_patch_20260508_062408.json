@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-05-08 06:24:08",
+  "mode": "STRUCTURED_PATCH_REVIEW_ONLY",
+  "task": "improve_sidebar_ux.md",
+  "status": "PATCH_DRAFT_READY",
+  "target_files": [
+    "templates/dev_ai_dashboard.html"
+  ],
+  "operations": [
+    {
+      "type": "replace_text",
+      "file": "templates/dev_ai_dashboard.html",
+      "old_text": "مركز متابعة القرار الذكي، تحليل الفروقات، خطة الاختبارات، وحالة الـ Pipeline داخل LedgerX.",
+      "new_text": "مركز متابعة القرار الذكي، تحليل الفروقات، خطة الاختبارات، حالة الـ Pipeline، ونتائج بوابة الاعتماد داخل LedgerX."
+    }
+  ],
+  "instructions": [
+    "Patch is structured and review-only.",
+    "Apply only after Patch Guard approval.",
+    "Apply inside sandbox first.",
+    "Human approval is required before production apply.",
+    "Exact old_text match is required."
+  ]
+}

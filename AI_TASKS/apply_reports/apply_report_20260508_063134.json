@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-08 06:31:34",
+  "apply_status": "REJECTED_EMPTY_PATCH",
+  "patch_file": "/storage/emulated/0/1/ERP2/AI_TASKS/generated_patches/improve_sidebar_ux_patch_20260508_062408.json",
+  "gate_file": "/storage/emulated/0/1/ERP2/AI_TASKS/gate_reports/gate_report_20260508_063113.json",
+  "reasons": [
+    "Patch content is empty. Nothing can be applied safely."
+  ],
+  "policy": [
+    "No patch can be applied without --approve.",
+    "Gate status must be APPROVED_FOR_REVIEW.",
+    "Patch must contain explicit patch_content.",
+    "This engine must never apply empty or unsafe patches."
+  ]
+}

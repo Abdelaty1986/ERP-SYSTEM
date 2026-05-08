@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-05-08 06:33:22",
+  "apply_status": "APPLIED",
+  "patch_file": "/storage/emulated/0/1/ERP2/AI_TASKS/generated_patches/improve_sidebar_ux_patch_20260508_062408.json",
+  "gate_file": "/storage/emulated/0/1/ERP2/AI_TASKS/gate_reports/gate_report_20260508_063113.json",
+  "applied": [
+    {
+      "operation": {
+        "type": "replace_text",
+        "file": "templates/dev_ai_dashboard.html",
+        "old_text": "مركز متابعة القرار الذكي، تحليل الفروقات، خطة الاختبارات، وحالة الـ Pipeline داخل LedgerX.",
+        "new_text": "مركز متابعة القرار الذكي، تحليل الفروقات، خطة الاختبارات، حالة الـ Pipeline، ونتائج بوابة الاعتماد داخل LedgerX."
+      },
+      "ok": true,
+      "message": "Applied replace_text to templates/dev_ai_dashboard.html"
+    }
+  ],
+  "failed": [],
+  "reasons": [
+    "Patch applied after explicit human approval and approved gate."
+  ],
+  "policy": [
+    "No patch can be applied without --approve.",
+    "Gate status must be APPROVED_FOR_REVIEW.",
+    "Patch must contain structured operations.",
+    "Exact old_text match is required."
+  ]
+}

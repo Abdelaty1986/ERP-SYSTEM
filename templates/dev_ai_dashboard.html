@@ -8,13 +8,42 @@
 {% block content %}
 {% set has_runs = pipeline_status.has_runs if pipeline_status.has_runs is defined else pipeline_status.get('has_runs', false) %}
 {% set latest = pipeline_status.latest if pipeline_status.latest is defined else pipeline_status.get('latest', {}) %}
+{% set decision = latest_decision or {} %}
+{% set diff = latest_diff or {} %}
+{% set test_plan = latest_test_plan or {} %}
+{% set patch_plan = latest_patch_plan or {} %}
+{% set decision_label = decision.get('decision', 'NO_DECISION') %}
 
 <section class="lx-dev-page">
     <div class="lx-dev-hero">
         <div class="lx-hero-copy">
             <span class="lx-kicker">AI Managed ERP Development</span>
             <h1>لوحة تحكم الأتمتة الذكية</h1>
-            <p>متابعة الـ Pipeline والمهام والتحقق الذكي داخل LedgerX.</p>
+            <p>مركز متابعة القرار الذكي، تحليل الفروقات، خطة الاختبارات، حالة الـ Pipeline، ونتائج بوابة الاعتماد داخل LedgerX.</p>
+        </div>
+        <div class="lx-hero-actions">
+            <a class="lx-soft-btn" href="{{ url_for('developer_control') }}">
+                <i class="bi bi-arrow-right"></i>
+                مركز المطور
+            </a>
+            <a class="lx-soft-btn" href="{{ url_for('ai_development_center') }}">
+                <i class="bi bi-cpu"></i>
+                مركز AI
+            </a>
+        </div>
+    </div>
+
+    <div class="lx-status-strip {{ 'is-ok' if decision_label == 'SAFE_TO_CONTINUE' else ('is-danger' if decision_label == 'BLOCKED' else '') }}">
+        <div class="lx-status-dot"></div>
+        <div>
+            <strong>AI Decision: {{ decision_label }}</strong>
+            <span>
+                Risk: {{ diff.get('overall_risk', 'N/A') }}
+                —
+                Patch: {{ patch_plan.get('status', 'N/A') }}
+                —
+                Pipeline: {{ decision.get('summary', {}).get('pipeline_status', 'N/A') }}
+            </span>
         </div>
     </div>
 
@@ -22,25 +51,25 @@
         <article class="lx-stat-card">
             <span class="lx-icon lx-blue"><i class="bi bi-hourglass-split"></i></span>
             <small>Pending</small>
-            <strong>{{ counts.pending if counts.pending is defined else counts.get('pending', 0) }}</strong>
+            <strong>{{ counts.get('pending', 0) }}</strong>
         </article>
 
         <article class="lx-stat-card">
-            <span class="lx-icon lx-orange"><i class="bi bi-play-circle"></i></span>
-            <small>In Progress</small>
-            <strong>{{ counts.in_progress if counts.in_progress is defined else counts.get('in_progress', 0) }}</strong>
+            <span class="lx-icon lx-orange"><i class="bi bi-files"></i></span>
+            <small>Changed Files</small>
+            <strong>{{ diff.get('changed_files_count', 0) }}</strong>
         </article>
 
         <article class="lx-stat-card">
-            <span class="lx-icon lx-green"><i class="bi bi-check-circle"></i></span>
-            <small>Completed</small>
-            <strong>{{ counts.completed if counts.completed is defined else counts.get('completed', 0) }}</strong>
+            <span class="lx-icon lx-green"><i class="bi bi-check2-square"></i></span>
+            <small>Selected Tests</small>
+            <strong>{{ test_plan.get('selected_tests', [])|length }}</strong>
         </article>
 
         <article class="lx-stat-card">
-            <span class="lx-icon lx-red"><i class="bi bi-exclamation-triangle"></i></span>
-            <small>Blocked</small>
-            <strong>{{ counts.blocked if counts.blocked is defined else counts.get('blocked', 0) }}</strong>
+            <span class="lx-icon lx-purple"><i class="bi bi-shield-check"></i></span>
+            <small>Patch Guard</small>
+            <strong>{{ patch_plan.get('status', 'N/A') }}</strong>
         </article>
     </div>
 
@@ -51,78 +80,116 @@
                     <span class="lx-kicker">Pipeline Status</span>
                     <h2>آخر تشغيل</h2>
                 </div>
-
                 {% if has_runs %}
-                <span class="lx-badge {{ 'ok' if latest.status == 'SUCCESS' else 'bad' }}">
-                    {{ latest.status }}
-                </span>
+                <span class="lx-badge {{ 'ok' if latest.status == 'SUCCESS' else 'bad' }}">{{ latest.status }}</span>
                 {% endif %}
             </div>
 
             {% if has_runs %}
             <div class="lx-check-list">
-
                 <div class="lx-check-row ok">
                     <i class="bi bi-clock-history"></i>
-                    <div>
-                        <strong>Timestamp</strong>
-                        <span>{{ latest.timestamp }}</span>
-                    </div>
+                    <div><strong>Timestamp</strong><span>{{ latest.timestamp }}</span></div>
                 </div>
-
                 <div class="lx-check-row ok">
                     <i class="bi bi-list-task"></i>
-                    <div>
-                        <strong>Pending Tasks</strong>
-                        <span>{{ latest.pending_tasks }}</span>
-                    </div>
+                    <div><strong>Pending Tasks</strong><span>{{ latest.pending_tasks }}</span></div>
                 </div>
-
                 <div class="lx-check-row ok">
                     <i class="bi bi-file-earmark-code"></i>
-                    <div>
-                        <strong>Last Task</strong>
-                        <span>{{ latest.last_task or 'غير متاح' }}</span>
-                    </div>
+                    <div><strong>Last Task</strong><span>{{ latest.last_task or 'غير متاح' }}</span></div>
                 </div>
-
             </div>
             {% else %}
-            <div class="lx-empty-state">
-                لا يوجد Pipeline History متاح.
-            </div>
+            <div class="lx-empty-state">لا يوجد Pipeline History متاح.</div>
             {% endif %}
         </section>
 
         <section class="lx-panel">
             <div class="lx-panel-head">
                 <div>
-                    <span class="lx-kicker">Current Tasks</span>
-                    <h2>المهام الحالية</h2>
+                    <span class="lx-kicker">Decision Reasons</span>
+                    <h2>أسباب القرار</h2>
                 </div>
             </div>
 
             <div class="lx-check-list">
-                {% for task in tasks.pending %}
-                <div class="lx-check-row">
-                    <i class="bi bi-hourglass-split"></i>
-                    <div>
-                        <strong>{{ task.name }}</strong>
-                        <span>
-                            Pending
-                            {% if task.created_at %}
-                            — {{ task.created_at }}
-                            {% endif %}
-                        </span>
-                    </div>
+                {% for reason in decision.get('reasons', []) %}
+                <div class="lx-check-row {{ 'ok' if decision_label == 'SAFE_TO_CONTINUE' else 'bad' }}">
+                    <i class="bi {{ 'bi-check-circle-fill' if decision_label == 'SAFE_TO_CONTINUE' else 'bi-exclamation-triangle-fill' }}"></i>
+                    <div><strong>{{ reason }}</strong><span>Decision Engine</span></div>
                 </div>
                 {% else %}
-                <div class="lx-empty-state">
-                    لا توجد مهام Pending.
-                </div>
+                <div class="lx-empty-state">لا توجد أسباب قرار متاحة.</div>
                 {% endfor %}
             </div>
         </section>
     </div>
+
+    <div class="lx-dev-grid lx-dev-grid-2">
+        <section class="lx-panel">
+            <div class="lx-panel-head">
+                <div>
+                    <span class="lx-kicker">Smart Diff</span>
+                    <h2>تحليل الفروقات</h2>
+                </div>
+                <span class="lx-badge {{ 'bad' if diff.get('overall_risk') == 'HIGH' else 'ok' }}">{{ diff.get('overall_risk', 'N/A') }}</span>
+            </div>
+
+            <div class="lx-check-list">
+                {% for item in diff.get('changed_files', [])[:8] %}
+                <div class="lx-check-row">
+                    <i class="bi bi-file-diff"></i>
+                    <div><strong>{{ item.file if item.file is defined else item.get('file') }}</strong><span>Risk: {{ item.risk if item.risk is defined else item.get('risk') }}</span></div>
+                </div>
+                {% else %}
+                <div class="lx-empty-state">لا توجد ملفات متغيرة.</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="lx-panel">
+            <div class="lx-panel-head">
+                <div>
+                    <span class="lx-kicker">Testing Plan</span>
+                    <h2>الاختبارات المختارة</h2>
+                </div>
+            </div>
+
+            <div class="lx-check-list">
+                {% for test in test_plan.get('selected_tests', []) %}
+                <div class="lx-check-row ok">
+                    <i class="bi bi-check2-square"></i>
+                    <div><strong>{{ test }}</strong><span>Selected by Intelligent Test Selector</span></div>
+                </div>
+                {% else %}
+                <div class="lx-empty-state">لا توجد اختبارات مختارة.</div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <section class="lx-panel">
+        <div class="lx-panel-head">
+            <div>
+                <span class="lx-kicker">Current Tasks</span>
+                <h2>المهام الحالية</h2>
+            </div>
+        </div>
+
+        <div class="lx-check-list">
+            {% for task in tasks.pending %}
+            <div class="lx-check-row">
+                <i class="bi bi-hourglass-split"></i>
+                <div>
+                    <strong>{{ task.name }}</strong>
+                    <span>Pending{% if task.created_at %} — {{ task.created_at }}{% endif %}</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="lx-empty-state">لا توجد مهام Pending.</div>
+            {% endfor %}
+        </div>
+    </section>
 </section>
 {% endblock %}

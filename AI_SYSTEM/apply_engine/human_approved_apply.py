@@ -28,18 +28,42 @@ def latest_json(folder):
         return latest, None
 
 
-def write_report(status, reasons, patch_file=None, gate_file=None):
+def apply_operation(operation):
+    if operation.get("type") != "replace_text":
+        return False, f"Unsupported operation type: {operation.get('type')}"
+
+    rel_file = operation.get("file")
+    old_text = operation.get("old_text", "")
+    new_text = operation.get("new_text", "")
+
+    target = PROJECT_ROOT / rel_file
+
+    if not target.exists():
+        return False, f"Target file not found: {rel_file}"
+
+    content = target.read_text(encoding="utf-8")
+
+    if old_text not in content:
+        return False, f"old_text not found in production file: {rel_file}"
+
+    target.write_text(content.replace(old_text, new_text, 1), encoding="utf-8")
+    return True, f"Applied replace_text to {rel_file}"
+
+
+def write_report(status, reasons, patch_file=None, gate_file=None, applied=None, failed=None):
     report = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "apply_status": status,
         "patch_file": str(patch_file) if patch_file else None,
         "gate_file": str(gate_file) if gate_file else None,
+        "applied": applied or [],
+        "failed": failed or [],
         "reasons": reasons,
         "policy": [
             "No patch can be applied without --approve.",
             "Gate status must be APPROVED_FOR_REVIEW.",
-            "Patch must contain explicit patch_content.",
-            "This engine must never apply empty or unsafe patches.",
+            "Patch must contain structured operations.",
+            "Exact old_text match is required.",
         ],
     }
 
@@ -79,18 +103,32 @@ def main():
         write_report("REJECTED", reasons, patch_file, gate_file)
         return False
 
-    patch_content = (patch.get("patch_content") or "").strip()
+    operations = patch.get("operations") or []
 
-    if not patch_content:
-        reasons.append("Patch content is empty. Nothing can be applied safely.")
+    if not operations:
+        reasons.append("Patch contains no structured operations.")
         write_report("REJECTED_EMPTY_PATCH", reasons, patch_file, gate_file)
         return False
 
-    reasons.append("Patch content exists, but automatic code application is not enabled yet.")
-    reasons.append("Next phase should implement controlled unified-diff apply inside sandbox first.")
+    applied = []
+    failed = []
 
-    write_report("READY_BUT_NOT_APPLIED", reasons, patch_file, gate_file)
-    return False
+    for operation in operations:
+        ok, message = apply_operation(operation)
+        item = {"operation": operation, "ok": ok, "message": message}
+        if ok:
+            applied.append(item)
+        else:
+            failed.append(item)
+
+    if failed:
+        reasons.append("One or more operations failed. Partial apply may require review.")
+        write_report("FAILED", reasons, patch_file, gate_file, applied, failed)
+        return False
+
+    reasons.append("Patch applied after explicit human approval and approved gate.")
+    write_report("APPLIED", reasons, patch_file, gate_file, applied, failed)
+    return True
 
 
 if __name__ == "__main__":
