@@ -151,12 +151,19 @@ def run_validation():
 
 
 def git_commit_if_needed(task_id):
-    status = subprocess.run(
-        ["git", "status", "--porcelain"],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-    )
+    try:
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        return {
+            "committed": False,
+            "pushed": False,
+            "reason": "git is not available in Railway runtime. Patch was applied locally only."
+        }
 
     changed = status.stdout.strip()
 
