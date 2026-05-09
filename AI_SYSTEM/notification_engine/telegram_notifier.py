@@ -55,9 +55,21 @@ def send_telegram(message):
         return False
 
     url = f"https://api.telegram.org/bot{token}/sendMessage"
+    import json
+
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "✅ Approve Apply", "callback_data": "ledgerx_approve"},
+                {"text": "❌ Reject", "callback_data": "ledgerx_reject"}
+            ]
+        ]
+    }
+
     payload = urllib.parse.urlencode({
         "chat_id": chat_id,
-        "text": message
+        "text": message,
+        "reply_markup": json.dumps(keyboard)
     }).encode("utf-8")
 
     req = urllib.request.Request(url, data=payload, method="POST")
