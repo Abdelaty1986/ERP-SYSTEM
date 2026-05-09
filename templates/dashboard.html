@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_main_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ledgerx_dashboard_vibrant.css') }}">
 
 {% set sales_total = total_sales|default(sales_total|default(0)) %}
 {% set purchases_total = total_purchases|default(purchases_total|default(0)) %}
@@ -42,25 +43,25 @@
   </section>
 
   <section class="lx-kpi-grid lx-kpi-main">
-    <div class="lx-kpi lx-kpi-green">
+    <div class="lx-kpi lx-kpi-vibrant-sales">
       <div class="lx-icon">🛒</div>
       <span>إجمالي المبيعات</span>
       <strong>{{ "{:,.2f}".format(sales_total|float) }}</strong>
       <small>قيمة فواتير البيع المسجلة</small>
     </div>
-    <div class="lx-kpi lx-kpi-purple">
+    <div class="lx-kpi lx-kpi-vibrant-purchases">
       <div class="lx-icon">🧾</div>
       <span>إجمالي المشتريات</span>
       <strong>{{ "{:,.2f}".format(purchases_total|float) }}</strong>
       <small>قيمة فواتير الموردين</small>
     </div>
-    <div class="lx-kpi lx-kpi-blue">
+    <div class="lx-kpi lx-kpi-vibrant-inventory">
       <div class="lx-icon">📦</div>
       <span>قيمة المخزون</span>
       <strong>{{ "{:,.2f}".format(inventory_value|float) }}</strong>
       <small>حسب الوحدة والتكلفة</small>
     </div>
-    <div class="lx-kpi lx-kpi-orange">
+    <div class="lx-kpi lx-kpi-vibrant-profit">
       <div class="lx-icon">📈</div>
       <span>صافي الربح</span>
       <strong>{{ "{:,.2f}".format(net_profit|float) }}</strong>
@@ -69,24 +70,24 @@
   </section>
 
   <section class="lx-kpi-grid lx-kpi-small">
-    <a class="lx-mini-card" href="{{ url_for('customers') }}"><span>👥 العملاء</span><strong>{{ customers_count }}</strong></a>
-    <a class="lx-mini-card" href="{{ url_for('suppliers') }}"><span>🚚 الموردون</span><strong>{{ suppliers_count }}</strong></a>
-    <a class="lx-mini-card" href="{{ url_for('products') }}"><span>📦 الأصناف</span><strong>{{ products_count }}</strong></a>
-    <a class="lx-mini-card" href="{{ url_for('journal') }}"><span>📘 القيود</span><strong>{{ journal_count }}</strong></a>
-    <a class="lx-mini-card" href="{{ url_for('sales_orders') }}"><span>📋 أوامر البيع</span><strong>{{ sales_orders_count }}</strong></a>
-    <a class="lx-mini-card" href="{{ url_for('purchase_orders') }}"><span>🛍 أوامر الشراء</span><strong>{{ purchase_orders_count }}</strong></a>
+    <a class="lx-mini-card vibrant-card" href="{{ url_for('customers') }}"><span><i class='bi bi-people'></i> العملاء</span><strong>{{ customers_count }}</strong></a>
+    <a class="lx-mini-card vibrant-card" href="{{ url_for('suppliers') }}"><span><i class='bi bi-truck'></i> الموردون</span><strong>{{ suppliers_count }}</strong></a>
+    <a class="lx-mini-card vibrant-card" href="{{ url_for('products') }}"><span><i class='bi bi-box-seam'></i> الأصناف</span><strong>{{ products_count }}</strong></a>
+    <a class="lx-mini-card vibrant-card" href="{{ url_for('journal') }}"><span><i class='bi bi-journal-text'></i> القيود</span><strong>{{ journal_count }}</strong></a>
+    <a class="lx-mini-card vibrant-card" href="{{ url_for('sales_orders') }}"><span><i class='bi bi-list-check'></i> أوامر البيع</span><strong>{{ sales_orders_count }}</strong></a>
+    <a class="lx-mini-card vibrant-card" href="{{ url_for('purchase_orders') }}"><span><i class='bi bi-receipt-cutoff'></i> أوامر الشراء</span><strong>{{ purchase_orders_count }}</strong></a>
   </section>
 
   <section class="lx-main-grid">
     <div class="lx-card">
-      <div class="lx-card-head">
+      <div class="lx-card-head vibrant-card-head">
         <div>
           <h2>تشغيل سريع</h2>
           <p>أكثر العمليات اليومية استخدامًا</p>
         </div>
         <span class="lx-tag">Quick Actions</span>
       </div>
-      <div class="lx-action-grid">
+      <div class="lx-action-grid vibrant-action-grid">
         <a href="{{ url_for('sales') }}" class="lx-action"><b>فاتورة بيع</b><span>تسجيل عملية بيع</span><i>↗</i></a>
         <a href="{{ url_for('purchases') }}" class="lx-action"><b>فاتورة شراء</b><span>تسجيل فاتورة مورد</span><i>↗</i></a>
         <a href="{{ url_for('receipts') }}" class="lx-action"><b>سند قبض</b><span>تحصيل من عميل</span><i>↗</i></a>
@@ -105,7 +106,7 @@
         </div>
         <span class="lx-tag">Monitoring</span>
       </div>
-      <div class="lx-watch-list">
+      <div class="lx-watch-list vibrant-watch-list">
         <div class="lx-watch warn"><span>الأصناف منخفضة الرصيد</span><strong>{{ low_stock_count }}</strong></div>
         <div class="lx-watch"><span>مديونيات العملاء</span><strong>{{ "{:,.2f}".format(customer_debt|float) }}</strong></div>
         <div class="lx-watch"><span>مديونيات الموردين</span><strong>{{ "{:,.2f}".format(supplier_debt|float) }}</strong></div>
