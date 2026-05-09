@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 APPROVED_DIR = ROOT / "AI_TASKS" / "approved"
 CODE_REPORTS_DIR = ROOT / "AI_TASKS" / "code_writer_reports"
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-2.5-flash-lite"
 
 
 def now():
