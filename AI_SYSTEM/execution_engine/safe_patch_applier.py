@@ -93,7 +93,20 @@ def apply_line_replacements(plan):
         new_text = text
         file_applied = []
 
-        for item in change.get("diff", []):
+        diff_items = change.get("diff", [])
+
+        if isinstance(diff_items, str):
+            skipped.append({
+                "file": file_path,
+                "reason": "Unified/string diff is not supported. Expected list of original_line/new_line objects.",
+            })
+            continue
+
+        for item in diff_items:
+            if not isinstance(item, dict):
+                skipped.append({"file": file_path, "reason": "Invalid diff item type"})
+                continue
+
             original = item.get("original_line", "")
             replacement = item.get("new_line", "")
 

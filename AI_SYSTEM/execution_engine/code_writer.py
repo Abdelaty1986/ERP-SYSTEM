@@ -50,6 +50,9 @@ IMPORTANT RULES:
 - For dashboard UI, prefer templates/dashboard.html and static/css/*.css
 - Output valid raw JSON only. Do not wrap it in markdown. Do not use ```json. Do not add explanations outside JSON.
 - target_files must be real plausible Flask project files only
+- suggested_changes.diff must always be a list of objects with original_line and new_line
+- Never return unified diff text
+- Never return patch text starting with --- or +++
 
 TASK:
 
@@ -61,7 +64,7 @@ Return JSON in this format:
   "summary": "...",
   "risk_level": "LOW",
   "target_files": [],
-  "suggested_changes": [],
+  "suggested_changes": [{"file": "templates/example.html", "diff": [{"original_line": "exact existing line", "new_line": "replacement line"}]}],
   "safe_to_apply": true
 }}
 """
