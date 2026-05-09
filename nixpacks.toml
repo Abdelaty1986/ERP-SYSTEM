@@ -1,0 +1,5 @@
+[phases.setup]
+nixPkgs = ["python313", "git"]
+
+[start]
+cmd = "python AI_SYSTEM/cloud/telegram_ai_worker.py"
