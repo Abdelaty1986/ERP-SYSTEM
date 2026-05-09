@@ -4,3 +4,5 @@ werkzeug
 openpyxl
 
 python-telegram-bot
+
+google-generativeai

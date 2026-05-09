@@ -83,6 +83,29 @@ def build_execution_report(task_id):
     if safe:
         report["validation"] = run_validation()
 
+        env = os.environ.copy()
+        env["LEDGERX_APPROVED_TASK_ID"] = task_id
+
+        code_writer = subprocess.run(
+            ["python", "AI_SYSTEM/execution_engine/code_writer.py"],
+            cwd=ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=900,
+        )
+
+        report["code_writer"] = {
+            "returncode": code_writer.returncode,
+            "stdout_tail": (code_writer.stdout or "")[-5000:],
+            "stderr_tail": (code_writer.stderr or "")[-5000:],
+        }
+
+        if code_writer.returncode != 0:
+            report["status"] = "CODE_WRITER_FAILED"
+        else:
+            report["status"] = "CODE_PLAN_READY"
+
     out = EXECUTION_REPORTS_DIR / f"{task_id}_execution_report.json"
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report, out
