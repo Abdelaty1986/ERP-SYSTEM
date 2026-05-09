@@ -24,7 +24,29 @@ def read_task(task_id):
     return path.read_text(encoding="utf-8")
 
 
+def read_project_context():
+    context_files = [
+        "templates/dashboard.html",
+        "templates/layout.html",
+        "static/css/dashboard.css",
+        "static/css/ledgerx_enterprise_theme.css",
+        "static/css/style.css",
+    ]
+
+    parts = []
+
+    for file_path in context_files:
+        path = ROOT / file_path
+        if path.exists():
+            content = path.read_text(encoding="utf-8", errors="ignore")
+            parts.append(f"FILE: {file_path}\\n---START---\\n{content[:6000]}\\n---END---")
+
+    return "\\n\\n".join(parts)
+
+
 def build_prompt(task_text):
+    project_context = read_project_context()
+
     return f"""
 You are LedgerX ERP AI Developer working on a Python Flask ERP project.
 
@@ -51,14 +73,11 @@ IMPORTANT RULES:
 - Output valid raw JSON only. Do not wrap it in markdown. Do not use ```json. Do not add explanations outside JSON.
 - target_files must be real plausible Flask project files only
 - suggested_changes.diff must always be a list of objects with original_line and new_line
+- original_line must be copied exactly from REAL FILE CONTENT CONTEXT
 - Never return unified diff text
 - Never return patch text starting with --- or +++
 
-TASK:
-
-{task_text}
-
-Return JSON in this format:
+REAL FILE CONTENT CONTEXT:\n\n{project_context}\n\nTASK:\n\n{task_text}\n\nReturn JSON in this format:
 
 {{
   "summary": "...",
