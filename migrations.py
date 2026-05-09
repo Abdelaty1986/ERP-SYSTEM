@@ -284,36 +284,64 @@ def migration_007_hr_payroll_hardening(cur: sqlite3.Cursor) -> None:
         )
         """
     )
-    add_column_if_missing(cur, "employees", "employee_code", "TEXT")
-    add_column_if_missing(cur, "employees", "department_id", "INTEGER")
-    add_column_if_missing(cur, "employees", "is_active", "INTEGER NOT NULL DEFAULT 1")
 
-    add_column_if_missing(cur, "payroll_runs", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
-    add_column_if_missing(cur, "payroll_runs", "payment_method", "TEXT NOT NULL DEFAULT 'accrued'")
-    add_column_if_missing(cur, "payroll_runs", "allowances_journal_id", "INTEGER")
-    add_column_if_missing(cur, "payroll_runs", "deductions_journal_id", "INTEGER")
-    add_column_if_missing(cur, "payroll_runs", "payment_journal_id", "INTEGER")
-    add_column_if_missing(cur, "payroll_runs", "posted_at", "TEXT")
-    add_column_if_missing(cur, "payroll_runs", "posted_by", "TEXT")
+    def table_exists(table_name):
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+        return cur.fetchone() is not None
 
-    add_column_if_missing(cur, "payroll_lines", "benefits", "REAL NOT NULL DEFAULT 0")
-    add_column_if_missing(cur, "payroll_lines", "incentives", "REAL NOT NULL DEFAULT 0")
-    add_column_if_missing(cur, "payroll_lines", "overtime", "REAL NOT NULL DEFAULT 0")
-    add_column_if_missing(cur, "payroll_lines", "advances", "REAL NOT NULL DEFAULT 0")
-    add_column_if_missing(cur, "payroll_lines", "penalties", "REAL NOT NULL DEFAULT 0")
-    add_column_if_missing(cur, "payroll_lines", "absence_deduction", "REAL NOT NULL DEFAULT 0")
-    add_column_if_missing(cur, "payroll_lines", "tardiness_deduction", "REAL NOT NULL DEFAULT 0")
-    add_column_if_missing(cur, "payroll_lines", "total_deductions", "REAL NOT NULL DEFAULT 0")
-    add_column_if_missing(cur, "payroll_lines", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
+    if table_exists("employees"):
+        add_column_if_missing(cur, "employees", "employee_code", "TEXT")
+    if table_exists("employees"):
+        add_column_if_missing(cur, "employees", "department_id", "INTEGER")
+    if table_exists("employees"):
+        add_column_if_missing(cur, "employees", "is_active", "INTEGER NOT NULL DEFAULT 1")
+
+    if table_exists("payroll_runs"):
+        add_column_if_missing(cur, "payroll_runs", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
+    if table_exists("payroll_runs"):
+        add_column_if_missing(cur, "payroll_runs", "payment_method", "TEXT NOT NULL DEFAULT 'accrued'")
+    if table_exists("payroll_runs"):
+        add_column_if_missing(cur, "payroll_runs", "allowances_journal_id", "INTEGER")
+    if table_exists("payroll_runs"):
+        add_column_if_missing(cur, "payroll_runs", "deductions_journal_id", "INTEGER")
+    if table_exists("payroll_runs"):
+        add_column_if_missing(cur, "payroll_runs", "payment_journal_id", "INTEGER")
+    if table_exists("payroll_runs"):
+        add_column_if_missing(cur, "payroll_runs", "posted_at", "TEXT")
+    if table_exists("payroll_runs"):
+        add_column_if_missing(cur, "payroll_runs", "posted_by", "TEXT")
+
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "benefits", "REAL NOT NULL DEFAULT 0")
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "incentives", "REAL NOT NULL DEFAULT 0")
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "overtime", "REAL NOT NULL DEFAULT 0")
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "advances", "REAL NOT NULL DEFAULT 0")
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "penalties", "REAL NOT NULL DEFAULT 0")
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "absence_deduction", "REAL NOT NULL DEFAULT 0")
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "tardiness_deduction", "REAL NOT NULL DEFAULT 0")
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "total_deductions", "REAL NOT NULL DEFAULT 0")
+    if table_exists("payroll_lines"):
+        add_column_if_missing(cur, "payroll_lines", "posting_status", "TEXT NOT NULL DEFAULT 'unposted'")
 
     create_index_if_missing(cur, "idx_departments_name", "departments", "name")
-    create_index_if_missing(cur, "idx_employees_department_id", "employees", "department_id")
-    create_index_if_missing(cur, "idx_employees_is_active", "employees", "is_active, status")
-    create_index_if_missing(cur, "idx_payroll_runs_period", "payroll_runs", "period")
+    if table_exists("employees"):
+        create_index_if_missing(cur, "idx_employees_department_id", "employees", "department_id")
+    if table_exists("employees"):
+        create_index_if_missing(cur, "idx_employees_is_active", "employees", "is_active, status")
+    if table_exists("payroll_runs"):
+        create_index_if_missing(cur, "idx_payroll_runs_period", "payroll_runs", "period")
     cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='employees'")
     if cur.fetchone():
         cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_employees_employee_code ON employees(employee_code)")
-    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_payroll_lines_run_employee ON payroll_lines(run_id, employee_id)")
+    if table_exists("payroll_lines"):
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_payroll_lines_run_employee ON payroll_lines(run_id, employee_id)")
 
     for department_name in [
         "الإدارة", "الحسابات", "المبيعات", "المشتريات", "المخازن", "الموارد البشرية",
