@@ -310,7 +310,9 @@ def migration_007_hr_payroll_hardening(cur: sqlite3.Cursor) -> None:
     create_index_if_missing(cur, "idx_employees_department_id", "employees", "department_id")
     create_index_if_missing(cur, "idx_employees_is_active", "employees", "is_active, status")
     create_index_if_missing(cur, "idx_payroll_runs_period", "payroll_runs", "period")
-    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_employees_employee_code ON employees(employee_code)")
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='employees'")
+    if cur.fetchone():
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_employees_employee_code ON employees(employee_code)")
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_payroll_lines_run_employee ON payroll_lines(run_id, employee_id)")
 
     for department_name in [
