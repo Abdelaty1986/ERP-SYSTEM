@@ -104,7 +104,25 @@ def build_execution_report(task_id):
         if code_writer.returncode != 0:
             report["status"] = "CODE_WRITER_FAILED"
         else:
-            report["status"] = "CODE_PLAN_READY"
+            applier = subprocess.run(
+                ["python", "AI_SYSTEM/execution_engine/safe_patch_applier.py"],
+                cwd=ROOT,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=900,
+            )
+
+            report["patch_applier"] = {
+                "returncode": applier.returncode,
+                "stdout_tail": (applier.stdout or "")[-6000:],
+                "stderr_tail": (applier.stderr or "")[-6000:],
+            }
+
+            if applier.returncode == 0:
+                report["status"] = "PATCH_APPLIED"
+            else:
+                report["status"] = "PATCH_NOT_APPLIED"
 
     out = EXECUTION_REPORTS_DIR / f"{task_id}_execution_report.json"
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
