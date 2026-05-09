@@ -48,7 +48,7 @@ IMPORTANT RULES:
 - ONLY suggest safe changes
 - Target branch is dev-ai only
 - For dashboard UI, prefer templates/dashboard.html and static/css/*.css
-- Output JSON only
+- Output valid raw JSON only. Do not wrap it in markdown. Do not use ```json. Do not add explanations outside JSON.
 - target_files must be real plausible Flask project files only
 
 TASK:
@@ -93,7 +93,7 @@ def save_report(task_id, content):
         "timestamp": now(),
         "task_id": task_id,
         "model": MODEL_NAME,
-        "raw_response": content,
+        "raw_response": content.strip().replace("```json", "").replace("```", "").strip(),
     }
 
     out.write_text(
