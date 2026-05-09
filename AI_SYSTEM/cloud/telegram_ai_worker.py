@@ -111,8 +111,13 @@ def run_pipeline(task_id):
 
 def send_approval(task_id, pipeline_result):
     if pipeline_result["status"] == "FAILED":
+        print("AI PIPELINE FAILED", flush=True)
+        print(pipeline_result.get("stdout_tail", ""), flush=True)
+        print(pipeline_result.get("stderr_tail", ""), flush=True)
+
+        error_tail = (pipeline_result.get("stderr_tail") or pipeline_result.get("stdout_tail") or "")[-2500:]
         send_message(
-            f"❌ AI Task FAILED\n\nTask: {task_id}\n\nراجع اللوج في AI_TASKS/agent_logs"
+            f"❌ AI Task FAILED\n\nTask: {task_id}\n\nآخر سبب ظاهر:\n{error_tail or 'لا يوجد تفاصيل ظاهرة في اللوج'}"
         )
         return
 
