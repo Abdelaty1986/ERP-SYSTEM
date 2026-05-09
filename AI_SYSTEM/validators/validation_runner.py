@@ -39,6 +39,10 @@ def run_command(title, command, required_file=None):
         status = "PASSED" if result.returncode == 0 else "FAILED"
 
         print(status)
+        if status != "PASSED":
+            print("--- COMMAND OUTPUT START ---")
+            print(output[-4000:])
+            print("--- COMMAND OUTPUT END ---")
 
         return {
             "title": title,
