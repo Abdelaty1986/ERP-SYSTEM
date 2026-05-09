@@ -143,7 +143,35 @@ def approve_task(task_id):
     if src.exists():
         src.rename(dst)
 
-    send_message(f"✅ تمت الموافقة على المهمة\n\nTask: {task_id}\n\nسيتم تطبيق مرحلة التنفيذ لاحقًا بأمان.")
+    send_message(f"✅ تمت الموافقة على المهمة\n\nTask: {task_id}\n\nجاري تشغيل Approved Executor...")
+
+    env = os.environ.copy()
+    env["LEDGERX_APPROVED_TASK_ID"] = task_id
+
+    result = subprocess.run(
+        ["python", "AI_SYSTEM/execution_engine/approved_executor.py"],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=900,
+    )
+
+    output = ((result.stdout or "") + "\n" + (result.stderr or ""))[-3500:]
+
+    if result.returncode == 0:
+        send_message(
+            f"✅ Approved Executor انتهى بنجاح\n\nTask: {task_id}\n\n"
+            f"الحالة الحالية: READY_FOR_CODE_WRITER\n\n"
+            f"المرحلة التالية: ربط AI code writer لتطبيق التعديلات على dev-ai.\n\n"
+            f"آخر لوج:\n{output}"
+        )
+    else:
+        send_message(
+            f"🛑 Approved Executor أوقف المهمة للحماية\n\nTask: {task_id}\n\n"
+            f"آخر لوج:\n{output}"
+        )
+
     return True
 
 
