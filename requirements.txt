@@ -2,3 +2,5 @@ flask
 gunicorn
 werkzeug
 openpyxl
+
+python-telegram-bot
