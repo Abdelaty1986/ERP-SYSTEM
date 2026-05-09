@@ -1,6 +1,8 @@
 import json
 import os
 import subprocess
+import base64
+from urllib import request, parse
 from datetime import datetime
 from pathlib import Path
 
@@ -150,6 +152,85 @@ def run_validation():
     }
 
 
+
+def github_api(method, url, token, payload=None):
+    data = None
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+    if payload is not None:
+        data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+
+    req = request.Request(url, data=data, headers=headers, method=method)
+
+    with request.urlopen(req, timeout=60) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def github_commit_applied_files(task_id, applied):
+    token = os.environ.get("GITHUB_TOKEN", "").strip()
+    repo = os.environ.get("GITHUB_REPOSITORY", "Abdelaty1986/ERP-SYSTEM").strip()
+    branch = os.environ.get("GITHUB_BRANCH", "dev-ai").strip()
+
+    if not token:
+        return {
+            "committed": False,
+            "pushed": False,
+            "reason": "Missing GITHUB_TOKEN. Patch applied locally only.",
+        }
+
+    commits = []
+
+    for item in applied:
+        file_path = item.get("file")
+        if not file_path:
+            continue
+
+        full_path = ROOT / file_path
+        if not full_path.exists():
+            continue
+
+        encoded_path = parse.quote(file_path)
+        api_url = f"https://api.github.com/repos/{repo}/contents/{encoded_path}?ref={branch}"
+
+        current = github_api("GET", api_url, token)
+        sha = current.get("sha")
+
+        content = full_path.read_text(encoding="utf-8")
+        encoded_content = base64.b64encode(content.encode("utf-8")).decode("ascii")
+
+        payload = {
+            "message": f"ai apply approved task {task_id}: {file_path}",
+            "content": encoded_content,
+            "sha": sha,
+            "branch": branch,
+        }
+
+        updated = github_api(
+            "PUT",
+            f"https://api.github.com/repos/{repo}/contents/{encoded_path}",
+            token,
+            payload,
+        )
+
+        commits.append({
+            "file": file_path,
+            "commit_sha": updated.get("commit", {}).get("sha"),
+        })
+
+    return {
+        "committed": bool(commits),
+        "pushed": bool(commits),
+        "method": "github_api",
+        "branch": branch,
+        "commits": commits,
+    }
+
+
 def git_commit_if_needed(task_id):
     try:
         status = subprocess.run(
@@ -219,7 +300,7 @@ def main():
     git_result = {"skipped": True, "reason": "Validation failed or no changes applied"}
 
     if applied and validation["returncode"] == 0:
-        git_result = git_commit_if_needed(task_id)
+        git_result = github_commit_applied_files(task_id, applied)
 
     final = {
         "timestamp": now(),
