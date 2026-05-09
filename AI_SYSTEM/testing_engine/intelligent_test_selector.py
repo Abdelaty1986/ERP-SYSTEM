@@ -8,13 +8,16 @@ TEST_PLANS_DIR = PROJECT_ROOT / "AI_TASKS" / "test_plans"
 TEST_PLANS_DIR.mkdir(parents=True, exist_ok=True)
 
 def run_git(args):
-    result = subprocess.run(
-        ["git"] + args,
-        cwd=PROJECT_ROOT,
-        capture_output=True,
-        text=True,
-    )
-    return result.stdout.strip()
+    try:
+        result = subprocess.run(
+            ["git"] + args,
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout.strip()
+    except FileNotFoundError:
+        return ""
 
 def get_changed_files(mode="worktree"):
     if mode == "branch":
