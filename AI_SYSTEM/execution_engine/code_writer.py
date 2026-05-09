@@ -64,7 +64,7 @@ Return JSON in this format:
   "summary": "...",
   "risk_level": "LOW",
   "target_files": [],
-  "suggested_changes": [{"file": "templates/example.html", "diff": [{"original_line": "exact existing line", "new_line": "replacement line"}]}],
+  "suggested_changes": [{{"file": "templates/example.html", "diff": [{{"original_line": "exact existing line", "new_line": "replacement line"}}]}}],
   "safe_to_apply": true
 }}
 """
