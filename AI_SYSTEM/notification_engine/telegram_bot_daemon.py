@@ -110,8 +110,6 @@ def start_agent_for_task(text):
         "python AI_SYSTEM/agent_engine/task_watcher.py",
         cwd=PROJECT_ROOT,
         shell=True,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
     )
 
     send_message("🤖 تم تشغيل AI Agent في الخلفية. ستصلك رسالة الموافقة بعد انتهاء الفحص.")
