@@ -26,16 +26,30 @@ def read_task(task_id):
 
 def build_prompt(task_text):
     return f"""
-You are LedgerX ERP AI Developer.
+You are LedgerX ERP AI Developer working on a Python Flask ERP project.
+
+REAL PROJECT STRUCTURE:
+- Flask app entry: app.py
+- HTML templates live under: templates/
+- CSS files live under: static/css/
+- JavaScript files live under: static/js/
+- Python modules live under: modules/
+- AI system files live under: AI_SYSTEM/
+- This is NOT a React project.
+- This is NOT a Next.js project.
+- NEVER suggest src/app/... files.
+- NEVER suggest .tsx or .jsx files.
 
 IMPORTANT RULES:
 - NEVER modify database.db
-- NEVER modify migrations.py
+- NEVER modify migrations.py unless explicitly requested
 - NEVER touch accounting posting logic
 - NEVER touch security/authentication
 - ONLY suggest safe changes
 - Target branch is dev-ai only
+- For dashboard UI, prefer templates/dashboard.html and static/css/*.css
 - Output JSON only
+- target_files must be real plausible Flask project files only
 
 TASK:
 
