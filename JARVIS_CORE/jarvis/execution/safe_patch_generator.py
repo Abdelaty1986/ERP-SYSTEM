@@ -3,6 +3,8 @@ from typing import List, Dict, Any
 from pathlib import Path
 import difflib
 
+from jarvis.execution.real_diff_proposal_builder import RealDiffProposalBuilder
+
 
 @dataclass
 class ProposedPatch:
@@ -33,6 +35,7 @@ class SafePatchGenerator:
 
     def __init__(self, project_root: str = "."):
         self.project_root = Path(project_root)
+        self.real_diff_builder = RealDiffProposalBuilder()
 
     def generate_patch_plan(
         self,
@@ -87,6 +90,29 @@ class SafePatchGenerator:
         risk_level: str,
         inspection: Any = None,
     ) -> ProposedPatch:
+        real_diff = None
+
+        if file_path and not file_path.endswith("/"):
+            real_diff = self.real_diff_builder.build_safe_comment_diff(
+                file_path=file_path,
+                task=task,
+            )
+
+        if real_diff and real_diff.get("can_use"):
+            reason = (
+                "Real safe unified diff proposal generated "
+                "without modifying source files."
+            )
+
+            return ProposedPatch(
+                file_path=file_path,
+                change_type=real_diff.get("change_type", change_type),
+                risk_level=real_diff.get("risk_level", risk_level),
+                reason=reason,
+                diff_preview=real_diff.get("diff_preview", ""),
+                requires_approval=True,
+            )
+
         original = [
             f"# Existing file or directory: {file_path}",
             "# Jarvis inspected this target before modification.",
@@ -109,7 +135,7 @@ class SafePatchGenerator:
             )
         )
 
-        reason = "Initial safe patch proposal generated from planning and inspection context."
+        reason = "Fallback placeholder proposal generated because real diff was not available."
 
         return ProposedPatch(
             file_path=file_path,
