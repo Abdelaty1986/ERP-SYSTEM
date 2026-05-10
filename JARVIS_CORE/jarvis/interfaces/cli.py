@@ -1,5 +1,7 @@
 import sys
+
 from jarvis.core.orchestrator import Orchestrator
+from jarvis.core.output_formatter import OutputFormatter
 
 
 def main():
@@ -11,22 +13,11 @@ def main():
     task = " ".join(sys.argv[1:])
 
     orchestrator = Orchestrator()
+    formatter = OutputFormatter()
+
     report = orchestrator.process_task(task)
 
-    print("Jarvis Report")
-    print("=" * 40)
-    print(f"Task: {report['task']}")
-    print(f"Decision: {report['decision']['status']}")
-    print(f"Can Apply: {report['decision']['can_apply']}")
-    print(f"Reason: {report['decision']['reason']}")
-    print("=" * 40)
-
-    for item in report["agent_results"]:
-        result = item["result"]
-        print(f"Agent: {item['agent']}")
-        print(f"Risk: {result.get('risk_level')}")
-        print(f"Analysis: {result.get('analysis')}")
-        print("-" * 40)
+    print(formatter.format_report(report))
 
 
 if __name__ == "__main__":
