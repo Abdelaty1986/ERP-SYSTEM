@@ -26,6 +26,10 @@ BLOCKED_PARTS = [
 ]
 
 
+class SafePatchPlanError(RuntimeError):
+    pass
+
+
 def now():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -37,11 +41,71 @@ def latest_code_writer_report(task_id):
     return path
 
 
+def write_apply_report(task_id, status, source_report=None, applied=None, skipped=None, validation=None, git_result=None, error=None):
+    APPLY_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    final = {
+        "timestamp": now(),
+        "task_id": task_id,
+        "source_report": str(source_report) if source_report else None,
+        "status": status,
+        "applied": applied or [],
+        "skipped": skipped or [],
+        "validation": validation or {"skipped": True},
+        "git": git_result or {"skipped": True},
+    }
+
+    if error:
+        final["error"] = str(error)
+
+    out = APPLY_REPORTS_DIR / f"{task_id}_apply_report.json"
+    out.write_text(json.dumps(final, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print("Safe patch applier finished")
+    print(out)
+    print(json.dumps(final, ensure_ascii=False, indent=2))
+
+    return final
+
+
+def load_json_file(path):
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SafePatchPlanError(f"Code writer report file is invalid JSON: {exc}") from exc
+
+
 def load_plan(task_id):
     report_path = latest_code_writer_report(task_id)
-    report = json.loads(report_path.read_text(encoding="utf-8"))
-    raw = report.get("raw_response", "").strip()
-    return json.loads(raw), report_path
+    report = load_json_file(report_path)
+
+    report_status = str(report.get("status", "")).strip()
+    if report_status in {"FAILED_CODE_WRITER_INVALID_JSON", "NO_VALID_CHANGES"}:
+        raise SafePatchPlanError(
+            f"Code writer report is not ready for patching: {report_status}. "
+            f"Details: {report.get('error') or report.get('raw_response_preview') or 'No details'}"
+        )
+
+    if isinstance(report.get("normalized_plan"), dict):
+        return report["normalized_plan"], report_path
+
+    raw = report.get("raw_response", "")
+    if isinstance(raw, dict):
+        return raw, report_path
+
+    raw = str(raw or "").strip()
+    if not raw:
+        raise SafePatchPlanError("Code writer report has empty raw_response")
+
+    try:
+        plan = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise SafePatchPlanError(f"Code writer raw_response is invalid JSON: {exc}") from exc
+
+    if not isinstance(plan, dict):
+        raise SafePatchPlanError("Code writer plan must be a JSON object")
+
+    return plan, report_path
 
 
 def is_safe_file(file_path):
@@ -74,10 +138,21 @@ def apply_line_replacements(plan):
     applied = []
     skipped = []
 
+    if not isinstance(plan, dict):
+        return applied, [{"reason": "Plan is not a JSON object"}]
+
     if not plan.get("safe_to_apply"):
         return applied, [{"reason": "Plan safe_to_apply is not true"}]
 
-    for change in plan.get("suggested_changes", []):
+    changes = plan.get("suggested_changes", [])
+    if not isinstance(changes, list):
+        return applied, [{"reason": "suggested_changes must be a list"}]
+
+    for change in changes:
+        if not isinstance(change, dict):
+            skipped.append({"reason": "Invalid change item type"})
+            continue
+
         file_path = change.get("file", "")
         safe, reason = is_safe_file(file_path)
 
@@ -104,6 +179,10 @@ def apply_line_replacements(plan):
             })
             continue
 
+        if not isinstance(diff_items, list):
+            skipped.append({"file": file_path, "reason": "diff must be a list"})
+            continue
+
         for item in diff_items:
             if not isinstance(item, dict):
                 skipped.append({"file": file_path, "reason": "Invalid diff item type"})
@@ -114,6 +193,14 @@ def apply_line_replacements(plan):
 
             if not original or not replacement:
                 skipped.append({"file": file_path, "reason": "Invalid diff item"})
+                continue
+
+            if original == replacement:
+                skipped.append({
+                    "file": file_path,
+                    "reason": "No-op change rejected",
+                    "original_line": original,
+                })
                 continue
 
             if original not in new_text:
@@ -133,6 +220,8 @@ def apply_line_replacements(plan):
         if file_applied and new_text != text:
             full_path.write_text(new_text, encoding="utf-8")
             applied.append({"file": file_path, "changes": file_applied})
+        elif file_applied:
+            skipped.append({"file": file_path, "reason": "Changes produced no file difference"})
 
     return applied, skipped
 
@@ -150,7 +239,6 @@ def run_validation():
         "stdout_tail": (result.stdout or "")[-5000:],
         "stderr_tail": (result.stderr or "")[-5000:],
     }
-
 
 
 def github_api(method, url, token, payload=None):
@@ -291,34 +379,50 @@ def main():
     if not task_id:
         raise RuntimeError("Missing LEDGERX_APPROVED_TASK_ID")
 
-    APPLY_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    source_report = None
 
-    plan, source_report = load_plan(task_id)
+    try:
+        plan, source_report = load_plan(task_id)
+    except Exception as exc:
+        write_apply_report(
+            task_id=task_id,
+            status="FAILED_INVALID_CODE_WRITER_REPORT",
+            source_report=source_report,
+            error=exc,
+            skipped=[{"reason": "Patch applier stopped before changing files"}],
+        )
+        return False
+
     applied, skipped = apply_line_replacements(plan)
+
+    if not applied:
+        write_apply_report(
+            task_id=task_id,
+            status="NOT_APPLIED",
+            source_report=source_report,
+            applied=applied,
+            skipped=skipped or [{"reason": "No applicable changes"}],
+            validation={"skipped": True, "reason": "No changes applied"},
+            git_result={"skipped": True, "reason": "No changes applied"},
+        )
+        return False
+
     validation = run_validation()
 
     git_result = {"skipped": True, "reason": "Validation failed or no changes applied"}
 
-    if applied and validation["returncode"] == 0:
+    if validation["returncode"] == 0:
         git_result = github_commit_applied_files(task_id, applied)
 
-    final = {
-        "timestamp": now(),
-        "task_id": task_id,
-        "source_report": str(source_report),
-        "status": "APPLIED" if applied and validation["returncode"] == 0 else "NOT_APPLIED",
-        "applied": applied,
-        "skipped": skipped,
-        "validation": validation,
-        "git": git_result,
-    }
-
-    out = APPLY_REPORTS_DIR / f"{task_id}_apply_report.json"
-    out.write_text(json.dumps(final, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    print("Safe patch applier finished")
-    print(out)
-    print(json.dumps(final, ensure_ascii=False, indent=2))
+    final = write_apply_report(
+        task_id=task_id,
+        status="APPLIED" if validation["returncode"] == 0 else "NOT_APPLIED",
+        source_report=source_report,
+        applied=applied,
+        skipped=skipped,
+        validation=validation,
+        git_result=git_result,
+    )
 
     return final["status"] == "APPLIED"
 
