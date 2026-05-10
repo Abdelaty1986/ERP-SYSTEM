@@ -165,6 +165,24 @@ class RuntimeReportFormatter:
                 lines.append(f"- Blocked: {quality_gate.get('blocked_count')}")
                 lines.append(f"- Message: {quality_gate.get('message')}")
 
+                results = quality_gate.get("results", [])
+
+                if results:
+                    lines.append("- Details:")
+
+                    for item in results:
+                        issues = item.get("issues", [])
+                        issue_text = "; ".join(issues) if issues else "no issues"
+
+                        lines.append(
+                            f"  - {item.get('file_path')} | "
+                            f"{item.get('status')} | "
+                            f"risk={item.get('risk_level')} | "
+                            f"+{item.get('added_lines')} "
+                            f"-{item.get('removed_lines')} | "
+                            f"{issue_text}"
+                        )
+
             materialized_patches = apply_readiness.get("materialized_patches", [])
 
             if materialized_patches:
