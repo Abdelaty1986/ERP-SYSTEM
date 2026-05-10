@@ -2,6 +2,7 @@ from jarvis.core.execution_state import ExecutionStateMachine
 from jarvis.execution.git_commit_engine import GitCommitEngine
 from jarvis.execution.real_apply_policy_manager import RealApplyPolicyManager
 from jarvis.execution.real_apply_applier import RealApplyApplier
+from jarvis.execution.execution_git_tagger import ExecutionGitTagger
 
 
 class ExecutionPipeline:
@@ -17,6 +18,7 @@ class ExecutionPipeline:
         task: str,
         human_approval: str | None = None,
         real_apply_mode: str = "simulation_only",
+        tag_execution: bool = False,
     ):
         state_machine = ExecutionStateMachine()
 
@@ -234,6 +236,16 @@ class ExecutionPipeline:
                 )
             )
 
+        execution_tag = ExecutionGitTagger(".").create_tag(
+            enabled=(
+                tag_execution
+                and real_apply_applier.get("ok") is True
+            ),
+            receipt_id=receipt.get("receipt_id"),
+            commit_hash=None,
+            task=task,
+        )
+
         git_commit = GitCommitEngine(".").create_commit(
             message=f"jarvis safe apply: {task}",
             files=[
@@ -281,6 +293,7 @@ class ExecutionPipeline:
             "real_apply_policy": real_apply_policy,
             "real_apply_applier": real_apply_applier,
             "rollback_recovery": rollback_recovery,
+            "execution_tag": execution_tag,
             "git_commit": git_commit,
             "agent_results": results,
             "decision": decision,

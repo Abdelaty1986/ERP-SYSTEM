@@ -445,6 +445,18 @@ class RuntimeReportFormatter:
                         f"- {item.get('file')} | {item.get('error')}"
                     )
 
+            execution_tag = report.get("execution_tag", {})
+
+            if execution_tag:
+                lines.append("\nExecution Git Tag:")
+                lines.append("-" * 40)
+                lines.append(f"Status: {execution_tag.get('status')}")
+                lines.append(f"OK: {execution_tag.get('ok')}")
+                lines.append(f"Reason: {execution_tag.get('reason')}")
+                lines.append(f"Tag: {execution_tag.get('tag')}")
+                lines.append(f"Commit: {execution_tag.get('commit', '')}")
+                lines.append(f"Receipt ID: {execution_tag.get('receipt_id', '')}")
+
             git_commit = report.get("git_commit", {})
 
             if git_commit:

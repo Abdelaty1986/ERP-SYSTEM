@@ -63,12 +63,14 @@ class Orchestrator:
         task,
         human_approval=None,
         real_apply_mode="simulation_only",
+        tag_execution=False,
     ):
         pipeline = ExecutionPipeline(self)
         return pipeline.run(
             task,
             human_approval=human_approval,
             real_apply_mode=real_apply_mode,
+            tag_execution=tag_execution,
         )
 
 
@@ -121,6 +123,11 @@ def main():
         action="store_true",
         help="Enable gated real apply mode after all safety gates pass.",
     )
+    parser.add_argument(
+        "--tag-execution",
+        action="store_true",
+        help="Create local git execution tag after successful runtime.",
+    )
 
     args = parser.parse_args()
 
@@ -132,6 +139,7 @@ def main():
         args.task,
         human_approval=human_approval,
         real_apply_mode=real_apply_mode,
+        tag_execution=args.tag_execution,
     )
 
     if args.unsafe_allow_apply:
