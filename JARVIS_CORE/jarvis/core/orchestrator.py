@@ -6,6 +6,7 @@ from jarvis.core.planning_engine import PlanningEngine
 from jarvis.core.patch_planner import PatchPlanner
 from jarvis.core.execution_state import ExecutionStateMachine
 from jarvis.core.runtime_report_formatter import RuntimeReportFormatter
+from jarvis.core.execution_pipeline import ExecutionPipeline
 from jarvis.execution.safe_patch_generator import SafePatchGenerator
 from jarvis.execution.diff_renderer import DiffRenderer
 from jarvis.execution.patch_validator import PatchValidator
@@ -183,7 +184,6 @@ class Orchestrator:
             "decision": decision
         }
 
-
 if __name__ == "__main__":
     orchestrator = Orchestrator()
 
@@ -193,68 +193,3 @@ if __name__ == "__main__":
 
     formatter = RuntimeReportFormatter()
     print(formatter.format(report))
-
-    print("\nExpected Files:")
-    for item in report["plan"]["expected_files"]:
-        print(f"- {item}")
-
-    print("\nFile Inspections:")
-    for item in report["file_inspections"]:
-        print(f"- {item['file']}: {item['type']}")
-
-    print("\nDecision:")
-    print(report["decision"]["status"])
-
-    print("\nSafe Patch Proposal:")
-    print("-" * 40)
-    for patch in report["safe_patch_plan"]["patches"]:
-        print(f"- {patch['file_path']} | {patch['change_type']} | {patch['risk_level']}")
-
-    print("\nPatch Validation:")
-    print("-" * 40)
-    print(report["patch_validation"]["status"])
-    print(report["patch_validation"]["summary"])
-
-    print("\nApproval Status:")
-    print("-" * 40)
-    print(report["approval_decision"]["status"])
-    print(report["approval_decision"]["message"])
-
-    print("\nTest Discovery:")
-    print("-" * 40)
-    print(report["test_discovery"]["status"])
-    for cmd in report["test_discovery"]["commands"]:
-        print(f"- {cmd['name']}: {' '.join(cmd['command'])}")
-
-    print("\nTest Execution:")
-    print("-" * 40)
-    print(report["test_execution"]["status"])
-    print(report["test_execution"]["summary"])
-
-
-    print("\nRollback Checkpoint:")
-    print("-" * 40)
-    print(report["rollback_checkpoint"]["status"])
-    print(report["rollback_checkpoint"].get("commit", "no_commit"))
-
-    print("\nApply Readiness:")
-    print("-" * 40)
-    print(report["apply_readiness"]["status"])
-    print(report["apply_readiness"].get("message") or report["apply_readiness"].get("reason"))
-
-    print("\nControlled Apply Contract:")
-    print("-" * 40)
-    print(report["apply_contract"]["status"])
-    print(report["apply_contract"]["message"])
-
-    if report["apply_contract"]["violations"]:
-        print("Violations:")
-        for item in report["apply_contract"]["violations"]:
-            print(f"- {item}")
-
-    print("\nExecution State:")
-    print("-" * 40)
-    print(report["execution_state"]["current_state"])
-    print(f"Transitions: {report['execution_state']['transition_count']}")
-    for step in report["execution_state"]["transitions"]:
-        print(f"- {step['from_state']} -> {step['to_state']} | {step['reason']}")
