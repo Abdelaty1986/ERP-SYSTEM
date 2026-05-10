@@ -229,6 +229,14 @@ class RuntimeReportFormatter:
                 )
                 lines.append(f"- Receipt File: {receipt.get('receipt_file')}")
 
+            audit = apply_readiness.get("audit_trail", {})
+
+            if audit:
+                lines.append("\nAudit Trail:")
+                lines.append(f"- Status: {audit.get('status')}")
+                lines.append(f"- Event Type: {audit.get('event_type')}")
+                lines.append(f"- Audit File: {audit.get('audit_file')}")
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:

@@ -7,6 +7,7 @@ from jarvis.execution.patch_manifest import PatchManifest
 from jarvis.execution.sandbox_apply_simulator import SandboxApplySimulator
 from jarvis.execution.sandbox_integrity_verifier import SandboxIntegrityVerifier
 from jarvis.execution.apply_safety_receipt import ApplySafetyReceipt
+from jarvis.execution.audit_trail import AuditTrail
 
 
 class ApplyEngine:
@@ -26,6 +27,7 @@ class ApplyEngine:
         self.simulator = SandboxApplySimulator(root)
         self.integrity_verifier = SandboxIntegrityVerifier()
         self.receipt_manager = ApplySafetyReceipt(root)
+        self.audit_trail = AuditTrail(root)
 
     def prepare_apply(
         self,
@@ -112,6 +114,17 @@ class ApplyEngine:
             sandbox_integrity=integrity_result,
         )
 
+        audit_result = self.audit_trail.record(
+            event_type="controlled_apply_simulation",
+            payload={
+                "task": task,
+                "session_id": session.session_id,
+                "receipt_id": receipt.get("receipt_id"),
+                "integrity_ok": integrity_result.get("ok"),
+                "manifest_id": manifest.get("manifest_id"),
+            }
+        )
+
         return {
             "status": "ready_for_controlled_apply",
             "can_apply": False,
@@ -128,4 +141,5 @@ class ApplyEngine:
             "sandbox_apply_simulation": simulation_result,
             "sandbox_integrity": integrity_result,
             "apply_safety_receipt": receipt,
+            "audit_trail": audit_result,
         }
