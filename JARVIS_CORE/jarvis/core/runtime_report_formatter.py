@@ -156,6 +156,17 @@ class RuntimeReportFormatter:
                         f"-> {item.get('staged')}"
                     )
 
+            skipped_targets = apply_session.get("skipped_targets", [])
+
+            if skipped_targets:
+                lines.append("\nSkipped Targets:")
+
+                for item in skipped_targets:
+                    lines.append(
+                        f"- {item.get('source')} | "
+                        f"{item.get('status')}"
+                    )
+
             backups = apply_session.get("backups", [])
 
             if backups:

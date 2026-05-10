@@ -64,9 +64,12 @@ class ApplyEngine:
 
                 staged_data = self.sandbox_manager.stage_file(file_path)
 
-                if staged_data:
+                if staged_data and staged_data.get("status") == "staged":
                     session.add_staged_file(staged_data)
                     staged_targets.append(file_path)
+
+                elif staged_data:
+                    session.add_skipped_target(staged_data)
 
         return {
             "status": "ready_for_controlled_apply",

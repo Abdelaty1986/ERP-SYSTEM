@@ -15,6 +15,8 @@ class ApplySession:
 
         self.staged_files = []
 
+        self.skipped_targets = []
+
         self.validation_passed = False
 
         self.approval_received = False
@@ -26,6 +28,9 @@ class ApplySession:
 
     def add_staged_file(self, staged_data):
         self.staged_files.append(staged_data)
+
+    def add_skipped_target(self, target_data):
+        self.skipped_targets.append(target_data)
 
     def mark_validation_passed(self):
         self.validation_passed = True
@@ -50,4 +55,5 @@ class ApplySession:
             "tests_passed": self.tests_passed,
             "backups": self.backups,
             "staged_files": self.staged_files,
+            "skipped_targets": self.skipped_targets,
         }

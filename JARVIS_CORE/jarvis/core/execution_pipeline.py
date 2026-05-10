@@ -156,7 +156,9 @@ class ExecutionPipeline:
             self.orchestrator.apply_engine.prepare_apply(
                 approval_decision=approval_decision,
                 patch_validation=patch_validation,
-                test_execution=test_execution
+                test_execution=test_execution,
+                safe_patch_plan=safe_patch_plan,
+                task=task
             )
         )
 
