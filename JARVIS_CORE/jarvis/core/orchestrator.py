@@ -1,4 +1,6 @@
 import argparse
+import json
+from pathlib import Path
 from jarvis.core.agent_registry import AgentRegistry
 from jarvis.core.decision_engine import DecisionEngine
 from jarvis.core.file_inspector import FileInspector
@@ -61,6 +63,18 @@ class Orchestrator:
         return pipeline.run(task, human_approval=human_approval)
 
 
+def _to_json_safe(value):
+    try:
+        json.dumps(value, ensure_ascii=False)
+        return value
+    except TypeError:
+        if isinstance(value, dict):
+            return {str(k): _to_json_safe(v) for k, v in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [_to_json_safe(v) for v in value]
+        return str(value)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run JARVIS Core orchestrator safely.")
     parser.add_argument(
@@ -73,8 +87,29 @@ def main():
         action="store_true",
         help="Simulate human approval.",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Force proposal/report mode only. Real apply remains disabled.",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Print runtime report as JSON.",
+    )
+    parser.add_argument(
+        "--report-file",
+        default=None,
+        help="Optional path to save the formatted runtime report.",
+    )
+    parser.add_argument(
+        "--unsafe-allow-apply",
+        action="store_true",
+        help="Reserved flag. Real apply is intentionally disabled in this version.",
+    )
 
     args = parser.parse_args()
+
     human_approval = "approve" if args.approve else None
 
     report = Orchestrator().process_task(
@@ -82,7 +117,19 @@ def main():
         human_approval=human_approval,
     )
 
-    print(RuntimeReportFormatter().format(report))
+    if args.unsafe_allow_apply:
+        print("WARNING: --unsafe-allow-apply is reserved. Real apply is still disabled.")
+
+    if args.json:
+        output = json.dumps(_to_json_safe(report), ensure_ascii=False, indent=2)
+    else:
+        output = RuntimeReportFormatter().format(report)
+
+    if args.report_file:
+        Path(args.report_file).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.report_file).write_text(output, encoding="utf-8")
+
+    print(output)
 
 
 if __name__ == "__main__":
