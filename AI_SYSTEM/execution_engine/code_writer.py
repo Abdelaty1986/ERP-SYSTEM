@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-import google.generativeai as genai
+from google import genai
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -104,13 +104,14 @@ def generate_plan(task_text):
     if not api_key:
         raise RuntimeError("Missing GEMINI_API_KEY")
 
-    genai.configure(api_key=api_key)
+    client = genai.Client(api_key=api_key)
 
-    model = genai.GenerativeModel(MODEL_NAME)
+    response = client.models.generate_content(
+        model=MODEL_NAME,
+        contents=build_prompt(task_text),
+    )
 
-    response = model.generate_content(build_prompt(task_text))
-
-    return response.text or ""
+    return getattr(response, "text", None) or ""
 
 
 def strip_markdown_fences(text):
