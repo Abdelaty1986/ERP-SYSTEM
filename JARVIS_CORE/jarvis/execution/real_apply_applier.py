@@ -28,8 +28,12 @@ class RealApplyApplier:
         failed = []
 
         for item in staged_files:
-            source = item.get("staged")
-            target = item.get("target")
+            if isinstance(item, str):
+                source = item
+                target = item
+            else:
+                source = item.get("staged")
+                target = item.get("target") or item.get("file") or item.get("source")
 
             if not source or not target:
                 failed.append({

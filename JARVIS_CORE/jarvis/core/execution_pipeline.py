@@ -12,7 +12,12 @@ class ExecutionPipeline:
     def __init__(self, orchestrator):
         self.orchestrator = orchestrator
 
-    def run(self, task: str, human_approval: str | None = None):
+    def run(
+        self,
+        task: str,
+        human_approval: str | None = None,
+        real_apply_mode: str = "simulation_only",
+    ):
         state_machine = ExecutionStateMachine()
 
         state_machine.transition_to(
@@ -161,7 +166,8 @@ class ExecutionPipeline:
                 patch_validation=patch_validation,
                 test_execution=test_execution,
                 safe_patch_plan=safe_patch_plan,
-                task=task
+                task=task,
+                real_apply_mode=real_apply_mode
             )
         )
 
@@ -179,7 +185,7 @@ class ExecutionPipeline:
         receipt = apply_readiness.get("apply_safety_receipt", {})
         audit = apply_readiness.get("audit_trail", {})
         sandbox_patch_apply = apply_readiness.get("sandbox_patch_apply", {})
-        post_apply_tests = apply_readiness.get("post_apply_sandbox_tests", {})
+        post_apply_tests = apply_readiness.get("post_apply_tests", {})
 
         real_apply_policy = RealApplyPolicyManager(".").evaluate(
             mode=real_apply_switch.get("mode", "simulation_only"),
@@ -199,17 +205,17 @@ class ExecutionPipeline:
         real_apply_applier = RealApplyApplier(".").apply(
             policy_result=real_apply_policy,
             staged_files=apply_readiness.get(
-                "staged_files",
-                []
-            ),
+                "apply_session",
+                {}
+            ).get("staged_files", []),
         )
 
         git_commit = GitCommitEngine(".").create_commit(
             message=f"jarvis safe apply: {task}",
             files=[
-                item.get("file")
-                for item in safe_patch_plan.get("patches", [])
-                if isinstance(item, dict) and item.get("file")
+                item.get("target")
+                for item in real_apply_applier.get("applied_files", [])
+                if isinstance(item, dict) and item.get("target")
             ],
             real_apply_enabled=(
                 real_apply_switch.get("enabled") is True

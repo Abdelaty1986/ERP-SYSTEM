@@ -50,6 +50,7 @@ class ApplyEngine:
         test_execution: Dict[str, Any],
         safe_patch_plan: Optional[Dict[str, Any]] = None,
         task: str = "",
+        real_apply_mode: str = "simulation_only",
     ) -> Dict[str, Any]:
 
         if not approval_decision.get("can_apply"):
@@ -175,7 +176,9 @@ class ApplyEngine:
         )
 
         health_status = self.health_check.run()
-        real_apply_status = self.real_apply_switch.status()
+        real_apply_status = self.real_apply_switch.status(
+            mode_override=real_apply_mode
+        )
 
         return {
             "status": "ready_for_controlled_apply",

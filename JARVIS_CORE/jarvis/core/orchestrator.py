@@ -58,9 +58,18 @@ class Orchestrator:
 
         return instances
 
-    def process_task(self, task, human_approval=None):
+    def process_task(
+        self,
+        task,
+        human_approval=None,
+        real_apply_mode="simulation_only",
+    ):
         pipeline = ExecutionPipeline(self)
-        return pipeline.run(task, human_approval=human_approval)
+        return pipeline.run(
+            task,
+            human_approval=human_approval,
+            real_apply_mode=real_apply_mode,
+        )
 
 
 def _to_json_safe(value):
@@ -107,14 +116,22 @@ def main():
         action="store_true",
         help="Reserved flag. Real apply is intentionally disabled in this version.",
     )
+    parser.add_argument(
+        "--gated-apply",
+        action="store_true",
+        help="Enable gated real apply mode after all safety gates pass.",
+    )
 
     args = parser.parse_args()
 
     human_approval = "approve" if args.approve else None
 
+    real_apply_mode = "gated_apply" if args.gated_apply else "simulation_only"
+
     report = Orchestrator().process_task(
         args.task,
         human_approval=human_approval,
+        real_apply_mode=real_apply_mode,
     )
 
     if args.unsafe_allow_apply:
