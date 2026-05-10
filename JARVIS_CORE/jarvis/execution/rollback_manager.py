@@ -36,6 +36,64 @@ class RollbackManager:
                 "error": str(exc),
             }
 
+
+    def auto_restore_files(
+        self,
+        checkpoint: Dict[str, Any],
+        files,
+        reason: str = "",
+    ) -> Dict[str, Any]:
+        """
+        Restore specific files from checkpoint commit.
+        This is safer than git reset --hard.
+        """
+
+        commit = checkpoint.get("commit")
+
+        if not commit:
+            return {
+                "status": "rollback_failed",
+                "triggered": True,
+                "reason": "missing_checkpoint_commit",
+                "restored_files": [],
+                "failed_files": [],
+            }
+
+        restored = []
+        failed = []
+
+        for file_path in files or []:
+            try:
+                result = subprocess.run(
+                    ["git", "checkout", commit, "--", str(file_path)],
+                    cwd=self.project_root,
+                    capture_output=True,
+                    text=True,
+                )
+
+                if result.returncode == 0:
+                    restored.append(str(file_path))
+                else:
+                    failed.append({
+                        "file": str(file_path),
+                        "error": result.stderr.strip() or result.stdout.strip(),
+                    })
+
+            except Exception as exc:
+                failed.append({
+                    "file": str(file_path),
+                    "error": str(exc),
+                })
+
+        return {
+            "status": "rollback_completed" if not failed else "rollback_partial_failure",
+            "triggered": True,
+            "reason": reason,
+            "checkpoint": commit,
+            "restored_files": restored,
+            "failed_files": failed,
+        }
+
     def _current_branch(self) -> str:
         result = subprocess.run(
             ["git", "branch", "--show-current"],

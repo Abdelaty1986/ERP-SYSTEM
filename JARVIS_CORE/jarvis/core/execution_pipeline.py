@@ -210,6 +210,30 @@ class ExecutionPipeline:
             ).get("staged_files", []),
         )
 
+        rollback_recovery = {
+            "status": "not_triggered",
+            "triggered": False,
+            "reason": "",
+            "restored_files": [],
+            "failed_files": [],
+        }
+
+        if (
+            real_apply_policy.get("ok") is True
+            and real_apply_applier.get("ok") is not True
+        ):
+            rollback_recovery = (
+                self.orchestrator.rollback_manager.auto_restore_files(
+                    checkpoint=rollback_checkpoint,
+                    files=[
+                        item.get("target")
+                        for item in real_apply_applier.get("applied_files", [])
+                        if isinstance(item, dict) and item.get("target")
+                    ],
+                    reason=real_apply_applier.get("status", "real_apply_failed"),
+                )
+            )
+
         git_commit = GitCommitEngine(".").create_commit(
             message=f"jarvis safe apply: {task}",
             files=[
@@ -256,6 +280,7 @@ class ExecutionPipeline:
             "apply_contract": apply_contract_result,
             "real_apply_policy": real_apply_policy,
             "real_apply_applier": real_apply_applier,
+            "rollback_recovery": rollback_recovery,
             "git_commit": git_commit,
             "agent_results": results,
             "decision": decision,

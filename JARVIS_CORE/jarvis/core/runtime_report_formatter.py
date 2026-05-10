@@ -407,6 +407,29 @@ class RuntimeReportFormatter:
                 for item in failed_files:
                     lines.append(f"- {item.get('target')} | {item.get('reason')}")
 
+            rollback_recovery = report.get("rollback_recovery", {})
+
+            if rollback_recovery:
+                lines.append("\nRollback Recovery:")
+                lines.append("-" * 40)
+                lines.append(f"Status: {rollback_recovery.get('status')}")
+                lines.append(f"Triggered: {rollback_recovery.get('triggered')}")
+                lines.append(f"Reason: {rollback_recovery.get('reason', '')}")
+
+                restored_files = rollback_recovery.get("restored_files", [])
+                failed_files = rollback_recovery.get("failed_files", [])
+
+                lines.append(f"Restored Files: {len(restored_files)}")
+                lines.append(f"Failed Files: {len(failed_files)}")
+
+                for item in restored_files:
+                    lines.append(f"- {item}")
+
+                for item in failed_files:
+                    lines.append(
+                        f"- {item.get('file')} | {item.get('error')}"
+                    )
+
             git_commit = report.get("git_commit", {})
 
             if git_commit:
