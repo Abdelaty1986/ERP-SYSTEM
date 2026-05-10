@@ -4,6 +4,7 @@ from jarvis.core.file_inspector import FileInspector
 from jarvis.core.memory import JarvisMemory
 from jarvis.core.planning_engine import PlanningEngine
 from jarvis.core.patch_planner import PatchPlanner
+from jarvis.core.execution_state import ExecutionStateMachine
 from jarvis.execution.safe_patch_generator import SafePatchGenerator
 from jarvis.execution.diff_renderer import DiffRenderer
 from jarvis.execution.patch_validator import PatchValidator
@@ -46,26 +47,47 @@ class Orchestrator:
         return instances
 
     def process_task(self, task):
+        state_machine = ExecutionStateMachine()
+        state_machine.transition_to("PLANNING", "Task processing started.")
         plan = self.planner.create_plan(task)
+        state_machine.transition_to("INSPECTING", "Planning completed.")
         inspections = self.inspector.inspect_many(plan["expected_files"])
+        state_machine.transition_to("PATCH_PLANNING", "File inspection completed.")
         patch_plan = self.patch_planner.create_patch_plan(task, plan)
+        state_machine.transition_to("PATCH_PROPOSAL", "Patch planning completed.")
 
         safe_patch_plan = self.safe_patch_generator.generate_patch_plan(
             task=task,
             expected_files=plan["expected_files"],
             inspections=inspections
         )
+        state_machine.transition_to("VALIDATING", "Safe patch proposal generated.")
 
         patch_validation = self.patch_validator.validate(
             safe_patch_plan
         )
+
+        if patch_validation["status"] == "blocked":
+            state_machine.transition_to("APPLY_BLOCKED", "Patch validation blocked execution.")
+        else:
+            state_machine.transition_to("REVIEWING", "Patch validation completed.")
 
         approval_decision = self.approval_manager.evaluate(
             patch_plan=safe_patch_plan,
             patch_validation=patch_validation
         )
 
+        if approval_decision["status"] == "waiting_for_human_approval":
+            state_machine.transition_to("WAITING_APPROVAL", "Human approval is required.")
+        elif approval_decision["status"] == "approved":
+            state_machine.transition_to("TEST_DISCOVERY", "Human approval received.")
+        else:
+            state_machine.transition_to("APPLY_BLOCKED", approval_decision["message"])
+
         test_discovery = self.test_runner.discover_tests()
+        if state_machine.current_state == "WAITING_APPROVAL":
+            state_machine.transition_to("TEST_DISCOVERY", "Discovered available tests while waiting for approval.")
+        state_machine.mark_done("Orchestrator report completed.")
 
         results = []
 
@@ -75,6 +97,8 @@ class Orchestrator:
                 "result": agent.think(task)
             })
 
+        if state_machine.current_state == "REVIEWING":
+            state_machine.transition_to("DECIDING", "Agent review completed.")
         decision = self.decision_engine.evaluate(results)
 
         self.memory.remember_decision(
@@ -93,6 +117,7 @@ class Orchestrator:
             "patch_validation": patch_validation,
             "approval_decision": approval_decision,
             "test_discovery": test_discovery,
+            "execution_state": state_machine.snapshot(),
             "agent_results": results,
             "decision": decision
         }
@@ -140,3 +165,10 @@ if __name__ == "__main__":
     print(report["test_discovery"]["status"])
     for cmd in report["test_discovery"]["commands"]:
         print(f"- {cmd['name']}: {' '.join(cmd['command'])}")
+
+    print("\nExecution State:")
+    print("-" * 40)
+    print(report["execution_state"]["current_state"])
+    print(f"Transitions: {report['execution_state']['transition_count']}")
+    for step in report["execution_state"]["transitions"]:
+        print(f"- {step['from_state']} -> {step['to_state']} | {step['reason']}")
