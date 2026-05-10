@@ -1,12 +1,15 @@
 from jarvis.core.agent_registry import AgentRegistry
 from jarvis.core.decision_engine import DecisionEngine
+from jarvis.core.memory import JarvisMemory
 from jarvis.agents.reviewer_agent import ReviewerAgent
 
 
 class Orchestrator:
-    def __init__(self):
+    def __init__(self, project_id="ledgerx"):
+        self.project_id = project_id
         self.registry = AgentRegistry()
         self.decision_engine = DecisionEngine()
+        self.memory = JarvisMemory()
 
     def build_agents(self):
         enabled_agents = self.registry.get_enabled_agents()
@@ -29,7 +32,14 @@ class Orchestrator:
 
         decision = self.decision_engine.evaluate(results)
 
+        self.memory.remember_decision(
+            project_id=self.project_id,
+            task=task,
+            decision=decision
+        )
+
         return {
+            "project_id": self.project_id,
             "task": task,
             "agent_results": results,
             "decision": decision
@@ -38,5 +48,5 @@ class Orchestrator:
 
 if __name__ == "__main__":
     orchestrator = Orchestrator()
-    report = orchestrator.process_task("Improve invoice screen layout safely")
+    report = orchestrator.process_task("Test memory integration")
     print(report)

@@ -1,0 +1,28 @@
+{
+  "created_at": "2026-05-10T14:28:49",
+  "projects": {},
+  "decisions": [
+    {
+      "timestamp": "2026-05-10T14:28:49",
+      "project_id": "ledgerx",
+      "task": "Initialize Jarvis memory system",
+      "decision": "Memory system created successfully"
+    },
+    {
+      "timestamp": "2026-05-10T14:29:31",
+      "project_id": "ledgerx",
+      "task": "Test memory integration",
+      "decision": {
+        "status": "ready_for_planning",
+        "risk_levels": [
+          "medium"
+        ],
+        "can_apply": false,
+        "reason": "Jarvis never applies changes directly without tests and user approval."
+      }
+    }
+  ],
+  "preferences": {
+    "language": "arabic_egyptian"
+  }
+}
