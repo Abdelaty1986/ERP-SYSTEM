@@ -216,6 +216,19 @@ class RuntimeReportFormatter:
                     for item in issues:
                         lines.append(f"  - {item}")
 
+            receipt = apply_readiness.get("apply_safety_receipt", {})
+
+            if receipt:
+                lines.append("\nApply Safety Receipt:")
+                lines.append(f"- Receipt ID: {receipt.get('receipt_id')}")
+                lines.append(f"- Status: {receipt.get('status')}")
+                lines.append(f"- Integrity OK: {receipt.get('integrity_ok')}")
+                lines.append(
+                    f"- Original Files Modified: "
+                    f"{receipt.get('original_files_modified')}"
+                )
+                lines.append(f"- Receipt File: {receipt.get('receipt_file')}")
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:

@@ -6,6 +6,7 @@ from jarvis.execution.patch_materializer import PatchMaterializer
 from jarvis.execution.patch_manifest import PatchManifest
 from jarvis.execution.sandbox_apply_simulator import SandboxApplySimulator
 from jarvis.execution.sandbox_integrity_verifier import SandboxIntegrityVerifier
+from jarvis.execution.apply_safety_receipt import ApplySafetyReceipt
 
 
 class ApplyEngine:
@@ -24,6 +25,7 @@ class ApplyEngine:
         self.manifest_manager = PatchManifest(root)
         self.simulator = SandboxApplySimulator(root)
         self.integrity_verifier = SandboxIntegrityVerifier()
+        self.receipt_manager = ApplySafetyReceipt(root)
 
     def prepare_apply(
         self,
@@ -102,6 +104,14 @@ class ApplyEngine:
             simulation_result
         )
 
+        receipt = self.receipt_manager.create_receipt(
+            task=task,
+            apply_session=session.to_dict(),
+            patch_manifest=manifest,
+            sandbox_simulation=simulation_result,
+            sandbox_integrity=integrity_result,
+        )
+
         return {
             "status": "ready_for_controlled_apply",
             "can_apply": False,
@@ -117,4 +127,5 @@ class ApplyEngine:
             "patch_manifest": manifest,
             "sandbox_apply_simulation": simulation_result,
             "sandbox_integrity": integrity_result,
+            "apply_safety_receipt": receipt,
         }
