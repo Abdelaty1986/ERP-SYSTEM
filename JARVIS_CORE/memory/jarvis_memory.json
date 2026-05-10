@@ -97,6 +97,22 @@
         "can_apply": false,
         "reason": "Jarvis never applies changes directly without tests and user approval."
       }
+    },
+    {
+      "timestamp": "2026-05-10T15:43:30",
+      "project_id": "ledgerx",
+      "task": "راجع شاشة الفواتير واقترح تحسين آمن",
+      "decision": {
+        "status": "needs_human_review",
+        "risk_levels": [
+          "medium",
+          "unknown",
+          "unknown",
+          "unknown"
+        ],
+        "can_apply": false,
+        "reason": "Jarvis never applies changes directly without tests and user approval."
+      }
     }
   ],
   "preferences": {
