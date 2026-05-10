@@ -156,6 +156,15 @@ class RuntimeReportFormatter:
                         f"-> {item.get('staged')}"
                     )
 
+            intelligence = apply_readiness.get("patch_intelligence", {})
+
+            if intelligence:
+                lines.append("\nPatch Intelligence:")
+                lines.append(f"- Status: {intelligence.get('status')}")
+                lines.append(f"- Strong Patches: {intelligence.get('strong_count')}")
+                lines.append(f"- Weak Patches: {intelligence.get('weak_count')}")
+                lines.append(f"- Message: {intelligence.get('message')}")
+
             materialized_patches = apply_readiness.get("materialized_patches", [])
 
             if materialized_patches:

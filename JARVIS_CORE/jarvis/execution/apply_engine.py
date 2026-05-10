@@ -10,6 +10,7 @@ from jarvis.execution.apply_safety_receipt import ApplySafetyReceipt
 from jarvis.execution.audit_trail import AuditTrail
 from jarvis.execution.apply_finalizer import ApplyFinalizer
 from jarvis.execution.system_health_check import ExecutionSystemHealthCheck
+from jarvis.execution.patch_intelligence import PatchIntelligence
 
 
 class ApplyEngine:
@@ -32,6 +33,7 @@ class ApplyEngine:
         self.audit_trail = AuditTrail(root)
         self.finalizer = ApplyFinalizer()
         self.health_check = ExecutionSystemHealthCheck(root)
+        self.patch_intelligence = PatchIntelligence()
 
     def prepare_apply(
         self,
@@ -73,6 +75,18 @@ class ApplyEngine:
 
         materialized_patches = []
 
+        patch_intelligence = (
+            self.patch_intelligence.analyze_plan(safe_patch_plan)
+            if safe_patch_plan
+            else {
+                "status": "missing_patch_plan",
+                "strong_count": 0,
+                "weak_count": 0,
+                "results": [],
+                "message": "No safe patch plan provided.",
+            }
+        )
+
         if safe_patch_plan:
             for patch in safe_patch_plan.get("patches", []):
                 file_path = patch.get("file_path")
@@ -80,11 +94,14 @@ class ApplyEngine:
                 if not file_path:
                     continue
 
-                materialized = (
-                    self.materializer.materialize_patch(patch)
-                )
+                patch_analysis = self.patch_intelligence.analyze_patch(patch)
 
-                materialized_patches.append(materialized)
+                if patch_analysis.get("can_materialize"):
+                    materialized = (
+                        self.materializer.materialize_patch(patch)
+                    )
+
+                    materialized_patches.append(materialized)
 
                 staged_data = self.sandbox_manager.stage_file(file_path)
 
@@ -151,6 +168,7 @@ class ApplyEngine:
             ),
             "apply_session": session.to_dict(),
             "staged_targets": staged_targets,
+            "patch_intelligence": patch_intelligence,
             "materialized_patches": materialized_patches,
             "patch_manifest": manifest,
             "sandbox_apply_simulation": simulation_result,
