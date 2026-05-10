@@ -4,6 +4,7 @@ from pathlib import Path
 import difflib
 
 from jarvis.execution.real_diff_proposal_builder import RealDiffProposalBuilder
+from jarvis.execution.target_resolver import TargetResolver
 
 
 @dataclass
@@ -36,6 +37,7 @@ class SafePatchGenerator:
     def __init__(self, project_root: str = "."):
         self.project_root = Path(project_root)
         self.real_diff_builder = RealDiffProposalBuilder()
+        self.target_resolver = TargetResolver(project_root)
 
     def generate_patch_plan(
         self,
@@ -55,9 +57,18 @@ class SafePatchGenerator:
         risk_level = self._estimate_risk(task, expected_files)
         change_type = self._guess_change_type(task)
 
+        resolution = self.target_resolver.resolve_targets(
+            expected_files
+        )
+
+        resolved_targets = resolution.get(
+            "resolved_targets",
+            []
+        )
+
         patches: List[ProposedPatch] = []
 
-        for file_path in expected_files:
+        for file_path in resolved_targets:
             patch = self._build_placeholder_patch(
                 task=task,
                 file_path=file_path,
@@ -74,6 +85,7 @@ class SafePatchGenerator:
             "risk_level": risk_level,
             "requires_approval": True,
             "safe_to_apply_automatically": False,
+            "target_resolution": resolution,
             "patches": [asdict(p) for p in patches],
             "notes": [
                 "No files were modified.",
