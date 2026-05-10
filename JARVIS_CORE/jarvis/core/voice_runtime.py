@@ -1,14 +1,17 @@
 import subprocess
+from jarvis.core.egyptian_voice_prompts import EgyptianVoicePrompts
 
 
 class JarvisVoiceRuntime:
     """
-    Real voice runtime narrator using Termux TTS.
+    Real Arabic/Egyptian voice runtime narrator using Termux TTS.
     """
 
-    def __init__(self, enabled=True, tts_enabled=True):
+    def __init__(self, enabled=True, tts_enabled=True, dialect="egyptian"):
         self.enabled = enabled
         self.tts_enabled = tts_enabled
+        self.dialect = dialect
+        self.prompts = EgyptianVoicePrompts()
 
     def speak(self, message):
         if not self.enabled:
@@ -27,25 +30,28 @@ class JarvisVoiceRuntime:
                 pass
 
     def announce_start(self, task):
-        self.speak(f"Initializing runtime for task: {task}")
+        self.speak(self.prompts.start(task))
 
     def announce_planning(self):
-        self.speak("Planning execution steps.")
+        self.speak(self.prompts.planning())
 
     def announce_validation(self):
-        self.speak("Validating generated patches.")
+        self.speak(self.prompts.validation())
 
     def announce_tests(self, passed=True):
         if passed:
-            self.speak("All runtime tests passed.")
+            self.speak(self.prompts.tests_passed())
         else:
-            self.speak("Runtime tests failed.")
+            self.speak(self.prompts.tests_failed())
 
     def announce_apply_mode(self, mode):
-        self.speak(f"Execution mode: {mode}")
+        if mode == "gated_apply":
+            self.speak(self.prompts.gated_mode())
+        else:
+            self.speak(self.prompts.simulation_mode())
 
     def announce_completion(self):
-        self.speak("Execution completed successfully.")
+        self.speak(self.prompts.completed())
 
     def announce_blocked(self, reason):
-        self.speak(f"Execution blocked: {reason}")
+        self.speak(self.prompts.blocked(reason))
