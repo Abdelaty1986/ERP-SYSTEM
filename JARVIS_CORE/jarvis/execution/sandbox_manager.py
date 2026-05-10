@@ -66,13 +66,23 @@ class SandboxManager:
         source = Path(file_path)
 
         if not source.exists():
-            return None
+            return {
+                "status": "missing",
+                "source": str(source),
+            }
+
+        if source.is_dir():
+            return {
+                "status": "skipped_directory",
+                "source": str(source),
+            }
 
         destination = self.staging_dir / source.name
 
         shutil.copy2(source, destination)
 
         return {
+            "status": "staged",
             "source": str(source),
             "staged": str(destination),
             "hash": self.calculate_hash(source),
