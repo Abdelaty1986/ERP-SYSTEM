@@ -386,6 +386,27 @@ class RuntimeReportFormatter:
                     f"{real_apply_policy.get('can_apply_real_files')}"
                 )
 
+            real_apply_applier = report.get("real_apply_applier", {})
+
+            if real_apply_applier:
+                lines.append("\nReal Apply Applier:")
+                lines.append("-" * 40)
+                lines.append(f"Status: {real_apply_applier.get('status')}")
+                lines.append(f"OK: {real_apply_applier.get('ok')}")
+                lines.append(f"Reason: {real_apply_applier.get('reason', '')}")
+
+                applied_files = real_apply_applier.get("applied_files", [])
+                failed_files = real_apply_applier.get("failed_files", [])
+
+                lines.append(f"Applied Files: {len(applied_files)}")
+                lines.append(f"Failed Files: {len(failed_files)}")
+
+                for item in applied_files:
+                    lines.append(f"- {item.get('target')} | {item.get('status')}")
+
+                for item in failed_files:
+                    lines.append(f"- {item.get('target')} | {item.get('reason')}")
+
             git_commit = report.get("git_commit", {})
 
             if git_commit:

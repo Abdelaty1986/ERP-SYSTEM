@@ -1,6 +1,7 @@
 from jarvis.core.execution_state import ExecutionStateMachine
 from jarvis.execution.git_commit_engine import GitCommitEngine
 from jarvis.execution.real_apply_policy_manager import RealApplyPolicyManager
+from jarvis.execution.real_apply_applier import RealApplyApplier
 
 
 class ExecutionPipeline:
@@ -195,6 +196,14 @@ class ExecutionPipeline:
             ),
         )
 
+        real_apply_applier = RealApplyApplier(".").apply(
+            policy_result=real_apply_policy,
+            staged_files=apply_readiness.get(
+                "staged_files",
+                []
+            ),
+        )
+
         git_commit = GitCommitEngine(".").create_commit(
             message=f"jarvis safe apply: {task}",
             files=[
@@ -237,6 +246,7 @@ class ExecutionPipeline:
             "apply_readiness": apply_readiness,
             "apply_contract": apply_contract_result,
             "real_apply_policy": real_apply_policy,
+            "real_apply_applier": real_apply_applier,
             "git_commit": git_commit,
             "agent_results": results,
             "decision": decision,
