@@ -15,6 +15,14 @@
       "cost": "free",
       "enabled": true,
       "role": "risk_review"
+    },
+    {
+      "id": "groq_free",
+      "name": "Groq Free Agent",
+      "provider": "groq",
+      "cost": "free",
+      "enabled": true,
+      "role": "fast_ai_review"
     }
   ],
   "default_strategy": "multi_agent_review"

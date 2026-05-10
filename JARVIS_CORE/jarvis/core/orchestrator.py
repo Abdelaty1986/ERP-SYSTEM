@@ -2,6 +2,7 @@ from jarvis.core.agent_registry import AgentRegistry
 from jarvis.core.decision_engine import DecisionEngine
 from jarvis.core.memory import JarvisMemory
 from jarvis.agents.reviewer_agent import ReviewerAgent
+from jarvis.agents.groq_agent import GroqAgent
 
 
 class Orchestrator:
@@ -18,6 +19,9 @@ class Orchestrator:
         for agent in enabled_agents:
             if agent["id"] == "local_reviewer":
                 instances.append(ReviewerAgent())
+
+            if agent["id"] == "groq_free":
+                instances.append(GroqAgent())
 
         return instances
 
@@ -48,5 +52,5 @@ class Orchestrator:
 
 if __name__ == "__main__":
     orchestrator = Orchestrator()
-    report = orchestrator.process_task("Test memory integration")
+    report = orchestrator.process_task("Test Groq integration safely")
     print(report)
