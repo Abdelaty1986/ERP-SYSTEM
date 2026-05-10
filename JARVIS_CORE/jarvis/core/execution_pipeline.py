@@ -1,4 +1,5 @@
 from jarvis.core.execution_state import ExecutionStateMachine
+from jarvis.execution.git_commit_engine import GitCommitEngine
 
 
 class ExecutionPipeline:
@@ -172,6 +173,20 @@ class ExecutionPipeline:
             )
         )
 
+        git_commit = GitCommitEngine(".").create_commit(
+            message=f"jarvis safe apply: {task}",
+            files=[
+                item.get("file")
+                for item in safe_patch_plan.get("patches", [])
+                if isinstance(item, dict) and item.get("file")
+            ],
+            real_apply_enabled=False,
+            tests_passed=test_execution.get("status") == "passed",
+            sandbox_passed=False,
+            receipt_generated=False,
+            audit_recorded=False,
+        )
+
         self.orchestrator.memory.remember_decision(
             project_id=self.orchestrator.project_id,
             task=task,
@@ -196,6 +211,7 @@ class ExecutionPipeline:
             "rollback_checkpoint": rollback_checkpoint,
             "apply_readiness": apply_readiness,
             "apply_contract": apply_contract_result,
+            "git_commit": git_commit,
             "agent_results": results,
             "decision": decision,
             "execution_state": state_machine.snapshot(),

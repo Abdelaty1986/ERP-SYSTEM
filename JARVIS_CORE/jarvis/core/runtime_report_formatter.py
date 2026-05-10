@@ -371,6 +371,22 @@ class RuntimeReportFormatter:
                 )
                 lines.append(f"- Reason: {real_apply.get('reason')}")
 
+            git_commit = report.get("git_commit", {})
+
+            if git_commit:
+                lines.append("\nGit Commit Engine:")
+                lines.append("-" * 40)
+                lines.append(f"Status: {git_commit.get('status')}")
+                lines.append(f"OK: {git_commit.get('ok')}")
+                lines.append(f"Reason: {git_commit.get('reason', '')}")
+                lines.append(f"Commit Hash: {git_commit.get('commit_hash', '')}")
+
+                files = git_commit.get("files", [])
+                lines.append(f"Files: {len(files)}")
+
+                for item in files:
+                    lines.append(f"- {item}")
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:
