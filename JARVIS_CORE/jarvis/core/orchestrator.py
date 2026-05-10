@@ -6,6 +6,7 @@ from jarvis.core.planning_engine import PlanningEngine
 from jarvis.core.patch_planner import PatchPlanner
 from jarvis.execution.safe_patch_generator import SafePatchGenerator
 from jarvis.execution.diff_renderer import DiffRenderer
+from jarvis.execution.patch_validator import PatchValidator
 
 from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
@@ -23,6 +24,7 @@ class Orchestrator:
         self.patch_planner = PatchPlanner()
         self.inspector = FileInspector(".")
         self.safe_patch_generator = SafePatchGenerator(".")
+        self.patch_validator = PatchValidator()
 
     def build_agents(self):
         instances = []
@@ -50,6 +52,10 @@ class Orchestrator:
             inspections=inspections
         )
 
+        patch_validation = self.patch_validator.validate(
+            safe_patch_plan
+        )
+
         results = []
 
         for agent in self.build_agents():
@@ -73,6 +79,7 @@ class Orchestrator:
             "file_inspections": inspections,
             "patch_plan": patch_plan,
             "safe_patch_plan": safe_patch_plan,
+            "patch_validation": patch_validation,
             "agent_results": results,
             "decision": decision
         }
@@ -104,3 +111,8 @@ if __name__ == "__main__":
     print("-" * 40)
     for patch in report["safe_patch_plan"]["patches"]:
         print(f"- {patch['file_path']} | {patch['change_type']} | {patch['risk_level']}")
+
+    print("\nPatch Validation:")
+    print("-" * 40)
+    print(report["patch_validation"]["status"])
+    print(report["patch_validation"]["summary"])
