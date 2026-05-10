@@ -1,3 +1,4 @@
+import argparse
 from jarvis.core.agent_registry import AgentRegistry
 from jarvis.core.decision_engine import DecisionEngine
 from jarvis.core.file_inspector import FileInspector
@@ -60,12 +61,29 @@ class Orchestrator:
         return pipeline.run(task, human_approval=human_approval)
 
 
-if __name__ == "__main__":
-    orchestrator = Orchestrator()
-
-    report = orchestrator.process_task(
-        "راجع شاشة الفواتير واقترح تحسين آمن"
+def main():
+    parser = argparse.ArgumentParser(description="Run JARVIS Core orchestrator safely.")
+    parser.add_argument(
+        "--task",
+        default="راجع شاشة الفواتير واقترح تحسين آمن",
+        help="Task text to process.",
+    )
+    parser.add_argument(
+        "--approve",
+        action="store_true",
+        help="Simulate human approval.",
     )
 
-    formatter = RuntimeReportFormatter()
-    print(formatter.format(report))
+    args = parser.parse_args()
+    human_approval = "approve" if args.approve else None
+
+    report = Orchestrator().process_task(
+        args.task,
+        human_approval=human_approval,
+    )
+
+    print(RuntimeReportFormatter().format(report))
+
+
+if __name__ == "__main__":
+    main()
