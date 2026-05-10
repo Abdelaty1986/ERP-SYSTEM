@@ -31,6 +31,14 @@
       "cost": "free",
       "enabled": true,
       "role": "architecture_planning"
+    },
+    {
+      "id": "openrouter_free",
+      "name": "OpenRouter Free Agent",
+      "provider": "openrouter",
+      "cost": "free",
+      "enabled": true,
+      "role": "multi_model_review"
     }
   ],
   "default_strategy": "multi_agent_review"

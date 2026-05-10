@@ -1,9 +1,11 @@
 from jarvis.core.agent_registry import AgentRegistry
 from jarvis.core.decision_engine import DecisionEngine
 from jarvis.core.memory import JarvisMemory
+
 from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
 from jarvis.agents.gemini_agent import GeminiAgent
+from jarvis.agents.openrouter_agent import OpenRouterAgent
 
 
 class Orchestrator:
@@ -18,6 +20,7 @@ class Orchestrator:
         instances = []
 
         for agent in enabled_agents:
+
             if agent["id"] == "local_reviewer":
                 instances.append(ReviewerAgent())
 
@@ -26,6 +29,9 @@ class Orchestrator:
 
             if agent["id"] == "gemini_free":
                 instances.append(GeminiAgent())
+
+            if agent["id"] == "openrouter_free":
+                instances.append(OpenRouterAgent())
 
         return instances
 
@@ -56,5 +62,9 @@ class Orchestrator:
 
 if __name__ == "__main__":
     orchestrator = Orchestrator()
-    report = orchestrator.process_task("Test Gemini integration safely")
+
+    report = orchestrator.process_task(
+        "Review Jarvis multi-agent system safely"
+    )
+
     print(report)

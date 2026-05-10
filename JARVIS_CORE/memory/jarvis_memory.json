@@ -49,6 +49,22 @@
         "can_apply": false,
         "reason": "Jarvis never applies changes directly without tests and user approval."
       }
+    },
+    {
+      "timestamp": "2026-05-10T15:11:08",
+      "project_id": "ledgerx",
+      "task": "Review Jarvis multi-agent system safely",
+      "decision": {
+        "status": "needs_human_review",
+        "risk_levels": [
+          "medium",
+          "unknown",
+          "unknown",
+          "unknown"
+        ],
+        "can_apply": false,
+        "reason": "Jarvis never applies changes directly without tests and user approval."
+      }
     }
   ],
   "preferences": {
