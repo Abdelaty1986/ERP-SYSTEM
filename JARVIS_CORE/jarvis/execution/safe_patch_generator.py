@@ -42,6 +42,13 @@ class SafePatchGenerator:
     ) -> Dict[str, Any]:
         inspections = inspections or {}
 
+        if isinstance(inspections, list):
+            inspections = {
+                item.get("file"): item
+                for item in inspections
+                if isinstance(item, dict) and item.get("file")
+            }
+
         risk_level = self._estimate_risk(task, expected_files)
         change_type = self._guess_change_type(task)
 

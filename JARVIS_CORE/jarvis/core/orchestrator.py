@@ -3,6 +3,9 @@ from jarvis.core.decision_engine import DecisionEngine
 from jarvis.core.file_inspector import FileInspector
 from jarvis.core.memory import JarvisMemory
 from jarvis.core.planning_engine import PlanningEngine
+from jarvis.core.patch_planner import PatchPlanner
+from jarvis.execution.safe_patch_generator import SafePatchGenerator
+from jarvis.execution.diff_renderer import DiffRenderer
 
 from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
@@ -17,7 +20,9 @@ class Orchestrator:
         self.decision_engine = DecisionEngine()
         self.memory = JarvisMemory()
         self.planner = PlanningEngine(".")
+        self.patch_planner = PatchPlanner()
         self.inspector = FileInspector(".")
+        self.safe_patch_generator = SafePatchGenerator(".")
 
     def build_agents(self):
         instances = []
@@ -37,6 +42,13 @@ class Orchestrator:
     def process_task(self, task):
         plan = self.planner.create_plan(task)
         inspections = self.inspector.inspect_many(plan["expected_files"])
+        patch_plan = self.patch_planner.create_patch_plan(task, plan)
+
+        safe_patch_plan = self.safe_patch_generator.generate_patch_plan(
+            task=task,
+            expected_files=plan["expected_files"],
+            inspections=inspections
+        )
 
         results = []
 
@@ -59,6 +71,8 @@ class Orchestrator:
             "task": task,
             "plan": plan,
             "file_inspections": inspections,
+            "patch_plan": patch_plan,
+            "safe_patch_plan": safe_patch_plan,
             "agent_results": results,
             "decision": decision
         }
@@ -85,3 +99,8 @@ if __name__ == "__main__":
 
     print("\nDecision:")
     print(report["decision"]["status"])
+
+    print("\nSafe Patch Proposal:")
+    print("-" * 40)
+    for patch in report["safe_patch_plan"]["patches"]:
+        print(f"- {patch['file_path']} | {patch['change_type']} | {patch['risk_level']}")
