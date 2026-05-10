@@ -65,6 +65,38 @@
         "can_apply": false,
         "reason": "Jarvis never applies changes directly without tests and user approval."
       }
+    },
+    {
+      "timestamp": "2026-05-10T15:15:15",
+      "project_id": "ledgerx",
+      "task": "انت تعرف انت ايه",
+      "decision": {
+        "status": "needs_human_review",
+        "risk_levels": [
+          "medium",
+          "unknown",
+          "unknown",
+          "unknown"
+        ],
+        "can_apply": false,
+        "reason": "Jarvis never applies changes directly without tests and user approval."
+      }
+    },
+    {
+      "timestamp": "2026-05-10T15:19:15",
+      "project_id": "ledgerx",
+      "task": "انت تعرف انت ايه",
+      "decision": {
+        "status": "needs_human_review",
+        "risk_levels": [
+          "medium",
+          "unknown",
+          "unknown",
+          "unknown"
+        ],
+        "can_apply": false,
+        "reason": "Jarvis never applies changes directly without tests and user approval."
+      }
     }
   ],
   "preferences": {
