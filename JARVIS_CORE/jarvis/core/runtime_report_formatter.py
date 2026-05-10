@@ -237,6 +237,17 @@ class RuntimeReportFormatter:
                 lines.append(f"- Event Type: {audit.get('event_type')}")
                 lines.append(f"- Audit File: {audit.get('audit_file')}")
 
+            finalization = apply_readiness.get("apply_finalization", {})
+
+            if finalization:
+                lines.append("\nApply Finalization:")
+                lines.append(f"- Status: {finalization.get('status')}")
+                lines.append(
+                    f"- Can Enable Real Apply: "
+                    f"{finalization.get('can_enable_real_apply')}"
+                )
+                lines.append(f"- Message: {finalization.get('message')}")
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:

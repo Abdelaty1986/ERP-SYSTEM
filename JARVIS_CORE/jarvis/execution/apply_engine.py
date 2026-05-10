@@ -8,6 +8,7 @@ from jarvis.execution.sandbox_apply_simulator import SandboxApplySimulator
 from jarvis.execution.sandbox_integrity_verifier import SandboxIntegrityVerifier
 from jarvis.execution.apply_safety_receipt import ApplySafetyReceipt
 from jarvis.execution.audit_trail import AuditTrail
+from jarvis.execution.apply_finalizer import ApplyFinalizer
 
 
 class ApplyEngine:
@@ -28,6 +29,7 @@ class ApplyEngine:
         self.integrity_verifier = SandboxIntegrityVerifier()
         self.receipt_manager = ApplySafetyReceipt(root)
         self.audit_trail = AuditTrail(root)
+        self.finalizer = ApplyFinalizer()
 
     def prepare_apply(
         self,
@@ -125,6 +127,15 @@ class ApplyEngine:
             }
         )
 
+        finalization = self.finalizer.finalize(
+            apply_session=session.to_dict(),
+            patch_manifest=manifest,
+            sandbox_simulation=simulation_result,
+            sandbox_integrity=integrity_result,
+            safety_receipt=receipt,
+            audit_trail=audit_result,
+        )
+
         return {
             "status": "ready_for_controlled_apply",
             "can_apply": False,
@@ -142,4 +153,5 @@ class ApplyEngine:
             "sandbox_integrity": integrity_result,
             "apply_safety_receipt": receipt,
             "audit_trail": audit_result,
+            "apply_finalization": finalization,
         }
