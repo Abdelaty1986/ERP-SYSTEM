@@ -156,14 +156,14 @@ class RuntimeReportFormatter:
                         f"-> {item.get('staged')}"
                     )
 
-            intelligence = apply_readiness.get("patch_intelligence", {})
+            quality_gate = apply_readiness.get("diff_quality_gate", {})
 
-            if intelligence:
-                lines.append("\nPatch Intelligence:")
-                lines.append(f"- Status: {intelligence.get('status')}")
-                lines.append(f"- Strong Patches: {intelligence.get('strong_count')}")
-                lines.append(f"- Weak Patches: {intelligence.get('weak_count')}")
-                lines.append(f"- Message: {intelligence.get('message')}")
+            if quality_gate:
+                lines.append("\nDiff Quality Gate:")
+                lines.append(f"- Status: {quality_gate.get('status')}")
+                lines.append(f"- Approved: {quality_gate.get('approved_count')}")
+                lines.append(f"- Blocked: {quality_gate.get('blocked_count')}")
+                lines.append(f"- Message: {quality_gate.get('message')}")
 
             materialized_patches = apply_readiness.get("materialized_patches", [])
 

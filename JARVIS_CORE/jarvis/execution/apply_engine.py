@@ -11,6 +11,7 @@ from jarvis.execution.audit_trail import AuditTrail
 from jarvis.execution.apply_finalizer import ApplyFinalizer
 from jarvis.execution.system_health_check import ExecutionSystemHealthCheck
 from jarvis.execution.patch_intelligence import PatchIntelligence
+from jarvis.execution.diff_quality_gate import DiffQualityGate
 
 
 class ApplyEngine:
@@ -34,6 +35,7 @@ class ApplyEngine:
         self.finalizer = ApplyFinalizer()
         self.health_check = ExecutionSystemHealthCheck(root)
         self.patch_intelligence = PatchIntelligence()
+        self.diff_quality_gate = DiffQualityGate()
 
     def prepare_apply(
         self,
@@ -75,13 +77,13 @@ class ApplyEngine:
 
         materialized_patches = []
 
-        patch_intelligence = (
-            self.patch_intelligence.analyze_plan(safe_patch_plan)
+        quality_gate = (
+            self.diff_quality_gate.evaluate_plan(safe_patch_plan)
             if safe_patch_plan
             else {
                 "status": "missing_patch_plan",
-                "strong_count": 0,
-                "weak_count": 0,
+                "approved_count": 0,
+                "blocked_count": 0,
                 "results": [],
                 "message": "No safe patch plan provided.",
             }
@@ -94,7 +96,7 @@ class ApplyEngine:
                 if not file_path:
                     continue
 
-                patch_analysis = self.patch_intelligence.analyze_patch(patch)
+                patch_analysis = self.diff_quality_gate.evaluate_patch(patch)
 
                 if patch_analysis.get("can_materialize"):
                     materialized = (
@@ -168,7 +170,7 @@ class ApplyEngine:
             ),
             "apply_session": session.to_dict(),
             "staged_targets": staged_targets,
-            "patch_intelligence": patch_intelligence,
+            "diff_quality_gate": quality_gate,
             "materialized_patches": materialized_patches,
             "patch_manifest": manifest,
             "sandbox_apply_simulation": simulation_result,
