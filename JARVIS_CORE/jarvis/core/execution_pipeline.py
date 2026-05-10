@@ -211,7 +211,10 @@ class ExecutionPipeline:
                 for item in safe_patch_plan.get("patches", [])
                 if isinstance(item, dict) and item.get("file")
             ],
-            real_apply_enabled=real_apply_switch.get("enabled") is True,
+            real_apply_enabled=(
+                real_apply_switch.get("enabled") is True
+                and real_apply_applier.get("ok") is True
+            ),
             tests_passed=test_execution.get("status") == "passed",
             sandbox_passed=(
                 sandbox_patch_apply.get("ok") is True
