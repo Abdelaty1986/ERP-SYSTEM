@@ -1,5 +1,6 @@
 from jarvis.core.execution_state import ExecutionStateMachine
 from jarvis.execution.git_commit_engine import GitCommitEngine
+from jarvis.execution.real_apply_policy_manager import RealApplyPolicyManager
 
 
 class ExecutionPipeline:
@@ -179,6 +180,21 @@ class ExecutionPipeline:
         sandbox_patch_apply = apply_readiness.get("sandbox_patch_apply", {})
         post_apply_tests = apply_readiness.get("post_apply_sandbox_tests", {})
 
+        real_apply_policy = RealApplyPolicyManager(".").evaluate(
+            mode=real_apply_switch.get("mode", "simulation_only"),
+            human_confirmed=human_approval == "approve",
+            tests_passed=test_execution.get("status") == "passed",
+            sandbox_passed=(
+                sandbox_patch_apply.get("ok") is True
+                and post_apply_tests.get("status") == "passed"
+            ),
+            receipt_generated=bool(receipt.get("receipt_id")),
+            audit_recorded=audit.get("status") == "recorded",
+            rollback_checkpoint_created=(
+                rollback_checkpoint.get("status") == "checkpoint_created"
+            ),
+        )
+
         git_commit = GitCommitEngine(".").create_commit(
             message=f"jarvis safe apply: {task}",
             files=[
@@ -220,6 +236,7 @@ class ExecutionPipeline:
             "rollback_checkpoint": rollback_checkpoint,
             "apply_readiness": apply_readiness,
             "apply_contract": apply_contract_result,
+            "real_apply_policy": real_apply_policy,
             "git_commit": git_commit,
             "agent_results": results,
             "decision": decision,

@@ -371,6 +371,21 @@ class RuntimeReportFormatter:
                 )
                 lines.append(f"- Reason: {real_apply.get('reason')}")
 
+            real_apply_policy = report.get("real_apply_policy", {})
+
+            if real_apply_policy:
+                lines.append("\nReal Apply Policy:")
+                lines.append("-" * 40)
+                lines.append(f"Status: {real_apply_policy.get('status')}")
+                lines.append(f"OK: {real_apply_policy.get('ok')}")
+                lines.append(f"Mode: {real_apply_policy.get('mode')}")
+                lines.append(f"Branch: {real_apply_policy.get('branch')}")
+                lines.append(f"Reason: {real_apply_policy.get('reason')}")
+                lines.append(
+                    f"Can Apply Real Files: "
+                    f"{real_apply_policy.get('can_apply_real_files')}"
+                )
+
             git_commit = report.get("git_commit", {})
 
             if git_commit:
