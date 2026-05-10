@@ -156,6 +156,18 @@ class RuntimeReportFormatter:
                         f"-> {item.get('staged')}"
                     )
 
+            materialized_patches = apply_readiness.get("materialized_patches", [])
+
+            if materialized_patches:
+                lines.append("\nMaterialized Patches:")
+
+                for item in materialized_patches:
+                    lines.append(
+                        f"- {item.get('file_path')} "
+                        f"-> {item.get('materialized_diff')} "
+                        f"| hash: {item.get('hash')}"
+                    )
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:
