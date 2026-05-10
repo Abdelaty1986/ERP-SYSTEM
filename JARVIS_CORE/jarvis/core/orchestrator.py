@@ -13,6 +13,7 @@ from jarvis.execution.test_runner import TestRunner
 
 from jarvis.execution.rollback_manager import RollbackManager
 from jarvis.execution.apply_engine import ApplyEngine
+from jarvis.execution.apply_contract import ControlledApplyContract
 
 from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
@@ -35,6 +36,7 @@ class Orchestrator:
         self.test_runner = TestRunner(".")
         self.rollback_manager = RollbackManager(".")
         self.apply_engine = ApplyEngine()
+        self.apply_contract = ControlledApplyContract()
 
     def build_agents(self):
         instances = []
@@ -133,6 +135,14 @@ class Orchestrator:
             test_execution=test_execution
         )
 
+        apply_contract_result = self.apply_contract.evaluate(
+            approval_decision=approval_decision,
+            patch_validation=patch_validation,
+            test_execution=test_execution,
+            rollback_checkpoint=rollback_checkpoint,
+            git_branch="jarvis-core"
+        )
+
         state_machine.mark_done("Orchestrator report completed.")
 
         results = []
@@ -166,6 +176,7 @@ class Orchestrator:
             "test_execution": test_execution,
             "rollback_checkpoint": rollback_checkpoint,
             "apply_readiness": apply_readiness,
+            "apply_contract": apply_contract_result,
             "execution_state": state_machine.snapshot(),
             "agent_results": results,
             "decision": decision
@@ -230,6 +241,16 @@ if __name__ == "__main__":
     print("-" * 40)
     print(report["apply_readiness"]["status"])
     print(report["apply_readiness"].get("message") or report["apply_readiness"].get("reason"))
+
+    print("\nControlled Apply Contract:")
+    print("-" * 40)
+    print(report["apply_contract"]["status"])
+    print(report["apply_contract"]["message"])
+
+    if report["apply_contract"]["violations"]:
+        print("Violations:")
+        for item in report["apply_contract"]["violations"]:
+            print(f"- {item}")
 
     print("\nExecution State:")
     print("-" * 40)
