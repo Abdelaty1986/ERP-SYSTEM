@@ -190,6 +190,32 @@ class RuntimeReportFormatter:
                             f"-> {item.get('simulation_copy')}"
                         )
 
+            integrity = apply_readiness.get("sandbox_integrity", {})
+
+            if integrity:
+                lines.append("\nSandbox Integrity:")
+                lines.append(f"- Status: {integrity.get('status')}")
+                lines.append(f"- OK: {integrity.get('ok')}")
+
+                verified_files = integrity.get("verified_files", [])
+
+                if verified_files:
+                    lines.append("- Verified Files:")
+
+                    for item in verified_files:
+                        lines.append(
+                            f"  - {item.get('file')} | "
+                            f"{item.get('status')}"
+                        )
+
+                issues = integrity.get("issues", [])
+
+                if issues:
+                    lines.append("- Issues:")
+
+                    for item in issues:
+                        lines.append(f"  - {item}")
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:

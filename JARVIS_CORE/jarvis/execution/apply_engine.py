@@ -5,6 +5,7 @@ from jarvis.execution.sandbox_manager import SandboxManager
 from jarvis.execution.patch_materializer import PatchMaterializer
 from jarvis.execution.patch_manifest import PatchManifest
 from jarvis.execution.sandbox_apply_simulator import SandboxApplySimulator
+from jarvis.execution.sandbox_integrity_verifier import SandboxIntegrityVerifier
 
 
 class ApplyEngine:
@@ -22,6 +23,7 @@ class ApplyEngine:
         self.materializer = PatchMaterializer(root)
         self.manifest_manager = PatchManifest(root)
         self.simulator = SandboxApplySimulator(root)
+        self.integrity_verifier = SandboxIntegrityVerifier()
 
     def prepare_apply(
         self,
@@ -96,6 +98,10 @@ class ApplyEngine:
             materialized_patches=materialized_patches,
         )
 
+        integrity_result = self.integrity_verifier.verify(
+            simulation_result
+        )
+
         return {
             "status": "ready_for_controlled_apply",
             "can_apply": False,
@@ -110,4 +116,5 @@ class ApplyEngine:
             "materialized_patches": materialized_patches,
             "patch_manifest": manifest,
             "sandbox_apply_simulation": simulation_result,
+            "sandbox_integrity": integrity_result,
         }
