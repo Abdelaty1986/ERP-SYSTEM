@@ -9,7 +9,7 @@ class ExecutionPipeline:
     def __init__(self, orchestrator):
         self.orchestrator = orchestrator
 
-    def run(self, task: str):
+    def run(self, task: str, human_approval: str | None = None):
         state_machine = ExecutionStateMachine()
 
         state_machine.transition_to(
@@ -88,7 +88,8 @@ class ExecutionPipeline:
         approval_decision = (
             self.orchestrator.approval_manager.evaluate(
                 patch_plan=safe_patch_plan,
-                patch_validation=patch_validation
+                patch_validation=patch_validation,
+                human_approval=human_approval
             )
         )
 
@@ -96,6 +97,16 @@ class ExecutionPipeline:
             state_machine.transition_to(
                 "WAITING_APPROVAL",
                 "Human approval is required."
+            )
+        elif approval_decision["status"] == "approved":
+            state_machine.transition_to(
+                "TEST_DISCOVERY",
+                "Human approval received."
+            )
+        else:
+            state_machine.transition_to(
+                "APPLY_BLOCKED",
+                approval_decision.get("message", "Approval blocked.")
             )
 
         test_discovery = (
@@ -119,6 +130,27 @@ class ExecutionPipeline:
             ),
             "results": []
         }
+
+        if approval_decision.get("can_apply"):
+            state_machine.transition_to(
+                "TESTING",
+                "Approval granted. Running safe tests."
+            )
+
+            test_execution = self.orchestrator.test_runner.run_safe_tests(
+                test_discovery.get("commands", [])
+            )
+
+            if test_execution["status"] == "passed":
+                state_machine.transition_to(
+                    "APPLY_READY",
+                    "All safe tests passed."
+                )
+            else:
+                state_machine.transition_to(
+                    "APPLY_BLOCKED",
+                    "Safe tests failed."
+                )
 
         apply_readiness = (
             self.orchestrator.apply_engine.prepare_apply(
