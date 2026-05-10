@@ -85,8 +85,40 @@ class Orchestrator:
             state_machine.transition_to("APPLY_BLOCKED", approval_decision["message"])
 
         test_discovery = self.test_runner.discover_tests()
+
         if state_machine.current_state == "WAITING_APPROVAL":
-            state_machine.transition_to("TEST_DISCOVERY", "Discovered available tests while waiting for approval.")
+            state_machine.transition_to(
+                "TEST_DISCOVERY",
+                "Discovered available tests while waiting for approval."
+            )
+
+        test_execution = {
+            "status": "skipped",
+            "summary": "Tests were skipped because approval was not granted.",
+            "results": []
+        }
+
+        if approval_decision.get("can_apply"):
+            state_machine.transition_to(
+                "TESTING",
+                "Approval granted. Running safe tests."
+            )
+
+            test_execution = self.test_runner.run_safe_tests(
+                test_discovery.get("commands", [])
+            )
+
+            if test_execution["status"] == "passed":
+                state_machine.transition_to(
+                    "APPLY_READY",
+                    "All safe tests passed."
+                )
+            else:
+                state_machine.transition_to(
+                    "APPLY_BLOCKED",
+                    "Safe tests failed."
+                )
+
         state_machine.mark_done("Orchestrator report completed.")
 
         results = []
@@ -117,6 +149,7 @@ class Orchestrator:
             "patch_validation": patch_validation,
             "approval_decision": approval_decision,
             "test_discovery": test_discovery,
+            "test_execution": test_execution,
             "execution_state": state_machine.snapshot(),
             "agent_results": results,
             "decision": decision
@@ -165,6 +198,11 @@ if __name__ == "__main__":
     print(report["test_discovery"]["status"])
     for cmd in report["test_discovery"]["commands"]:
         print(f"- {cmd['name']}: {' '.join(cmd['command'])}")
+
+    print("\nTest Execution:")
+    print("-" * 40)
+    print(report["test_execution"]["status"])
+    print(report["test_execution"]["summary"])
 
     print("\nExecution State:")
     print("-" * 40)
