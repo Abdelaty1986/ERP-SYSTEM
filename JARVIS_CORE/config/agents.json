@@ -1,0 +1,21 @@
+{
+  "policy": {
+    "free_agents_only": true,
+    "allow_paid_agents": false,
+    "agents_suggest_only": true,
+    "no_direct_file_edit": true,
+    "require_tests_before_apply": true,
+    "require_user_approval": true
+  },
+  "agents": [
+    {
+      "id": "local_reviewer",
+      "name": "Local Reviewer Agent",
+      "provider": "local",
+      "cost": "free",
+      "enabled": true,
+      "role": "risk_review"
+    }
+  ],
+  "default_strategy": "multi_agent_review"
+}

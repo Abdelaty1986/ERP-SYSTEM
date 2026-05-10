@@ -1,0 +1,18 @@
+{
+  "projects": [
+    {
+      "id": "ledgerx",
+      "name": "LedgerX ERP",
+      "root_path": ".",
+      "default_branch": "jarvis-core",
+      "safe_target_branch": "dev-ai",
+      "main_branch": "main",
+      "stack": ["python", "flask", "sqlite", "html", "css", "javascript"],
+      "rules": {
+        "never_modify_main_directly": true,
+        "prefer_patch_files": true,
+        "require_status_clean_before_work": true
+      }
+    }
+  ]
+}
