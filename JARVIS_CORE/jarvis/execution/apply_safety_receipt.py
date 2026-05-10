@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import datetime
 import json
 import uuid
+import hashlib
 
 
 class ApplySafetyReceipt:
@@ -17,6 +18,32 @@ class ApplySafetyReceipt:
             / "JARVIS_CORE/jarvis/execution/sandbox/receipts"
         )
         self.receipts_dir.mkdir(parents=True, exist_ok=True)
+
+
+    def _build_signature(self, payload):
+        canonical = json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+
+        return hashlib.sha256(
+            canonical.encode("utf-8")
+        ).hexdigest()
+
+    def verify_receipt(self, receipt):
+        receipt_copy = dict(receipt)
+
+        stored_signature = receipt_copy.pop("signature", None)
+        receipt_copy.pop("receipt_file", None)
+
+        computed_signature = self._build_signature(receipt_copy)
+
+        return {
+            "valid": stored_signature == computed_signature,
+            "stored_signature": stored_signature,
+            "computed_signature": computed_signature,
+        }
 
     def create_receipt(
         self,
@@ -46,6 +73,13 @@ class ApplySafetyReceipt:
             "verified_files": sandbox_integrity.get("verified_files", []),
             "issues": sandbox_integrity.get("issues", []),
         }
+
+        receipt["signature_algorithm"] = "sha256"
+        receipt["signed_at"] = datetime.utcnow().isoformat()
+
+        receipt["signature"] = self._build_signature(
+            receipt
+        )
 
         receipt_file = self.receipts_dir / f"{receipt_id}.json"
 

@@ -328,6 +328,21 @@ class RuntimeReportFormatter:
                     f"{receipt.get('original_files_modified')}"
                 )
                 lines.append(f"- Receipt File: {receipt.get('receipt_file')}")
+                lines.append(
+                    f"- Signature Algorithm: "
+                    f"{receipt.get('signature_algorithm')}"
+                )
+                lines.append(
+                    f"- Signed At: "
+                    f"{receipt.get('signed_at')}"
+                )
+
+                signature = receipt.get("signature", "")
+
+                if signature:
+                    lines.append(
+                        f"- Signature: {signature[:24]}..."
+                    )
 
             audit = apply_readiness.get("audit_trail", {})
 
