@@ -3,6 +3,7 @@ from typing import Dict, Any, Optional
 from jarvis.execution.apply_session import ApplySession
 from jarvis.execution.sandbox_manager import SandboxManager
 from jarvis.execution.patch_materializer import PatchMaterializer
+from jarvis.execution.patch_manifest import PatchManifest
 
 
 class ApplyEngine:
@@ -18,6 +19,7 @@ class ApplyEngine:
         self.root = root
         self.sandbox_manager = SandboxManager(root)
         self.materializer = PatchMaterializer(root)
+        self.manifest_manager = PatchManifest(root)
 
     def prepare_apply(
         self,
@@ -81,6 +83,12 @@ class ApplyEngine:
                 elif staged_data:
                     session.add_skipped_target(staged_data)
 
+        manifest = self.manifest_manager.create_manifest(
+            task=task,
+            materialized_patches=materialized_patches,
+            staged_targets=staged_targets,
+        )
+
         return {
             "status": "ready_for_controlled_apply",
             "can_apply": False,
@@ -93,4 +101,5 @@ class ApplyEngine:
             "apply_session": session.to_dict(),
             "staged_targets": staged_targets,
             "materialized_patches": materialized_patches,
+            "patch_manifest": manifest,
         }
