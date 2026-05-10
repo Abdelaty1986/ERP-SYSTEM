@@ -24,10 +24,16 @@ class ExecutionPipeline:
     ):
         state_machine = ExecutionStateMachine()
 
+        voice = self.orchestrator.voice_runtime
+
+        voice.announce_start(task)
+
         state_machine.transition_to(
             "PLANNING",
             "Task processing started."
         )
+
+        voice.announce_planning()
 
         plan = self.orchestrator.planner.create_plan(task)
 
@@ -67,6 +73,8 @@ class ExecutionPipeline:
             "VALIDATING",
             "Safe patch proposal generated."
         )
+
+        voice.announce_validation()
 
         patch_validation = (
             self.orchestrator.patch_validator.validate(
@@ -158,6 +166,10 @@ class ExecutionPipeline:
                 test_discovery.get("commands", [])
             )
 
+            voice.announce_tests(
+                test_execution["status"] == "passed"
+            )
+
             if test_execution["status"] == "passed":
                 state_machine.transition_to(
                     "APPLY_READY",
@@ -168,6 +180,8 @@ class ExecutionPipeline:
                     "APPLY_BLOCKED",
                     "Safe tests failed."
                 )
+
+        voice.announce_apply_mode(real_apply_mode)
 
         apply_readiness = (
             self.orchestrator.apply_engine.prepare_apply(
@@ -290,6 +304,8 @@ class ExecutionPipeline:
             task=task,
             decision=decision
         )
+
+        voice.announce_completion()
 
         state_machine.mark_done(
             "Orchestrator report completed."

@@ -10,6 +10,7 @@ from jarvis.core.patch_planner import PatchPlanner
 from jarvis.core.execution_state import ExecutionStateMachine
 from jarvis.core.runtime_report_formatter import RuntimeReportFormatter
 from jarvis.core.execution_pipeline import ExecutionPipeline
+from jarvis.core.voice_runtime import JarvisVoiceRuntime
 from jarvis.execution.safe_patch_generator import SafePatchGenerator
 from jarvis.execution.diff_renderer import DiffRenderer
 from jarvis.execution.patch_validator import PatchValidator
@@ -42,6 +43,7 @@ class Orchestrator:
         self.rollback_manager = RollbackManager(".")
         self.apply_engine = ApplyEngine()
         self.apply_contract = ControlledApplyContract()
+        self.voice_runtime = JarvisVoiceRuntime(enabled=True)
 
     def build_agents(self):
         instances = []
