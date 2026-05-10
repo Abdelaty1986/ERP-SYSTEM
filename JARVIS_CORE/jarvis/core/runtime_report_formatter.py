@@ -114,6 +114,59 @@ class RuntimeReportFormatter:
             or apply_readiness.get("reason", "")
         )
 
+        apply_session = apply_readiness.get("apply_session", {})
+
+        if apply_session:
+            lines.append("\nApply Session:")
+            lines.append("-" * 40)
+
+            lines.append(
+                f"Session ID: "
+                f"{apply_session.get('session_id', 'unknown')}"
+            )
+
+            lines.append(
+                f"Status: "
+                f"{apply_session.get('status', 'unknown')}"
+            )
+
+            lines.append(
+                f"Validation Passed: "
+                f"{apply_session.get('validation_passed')}"
+            )
+
+            lines.append(
+                f"Approval Received: "
+                f"{apply_session.get('approval_received')}"
+            )
+
+            lines.append(
+                f"Tests Passed: "
+                f"{apply_session.get('tests_passed')}"
+            )
+
+            staged_files = apply_session.get("staged_files", [])
+
+            if staged_files:
+                lines.append("\nStaged Files:")
+
+                for item in staged_files:
+                    lines.append(
+                        f"- {item.get('source')} "
+                        f"-> {item.get('staged')}"
+                    )
+
+            backups = apply_session.get("backups", [])
+
+            if backups:
+                lines.append("\nBackups:")
+
+                for item in backups:
+                    lines.append(
+                        f"- {item.get('source')} "
+                        f"-> {item.get('backup')}"
+                    )
+
     def _contract(self, lines, report):
         contract = report.get("apply_contract", {})
 
