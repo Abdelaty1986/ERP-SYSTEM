@@ -8,6 +8,7 @@ from jarvis.execution.safe_patch_generator import SafePatchGenerator
 from jarvis.execution.diff_renderer import DiffRenderer
 from jarvis.execution.patch_validator import PatchValidator
 from jarvis.execution.approval_manager import ApprovalManager
+from jarvis.execution.test_runner import TestRunner
 
 from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
@@ -27,6 +28,7 @@ class Orchestrator:
         self.safe_patch_generator = SafePatchGenerator(".")
         self.patch_validator = PatchValidator()
         self.approval_manager = ApprovalManager()
+        self.test_runner = TestRunner(".")
 
     def build_agents(self):
         instances = []
@@ -63,6 +65,8 @@ class Orchestrator:
             patch_validation=patch_validation
         )
 
+        test_discovery = self.test_runner.discover_tests()
+
         results = []
 
         for agent in self.build_agents():
@@ -88,6 +92,7 @@ class Orchestrator:
             "safe_patch_plan": safe_patch_plan,
             "patch_validation": patch_validation,
             "approval_decision": approval_decision,
+            "test_discovery": test_discovery,
             "agent_results": results,
             "decision": decision
         }
@@ -129,3 +134,9 @@ if __name__ == "__main__":
     print("-" * 40)
     print(report["approval_decision"]["status"])
     print(report["approval_decision"]["message"])
+
+    print("\nTest Discovery:")
+    print("-" * 40)
+    print(report["test_discovery"]["status"])
+    for cmd in report["test_discovery"]["commands"]:
+        print(f"- {cmd['name']}: {' '.join(cmd['command'])}")
