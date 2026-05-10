@@ -32,14 +32,14 @@ class RealDiffProposalBuilder:
         original_text = path.read_text(encoding="utf-8")
 
         comment = (
-            "\\n# JARVIS_SAFE_PROPOSAL: "
-            f"{task}\\n"
+            "# JARVIS_SAFE_PROPOSAL: "
+            f"{task}\n"
         )
 
         if "JARVIS_SAFE_PROPOSAL" in original_text:
             proposed_text = original_text
         else:
-            proposed_text = original_text + comment
+            proposed_text = comment + original_text
 
         diff_result = self.diff_builder.build_file_diff(
             file_path=str(path),

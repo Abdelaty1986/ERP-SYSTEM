@@ -302,6 +302,20 @@ class RuntimeReportFormatter:
                             f"{item.get('status')}"
                         )
 
+            post_apply_tests = apply_readiness.get("post_apply_tests", {})
+
+            if post_apply_tests:
+                lines.append("\nPost Apply Sandbox Tests:")
+                lines.append(f"- Status: {post_apply_tests.get('status')}")
+                lines.append(f"- Checked: {post_apply_tests.get('checked_count')}")
+                lines.append(f"- Failed: {post_apply_tests.get('failed_count')}")
+
+                for item in post_apply_tests.get("results", []):
+                    lines.append(
+                        f"  - {item.get('file')} | "
+                        f"{item.get('status')}"
+                    )
+
             receipt = apply_readiness.get("apply_safety_receipt", {})
 
             if receipt:
