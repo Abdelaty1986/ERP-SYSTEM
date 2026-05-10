@@ -3,6 +3,7 @@ from jarvis.core.decision_engine import DecisionEngine
 from jarvis.core.memory import JarvisMemory
 from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
+from jarvis.agents.gemini_agent import GeminiAgent
 
 
 class Orchestrator:
@@ -22,6 +23,9 @@ class Orchestrator:
 
             if agent["id"] == "groq_free":
                 instances.append(GroqAgent())
+
+            if agent["id"] == "gemini_free":
+                instances.append(GeminiAgent())
 
         return instances
 
@@ -52,5 +56,5 @@ class Orchestrator:
 
 if __name__ == "__main__":
     orchestrator = Orchestrator()
-    report = orchestrator.process_task("Test Groq integration safely")
+    report = orchestrator.process_task("Test Gemini integration safely")
     print(report)

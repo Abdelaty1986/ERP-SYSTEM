@@ -23,6 +23,14 @@
       "cost": "free",
       "enabled": true,
       "role": "fast_ai_review"
+    },
+    {
+      "id": "gemini_free",
+      "name": "Gemini Free Agent",
+      "provider": "google_gemini",
+      "cost": "free",
+      "enabled": true,
+      "role": "architecture_planning"
     }
   ],
   "default_strategy": "multi_agent_review"
