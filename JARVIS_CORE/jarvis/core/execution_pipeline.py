@@ -173,6 +173,12 @@ class ExecutionPipeline:
             )
         )
 
+        real_apply_switch = apply_readiness.get("real_apply_switch", {})
+        receipt = apply_readiness.get("apply_safety_receipt", {})
+        audit = apply_readiness.get("audit_trail", {})
+        sandbox_patch_apply = apply_readiness.get("sandbox_patch_apply", {})
+        post_apply_tests = apply_readiness.get("post_apply_sandbox_tests", {})
+
         git_commit = GitCommitEngine(".").create_commit(
             message=f"jarvis safe apply: {task}",
             files=[
@@ -180,11 +186,14 @@ class ExecutionPipeline:
                 for item in safe_patch_plan.get("patches", [])
                 if isinstance(item, dict) and item.get("file")
             ],
-            real_apply_enabled=False,
+            real_apply_enabled=real_apply_switch.get("enabled") is True,
             tests_passed=test_execution.get("status") == "passed",
-            sandbox_passed=False,
-            receipt_generated=False,
-            audit_recorded=False,
+            sandbox_passed=(
+                sandbox_patch_apply.get("ok") is True
+                and post_apply_tests.get("status") == "passed"
+            ),
+            receipt_generated=bool(receipt.get("receipt_id")),
+            audit_recorded=audit.get("status") == "recorded",
         )
 
         self.orchestrator.memory.remember_decision(
