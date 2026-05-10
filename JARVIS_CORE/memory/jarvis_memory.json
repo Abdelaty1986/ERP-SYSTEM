@@ -101,5 +101,15 @@
   ],
   "preferences": {
     "language": "arabic_egyptian"
+  },
+  "learning": {
+    "pending_suggestions": [
+      {
+        "timestamp": "2026-05-10T15:31:31",
+        "source_text": "عايز جارفيس يكون منظم ومن غير كركبة",
+        "suggestion": "User prefers clean and organized architecture.",
+        "approved": false
+      }
+    ]
   }
 }

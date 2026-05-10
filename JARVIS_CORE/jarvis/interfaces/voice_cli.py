@@ -1,27 +1,12 @@
 from jarvis.voice.voice_manager import VoiceManager
 from jarvis.core.orchestrator import Orchestrator
-from jarvis.core.intent_detector import IntentDetector
-
-
-def generate_chat_response(text):
-    lowered = text.strip().lower()
-
-    if "انت مين" in lowered or "انت ايه" in lowered:
-        return (
-            "أنا جارفيس، مساعدك الهندسي الذكي. "
-            "مهمتي مساعدتك في تطوير المشاريع وإدارة الأنظمة بأمان."
-        )
-
-    if "عامل ايه" in lowered:
-        return "أعمل بكفاءة كاملة يا هاني."
-
-    return "تم استلام رسالتك."
+from jarvis.core.conversation_brain import ConversationBrain
 
 
 def main():
     voice = VoiceManager()
+    brain = ConversationBrain()
     orchestrator = Orchestrator()
-    detector = IntentDetector()
 
     print("Jarvis Voice CLI")
     print("اكتب: جارفيس")
@@ -38,31 +23,24 @@ def main():
 
         voice_result = voice.process_input(text)
 
-        if voice_result.get("response"):
+        if voice_result.get("wake_detected"):
             print(f"Jarvis: {voice_result['response']}")
+            continue
 
-        if voice.listening and not voice_result.get("wake_detected"):
+        if not voice.listening:
+            continue
 
-            intent = detector.detect(text)
+        brain_result = brain.respond(text)
+        print(f"Jarvis: {brain_result['response']}")
 
-            if intent == IntentDetector.GENERAL_CHAT:
-                print(
-                    f"Jarvis: "
-                    f"{generate_chat_response(text)}"
-                )
+        if brain_result["should_process_task"]:
+            report = orchestrator.process_task(text)
+            decision = report["decision"]
 
-            elif intent == IntentDetector.DEVELOPMENT_TASK:
-                report = orchestrator.process_task(text)
-
-                decision = report["decision"]
-
-                print("Jarvis Report:")
-                print(f"- Decision: {decision['status']}")
-                print(f"- Can Apply: {decision['can_apply']}")
-                print(f"- Reason: {decision['reason']}")
-
-            elif intent == IntentDetector.STOP_COMMAND:
-                print("Jarvis: تم تنفيذ أمر الإيقاف.")
+            print("Jarvis Report:")
+            print(f"- Decision: {decision['status']}")
+            print(f"- Can Apply: {decision['can_apply']}")
+            print(f"- Reason: {decision['reason']}")
 
 
 if __name__ == "__main__":
