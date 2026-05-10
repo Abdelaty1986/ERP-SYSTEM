@@ -14,6 +14,7 @@ class RuntimeReportFormatter:
         self._inspections(lines, report)
         self._decision(lines, report)
         self._patches(lines, report)
+        self._target_resolution(lines, report)
         self._validation(lines, report)
         self._approval(lines, report)
         self._tests(lines, report)
@@ -55,6 +56,42 @@ class RuntimeReportFormatter:
                 f"{item['change_type']} | "
                 f"{item['risk_level']}"
             )
+
+    def _target_resolution(self, lines, report):
+        resolution = report.get("safe_patch_plan", {}).get(
+            "target_resolution",
+            {}
+        )
+
+        if not resolution:
+            return
+
+        lines.append("\nTarget Resolution:")
+        lines.append("-" * 40)
+        lines.append(f"Status: {resolution.get('status')}")
+        lines.append(
+            f"Resolved: {resolution.get('resolved_count')} | "
+            f"Skipped: {resolution.get('skipped_count')}"
+        )
+
+        resolved_targets = resolution.get("resolved_targets", [])
+
+        if resolved_targets:
+            lines.append("Resolved Targets:")
+
+            for item in resolved_targets:
+                lines.append(f"- {item}")
+
+        skipped_targets = resolution.get("skipped_targets", [])
+
+        if skipped_targets:
+            lines.append("Skipped Original Targets:")
+
+            for item in skipped_targets:
+                lines.append(
+                    f"- {item.get('target')} | "
+                    f"{item.get('reason')}"
+                )
 
     def _validation(self, lines, report):
         validation = report.get("patch_validation", {})
