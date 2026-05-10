@@ -7,6 +7,7 @@ from jarvis.core.patch_planner import PatchPlanner
 from jarvis.execution.safe_patch_generator import SafePatchGenerator
 from jarvis.execution.diff_renderer import DiffRenderer
 from jarvis.execution.patch_validator import PatchValidator
+from jarvis.execution.approval_manager import ApprovalManager
 
 from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
@@ -25,6 +26,7 @@ class Orchestrator:
         self.inspector = FileInspector(".")
         self.safe_patch_generator = SafePatchGenerator(".")
         self.patch_validator = PatchValidator()
+        self.approval_manager = ApprovalManager()
 
     def build_agents(self):
         instances = []
@@ -56,6 +58,11 @@ class Orchestrator:
             safe_patch_plan
         )
 
+        approval_decision = self.approval_manager.evaluate(
+            patch_plan=safe_patch_plan,
+            patch_validation=patch_validation
+        )
+
         results = []
 
         for agent in self.build_agents():
@@ -80,6 +87,7 @@ class Orchestrator:
             "patch_plan": patch_plan,
             "safe_patch_plan": safe_patch_plan,
             "patch_validation": patch_validation,
+            "approval_decision": approval_decision,
             "agent_results": results,
             "decision": decision
         }
@@ -116,3 +124,8 @@ if __name__ == "__main__":
     print("-" * 40)
     print(report["patch_validation"]["status"])
     print(report["patch_validation"]["summary"])
+
+    print("\nApproval Status:")
+    print("-" * 40)
+    print(report["approval_decision"]["status"])
+    print(report["approval_decision"]["message"])
