@@ -3,6 +3,7 @@ from jarvis.execution.git_commit_engine import GitCommitEngine
 from jarvis.execution.real_apply_policy_manager import RealApplyPolicyManager
 from jarvis.execution.real_apply_applier import RealApplyApplier
 from jarvis.execution.execution_git_tagger import ExecutionGitTagger
+from jarvis.execution.ephemeral_branch_manager import EphemeralBranchManager
 
 
 class ExecutionPipeline:
@@ -19,6 +20,7 @@ class ExecutionPipeline:
         human_approval: str | None = None,
         real_apply_mode: str = "simulation_only",
         tag_execution: bool = False,
+        isolated_branch: bool = False,
     ):
         state_machine = ExecutionStateMachine()
 
@@ -131,6 +133,11 @@ class ExecutionPipeline:
 
         rollback_checkpoint = (
             self.orchestrator.rollback_manager.create_checkpoint()
+        )
+
+        ephemeral_branch = EphemeralBranchManager(".").create_branch(
+            enabled=isolated_branch,
+            session_id=rollback_checkpoint.get("timestamp"),
         )
 
         test_execution = {
@@ -266,6 +273,18 @@ class ExecutionPipeline:
             audit_recorded=audit.get("status") == "recorded",
         )
 
+        branch_restore = (
+            EphemeralBranchManager(".").return_to_base(
+                ephemeral_branch
+            )
+            if ephemeral_branch.get("ok")
+            else {
+                "status": "skipped",
+                "ok": True,
+                "reason": "no_ephemeral_branch",
+            }
+        )
+
         self.orchestrator.memory.remember_decision(
             project_id=self.orchestrator.project_id,
             task=task,
@@ -288,6 +307,8 @@ class ExecutionPipeline:
             "test_discovery": test_discovery,
             "test_execution": test_execution,
             "rollback_checkpoint": rollback_checkpoint,
+            "ephemeral_branch": ephemeral_branch,
+            "branch_restore": branch_restore,
             "apply_readiness": apply_readiness,
             "apply_contract": apply_contract_result,
             "real_apply_policy": real_apply_policy,

@@ -128,6 +128,27 @@ class RuntimeReportFormatter:
         lines.append(execution.get("summary", ""))
 
     def _rollback(self, lines, report):
+        ephemeral_branch = report.get("ephemeral_branch", {})
+
+        if ephemeral_branch:
+            lines.append("\nEphemeral Execution Branch:")
+            lines.append("-" * 40)
+            lines.append(f"Status: {ephemeral_branch.get('status')}")
+            lines.append(f"OK: {ephemeral_branch.get('ok')}")
+            lines.append(f"Branch: {ephemeral_branch.get('branch')}")
+            lines.append(f"Base Branch: {ephemeral_branch.get('base_branch', '')}")
+            lines.append(f"Reason: {ephemeral_branch.get('reason')}")
+
+        branch_restore = report.get("branch_restore", {})
+
+        if branch_restore:
+            lines.append("\nBranch Restore:")
+            lines.append("-" * 40)
+            lines.append(f"Status: {branch_restore.get('status')}")
+            lines.append(f"OK: {branch_restore.get('ok')}")
+            lines.append(f"Base Branch: {branch_restore.get('base_branch', '')}")
+            lines.append(f"Reason: {branch_restore.get('reason')}")
+
         rollback = report.get("rollback_checkpoint", {})
 
         lines.append("\nRollback Checkpoint:")

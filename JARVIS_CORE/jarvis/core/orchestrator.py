@@ -64,6 +64,7 @@ class Orchestrator:
         human_approval=None,
         real_apply_mode="simulation_only",
         tag_execution=False,
+        isolated_branch=False,
     ):
         pipeline = ExecutionPipeline(self)
         return pipeline.run(
@@ -71,6 +72,7 @@ class Orchestrator:
             human_approval=human_approval,
             real_apply_mode=real_apply_mode,
             tag_execution=tag_execution,
+            isolated_branch=isolated_branch,
         )
 
 
@@ -128,6 +130,11 @@ def main():
         action="store_true",
         help="Create local git execution tag after successful runtime.",
     )
+    parser.add_argument(
+        "--isolated-branch",
+        action="store_true",
+        help="Run execution inside isolated ephemeral git branch.",
+    )
 
     args = parser.parse_args()
 
@@ -140,6 +147,7 @@ def main():
         human_approval=human_approval,
         real_apply_mode=real_apply_mode,
         tag_execution=args.tag_execution,
+        isolated_branch=args.isolated_branch,
     )
 
     if args.unsafe_allow_apply:
