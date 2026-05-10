@@ -280,6 +280,28 @@ class RuntimeReportFormatter:
                     for item in issues:
                         lines.append(f"  - {item}")
 
+            sandbox_patch_apply = apply_readiness.get("sandbox_patch_apply", {})
+
+            if sandbox_patch_apply:
+                lines.append("\nSandbox Patch Apply:")
+                lines.append(f"- Status: {sandbox_patch_apply.get('status')}")
+                lines.append(f"- OK: {sandbox_patch_apply.get('ok')}")
+                lines.append(
+                    f"- Original Files Modified: "
+                    f"{sandbox_patch_apply.get('original_files_modified')}"
+                )
+
+                applied = sandbox_patch_apply.get("applied", [])
+
+                if applied:
+                    lines.append("- Applied Patch Records:")
+
+                    for item in applied:
+                        lines.append(
+                            f"  - {item.get('file_path')} | "
+                            f"{item.get('status')}"
+                        )
+
             receipt = apply_readiness.get("apply_safety_receipt", {})
 
             if receipt:

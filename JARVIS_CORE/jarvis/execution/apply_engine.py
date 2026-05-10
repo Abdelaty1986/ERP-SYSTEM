@@ -10,6 +10,7 @@ from jarvis.execution.apply_safety_receipt import ApplySafetyReceipt
 from jarvis.execution.audit_trail import AuditTrail
 from jarvis.execution.apply_finalizer import ApplyFinalizer
 from jarvis.execution.system_health_check import ExecutionSystemHealthCheck
+from jarvis.execution.sandbox_patch_applier import SandboxPatchApplier
 from jarvis.execution.patch_intelligence import PatchIntelligence
 from jarvis.execution.diff_quality_gate import DiffQualityGate
 
@@ -34,6 +35,7 @@ class ApplyEngine:
         self.audit_trail = AuditTrail(root)
         self.finalizer = ApplyFinalizer()
         self.health_check = ExecutionSystemHealthCheck(root)
+        self.sandbox_patch_applier = SandboxPatchApplier()
         self.patch_intelligence = PatchIntelligence()
         self.diff_quality_gate = DiffQualityGate()
 
@@ -129,6 +131,13 @@ class ApplyEngine:
             simulation_result
         )
 
+        sandbox_patch_apply = (
+            self.sandbox_patch_applier.apply_to_sandbox(
+                simulation_result=simulation_result,
+                materialized_patches=materialized_patches,
+            )
+        )
+
         receipt = self.receipt_manager.create_receipt(
             task=task,
             apply_session=session.to_dict(),
@@ -175,6 +184,7 @@ class ApplyEngine:
             "patch_manifest": manifest,
             "sandbox_apply_simulation": simulation_result,
             "sandbox_integrity": integrity_result,
+            "sandbox_patch_apply": sandbox_patch_apply,
             "apply_safety_receipt": receipt,
             "audit_trail": audit_result,
             "apply_finalization": finalization,
