@@ -168,6 +168,28 @@ class RuntimeReportFormatter:
                         f"| hash: {item.get('hash')}"
                     )
 
+            simulation = apply_readiness.get("sandbox_apply_simulation", {})
+
+            if simulation:
+                lines.append("\nSandbox Apply Simulation:")
+                lines.append(f"- Status: {simulation.get('status')}")
+                lines.append(f"- Simulation Dir: {simulation.get('simulation_dir')}")
+                lines.append(
+                    f"- Original Files Modified: "
+                    f"{simulation.get('original_files_modified')}"
+                )
+
+                copied_files = simulation.get("copied_files", [])
+
+                if copied_files:
+                    lines.append("- Copied Files:")
+
+                    for item in copied_files:
+                        lines.append(
+                            f"  - {item.get('source')} "
+                            f"-> {item.get('simulation_copy')}"
+                        )
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:

@@ -4,6 +4,7 @@ from jarvis.execution.apply_session import ApplySession
 from jarvis.execution.sandbox_manager import SandboxManager
 from jarvis.execution.patch_materializer import PatchMaterializer
 from jarvis.execution.patch_manifest import PatchManifest
+from jarvis.execution.sandbox_apply_simulator import SandboxApplySimulator
 
 
 class ApplyEngine:
@@ -20,6 +21,7 @@ class ApplyEngine:
         self.sandbox_manager = SandboxManager(root)
         self.materializer = PatchMaterializer(root)
         self.manifest_manager = PatchManifest(root)
+        self.simulator = SandboxApplySimulator(root)
 
     def prepare_apply(
         self,
@@ -89,6 +91,11 @@ class ApplyEngine:
             staged_targets=staged_targets,
         )
 
+        simulation_result = self.simulator.simulate(
+            staged_files=session.staged_files,
+            materialized_patches=materialized_patches,
+        )
+
         return {
             "status": "ready_for_controlled_apply",
             "can_apply": False,
@@ -102,4 +109,5 @@ class ApplyEngine:
             "staged_targets": staged_targets,
             "materialized_patches": materialized_patches,
             "patch_manifest": manifest,
+            "sandbox_apply_simulation": simulation_result,
         }
