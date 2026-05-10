@@ -11,6 +11,9 @@ from jarvis.execution.patch_validator import PatchValidator
 from jarvis.execution.approval_manager import ApprovalManager
 from jarvis.execution.test_runner import TestRunner
 
+from jarvis.execution.rollback_manager import RollbackManager
+from jarvis.execution.apply_engine import ApplyEngine
+
 from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
 from jarvis.agents.gemini_agent import GeminiAgent
@@ -30,6 +33,8 @@ class Orchestrator:
         self.patch_validator = PatchValidator()
         self.approval_manager = ApprovalManager()
         self.test_runner = TestRunner(".")
+        self.rollback_manager = RollbackManager(".")
+        self.apply_engine = ApplyEngine()
 
     def build_agents(self):
         instances = []
@@ -92,6 +97,8 @@ class Orchestrator:
                 "Discovered available tests while waiting for approval."
             )
 
+        rollback_checkpoint = self.rollback_manager.create_checkpoint()
+
         test_execution = {
             "status": "skipped",
             "summary": "Tests were skipped because approval was not granted.",
@@ -118,6 +125,13 @@ class Orchestrator:
                     "APPLY_BLOCKED",
                     "Safe tests failed."
                 )
+
+
+        apply_readiness = self.apply_engine.prepare_apply(
+            approval_decision=approval_decision,
+            patch_validation=patch_validation,
+            test_execution=test_execution
+        )
 
         state_machine.mark_done("Orchestrator report completed.")
 
@@ -150,6 +164,8 @@ class Orchestrator:
             "approval_decision": approval_decision,
             "test_discovery": test_discovery,
             "test_execution": test_execution,
+            "rollback_checkpoint": rollback_checkpoint,
+            "apply_readiness": apply_readiness,
             "execution_state": state_machine.snapshot(),
             "agent_results": results,
             "decision": decision
@@ -203,6 +219,17 @@ if __name__ == "__main__":
     print("-" * 40)
     print(report["test_execution"]["status"])
     print(report["test_execution"]["summary"])
+
+
+    print("\nRollback Checkpoint:")
+    print("-" * 40)
+    print(report["rollback_checkpoint"]["status"])
+    print(report["rollback_checkpoint"].get("commit", "no_commit"))
+
+    print("\nApply Readiness:")
+    print("-" * 40)
+    print(report["apply_readiness"]["status"])
+    print(report["apply_readiness"].get("message") or report["apply_readiness"].get("reason"))
 
     print("\nExecution State:")
     print("-" * 40)
