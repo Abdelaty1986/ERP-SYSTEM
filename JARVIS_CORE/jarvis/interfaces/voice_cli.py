@@ -1,12 +1,16 @@
 from jarvis.voice.voice_manager import VoiceManager
-from jarvis.core.orchestrator import Orchestrator
+
 from jarvis.core.conversation_brain import ConversationBrain
+from jarvis.core.orchestrator import Orchestrator
+from jarvis.core.output_formatter import OutputFormatter
 
 
 def main():
     voice = VoiceManager()
+
     brain = ConversationBrain()
     orchestrator = Orchestrator()
+    formatter = OutputFormatter()
 
     print("Jarvis Voice CLI")
     print("اكتب: جارفيس")
@@ -31,16 +35,18 @@ def main():
             continue
 
         brain_result = brain.respond(text)
+
         print(f"Jarvis: {brain_result['response']}")
 
         if brain_result["should_process_task"]:
-            report = orchestrator.process_task(text)
-            decision = report["decision"]
 
-            print("Jarvis Report:")
-            print(f"- Decision: {decision['status']}")
-            print(f"- Can Apply: {decision['can_apply']}")
-            print(f"- Reason: {decision['reason']}")
+            report = orchestrator.process_task(text)
+
+            formatted = formatter.format_report(report)
+
+            print("")
+            print(formatted)
+            print("")
 
 
 if __name__ == "__main__":
