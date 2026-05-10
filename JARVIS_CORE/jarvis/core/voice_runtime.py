@@ -1,17 +1,30 @@
+import subprocess
+
+
 class JarvisVoiceRuntime:
     """
-    Lightweight voice-style runtime narrator for JARVIS CLI.
-    Currently text-based and safe for terminal environments.
+    Real voice runtime narrator using Termux TTS.
     """
 
-    def __init__(self, enabled=True):
+    def __init__(self, enabled=True, tts_enabled=True):
         self.enabled = enabled
+        self.tts_enabled = tts_enabled
 
     def speak(self, message):
         if not self.enabled:
             return
 
         print(f"[JARVIS]: {message}")
+
+        if self.tts_enabled:
+            try:
+                subprocess.run(
+                    ["termux-tts-speak", message],
+                    capture_output=True,
+                    text=True,
+                )
+            except Exception:
+                pass
 
     def announce_start(self, task):
         self.speak(f"Initializing runtime for task: {task}")
