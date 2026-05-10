@@ -14,6 +14,7 @@ class ProposedPatch:
     risk_level: str
     reason: str
     diff_preview: str
+    proposed_content: str | None = None
     requires_approval: bool = True
 
 
@@ -122,6 +123,7 @@ class SafePatchGenerator:
                 risk_level=real_diff.get("risk_level", risk_level),
                 reason=reason,
                 diff_preview=real_diff.get("diff_preview", ""),
+                proposed_content=real_diff.get("proposed_content"),
                 requires_approval=True,
             )
 
@@ -155,6 +157,7 @@ class SafePatchGenerator:
             risk_level=risk_level,
             reason=reason,
             diff_preview=diff,
+            proposed_content=None,
             requires_approval=True,
         )
 

@@ -57,6 +57,8 @@ class RealDiffProposalBuilder:
             "can_use": validation.get("ok"),
             "change_type": "safe_comment_append",
             "risk_level": "low",
+            "original_content": original_text,
+            "proposed_content": proposed_text,
             "diff_preview": diff_result.get("diff", ""),
             "validation": validation,
         }

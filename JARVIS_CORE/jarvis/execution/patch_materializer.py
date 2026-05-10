@@ -53,4 +53,5 @@ class PatchMaterializer:
             "materialized_diff": str(output_file),
             "hash": self._hash_text(diff_preview),
             "timestamp": timestamp,
+            "proposed_content": patch_data.get("proposed_content"),
         }
