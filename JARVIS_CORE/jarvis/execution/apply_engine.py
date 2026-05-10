@@ -2,6 +2,7 @@ from typing import Dict, Any, Optional
 
 from jarvis.execution.apply_session import ApplySession
 from jarvis.execution.sandbox_manager import SandboxManager
+from jarvis.execution.patch_materializer import PatchMaterializer
 
 
 class ApplyEngine:
@@ -16,6 +17,7 @@ class ApplyEngine:
     def __init__(self, root="."):
         self.root = root
         self.sandbox_manager = SandboxManager(root)
+        self.materializer = PatchMaterializer(root)
 
     def prepare_apply(
         self,
@@ -55,12 +57,20 @@ class ApplyEngine:
 
         staged_targets = []
 
+        materialized_patches = []
+
         if safe_patch_plan:
             for patch in safe_patch_plan.get("patches", []):
                 file_path = patch.get("file_path")
 
                 if not file_path:
                     continue
+
+                materialized = (
+                    self.materializer.materialize_patch(patch)
+                )
+
+                materialized_patches.append(materialized)
 
                 staged_data = self.sandbox_manager.stage_file(file_path)
 
@@ -82,4 +92,5 @@ class ApplyEngine:
             ),
             "apply_session": session.to_dict(),
             "staged_targets": staged_targets,
+            "materialized_patches": materialized_patches,
         }
