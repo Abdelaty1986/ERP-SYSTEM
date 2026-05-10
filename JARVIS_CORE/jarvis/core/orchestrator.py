@@ -5,6 +5,7 @@ from jarvis.core.memory import JarvisMemory
 from jarvis.core.planning_engine import PlanningEngine
 from jarvis.core.patch_planner import PatchPlanner
 from jarvis.core.execution_state import ExecutionStateMachine
+from jarvis.core.runtime_report_formatter import RuntimeReportFormatter
 from jarvis.execution.safe_patch_generator import SafePatchGenerator
 from jarvis.execution.diff_renderer import DiffRenderer
 from jarvis.execution.patch_validator import PatchValidator
@@ -190,9 +191,8 @@ if __name__ == "__main__":
         "راجع شاشة الفواتير واقترح تحسين آمن"
     )
 
-    print("Jarvis Execution Report")
-    print("=" * 40)
-    print(f"Task: {report['task']}")
+    formatter = RuntimeReportFormatter()
+    print(formatter.format(report))
 
     print("\nExpected Files:")
     for item in report["plan"]["expected_files"]:
