@@ -248,6 +248,17 @@ class RuntimeReportFormatter:
                 )
                 lines.append(f"- Message: {finalization.get('message')}")
 
+            system_health = apply_readiness.get("system_health", {})
+
+            if system_health:
+                lines.append("\nExecution System Health:")
+                lines.append(
+                    f"- Status: {system_health.get('status')}"
+                )
+                lines.append(
+                    f"- OK: {system_health.get('ok')}"
+                )
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:

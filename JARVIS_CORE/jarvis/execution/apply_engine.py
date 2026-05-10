@@ -9,6 +9,7 @@ from jarvis.execution.sandbox_integrity_verifier import SandboxIntegrityVerifier
 from jarvis.execution.apply_safety_receipt import ApplySafetyReceipt
 from jarvis.execution.audit_trail import AuditTrail
 from jarvis.execution.apply_finalizer import ApplyFinalizer
+from jarvis.execution.system_health_check import ExecutionSystemHealthCheck
 
 
 class ApplyEngine:
@@ -30,6 +31,7 @@ class ApplyEngine:
         self.receipt_manager = ApplySafetyReceipt(root)
         self.audit_trail = AuditTrail(root)
         self.finalizer = ApplyFinalizer()
+        self.health_check = ExecutionSystemHealthCheck(root)
 
     def prepare_apply(
         self,
@@ -136,6 +138,8 @@ class ApplyEngine:
             audit_trail=audit_result,
         )
 
+        health_status = self.health_check.run()
+
         return {
             "status": "ready_for_controlled_apply",
             "can_apply": False,
@@ -154,4 +158,5 @@ class ApplyEngine:
             "apply_safety_receipt": receipt,
             "audit_trail": audit_result,
             "apply_finalization": finalization,
+            "system_health": health_status,
         }
