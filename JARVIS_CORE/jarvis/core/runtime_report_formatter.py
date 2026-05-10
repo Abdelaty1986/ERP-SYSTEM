@@ -359,6 +359,18 @@ class RuntimeReportFormatter:
                     f"- OK: {system_health.get('ok')}"
                 )
 
+            real_apply = apply_readiness.get("real_apply_switch", {})
+
+            if real_apply:
+                lines.append("\nReal Apply Switch:")
+                lines.append(f"- Mode: {real_apply.get('mode')}")
+                lines.append(f"- Enabled: {real_apply.get('enabled')}")
+                lines.append(
+                    f"- Can Apply Real Files: "
+                    f"{real_apply.get('can_apply_real_files')}"
+                )
+                lines.append(f"- Reason: {real_apply.get('reason')}")
+
             skipped_targets = apply_session.get("skipped_targets", [])
 
             if skipped_targets:

@@ -10,6 +10,7 @@ from jarvis.execution.apply_safety_receipt import ApplySafetyReceipt
 from jarvis.execution.audit_trail import AuditTrail
 from jarvis.execution.apply_finalizer import ApplyFinalizer
 from jarvis.execution.system_health_check import ExecutionSystemHealthCheck
+from jarvis.execution.real_apply_switch import RealApplySwitch
 from jarvis.execution.sandbox_patch_applier import SandboxPatchApplier
 from jarvis.execution.sandbox_post_apply_tester import SandboxPostApplyTester
 from jarvis.execution.patch_intelligence import PatchIntelligence
@@ -36,6 +37,7 @@ class ApplyEngine:
         self.audit_trail = AuditTrail(root)
         self.finalizer = ApplyFinalizer()
         self.health_check = ExecutionSystemHealthCheck(root)
+        self.real_apply_switch = RealApplySwitch()
         self.sandbox_patch_applier = SandboxPatchApplier()
         self.post_apply_tester = SandboxPostApplyTester()
         self.patch_intelligence = PatchIntelligence()
@@ -173,6 +175,7 @@ class ApplyEngine:
         )
 
         health_status = self.health_check.run()
+        real_apply_status = self.real_apply_switch.status()
 
         return {
             "status": "ready_for_controlled_apply",
@@ -196,4 +199,5 @@ class ApplyEngine:
             "audit_trail": audit_result,
             "apply_finalization": finalization,
             "system_health": health_status,
+            "real_apply_switch": real_apply_status,
         }
