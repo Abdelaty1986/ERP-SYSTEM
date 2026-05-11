@@ -423,6 +423,16 @@ body:before{
     
     
     
+    
+    <div class="panel" id="runtime-health-panel">
+      <div class="panel-title">صحة تشغيل جارفيس</div>
+      <div class="panel-sub">Runtime Health Monitor</div>
+      <div class="gitbox"><div class="label">Health</div><div class="value" id="runtime-health-status">Loading...</div></div>
+      <div class="gitbox"><div class="label">Disk Usage</div><div class="value" id="runtime-disk-usage">--</div></div>
+      <div class="gitbox"><div class="label">Runtime Logs</div><div class="value" id="runtime-log-files">--</div></div>
+    </div>
+
+
     <div class="panel" id="repair-panel">
       <div class="panel-title">حلقة الإصلاح الذاتي</div>
       <div class="panel-sub">Autonomous Repair Loop</div>
@@ -488,6 +498,16 @@ async function refreshJarvisRuntime(){
 
     const hudState = document.querySelector(".hud-text span");
     if(hudState) hudState.textContent = data.health.status.toUpperCase();
+
+    const runtimeHealthStatus = document.getElementById("runtime-health-status");
+    const runtimeDiskUsage = document.getElementById("runtime-disk-usage");
+    const runtimeLogFiles = document.getElementById("runtime-log-files");
+
+    if(data.runtime_health){
+      if(runtimeHealthStatus) runtimeHealthStatus.textContent = data.runtime_health.status;
+      if(runtimeDiskUsage) runtimeDiskUsage.textContent = data.runtime_health.disk.usage_percent + "%";
+      if(runtimeLogFiles) runtimeLogFiles.textContent = data.runtime_health.runtime_logs.files;
+    }
 
     const repairStatus = document.getElementById("repair-status");
     const repairAutoApply = document.getElementById("repair-auto-apply");
