@@ -1,0 +1,37 @@
+{
+  "agents": {
+    "gemini_free": {
+      "total_runs": 1,
+      "successes": 1,
+      "failures": 0,
+      "task_types": {
+        "python": {
+          "runs": 1,
+          "successes": 1,
+          "failures": 0
+        }
+      },
+      "avg_duration_seconds": 3.2,
+      "avg_safety_score": 9.0,
+      "last_result": "success",
+      "last_seen": "2026-05-11T10:05:21"
+    },
+    "groq_free": {
+      "total_runs": 1,
+      "successes": 0,
+      "failures": 1,
+      "task_types": {
+        "python": {
+          "runs": 1,
+          "successes": 0,
+          "failures": 1
+        }
+      },
+      "avg_duration_seconds": 2.1,
+      "avg_safety_score": 6.5,
+      "last_result": "failure",
+      "last_seen": "2026-05-11T10:05:21"
+    }
+  },
+  "updated_at": "2026-05-11T10:05:21"
+}

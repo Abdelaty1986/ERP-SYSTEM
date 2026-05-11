@@ -1,6 +1,7 @@
 from jarvis.config import RuntimeConfigManager
 from jarvis.logging import RuntimeLogger
 from jarvis.security import RuntimePermissionManager
+from jarvis.learning import AgentLearningMemory
 
 
 class JarvisMobileRuntimeAPI:
@@ -8,6 +9,7 @@ class JarvisMobileRuntimeAPI:
         self.config_manager = RuntimeConfigManager()
         self.logger = RuntimeLogger()
         self.permission_manager = RuntimePermissionManager()
+        self.learning_memory = AgentLearningMemory()
 
     def get_status(self):
         config = self.config_manager.load()
@@ -31,6 +33,10 @@ class JarvisMobileRuntimeAPI:
                 "allow_shell_execution": permission.allow_shell_execution,
             },
             "events": recent_events,
+            "learning": {
+                "best_agent_python": self.learning_memory.best_agent("python"),
+                "ranked_agents_python": self.learning_memory.rank_agents("python"),
+            },
             "health": {
                 "status": "online",
                 "source": "jarvis_mobile_runtime_api",
