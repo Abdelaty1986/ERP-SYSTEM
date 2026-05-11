@@ -327,6 +327,96 @@ body:before{
   .bottom{grid-template-columns:repeat(5,1fr)}
   .nav:nth-child(6){display:none}
 }
+
+.runtime-sessions-wrapper{
+  width:100%;
+  margin-top:18px;
+}
+
+.runtime-sessions-feed{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  max-height:420px;
+  overflow:auto;
+  padding-top:10px;
+}
+
+.runtime-session-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px;
+  border-radius:18px;
+  border:1px solid rgba(0,255,255,.18);
+  background:rgba(0,20,40,.45);
+}
+
+.runtime-session-icon{
+  font-size:20px;
+  color:#00e5ff;
+}
+
+.runtime-session-body{
+  flex:1;
+}
+
+.runtime-session-title{
+  font-size:15px;
+  color:white;
+}
+
+.runtime-session-sub{
+  font-size:11px;
+  opacity:.7;
+  margin-top:4px;
+  color:#7ee7ff;
+}
+
+.runtime-session-status{
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(0,255,255,.12);
+}
+
+.runtime-session-status.completed{
+  color:#00ff9d;
+}
+
+.runtime-session-status.active{
+  color:#00e5ff;
+}
+
+.runtime-session-status.failed{
+  color:#ff5b5b;
+}
+
+.runtime-session-status.idle{
+  color:#aaa;
+}
+
+
+
+body{
+  padding-bottom:140px !important;
+}
+
+.runtime-sessions-wrapper{
+  margin-bottom:140px !important;
+}
+
+#runtime-sessions-panel{
+  position:relative;
+  z-index:2;
+}
+
+.runtime-sessions-feed{
+  min-height:220px;
+}
+
+
 </style>
 </head>
 
@@ -407,7 +497,14 @@ body:before{
     <div class="panel" id="task-queue-panel">
       <div class="panel-title">حالة المهام</div>
       <div class="panel-sub">Task Queue</div>
-      <div class="task"><div>▣</div><div>مراجعة شاشة الفواتير<div class="panel-sub">Review invoices screen</div><div class="progress"><i style="width:60%"></i></div></div><div>60%</div></div>
+      <div class="task"><div>▣</div>
+
+    
+          <div>idle</div>
+        </div>
+      </div>
+    </div>
+<div>مراجعة شاشة الفواتير<div class="panel-sub">Review invoices screen</div><div class="progress"><i style="width:60%"></i></div></div><div>60%</div></div>
       <div class="task"><div>▣</div><div>اختبار النظام<div class="panel-sub">System tests</div><div class="progress"><i style="width:45%"></i></div></div><div>45%</div></div>
       <div id="runtime-task-queue">
         <div class="task"><div>▣</div><div>Waiting for runtime commands<div class="panel-sub">Command Queue</div><div class="progress"><i style="width:10%"></i></div></div><div>--</div></div>
@@ -524,6 +621,13 @@ async function refreshJarvisRuntime(){
   try{
     const res = await fetch("/jarvis/mobile/api/status");
     const data = await res.json();
+
+    try{
+      renderRuntimeSessions(data);
+    }catch(e){
+      console.error("Runtime Sessions render failed", e);
+    }
+
 
     const stats = document.querySelectorAll(".status-grid .stat .value");
     if(stats[0]) stats[0].innerHTML = '<span class="dot"></span>' + data.health.status.toUpperCase();
@@ -686,7 +790,100 @@ document.addEventListener("click", async function(e){
     console.error(err);
   }
 });
+
+
+
+function renderRuntimeSessions(data) {
+  const container = document.getElementById("runtime-sessions-feed");
+
+  if (!container) return;
+
+  const sessions = data.runtime_sessions || [];
+
+  if (!sessions.length) {
+    container.innerHTML = `
+      <div class="runtime-session-card">
+        <div class="runtime-session-icon">◉</div>
+
+        <div class="runtime-session-body">
+          <div class="runtime-session-title">
+            No runtime sessions
+          </div>
+
+          <div class="runtime-session-sub">
+            Runtime telemetry idle
+          </div>
+        </div>
+
+        <div class="runtime-session-status idle">
+          idle
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = sessions.slice().reverse().map(session => {
+    const status = session.status || "unknown";
+
+    return `
+      <div class="runtime-session-card">
+
+        <div class="runtime-session-icon">
+          ${status === "completed" ? "✓" : "◉"}
+        </div>
+
+        <div class="runtime-session-body">
+
+          <div class="runtime-session-title">
+            ${session.command_type || "runtime_session"}
+          </div>
+
+          <div class="runtime-session-sub">
+            ${session.session_id || ""}
+          </div>
+
+          <div class="runtime-session-sub">
+            ${session.started_at || ""}
+          </div>
+
+        </div>
+
+        <div class="runtime-session-status ${status}">
+          ${status}
+        </div>
+
+      </div>
+    `;
+  }).join("");
+}
+
+
 </script>
 
 </body>
 </html>
+
+<div class="panel runtime-sessions-wrapper" id="runtime-sessions-panel">
+  <div class="panel-title">Runtime Sessions</div>
+
+  <div id="runtime-sessions-feed" class="runtime-sessions-feed">
+    <div class="runtime-session-card">
+      <div class="runtime-session-icon">◉</div>
+
+      <div class="runtime-session-body">
+        <div class="runtime-session-title">
+          Waiting for runtime telemetry...
+        </div>
+
+        <div class="runtime-session-sub">
+          No active runtime sessions
+        </div>
+      </div>
+
+      <div class="runtime-session-status idle">
+        idle
+      </div>
+    </div>
+  </div>
+</div>
