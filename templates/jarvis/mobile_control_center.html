@@ -453,6 +453,17 @@ body:before{
     </div>
 
 
+
+    <div class="panel" id="runtime-worker-panel">
+      <div class="panel-title">Runtime Worker</div>
+      <div class="panel-sub">Worker State + Heartbeat</div>
+
+      <div class="gitbox"><div class="label">Status</div><div class="value" id="worker-status">Loading...</div></div>
+      <div class="gitbox"><div class="label">Last Command</div><div class="value" id="worker-command">--</div></div>
+      <div class="gitbox"><div class="label">Last Result</div><div class="value" id="worker-result">--</div></div>
+      <div class="gitbox"><div class="label">Heartbeat</div><div class="value" id="worker-heartbeat">--</div></div>
+    </div>
+
     <div class="panel" id="learning-panel">
       <div class="panel-title">ذاكرة تعلم الإيجنتات</div>
       <div class="panel-sub">Agent Learning Memory</div>
@@ -518,6 +529,19 @@ async function refreshJarvisRuntime(){
           `;
         });
       }
+    }
+
+
+    if(data.worker_state){
+      const workerStatus = document.getElementById("worker-status");
+      const workerCommand = document.getElementById("worker-command");
+      const workerResult = document.getElementById("worker-result");
+      const workerHeartbeat = document.getElementById("worker-heartbeat");
+
+      if(workerStatus) workerStatus.textContent = data.worker_state.worker_status || "unknown";
+      if(workerCommand) workerCommand.textContent = data.worker_state.last_command || "none";
+      if(workerResult) workerResult.textContent = data.worker_state.last_result || "none";
+      if(workerHeartbeat) workerHeartbeat.textContent = data.worker_state.last_heartbeat || "---";
     }
 
     const runtimeHealthStatus = document.getElementById("runtime-health-status");
