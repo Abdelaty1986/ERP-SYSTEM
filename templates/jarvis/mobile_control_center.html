@@ -403,12 +403,14 @@ body:before{
   </div>
 
   <div class="lower">
-    <div class="panel">
+    <div class="panel" id="task-queue-panel">
       <div class="panel-title">حالة المهام</div>
       <div class="panel-sub">Task Queue</div>
       <div class="task"><div>▣</div><div>مراجعة شاشة الفواتير<div class="panel-sub">Review invoices screen</div><div class="progress"><i style="width:60%"></i></div></div><div>60%</div></div>
       <div class="task"><div>▣</div><div>اختبار النظام<div class="panel-sub">System tests</div><div class="progress"><i style="width:45%"></i></div></div><div>45%</div></div>
-      <div class="task"><div>▣</div><div>تحسين الأداء<div class="panel-sub">Performance</div><div class="progress"><i style="width:20%"></i></div></div><div>20%</div></div>
+      <div id="runtime-task-queue">
+        <div class="task"><div>▣</div><div>Waiting for runtime commands<div class="panel-sub">Command Queue</div><div class="progress"><i style="width:10%"></i></div></div><div>--</div></div>
+      </div>
     </div>
 
     <div class="panel">
@@ -498,6 +500,25 @@ async function refreshJarvisRuntime(){
 
     const hudState = document.querySelector(".hud-text span");
     if(hudState) hudState.textContent = data.health.status.toUpperCase();
+
+    const runtimeQueue = document.getElementById("runtime-task-queue");
+    if(runtimeQueue && data.command_queue){
+      runtimeQueue.innerHTML = "";
+
+      if(data.command_queue.length === 0){
+        runtimeQueue.innerHTML = '<div class="task"><div>▣</div><div>No queued commands<div class="panel-sub">Command Queue</div><div class="progress"><i style="width:5%"></i></div></div><div>0</div></div>';
+      }else{
+        data.command_queue.slice(-5).reverse().forEach(cmd => {
+          runtimeQueue.innerHTML += `
+            <div class="task">
+              <div>▣</div>
+              <div>${cmd.command}<div class="panel-sub">${cmd.reason}</div><div class="progress"><i style="width:65%"></i></div></div>
+              <div>${cmd.status}</div>
+            </div>
+          `;
+        });
+      }
+    }
 
     const runtimeHealthStatus = document.getElementById("runtime-health-status");
     const runtimeDiskUsage = document.getElementById("runtime-disk-usage");

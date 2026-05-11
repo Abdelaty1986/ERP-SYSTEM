@@ -57,8 +57,8 @@ class JarvisMobileRuntimeAPI:
             "runtime_health": self.health_monitor.overall_health(),
             "commands": {
                 "allowed": sorted(list(RuntimeCommandAPI.ALLOWED_COMMANDS)),
-                "demo_command": self.command_api.submit_command("system_review"),
             },
+            "command_queue": self.command_api.read_queue(limit=10),
             "health": {
                 "status": "online",
                 "source": "jarvis_mobile_runtime_api",
