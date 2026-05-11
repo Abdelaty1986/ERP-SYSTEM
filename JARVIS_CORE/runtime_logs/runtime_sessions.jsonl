@@ -1,2 +1,4 @@
 {"session_id": "e184ddeb-3bb1-453e-bb55-79a336a6d480", "command_id": "test-command-001", "command_type": "worker_tick", "source": "runtime_worker", "status": "active", "started_at": "2026-05-11T11:32:38.352684Z", "ended_at": null, "result": null, "error": null}
 {"session_id": "e184ddeb-3bb1-453e-bb55-79a336a6d480", "status": "completed", "ended_at": "2026-05-11T11:32:38.365170Z", "result": "session manager test completed", "error": null}
+{"session_id": "bc18f2d1-f0b0-4ea7-91f9-a58766964ee4", "command_id": "runtime_tick", "command_type": "worker_tick", "source": "mobile_hud", "status": "active", "started_at": "2026-05-11T12:03:58.883754Z", "ended_at": null, "result": null, "error": null}
+{"session_id": "bc18f2d1-f0b0-4ea7-91f9-a58766964ee4", "status": "completed", "ended_at": "2026-05-11T12:03:58.898749Z", "result": "worker tick completed", "error": null}
