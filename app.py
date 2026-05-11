@@ -4063,6 +4063,15 @@ app.view_functions["change_user_password"] = login_required(admin_required(build
 app.view_functions["delete_user"] = login_required(admin_required(build_delete_user_view(MODULE_DEPS)))
 
 
+
+@app.route("/jarvis/mobile/api/worker/tick", methods=["POST"])
+def jarvis_mobile_worker_tick():
+    from flask import jsonify
+    from jarvis.execution.runtime_queue_worker import RuntimeQueueWorker
+
+    result = RuntimeQueueWorker().process_once()
+    return jsonify(result), 200
+
 @app.route("/jarvis/mobile/api/status")
 def jarvis_mobile_api_status():
     from flask import jsonify
