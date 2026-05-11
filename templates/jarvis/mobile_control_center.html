@@ -420,6 +420,15 @@ body:before{
       <div class="log"><div style="color:var(--green)">06:55:20</div><div style="color:var(--green)">Command received: مراجعة الفواتير</div></div>
     </div>
 
+    
+    <div class="panel" id="learning-panel">
+      <div class="panel-title">ذاكرة تعلم الإيجنتات</div>
+      <div class="panel-sub">Agent Learning Memory</div>
+      <div class="gitbox"><div class="label">Best Python Agent</div><div class="value" id="best-agent">Loading...</div></div>
+      <div id="agent-ranking"></div>
+    </div>
+
+
     <div class="panel">
       <div class="panel-title">حالة Git</div>
       <div class="panel-sub">Git Status</div>
@@ -459,6 +468,25 @@ async function refreshJarvisRuntime(){
 
     const hudState = document.querySelector(".hud-text span");
     if(hudState) hudState.textContent = data.health.status.toUpperCase();
+
+    const bestAgent = document.getElementById("best-agent");
+    if(bestAgent && data.learning && data.learning.best_agent_python){
+      bestAgent.textContent = data.learning.best_agent_python.agent_id;
+    }
+
+    const ranking = document.getElementById("agent-ranking");
+    if(ranking && data.learning){
+      ranking.innerHTML = "";
+      (data.learning.ranked_agents_python || []).forEach(agent => {
+        ranking.innerHTML += `
+          <div class="agent">
+            <div class="iconbox">🧠</div>
+            <div>${agent.agent_id}<div class="online">score: ${agent.score}</div></div>
+            <div>${Math.round(agent.success_rate * 100)}%</div>
+          </div>
+        `;
+      });
+    }
 
     const logsPanel = Array.from(document.querySelectorAll(".panel")).find(p =>
       p.textContent.includes("Live Logs")
