@@ -1,0 +1,2 @@
+{"session_id": "e184ddeb-3bb1-453e-bb55-79a336a6d480", "command_id": "test-command-001", "command_type": "worker_tick", "source": "runtime_worker", "status": "active", "started_at": "2026-05-11T11:32:38.352684Z", "ended_at": null, "result": null, "error": null}
+{"session_id": "e184ddeb-3bb1-453e-bb55-79a336a6d480", "status": "completed", "ended_at": "2026-05-11T11:32:38.365170Z", "result": "session manager test completed", "error": null}
