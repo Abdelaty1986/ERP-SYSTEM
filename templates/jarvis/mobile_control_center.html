@@ -421,6 +421,16 @@ body:before{
     </div>
 
     
+    
+    <div class="panel" id="consensus-panel">
+      <div class="panel-title">إجماع الإيجنتات</div>
+      <div class="panel-sub">Multi-Agent Consensus</div>
+      <div class="gitbox"><div class="label">Decision</div><div class="value" id="consensus-decision">Loading...</div></div>
+      <div class="gitbox"><div class="label">Confidence</div><div class="value" id="consensus-confidence">--</div></div>
+      <div class="gitbox"><div class="label">Reason</div><div class="value" id="consensus-reason">--</div></div>
+    </div>
+
+
     <div class="panel" id="learning-panel">
       <div class="panel-title">ذاكرة تعلم الإيجنتات</div>
       <div class="panel-sub">Agent Learning Memory</div>
@@ -468,6 +478,16 @@ async function refreshJarvisRuntime(){
 
     const hudState = document.querySelector(".hud-text span");
     if(hudState) hudState.textContent = data.health.status.toUpperCase();
+
+    const consensusDecision = document.getElementById("consensus-decision");
+    const consensusConfidence = document.getElementById("consensus-confidence");
+    const consensusReason = document.getElementById("consensus-reason");
+
+    if(data.consensus){
+      if(consensusDecision) consensusDecision.textContent = data.consensus.final_decision;
+      if(consensusConfidence) consensusConfidence.textContent = Math.round((data.consensus.avg_confidence || 0) * 100) + "%";
+      if(consensusReason) consensusReason.textContent = data.consensus.reason;
+    }
 
     const bestAgent = document.getElementById("best-agent");
     if(bestAgent && data.learning && data.learning.best_agent_python){

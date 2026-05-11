@@ -2,6 +2,7 @@ from jarvis.config import RuntimeConfigManager
 from jarvis.logging import RuntimeLogger
 from jarvis.security import RuntimePermissionManager
 from jarvis.learning import AgentLearningMemory
+from jarvis.consensus import MultiAgentConsensusEngine, AgentOpinion
 
 
 class JarvisMobileRuntimeAPI:
@@ -10,6 +11,7 @@ class JarvisMobileRuntimeAPI:
         self.logger = RuntimeLogger()
         self.permission_manager = RuntimePermissionManager()
         self.learning_memory = AgentLearningMemory()
+        self.consensus_engine = MultiAgentConsensusEngine()
 
     def get_status(self):
         config = self.config_manager.load()
@@ -37,6 +39,11 @@ class JarvisMobileRuntimeAPI:
                 "best_agent_python": self.learning_memory.best_agent("python"),
                 "ranked_agents_python": self.learning_memory.rank_agents("python"),
             },
+            "consensus": self.consensus_engine.evaluate([
+                AgentOpinion("gemini_free", "approve", 0.88, "low", "Runtime status safe"),
+                AgentOpinion("groq_free", "approve", 0.80, "low", "No unsafe action requested"),
+                AgentOpinion("local_reviewer", "approve", 0.92, "low", "Safety gates active"),
+            ]),
             "health": {
                 "status": "online",
                 "source": "jarvis_mobile_runtime_api",
