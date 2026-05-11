@@ -3,6 +3,7 @@ from jarvis.logging import RuntimeLogger
 from jarvis.security import RuntimePermissionManager
 from jarvis.learning import AgentLearningMemory
 from jarvis.consensus import MultiAgentConsensusEngine, AgentOpinion
+from jarvis.repair import AutonomousRepairLoop
 
 
 class JarvisMobileRuntimeAPI:
@@ -12,6 +13,7 @@ class JarvisMobileRuntimeAPI:
         self.permission_manager = RuntimePermissionManager()
         self.learning_memory = AgentLearningMemory()
         self.consensus_engine = MultiAgentConsensusEngine()
+        self.repair_loop = AutonomousRepairLoop()
 
     def get_status(self):
         config = self.config_manager.load()
@@ -44,6 +46,10 @@ class JarvisMobileRuntimeAPI:
                 AgentOpinion("groq_free", "approve", 0.80, "low", "No unsafe action requested"),
                 AgentOpinion("local_reviewer", "approve", 0.92, "low", "Safety gates active"),
             ]),
+            "repair": self.repair_loop.propose_repair_plan(
+                task="runtime health monitoring",
+                failure_output="ModuleNotFoundError: simulated runtime diagnostic"
+            ),
             "health": {
                 "status": "online",
                 "source": "jarvis_mobile_runtime_api",
