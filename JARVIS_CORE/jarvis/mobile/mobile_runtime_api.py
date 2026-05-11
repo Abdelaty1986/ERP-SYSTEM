@@ -5,6 +5,7 @@ from jarvis.learning import AgentLearningMemory
 from jarvis.consensus import MultiAgentConsensusEngine, AgentOpinion
 from jarvis.repair import AutonomousRepairLoop
 from jarvis.health import RuntimeHealthMonitor
+from jarvis.commands import RuntimeCommandAPI
 
 
 class JarvisMobileRuntimeAPI:
@@ -16,6 +17,7 @@ class JarvisMobileRuntimeAPI:
         self.consensus_engine = MultiAgentConsensusEngine()
         self.repair_loop = AutonomousRepairLoop()
         self.health_monitor = RuntimeHealthMonitor('.')
+        self.command_api = RuntimeCommandAPI(logger=self.logger)
 
     def get_status(self):
         config = self.config_manager.load()
@@ -53,6 +55,10 @@ class JarvisMobileRuntimeAPI:
                 failure_output="ModuleNotFoundError: simulated runtime diagnostic"
             ),
             "runtime_health": self.health_monitor.overall_health(),
+            "commands": {
+                "allowed": sorted(list(RuntimeCommandAPI.ALLOWED_COMMANDS)),
+                "demo_command": self.command_api.submit_command("system_review"),
+            },
             "health": {
                 "status": "online",
                 "source": "jarvis_mobile_runtime_api",

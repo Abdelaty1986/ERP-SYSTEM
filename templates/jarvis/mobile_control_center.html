@@ -395,11 +395,11 @@ body:before{
   </div>
 
   <div class="actions">
-    <div class="action"><div class="ico">🖥️</div><b>System Review</b><span>مراجعة النظام</span></div>
-    <div class="action"><div class="ico">🧪</div><b>Run Tests</b><span>اختبار الكود</span></div>
-    <div class="action"><div class="ico">🐞</div><b>Scan Errors</b><span>فحص الأخطاء</span></div>
-    <div class="action"><div class="ico">📈</div><b>Improve</b><span>اقتراح تطوير</span></div>
-    <div class="action"><div class="ico">📄</div><b>Report</b><span>تقرير الأداء</span></div>
+    <div class="action" data-command="system_review"><div class="ico">🖥️</div><b>System Review</b><span>مراجعة النظام</span></div>
+    <div class="action" data-command="run_tests"><div class="ico">🧪</div><b>Run Tests</b><span>اختبار الكود</span></div>
+    <div class="action" data-command="scan_errors"><div class="ico">🐞</div><b>Scan Errors</b><span>فحص الأخطاء</span></div>
+    <div class="action" data-command="improve"><div class="ico">📈</div><b>Improve</b><span>اقتراح تطوير</span></div>
+    <div class="action" data-command="report"><div class="ico">📄</div><b>Report</b><span>تقرير الأداء</span></div>
   </div>
 
   <div class="lower">
@@ -582,6 +582,43 @@ async function refreshJarvisRuntime(){
 
 refreshJarvisRuntime();
 setInterval(refreshJarvisRuntime, 7000);
+</script>
+
+
+<script>
+document.addEventListener("click", async function(e){
+  const btn = e.target.closest("[data-command]");
+  if(!btn) return;
+
+  const command = btn.getAttribute("data-command");
+  const oldText = btn.querySelector("span") ? btn.querySelector("span").textContent : "";
+
+  try{
+    const res = await fetch(`/jarvis/mobile/api/command/${command}`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({source: "mobile_hud"})
+    });
+
+    const data = await res.json();
+
+    if(btn.querySelector("span")){
+      btn.querySelector("span").textContent = data.status === "queued" ? "Queued ✅" : "Rejected ⛔";
+    }
+
+    setTimeout(() => {
+      if(btn.querySelector("span")) btn.querySelector("span").textContent = oldText;
+    }, 2500);
+
+    if(typeof refreshJarvisRuntime === "function"){
+      refreshJarvisRuntime();
+    }
+
+  }catch(err){
+    if(btn.querySelector("span")) btn.querySelector("span").textContent = "Error";
+    console.error(err);
+  }
+});
 </script>
 
 </body>

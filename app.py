@@ -4073,3 +4073,17 @@ def jarvis_mobile_api_status():
     api = JarvisMobileRuntimeAPI()
     return jsonify(api.get_status())
 
+@app.route("/jarvis/mobile/api/command/<command>", methods=["POST"])
+def jarvis_mobile_api_command(command):
+    from flask import jsonify, request
+    from jarvis.logging import RuntimeLogger
+    from jarvis.commands import RuntimeCommandAPI
+
+    api = RuntimeCommandAPI(logger=RuntimeLogger())
+    result = api.submit_command(
+        command,
+        payload=request.get_json(silent=True) or {},
+        project_id="ledgerx",
+    )
+    return jsonify(result), 202 if result.get("accepted") else 400
+
