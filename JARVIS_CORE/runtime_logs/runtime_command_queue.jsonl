@@ -1,4 +1,6 @@
 {"id": "88ae4f8a-b41e-4e10-85a5-f1364049a923", "command": "run_tests", "status": "completed", "reason": "validated and completed in simulation mode", "created_at": "2026-05-11T10:38:33", "updated_at": "2026-05-11T07:49:54Z"}
 {"id": "manual-test-001", "command": "report", "status": "completed", "reason": "validated and completed in simulation mode", "created_at": "2026-05-11T10:00:00", "updated_at": "2026-05-11T08:00:19Z"}
 {"id": "2d178c52-dc9b-4e04-a910-d8b22978f8e5", "command": "system_review", "status": "completed", "reason": "validated and completed in simulation mode", "created_at": "2026-05-11T11:23:33", "updated_at": "2026-05-11T10:01:18Z"}
-{"id": "38c8f4f0-9f8f-4dba-9671-c66e0b369360", "command": "system_review", "status": "queued", "reason": "safe_command_queued_no_direct_apply", "created_at": "2026-05-11T11:23:33", "updated_at": "2026-05-11T10:01:18Z"}
+{"id": "38c8f4f0-9f8f-4dba-9671-c66e0b369360", "command": "system_review", "status": "completed", "reason": "validated and completed in simulation mode", "created_at": "2026-05-11T11:23:33", "updated_at": "2026-05-11T10:04:47Z"}
+{"id": "dfcabc5e-6093-43d6-9a92-bd1b163f5e19", "command": "system_review", "status": "completed", "reason": "validated and completed in simulation mode", "created_at": "2026-05-11T13:04:08", "updated_at": "2026-05-11T11:10:47Z"}
+{"id": "bcd143fb-d9e7-439f-86f2-67aebb98c19c", "command": "system_review", "status": "completed", "reason": "validated and completed in simulation mode", "created_at": "2026-05-11T13:04:08", "updated_at": "2026-05-11T11:19:45Z"}
