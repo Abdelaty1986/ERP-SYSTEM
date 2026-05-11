@@ -4062,8 +4062,6 @@ app.view_functions["users"] = login_required(admin_required(build_users_view(MOD
 app.view_functions["change_user_password"] = login_required(admin_required(build_change_user_password_view(MODULE_DEPS)))
 app.view_functions["delete_user"] = login_required(admin_required(build_delete_user_view(MODULE_DEPS)))
 
-if __name__ == "__main__":
-    app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
 @app.route("/jarvis/mobile/api/status")
 def jarvis_mobile_api_status():
@@ -4086,4 +4084,7 @@ def jarvis_mobile_api_command(command):
         project_id="ledgerx",
     )
     return jsonify(result), 202 if result.get("accepted") else 400
+
+if __name__ == "__main__":
+    app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

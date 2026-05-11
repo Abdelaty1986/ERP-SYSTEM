@@ -6,6 +6,7 @@ from jarvis.consensus import MultiAgentConsensusEngine, AgentOpinion
 from jarvis.repair import AutonomousRepairLoop
 from jarvis.health import RuntimeHealthMonitor
 from jarvis.commands import RuntimeCommandAPI
+from jarvis.execution.runtime_worker_state import RuntimeWorkerState
 
 
 class JarvisMobileRuntimeAPI:
@@ -59,6 +60,7 @@ class JarvisMobileRuntimeAPI:
                 "allowed": sorted(list(RuntimeCommandAPI.ALLOWED_COMMANDS)),
             },
             "command_queue": self.command_api.read_queue(limit=10),
+            "worker_state": RuntimeWorkerState.read(),
             "health": {
                 "status": "online",
                 "source": "jarvis_mobile_runtime_api",
