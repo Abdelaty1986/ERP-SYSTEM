@@ -26,12 +26,14 @@ from jarvis.agents.groq_agent import GroqAgent
 from jarvis.agents.gemini_agent import GeminiAgent
 from jarvis.agents.openrouter_agent import OpenRouterAgent
 from jarvis.config import RuntimeConfigManager
+from jarvis.logging import RuntimeLogger
 
 
 class Orchestrator:
     def __init__(self, project_id="ledgerx"):
         self.runtime_config_manager = RuntimeConfigManager()
         self.runtime_config = self.runtime_config_manager.load()
+        self.runtime_logger = RuntimeLogger()
         self.project_id = project_id
         self.registry = AgentRegistry()
         self.decision_engine = DecisionEngine()
@@ -71,14 +73,42 @@ class Orchestrator:
         tag_execution=False,
         isolated_branch=False,
     ):
+        self.runtime_logger.log_event(
+            event_type="runtime_task_started",
+            project_id=self.project_id,
+            task=task,
+            status="started",
+            details={
+                "runtime_mode": self.runtime_config.runtime_mode,
+                "permission_level": self.runtime_config.permission_level,
+                "real_apply_mode": real_apply_mode,
+                "tag_execution": tag_execution,
+                "isolated_branch": isolated_branch,
+            },
+        )
+
         pipeline = ExecutionPipeline(self)
-        return pipeline.run(
+        report = pipeline.run(
             task,
             human_approval=human_approval,
             real_apply_mode=real_apply_mode,
             tag_execution=tag_execution,
             isolated_branch=isolated_branch,
         )
+
+        self.runtime_logger.log_event(
+            event_type="runtime_task_completed",
+            project_id=self.project_id,
+            task=task,
+            status="completed",
+            details={
+                "runtime_mode": self.runtime_config.runtime_mode,
+                "real_apply_mode": real_apply_mode,
+                "report_type": type(report).__name__,
+            },
+        )
+
+        return report
 
 
 def _to_json_safe(value):
