@@ -1,0 +1,8 @@
+{
+  "runtime_mode": "simulation_only",
+  "permission_level": "sandbox_only",
+  "voice_enabled": true,
+  "git_tags_enabled": true,
+  "isolated_branches_enabled": true,
+  "real_apply_requires_approval": true
+}

@@ -25,10 +25,13 @@ from jarvis.agents.reviewer_agent import ReviewerAgent
 from jarvis.agents.groq_agent import GroqAgent
 from jarvis.agents.gemini_agent import GeminiAgent
 from jarvis.agents.openrouter_agent import OpenRouterAgent
+from jarvis.config import RuntimeConfigManager
 
 
 class Orchestrator:
     def __init__(self, project_id="ledgerx"):
+        self.runtime_config_manager = RuntimeConfigManager()
+        self.runtime_config = self.runtime_config_manager.load()
         self.project_id = project_id
         self.registry = AgentRegistry()
         self.decision_engine = DecisionEngine()
