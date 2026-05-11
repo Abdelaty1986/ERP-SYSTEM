@@ -782,6 +782,19 @@ def ai_dashboard():
     )
 
 
+
+@app.route("/jarvis/mobile")
+def jarvis_mobile_control_center():
+    from jarvis.mobile.mobile_control_center import JarvisMobileControlCenter
+
+    data = JarvisMobileControlCenter().snapshot()
+
+    return render_template(
+        "jarvis/mobile_control_center.html",
+        data=data,
+    )
+
+
 @app.route("/dev-control")
 @login_required
 @admin_required
@@ -4051,3 +4064,12 @@ app.view_functions["delete_user"] = login_required(admin_required(build_delete_u
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
+
+@app.route("/jarvis/mobile/api/status")
+def jarvis_mobile_api_status():
+    from flask import jsonify
+    from jarvis.mobile.mobile_runtime_api import JarvisMobileRuntimeAPI
+
+    api = JarvisMobileRuntimeAPI()
+    return jsonify(api.get_status())
+
