@@ -6,6 +6,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
+from jarvis.execution.runtime_worker_state import RuntimeWorkerState
 
 
 ROOT = Path("JARVIS_CORE")
@@ -101,6 +102,12 @@ class RuntimeQueueWorker:
         if not target:
             return {"processed": False, "reason": "no queued commands"}
 
+        RuntimeWorkerState.write(
+            worker_status="running",
+            last_command=target.command,
+            last_result="started"
+        )
+
         log_event("runtime_queue_worker_started", {"id": target.id, "command": target.command})
 
         target.status = "validating"
@@ -125,6 +132,12 @@ class RuntimeQueueWorker:
         target.reason = "validated and completed in simulation mode"
         target.updated_at = now()
         self.write_queue(items)
+        RuntimeWorkerState.write(
+            worker_status="idle",
+            last_command=target.command,
+            last_result="completed"
+        )
+
         log_event("runtime_queue_worker_completed", asdict(target))
 
         return {"processed": True, "status": "completed", "item": asdict(target)}
