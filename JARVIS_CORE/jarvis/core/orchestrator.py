@@ -27,6 +27,7 @@ from jarvis.agents.gemini_agent import GeminiAgent
 from jarvis.agents.openrouter_agent import OpenRouterAgent
 from jarvis.config import RuntimeConfigManager
 from jarvis.logging import RuntimeLogger
+from jarvis.security import RuntimePermissionManager
 
 
 class Orchestrator:
@@ -34,6 +35,7 @@ class Orchestrator:
         self.runtime_config_manager = RuntimeConfigManager()
         self.runtime_config = self.runtime_config_manager.load()
         self.runtime_logger = RuntimeLogger()
+        self.permission_manager = RuntimePermissionManager()
         self.project_id = project_id
         self.registry = AgentRegistry()
         self.decision_engine = DecisionEngine()
@@ -73,6 +75,24 @@ class Orchestrator:
         tag_execution=False,
         isolated_branch=False,
     ):
+        permission_profile = self.permission_manager.get_profile(
+            self.runtime_config.permission_level
+        )
+
+        if real_apply_mode == "gated_apply" and not permission_profile.allow_real_apply:
+            self.runtime_logger.log_event(
+                event_type="runtime_permission_blocked",
+                project_id=self.project_id,
+                task=task,
+                status="blocked",
+                details={
+                    "permission_level": self.runtime_config.permission_level,
+                    "requested_mode": real_apply_mode,
+                    "reason": "real_apply_not_allowed_by_permission_profile",
+                },
+            )
+            real_apply_mode = "simulation_only"
+
         self.runtime_logger.log_event(
             event_type="runtime_task_started",
             project_id=self.project_id,
