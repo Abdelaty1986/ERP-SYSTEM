@@ -4085,12 +4085,15 @@ def jarvis_mobile_worker_tick():
 
 @app.route("/jarvis/mobile/api/status")
 def jarvis_mobile_api_status():
+    session_manager = RuntimeSessionManager()
+    runtime_sessions = session_manager.list_sessions(limit=15)
     from flask import jsonify
     from jarvis.mobile.mobile_runtime_api import JarvisMobileRuntimeAPI
 
     api = JarvisMobileRuntimeAPI()
-    return jsonify(api.get_status())
-
+    status = api.get_status()
+    status["runtime_sessions"] = runtime_sessions
+    return jsonify(status)
 @app.route("/jarvis/mobile/api/command/<command>", methods=["POST"])
 def jarvis_mobile_api_command(command):
     from flask import jsonify, request
