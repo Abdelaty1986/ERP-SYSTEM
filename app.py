@@ -4185,6 +4185,17 @@ def jarvis_mobile_api_status():
     api = JarvisMobileRuntimeAPI()
     status = api.get_status()
     status["runtime_sessions"] = runtime_sessions
+
+    try:
+        from jarvis.health.runtime_health_monitor import RuntimeHealthMonitor
+        status["runtime_health"] = RuntimeHealthMonitor().overall_health()
+    except Exception as exc:
+        status["runtime_health"] = {
+            "status": "unknown",
+            "warnings": ["runtime_health_monitor_failed"],
+            "error": str(exc),
+        }
+
     return jsonify(status)
 @app.route("/jarvis/mobile/api/command/<command>", methods=["POST"])
 def jarvis_mobile_api_command(command):
