@@ -1,0 +1,13 @@
+{
+  "fc0bdf4e-6535-4209-9538-bb7ac7a90d4c": {
+    "session_id": "fc0bdf4e-6535-4209-9538-bb7ac7a90d4c",
+    "command_id": "registry-test",
+    "command_type": "runtime_test",
+    "source": "runtime_worker",
+    "status": "completed",
+    "started_at": "2026-05-12T04:06:44.003173Z",
+    "ended_at": "2026-05-12T04:06:44.031237Z",
+    "result": "registry lifecycle completed",
+    "error": null
+  }
+}
