@@ -4119,6 +4119,7 @@ def jarvis_mobile_runtime_activity_feed():
     from flask import jsonify
 
     manager = RuntimeSessionManager()
+    timeline = RuntimeTimeline()
     raw_sessions = manager.list_registry_sessions(limit=30)
 
     sessions = [
@@ -4142,9 +4143,12 @@ def jarvis_mobile_runtime_activity_feed():
             "error": session.get("error"),
         })
 
+    timeline_events = timeline.list_events(limit=20)
+
     return jsonify({
         "count": len(feed),
         "feed": feed,
+        "timeline_events": timeline_events,
     })
 
 @app.route("/jarvis/mobile/api/runtime/execution-summary")
