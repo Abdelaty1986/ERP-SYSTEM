@@ -4271,6 +4271,7 @@ def jarvis_mobile_api_status():
         wake_state_path = Path("JARVIS_CORE/runtime_logs/runtime_wake_state.json")
         wake_events_path = Path("JARVIS_CORE/runtime_logs/runtime_wake_events.jsonl")
         wake_cycles_path = Path("JARVIS_CORE/runtime_logs/runtime_wake_cycles.jsonl")
+        observation_memory_path = Path("JARVIS_CORE/runtime_logs/runtime_observation_memory.json")
 
         wake_state = {}
         if wake_state_path.exists():
@@ -4300,6 +4301,20 @@ def jarvis_mobile_api_status():
             if cycle_lines:
                 latest_wake_cycle = json.loads(cycle_lines[-1])
 
+        observation_memory = {}
+        if observation_memory_path.exists():
+            observation_memory = json.loads(observation_memory_path.read_text(encoding="utf-8"))
+
+        memory_summary = {
+            "available": bool(observation_memory),
+            "last_updated": observation_memory.get("last_updated"),
+            "wake_history_size": len(observation_memory.get("wake_history", [])),
+            "silence_history_size": len(observation_memory.get("silence_history", [])),
+            "cognition_history_size": len(observation_memory.get("cognition_history", [])),
+            "supervisor_history_size": len(observation_memory.get("supervisor_history", [])),
+            "latest_cognition": (observation_memory.get("cognition_history", []) or [None])[-1],
+        }
+
         status["wake_supervisor"] = {
             "available": True,
             "wake_needed": bool(wake_state.get("wake_needed", False)),
@@ -4313,6 +4328,7 @@ def jarvis_mobile_api_status():
             "latest_wake_event": latest_wake_event,
             "wake_cycles_count": wake_cycles_count,
             "latest_wake_cycle": latest_wake_cycle,
+            "observation_memory": memory_summary,
             "safety": wake_state.get("safety", {
                 "shell_execution": False,
                 "patch_apply": False,
