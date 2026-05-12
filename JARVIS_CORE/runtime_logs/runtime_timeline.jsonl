@@ -1,0 +1,2 @@
+{"event_id": "d2ce076e-087b-4519-8d0c-86d0a632ddcc", "session_id": "timeline-test-001", "stage": "planning", "agent_id": "planner_agent", "status": "started", "message": "Planning runtime task", "payload": {}, "timestamp": "2026-05-12T05:19:07.496833Z"}
+{"event_id": "239932f1-db8e-47e3-8d5c-c412701982ab", "session_id": "timeline-test-001", "stage": "validation", "agent_id": "reviewer_agent", "status": "completed", "message": "Validation passed", "payload": {}, "timestamp": "2026-05-12T05:19:07.505674Z"}
