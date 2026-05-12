@@ -4073,12 +4073,25 @@ def jarvis_mobile_worker_tick():
         command_type="worker_tick",
         source="mobile_hud",
     )
+
+    session_manager.transition_session(
+        session["session_id"],
+        "validating"
+    )
     from flask import jsonify
     from jarvis.execution.runtime_queue_worker import RuntimeQueueWorker
 
-    result = RuntimeQueueWorker().process_once()
-    session_manager.end_session(
+    
+
+    session_manager.transition_session(
         session["session_id"],
+        "running"
+    )
+
+    result = RuntimeQueueWorker().process_once()
+    session_manager.transition_session(
+        session["session_id"],
+        "completed",
         result="worker tick completed"
     )
     return jsonify(result), 200
