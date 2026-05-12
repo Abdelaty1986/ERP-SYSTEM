@@ -144,8 +144,34 @@ class RuntimeQueueWorker:
             payload=asdict(item),
         )
 
+    def reasoning_event(self, item: QueueItem, thought: str, status: str = "thinking") -> None:
+        self.timeline.add_event(
+            session_id=item.id,
+            stage="agent_reasoning",
+            agent_id="jarvis_reasoning_engine",
+            status=status,
+            message=thought,
+            payload={
+                "command": item.command,
+                "reason": item.reason,
+                "status": item.status,
+            },
+        )
+
     def reaction_event(self, item: QueueItem) -> None:
         reaction = AutonomousRepairLoop().propose_action_reaction(asdict(item))
+
+        self.reasoning_event(
+            item,
+            f"Analyzing outcome of command '{item.command}' after execution lifecycle.",
+        )
+
+        self.reasoning_event(
+            item,
+            f"Generated safe reaction type: {reaction.get('reaction_type')}",
+            status="analysis"
+        )
+
         self.timeline.add_event(
             session_id=item.id,
             stage="action_reaction",
