@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 from jarvis.execution.runtime_worker_state import RuntimeWorkerState
 from jarvis.execution.runtime_timeline import RuntimeTimeline
+from jarvis.repair.autonomous_repair_loop import AutonomousRepairLoop
 
 
 ROOT = Path("JARVIS_CORE")
@@ -143,6 +144,17 @@ class RuntimeQueueWorker:
             payload=asdict(item),
         )
 
+    def reaction_event(self, item: QueueItem) -> None:
+        reaction = AutonomousRepairLoop().propose_action_reaction(asdict(item))
+        self.timeline.add_event(
+            session_id=item.id,
+            stage="action_reaction",
+            agent_id="autonomous_repair_loop",
+            status=reaction.get("severity", "low"),
+            message=reaction.get("message"),
+            payload=reaction,
+        )
+
     def process_once(self) -> Dict[str, Any]:
         items = self.read_queue()
 
@@ -172,6 +184,7 @@ class RuntimeQueueWorker:
             self.write_queue(items)
             log_event("runtime_queue_worker_blocked", asdict(target))
             self.timeline_event(target, "blocked", "blocked", target.reason)
+            self.reaction_event(target)
             return {"processed": True, "status": "blocked", "item": asdict(target)}
 
         target.status = "running"
@@ -193,6 +206,7 @@ class RuntimeQueueWorker:
 
         log_event("runtime_queue_worker_completed", asdict(target))
         self.timeline_event(target, "completed", "completed", target.reason)
+        self.reaction_event(target)
 
         return {"processed": True, "status": "completed", "item": asdict(target)}
 

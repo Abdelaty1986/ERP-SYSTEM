@@ -158,5 +158,51 @@ class AutonomousRepairLoop:
         )
         return plan
 
+    def propose_action_reaction(self, action_result):
+        status = str(action_result.get("status") or "unknown")
+        command = str(action_result.get("command") or "unknown")
+        reason = str(action_result.get("reason") or "")
+
+        if status == "completed":
+            reaction = {
+                "reaction_type": "observe_and_continue",
+                "severity": "low",
+                "message": f"Command '{command}' completed safely in simulation mode.",
+                "suggested_action": "استمر في المراقبة أو اطلب تقرير مختصر عن نتيجة التشغيل.",
+            }
+        elif status == "blocked":
+            reaction = {
+                "reaction_type": "human_review_required",
+                "severity": "medium",
+                "message": f"Command '{command}' was blocked by safety rules.",
+                "suggested_action": "راجع نوع الأمر قبل إعادة إرساله للطابور.",
+            }
+        elif status == "failed":
+            reaction = {
+                "reaction_type": "repair_simulation_recommended",
+                "severity": "high",
+                "message": f"Command '{command}' failed during runtime processing.",
+                "suggested_action": "شغّل repair simulation وافحص آخر timeline events.",
+            }
+        else:
+            reaction = {
+                "reaction_type": "manual_inspection",
+                "severity": "low",
+                "message": f"Command '{command}' ended with status '{status}'.",
+                "suggested_action": "راجع حالة الأمر في Runtime Timeline.",
+            }
+
+        return {
+            "reaction_id": "reaction-" + uuid.uuid4().hex[:12],
+            "timestamp": datetime.now().isoformat(timespec="seconds"),
+            "source": "runtime_action_outcome",
+            "safe_mode": True,
+            "auto_apply": False,
+            "command": command,
+            "status": status,
+            "reason": reason,
+            **reaction,
+        }
+
     def to_json(self, repair_plan):
         return json.dumps(repair_plan, ensure_ascii=False, indent=2)
