@@ -792,6 +792,40 @@ async function refreshJarvisRuntime(){
       }
     }
 
+    const wakeNeeded = document.getElementById("wake-needed");
+    const wakeSilence = document.getElementById("wake-silence");
+    const wakeHeartbeat = document.getElementById("wake-heartbeat");
+    const wakeEventsCount = document.getElementById("wake-events-count");
+    const wakeMode = document.getElementById("wake-mode");
+    const wakeSafety = document.getElementById("wake-safety");
+    const wakeLastSignal = document.getElementById("wake-last-signal");
+
+    if(data.wake_supervisor){
+      const wake = data.wake_supervisor;
+
+      if(wakeNeeded) wakeNeeded.textContent = wake.wake_needed ? "YES" : "NO";
+      if(wakeSilence) wakeSilence.textContent = wake.silence_detected ? "DETECTED" : "OK";
+      if(wakeHeartbeat) wakeHeartbeat.textContent = wake.heartbeat_stale ? "STALE" : "OK";
+      if(wakeEventsCount) wakeEventsCount.textContent = wake.wake_events_count ?? 0;
+      if(wakeMode) wakeMode.textContent = wake.mode || "unknown";
+
+      if(wakeSafety){
+        const safety = wake.safety || {};
+        wakeSafety.textContent = [
+          safety.bounded ? "bounded" : "unbounded",
+          safety.shell_execution ? "shell:on" : "shell:off",
+          safety.patch_apply ? "apply:on" : "apply:off",
+          safety.auto_repair ? "repair:on" : "repair:off"
+        ].join(" / ");
+      }
+
+      if(wakeLastSignal){
+        wakeLastSignal.textContent = wake.latest_wake_event
+          ? `${wake.latest_wake_event.event_type} @ ${wake.latest_wake_event.timestamp}`
+          : "---";
+      }
+    }
+
     const repairStatus = document.getElementById("repair-status");
     const repairAutoApply = document.getElementById("repair-auto-apply");
     const repairFinding = document.getElementById("repair-finding");
@@ -1194,6 +1228,39 @@ async function refreshRuntimeActivityFeed(){
       <span>Idle Ticks</span>
     </div>
   </div>
+
+<div class="panel" id="runtime-wake-supervisor-panel">
+  <div class="panel-title">Runtime Wake Supervisor</div>
+
+  <div class="mini-grid">
+    <div class="mini-card">
+      <div id="wake-needed">--</div>
+      <span>Wake Needed</span>
+    </div>
+    <div class="mini-card">
+      <div id="wake-silence">--</div>
+      <span>Silence</span>
+    </div>
+    <div class="mini-card">
+      <div id="wake-heartbeat">--</div>
+      <span>Heartbeat</span>
+    </div>
+    <div class="mini-card">
+      <div id="wake-events-count">0</div>
+      <span>Wake Signals</span>
+    </div>
+  </div>
+
+  <div class="runtime-session-sub">
+    Mode: <span id="wake-mode">unknown</span>
+  </div>
+  <div class="runtime-session-sub">
+    Safety: <span id="wake-safety">bounded / no shell / no auto apply</span>
+  </div>
+  <div class="runtime-session-sub">
+    Last Signal: <span id="wake-last-signal">---</span>
+  </div>
+</div>
 
 <div class="panel" id="runtime-activity-feed-panel">
   <div class="panel-title">Runtime Activity Feed</div>

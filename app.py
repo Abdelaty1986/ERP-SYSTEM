@@ -4264,6 +4264,58 @@ def jarvis_mobile_api_status():
             }],
         }
 
+    try:
+        import json
+        from pathlib import Path
+
+        wake_state_path = Path("JARVIS_CORE/runtime_logs/runtime_wake_state.json")
+        wake_events_path = Path("JARVIS_CORE/runtime_logs/runtime_wake_events.jsonl")
+
+        wake_state = {}
+        if wake_state_path.exists():
+            wake_state = json.loads(wake_state_path.read_text(encoding="utf-8"))
+
+        wake_events_count = 0
+        latest_wake_event = None
+        if wake_events_path.exists():
+            wake_lines = [
+                line.strip()
+                for line in wake_events_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            wake_events_count = len(wake_lines)
+            if wake_lines:
+                latest_wake_event = json.loads(wake_lines[-1])
+
+        status["wake_supervisor"] = {
+            "available": True,
+            "wake_needed": bool(wake_state.get("wake_needed", False)),
+            "silence_detected": bool(wake_state.get("silence_detected", False)),
+            "heartbeat_stale": bool(wake_state.get("heartbeat_stale", False)),
+            "mode": wake_state.get("mode", "unknown"),
+            "timestamp": wake_state.get("timestamp"),
+            "last_event_age_seconds": wake_state.get("last_event_age_seconds"),
+            "last_timeline_age_seconds": wake_state.get("last_timeline_age_seconds"),
+            "wake_events_count": wake_events_count,
+            "latest_wake_event": latest_wake_event,
+            "safety": wake_state.get("safety", {
+                "shell_execution": False,
+                "patch_apply": False,
+                "auto_repair": False,
+                "bounded": True,
+            }),
+        }
+    except Exception as exc:
+        status["wake_supervisor"] = {
+            "available": False,
+            "error": str(exc),
+            "wake_needed": False,
+            "silence_detected": False,
+            "heartbeat_stale": False,
+            "mode": "unavailable",
+            "safe_mode": True,
+        }
+
     return jsonify(status)
 @app.route("/jarvis/mobile/api/command/<command>", methods=["POST"])
 def jarvis_mobile_api_command(command):
