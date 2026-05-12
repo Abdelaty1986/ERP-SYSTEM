@@ -54,7 +54,7 @@ class RuntimeSessionManager:
             "command_id": command_id,
             "command_type": command_type,
             "source": source,
-            "status": "active",
+            "status": "queued",
             "started_at": self._now(),
             "ended_at": None,
             "result": None,
@@ -132,3 +132,35 @@ class RuntimeSessionManager:
         )
 
         return sessions[:limit]
+
+
+    def transition_session(
+        self,
+        session_id,
+        status,
+        result=None,
+        error=None
+    ):
+
+        registry = self._load_registry()
+
+        session = registry.get(session_id)
+
+        if not session:
+            return None
+
+        session["status"] = status
+
+        if result is not None:
+            session["result"] = result
+
+        if error is not None:
+            session["error"] = error
+
+        if status in ["completed", "failed"]:
+            session["ended_at"] = self._now()
+
+        self._write(session)
+        self._update_registry(session)
+
+        return session
