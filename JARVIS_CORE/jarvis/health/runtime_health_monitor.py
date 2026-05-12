@@ -19,6 +19,18 @@ class RuntimeHealthMonitor:
     def utc_now(self) -> str:
         return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
+    def parse_timestamp(self, value):
+        if not value:
+            return None
+        try:
+            text = str(value).replace("Z", "+00:00")
+            parsed = datetime.fromisoformat(text)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed
+        except Exception:
+            return None
+
     def disk_status(self) -> Dict[str, Any]:
         usage = shutil.disk_usage(self.base_path)
 
@@ -84,10 +96,24 @@ class RuntimeHealthMonitor:
 
     def timeline_status(self) -> Dict[str, Any]:
         if not self.timeline_file.exists():
-            return {"exists": False, "events": 0, "warnings": ["timeline_missing"]}
+            return {"exists": False, "events": 0, "last_event_at": None, "warnings": ["timeline_missing"]}
 
         lines = [line for line in self.timeline_file.read_text(encoding="utf-8").splitlines() if line.strip()]
-        return {"exists": True, "events": len(lines), "warnings": []}
+        last_event_at = None
+
+        for line in reversed(lines):
+            try:
+                last_event_at = json.loads(line).get("timestamp")
+                break
+            except Exception:
+                continue
+
+        return {
+            "exists": True,
+            "events": len(lines),
+            "last_event_at": last_event_at,
+            "warnings": [],
+        }
 
     def worker_status(self) -> Dict[str, Any]:
         if not self.worker_state_file.exists():
@@ -110,10 +136,21 @@ class RuntimeHealthMonitor:
         if state.get("worker_status") == "corrupted":
             warnings.append("worker_state_corrupted")
 
+        last_heartbeat = state.get("last_heartbeat")
+        parsed_heartbeat = self.parse_timestamp(last_heartbeat)
+        heartbeat_age_seconds = None
+
+        if parsed_heartbeat:
+            heartbeat_age_seconds = int((datetime.now(timezone.utc) - parsed_heartbeat).total_seconds())
+
+        if heartbeat_age_seconds is not None and heartbeat_age_seconds > 900:
+            warnings.append("worker_heartbeat_stale")
+
         return {
             "exists": True,
             "worker_status": state.get("worker_status", "unknown"),
-            "last_heartbeat": state.get("last_heartbeat"),
+            "last_heartbeat": last_heartbeat,
+            "heartbeat_age_seconds": heartbeat_age_seconds,
             "last_command": state.get("last_command"),
             "last_result": state.get("last_result"),
             "warnings": warnings,
@@ -130,6 +167,29 @@ class RuntimeHealthMonitor:
         warnings.extend(timeline.get("warnings", []))
         warnings.extend(worker.get("warnings", []))
 
+        anomalies = []
+
+        if worker.get("heartbeat_age_seconds") is not None and worker.get("heartbeat_age_seconds") > 900:
+            anomalies.append({
+                "code": "worker_heartbeat_stale",
+                "severity": "medium",
+                "message": "Worker heartbeat is older than expected.",
+            })
+
+        last_event_at = timeline.get("last_event_at")
+        parsed_event = self.parse_timestamp(last_event_at)
+        timeline_silence_seconds = None
+
+        if parsed_event:
+            timeline_silence_seconds = int((datetime.now(timezone.utc) - parsed_event).total_seconds())
+            if timeline_silence_seconds > 1800:
+                warnings.append("timeline_silence_detected")
+                anomalies.append({
+                    "code": "timeline_silence_detected",
+                    "severity": "low",
+                    "message": "No timeline events were recorded recently.",
+                })
+
         status = "healthy"
 
         if disk["usage_percent"] >= 90 or "worker_state_corrupted" in warnings or "queue_has_bad_lines" in warnings:
@@ -141,6 +201,8 @@ class RuntimeHealthMonitor:
             "timestamp": self.utc_now(),
             "status": status,
             "warnings": warnings,
+            "anomalies": anomalies,
+            "timeline_silence_seconds": timeline_silence_seconds,
             "disk": disk,
             "memory": self.memory_status(),
             "runtime_logs": self.runtime_logs_status(),

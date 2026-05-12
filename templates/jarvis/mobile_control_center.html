@@ -599,6 +599,8 @@ body{
       <div class="gitbox"><div class="label">Health</div><div class="value" id="runtime-health-status">Loading...</div></div>
       <div class="gitbox"><div class="label">Disk Usage</div><div class="value" id="runtime-disk-usage">--</div></div>
       <div class="gitbox"><div class="label">Runtime Logs</div><div class="value" id="runtime-log-files">--</div></div>
+      <div class="gitbox"><div class="label">Anomalies</div><div class="value" id="runtime-anomalies">--</div></div>
+      <div class="gitbox"><div class="label">Last Timeline Silence</div><div class="value" id="runtime-timeline-silence">--</div></div>
     </div>
 
 
@@ -746,11 +748,27 @@ async function refreshJarvisRuntime(){
     const runtimeHealthStatus = document.getElementById("runtime-health-status");
     const runtimeDiskUsage = document.getElementById("runtime-disk-usage");
     const runtimeLogFiles = document.getElementById("runtime-log-files");
+    const runtimeAnomalies = document.getElementById("runtime-anomalies");
+    const runtimeTimelineSilence = document.getElementById("runtime-timeline-silence");
 
     if(data.runtime_health){
       if(runtimeHealthStatus) runtimeHealthStatus.textContent = data.runtime_health.status;
       if(runtimeDiskUsage) runtimeDiskUsage.textContent = data.runtime_health.disk.usage_percent + "%";
       if(runtimeLogFiles) runtimeLogFiles.textContent = data.runtime_health.runtime_logs.files;
+
+      const anomalies = data.runtime_health.anomalies || [];
+      if(runtimeAnomalies){
+        runtimeAnomalies.textContent = anomalies.length
+          ? anomalies.map(a => a.code).join(", ")
+          : "none";
+      }
+
+      if(runtimeTimelineSilence){
+        const seconds = data.runtime_health.timeline_silence_seconds;
+        runtimeTimelineSilence.textContent = seconds === null || seconds === undefined
+          ? "--"
+          : seconds + "s";
+      }
     }
 
     const repairStatus = document.getElementById("repair-status");
