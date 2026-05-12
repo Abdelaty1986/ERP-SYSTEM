@@ -4274,6 +4274,7 @@ def jarvis_mobile_api_status():
         observation_memory_path = Path("JARVIS_CORE/runtime_logs/runtime_observation_memory.json")
         pattern_awareness_path = Path("JARVIS_CORE/runtime_logs/runtime_pattern_awareness.json")
         adaptive_observer_path = Path("JARVIS_CORE/runtime_logs/runtime_adaptive_observer.json")
+        stability_forecast_path = Path("JARVIS_CORE/runtime_logs/runtime_stability_forecast.json")
 
         wake_state = {}
         if wake_state_path.exists():
@@ -4325,6 +4326,10 @@ def jarvis_mobile_api_status():
         if adaptive_observer_path.exists():
             adaptive_observer = json.loads(adaptive_observer_path.read_text(encoding="utf-8"))
 
+        stability_forecast = {}
+        if stability_forecast_path.exists():
+            stability_forecast = json.loads(stability_forecast_path.read_text(encoding="utf-8"))
+
         status["wake_supervisor"] = {
             "available": True,
             "wake_needed": bool(wake_state.get("wake_needed", False)),
@@ -4341,6 +4346,7 @@ def jarvis_mobile_api_status():
             "observation_memory": memory_summary,
             "pattern_awareness": pattern_awareness,
             "adaptive_observer": adaptive_observer,
+            "stability_forecast": stability_forecast,
             "safety": wake_state.get("safety", {
                 "shell_execution": False,
                 "patch_apply": False,
