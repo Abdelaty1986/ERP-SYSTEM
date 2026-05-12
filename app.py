@@ -4114,6 +4114,26 @@ def jarvis_mobile_worker_tick():
     )
     return jsonify(result), 200
 
+
+@app.route("/jarvis/mobile/api/scheduler/run", methods=["POST"])
+def jarvis_mobile_scheduler_run():
+    from flask import jsonify, request
+    from jarvis.execution.runtime_auto_scheduler import RuntimeAutoScheduler
+
+    payload = request.get_json(silent=True) or {}
+    interval = float(payload.get("interval", 1))
+    max_ticks = int(payload.get("max_ticks", 3))
+
+    interval = max(0.5, min(interval, 10))
+    max_ticks = max(1, min(max_ticks, 10))
+
+    result = RuntimeAutoScheduler(
+        interval_seconds=interval,
+        max_ticks=max_ticks,
+    ).run()
+
+    return jsonify(result), 200
+
 @app.route("/jarvis/mobile/api/runtime/activity-feed")
 def jarvis_mobile_runtime_activity_feed():
     from flask import jsonify

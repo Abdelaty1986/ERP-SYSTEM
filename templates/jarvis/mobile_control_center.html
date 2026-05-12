@@ -560,6 +560,7 @@ body{
     <div class="action" data-command="improve"><div class="ico">📈</div><b>Improve</b><span>اقتراح تطوير</span></div>
     <div class="action" data-command="report"><div class="ico">📄</div><b>Report</b><span>تقرير الأداء</span></div>
     <div class="action" onclick="runWorkerTick()"><div class="ico">⚡</div><b>Run Worker Tick</b><span>تشغيل أمر من الطابور</span></div>
+    <div class="action" onclick="runAutoScheduler()"><div class="ico">⏱️</div><b>Auto Scheduler</b><span>3 ticks آمنة</span></div>
   </div>
 
   <div class="lower">
@@ -687,6 +688,26 @@ async function runWorkerTick(){
     refreshRuntimeActivityFeed();
   }catch(err){
     alert("Worker tick failed");
+    console.error(err);
+  }
+}
+
+
+async function runAutoScheduler(){
+  try{
+    const res = await fetch("/jarvis/mobile/api/scheduler/run", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({interval: 1, max_ticks: 3})
+    });
+
+    const data = await res.json();
+    alert("Auto Scheduler completed: " + data.ticks + " ticks / idle " + data.idle_count);
+    refreshJarvisRuntime();
+    refreshExecutionSummary();
+    refreshRuntimeActivityFeed();
+  }catch(err){
+    alert("Auto Scheduler failed");
     console.error(err);
   }
 }
