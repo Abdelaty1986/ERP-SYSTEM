@@ -31,5 +31,16 @@
     "ended_at": "2026-05-12T04:14:34.936012Z",
     "result": "worker tick completed",
     "error": null
+  },
+  "1aaab675-324e-4693-8267-33fbcff4c559": {
+    "session_id": "1aaab675-324e-4693-8267-33fbcff4c559",
+    "command_id": "runtime_tick",
+    "command_type": "worker_tick",
+    "source": "mobile_hud",
+    "status": "completed",
+    "started_at": "2026-05-12T05:09:16.686012Z",
+    "ended_at": "2026-05-12T05:09:16.717035Z",
+    "result": "worker tick completed",
+    "error": null
   }
 }

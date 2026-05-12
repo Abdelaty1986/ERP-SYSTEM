@@ -641,6 +641,13 @@ async function runWorkerTick(){
     alert(data.processed ? "Worker tick completed: " + data.status : "No queued commands");
     refreshJarvisRuntime();
 refreshExecutionSummary();
+refreshRuntimeActivityFeed();
+
+setInterval(() => {
+  refreshExecutionSummary();
+  refreshRuntimeActivityFeed();
+  refreshJarvisRuntime();
+}, 5000);
   }catch(err){
     alert("Worker tick failed");
     console.error(err);
@@ -924,6 +931,50 @@ async function refreshExecutionSummary(){
   }
 }
 
+
+async function refreshRuntimeActivityFeed(){
+  try{
+    const res = await fetch("/jarvis/mobile/api/runtime/activity-feed");
+    const data = await res.json();
+    const container = document.getElementById("runtime-activity-feed");
+
+    if(!container) return;
+
+    const feed = data.feed || [];
+
+    if(!feed.length){
+      container.innerHTML = `
+        <div class="runtime-session-card">
+          <div class="runtime-session-icon">◉</div>
+          <div class="runtime-session-body">
+            <div class="runtime-session-title">No runtime activity</div>
+            <div class="runtime-session-sub">Telemetry stream idle</div>
+          </div>
+          <div class="runtime-session-status idle">idle</div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = feed.map(item => {
+      const status = item.status || "unknown";
+      return `
+        <div class="runtime-session-card">
+          <div class="runtime-session-icon">${status === "completed" ? "✓" : "◉"}</div>
+          <div class="runtime-session-body">
+            <div class="runtime-session-title">[${status.toUpperCase()}] ${item.command_type || "runtime"}</div>
+            <div class="runtime-session-sub">${item.result || item.command_id || ""}</div>
+            <div class="runtime-session-sub">${item.timestamp || ""}</div>
+          </div>
+          <div class="runtime-session-status ${status}">${status}</div>
+        </div>
+      `;
+    }).join("");
+  }catch(e){
+    console.error("Runtime activity feed refresh failed", e);
+  }
+}
+
 </script>
 
 </body>
@@ -954,6 +1005,22 @@ async function refreshExecutionSummary(){
       <span>Failed</span>
     </div>
   </div>
+
+<div class="panel" id="runtime-activity-feed-panel">
+  <div class="panel-title">Runtime Activity Feed</div>
+
+  <div id="runtime-activity-feed" class="runtime-sessions-feed">
+    <div class="runtime-session-card">
+      <div class="runtime-session-icon">◉</div>
+      <div class="runtime-session-body">
+        <div class="runtime-session-title">Waiting for runtime activity...</div>
+        <div class="runtime-session-sub">Telemetry stream idle</div>
+      </div>
+      <div class="runtime-session-status idle">idle</div>
+    </div>
+  </div>
+</div>
+
 <div class="panel runtime-sessions-wrapper" id="runtime-sessions-panel">
   <div class="panel-title">Runtime Sessions</div>
 
