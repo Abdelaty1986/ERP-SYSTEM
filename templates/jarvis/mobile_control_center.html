@@ -941,8 +941,9 @@ async function refreshRuntimeActivityFeed(){
     if(!container) return;
 
     const feed = data.feed || [];
+    const timelineEvents = data.timeline_events || [];
 
-    if(!feed.length){
+    if(!feed.length && !timelineEvents.length){
       container.innerHTML = `
         <div class="runtime-session-card">
           <div class="runtime-session-icon">◉</div>
@@ -956,7 +957,7 @@ async function refreshRuntimeActivityFeed(){
       return;
     }
 
-    container.innerHTML = feed.map(item => {
+    const feedHtml = feed.map(item => {
       const status = item.status || "unknown";
       return `
         <div class="runtime-session-card">
@@ -970,6 +971,23 @@ async function refreshRuntimeActivityFeed(){
         </div>
       `;
     }).join("");
+
+    const timelineHtml = timelineEvents.slice(0, 8).map(event => {
+      const status = event.status || "unknown";
+      return `
+        <div class="runtime-session-card">
+          <div class="runtime-session-icon">↯</div>
+          <div class="runtime-session-body">
+            <div class="runtime-session-title">[TIMELINE] ${event.stage || "stage"} / ${event.agent_id || "agent"}</div>
+            <div class="runtime-session-sub">${event.message || ""}</div>
+            <div class="runtime-session-sub">${event.timestamp || ""}</div>
+          </div>
+          <div class="runtime-session-status ${status}">${status}</div>
+        </div>
+      `;
+    }).join("");
+
+    container.innerHTML = feedHtml + timelineHtml;
   }catch(e){
     console.error("Runtime activity feed refresh failed", e);
   }
