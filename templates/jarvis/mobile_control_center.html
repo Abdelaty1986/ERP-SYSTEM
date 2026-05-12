@@ -417,6 +417,36 @@ body{
 }
 
 
+
+.mini-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:14px;
+}
+
+.mini-card{
+  border:1px solid rgba(0,255,255,.18);
+  border-radius:18px;
+  padding:14px 10px;
+  text-align:center;
+  background:rgba(0,20,40,.45);
+  box-shadow:0 0 12px rgba(0,255,255,.08);
+}
+
+.mini-card div{
+  font-size:26px;
+  font-weight:700;
+  color:#7eeeff;
+}
+
+.mini-card span{
+  display:block;
+  margin-top:6px;
+  font-size:12px;
+  opacity:.8;
+}
+
 </style>
 </head>
 
@@ -610,6 +640,7 @@ async function runWorkerTick(){
     const data = await res.json();
     alert(data.processed ? "Worker tick completed: " + data.status : "No queued commands");
     refreshJarvisRuntime();
+refreshExecutionSummary();
   }catch(err){
     alert("Worker tick failed");
     console.error(err);
@@ -798,7 +829,18 @@ function renderRuntimeSessions(data) {
 
   if (!container) return;
 
-  const sessions = data.runtime_sessions || [];
+  
+  const sessions = (data.runtime_sessions || []).filter(session => {
+    const commandId = session.command_id || "";
+    const commandType = session.command_type || "";
+
+    return !(
+      commandId.includes("test") ||
+      commandType.includes("runtime_test") ||
+      commandType.includes("runtime_transition")
+    );
+  });
+
 
   if (!sessions.length) {
     container.innerHTML = `
@@ -859,11 +901,59 @@ function renderRuntimeSessions(data) {
 }
 
 
+
+async function refreshExecutionSummary(){
+  try{
+    const res = await fetch("/jarvis/mobile/api/runtime/execution-summary");
+    const data = await res.json();
+
+    const active = document.getElementById("runtime-active-count");
+    const completed = document.getElementById("runtime-completed-count");
+    const failed = document.getElementById("runtime-failed-count");
+    const latest = document.getElementById("runtime-latest-session");
+
+    if(active) active.textContent = data.active_count ?? 0;
+    if(completed) completed.textContent = data.completed_count ?? 0;
+    if(failed) failed.textContent = data.failed_count ?? 0;
+
+    if(latest && data.latest_session){
+      latest.textContent = "Latest: " + (data.latest_session.command_type || "runtime") + " / " + data.latest_session.status;
+    }
+  }catch(e){
+    console.error("Execution summary refresh failed", e);
+  }
+}
+
 </script>
 
 </body>
 </html>
 
+
+
+
+  <div class="panel-sub" id="runtime-latest-session">
+    Latest session: none
+  </div>
+</div>
+
+<div class="panel" id="runtime-execution-summary-panel">
+  <div class="panel-title">Execution Summary</div>
+
+  <div class="mini-grid">
+    <div class="mini-card">
+      <div id="runtime-active-count">0</div>
+      <span>Active</span>
+    </div>
+    <div class="mini-card">
+      <div id="runtime-completed-count">0</div>
+      <span>Completed</span>
+    </div>
+    <div class="mini-card">
+      <div id="runtime-failed-count">0</div>
+      <span>Failed</span>
+    </div>
+  </div>
 <div class="panel runtime-sessions-wrapper" id="runtime-sessions-panel">
   <div class="panel-title">Runtime Sessions</div>
 
