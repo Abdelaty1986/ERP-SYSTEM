@@ -148,6 +148,7 @@ class RuntimeQueueWorker:
 
         target = next((i for i in items if i.status == "queued"), None)
         if not target:
+            RuntimeWorkerState.heartbeat(worker_status="idle")
             return {"processed": False, "reason": "no queued commands"}
 
         RuntimeWorkerState.write(

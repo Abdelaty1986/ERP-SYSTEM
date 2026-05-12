@@ -36,6 +36,16 @@ class RuntimeWorkerState:
             }
 
     @staticmethod
+    def heartbeat(worker_status: str = "idle") -> None:
+        current = RuntimeWorkerState.read()
+
+        RuntimeWorkerState.write(
+            worker_status=worker_status,
+            last_command=current.get("last_command"),
+            last_result=current.get("last_result"),
+        )
+
+    @staticmethod
     def write(
         worker_status: str,
         last_command: str | None = None,
