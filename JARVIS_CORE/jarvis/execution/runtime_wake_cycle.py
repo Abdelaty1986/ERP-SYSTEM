@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 from jarvis.execution.runtime_wake_supervisor import RuntimeWakeSupervisor
+from jarvis.memory.runtime_observation_memory import RuntimeObservationMemory
 
 
 LOG_DIR = Path("JARVIS_CORE/runtime_logs")
@@ -30,6 +31,7 @@ class RuntimeWakeCycle:
     def __init__(self):
         LOG_DIR.mkdir(parents=True, exist_ok=True)
         self.supervisor = RuntimeWakeSupervisor()
+        self.memory = RuntimeObservationMemory()
 
     def iso_now(self) -> str:
         return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -65,6 +67,7 @@ class RuntimeWakeCycle:
         }
 
         self.append_event(cognition_event)
+        memory_result = self.memory.remember_cycle(cognition_event)
 
         return {
             "processed": True,
@@ -72,6 +75,7 @@ class RuntimeWakeCycle:
             "wake_needed": wake_needed,
             "supervisor_event_type": supervisor_result.get("event_type"),
             "cycle_file": str(CYCLE_FILE),
+            "memory": memory_result,
         }
 
 
