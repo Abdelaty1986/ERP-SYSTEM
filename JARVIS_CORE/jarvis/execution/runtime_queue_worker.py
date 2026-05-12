@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 from jarvis.execution.runtime_worker_state import RuntimeWorkerState
+from jarvis.execution.runtime_timeline import RuntimeTimeline
 
 
 ROOT = Path("JARVIS_CORE")
@@ -70,6 +71,7 @@ class RuntimeQueueWorker:
 
     def __init__(self, queue_file: Path = QUEUE_FILE):
         self.queue_file = queue_file
+        self.timeline = RuntimeTimeline()
 
     def read_queue(self) -> List[QueueItem]:
         if not self.queue_file.exists():
@@ -95,6 +97,16 @@ class RuntimeQueueWorker:
     def validate(self, item: QueueItem) -> bool:
         return item.command in self.ALLOWED_COMMANDS
 
+    def timeline_event(self, item: QueueItem, stage: str, status: str, message: str) -> None:
+        self.timeline.add_event(
+            session_id=item.id,
+            stage=stage,
+            agent_id="runtime_queue_worker",
+            status=status,
+            message=message,
+            payload=asdict(item),
+        )
+
     def process_once(self) -> Dict[str, Any]:
         items = self.read_queue()
 
@@ -109,10 +121,12 @@ class RuntimeQueueWorker:
         )
 
         log_event("runtime_queue_worker_started", {"id": target.id, "command": target.command})
+        self.timeline_event(target, "queued", "started", "Runtime worker picked queued command")
 
         target.status = "validating"
         target.updated_at = now()
         self.write_queue(items)
+        self.timeline_event(target, "validating", "running", "Validating runtime command")
 
         if not self.validate(target):
             target.status = "blocked"
@@ -120,6 +134,7 @@ class RuntimeQueueWorker:
             target.updated_at = now()
             self.write_queue(items)
             log_event("runtime_queue_worker_blocked", asdict(target))
+            self.timeline_event(target, "blocked", "blocked", target.reason)
             return {"processed": True, "status": "blocked", "item": asdict(target)}
 
         target.status = "running"
@@ -127,6 +142,7 @@ class RuntimeQueueWorker:
         target.updated_at = now()
         self.write_queue(items)
         log_event("runtime_queue_worker_running", asdict(target))
+        self.timeline_event(target, "running", "running", "Runtime command is running in safe simulation mode")
 
         target.status = "completed"
         target.reason = "validated and completed in simulation mode"
@@ -139,6 +155,7 @@ class RuntimeQueueWorker:
         )
 
         log_event("runtime_queue_worker_completed", asdict(target))
+        self.timeline_event(target, "completed", "completed", target.reason)
 
         return {"processed": True, "status": "completed", "item": asdict(target)}
 
