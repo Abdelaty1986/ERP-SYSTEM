@@ -1024,10 +1024,19 @@ async function refreshExecutionSummary(){
     const completed = document.getElementById("runtime-completed-count");
     const failed = document.getElementById("runtime-failed-count");
     const latest = document.getElementById("runtime-latest-session");
+    const schedulerRuns = document.getElementById("scheduler-runs-count");
+    const schedulerEfficiency = document.getElementById("scheduler-efficiency");
+    const schedulerIdle = document.getElementById("scheduler-idle-count");
 
     if(active) active.textContent = data.active_count ?? 0;
     if(completed) completed.textContent = data.completed_count ?? 0;
     if(failed) failed.textContent = data.failed_count ?? 0;
+
+    if(data.scheduler){
+      if(schedulerRuns) schedulerRuns.textContent = data.scheduler.runs ?? 0;
+      if(schedulerEfficiency) schedulerEfficiency.textContent = (data.scheduler.efficiency_percent ?? 0) + "%";
+      if(schedulerIdle) schedulerIdle.textContent = data.scheduler.idle_count ?? 0;
+    }
 
     if(latest && data.latest_session){
       latest.textContent = "Latest: " + (data.latest_session.command_type || "runtime") + " / " + data.latest_session.status;
@@ -1138,6 +1147,18 @@ async function refreshRuntimeActivityFeed(){
     <div class="mini-card">
       <div id="runtime-failed-count">0</div>
       <span>Failed</span>
+    </div>
+    <div class="mini-card">
+      <div id="scheduler-runs-count">0</div>
+      <span>Scheduler Runs</span>
+    </div>
+    <div class="mini-card">
+      <div id="scheduler-efficiency">0%</div>
+      <span>Efficiency</span>
+    </div>
+    <div class="mini-card">
+      <div id="scheduler-idle-count">0</div>
+      <span>Idle Ticks</span>
     </div>
   </div>
 

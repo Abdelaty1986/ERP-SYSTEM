@@ -4187,12 +4187,41 @@ def jarvis_mobile_runtime_execution_summary():
         )
     ]
 
+    timeline = RuntimeTimeline()
+    timeline_events = timeline.list_events(limit=100)
+    scheduler_events = [
+        e for e in timeline_events
+        if e.get("agent_id") == "runtime_auto_scheduler"
+    ]
+
+    scheduler_completed = [
+        e for e in scheduler_events
+        if e.get("stage") == "scheduler_completed"
+    ]
+
+    latest_scheduler = scheduler_completed[-1] if scheduler_completed else None
+    latest_payload = latest_scheduler.get("payload", {}) if latest_scheduler else {}
+
+    processed_count = int(latest_payload.get("processed_count", 0) or 0)
+    idle_count = int(latest_payload.get("idle_count", 0) or 0)
+    total_ticks = int(latest_payload.get("ticks", 0) or 0)
+    efficiency = round((processed_count / total_ticks) * 100, 1) if total_ticks else 0
+
     return jsonify({
         "latest_session": sessions[0] if sessions else None,
         "active_count": len([s for s in sessions if s.get("status") in ["queued", "validating", "running"]]),
         "completed_count": len([s for s in sessions if s.get("status") == "completed"]),
         "failed_count": len([s for s in sessions if s.get("status") == "failed"]),
         "sessions": sessions[:10],
+        "scheduler": {
+            "runs": len(scheduler_completed),
+            "latest_status": latest_payload.get("status") or "none",
+            "latest_session_id": latest_payload.get("session_id"),
+            "latest_ticks": total_ticks,
+            "processed_count": processed_count,
+            "idle_count": idle_count,
+            "efficiency_percent": efficiency,
+        },
     })
 
 @app.route("/jarvis/mobile/api/status")
