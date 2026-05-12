@@ -4188,12 +4188,31 @@ def jarvis_mobile_api_status():
 
     try:
         from jarvis.health.runtime_health_monitor import RuntimeHealthMonitor
-        status["runtime_health"] = RuntimeHealthMonitor().overall_health()
+        health_snapshot = RuntimeHealthMonitor().overall_health()
+        status["runtime_health"] = health_snapshot
     except Exception as exc:
-        status["runtime_health"] = {
+        health_snapshot = {
             "status": "unknown",
             "warnings": ["runtime_health_monitor_failed"],
             "error": str(exc),
+        }
+        status["runtime_health"] = health_snapshot
+
+    try:
+        from jarvis.repair.autonomous_repair_loop import AutonomousRepairLoop
+        status["repair"] = AutonomousRepairLoop().propose_health_repair_plan(health_snapshot)
+    except Exception as exc:
+        status["repair"] = {
+            "status": "repair_unavailable",
+            "auto_apply": False,
+            "safe_mode": True,
+            "repair_mode": "simulation_only",
+            "findings": [{
+                "category": "repair_loop_failed",
+                "severity": "medium",
+                "message": str(exc),
+                "suggested_action": "راجع autonomous_repair_loop.py قبل تشغيل الإصلاح.",
+            }],
         }
 
     return jsonify(status)
