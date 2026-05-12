@@ -4270,6 +4270,7 @@ def jarvis_mobile_api_status():
 
         wake_state_path = Path("JARVIS_CORE/runtime_logs/runtime_wake_state.json")
         wake_events_path = Path("JARVIS_CORE/runtime_logs/runtime_wake_events.jsonl")
+        wake_cycles_path = Path("JARVIS_CORE/runtime_logs/runtime_wake_cycles.jsonl")
 
         wake_state = {}
         if wake_state_path.exists():
@@ -4287,6 +4288,18 @@ def jarvis_mobile_api_status():
             if wake_lines:
                 latest_wake_event = json.loads(wake_lines[-1])
 
+        wake_cycles_count = 0
+        latest_wake_cycle = None
+        if wake_cycles_path.exists():
+            cycle_lines = [
+                line.strip()
+                for line in wake_cycles_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            wake_cycles_count = len(cycle_lines)
+            if cycle_lines:
+                latest_wake_cycle = json.loads(cycle_lines[-1])
+
         status["wake_supervisor"] = {
             "available": True,
             "wake_needed": bool(wake_state.get("wake_needed", False)),
@@ -4298,6 +4311,8 @@ def jarvis_mobile_api_status():
             "last_timeline_age_seconds": wake_state.get("last_timeline_age_seconds"),
             "wake_events_count": wake_events_count,
             "latest_wake_event": latest_wake_event,
+            "wake_cycles_count": wake_cycles_count,
+            "latest_wake_cycle": latest_wake_cycle,
             "safety": wake_state.get("safety", {
                 "shell_execution": False,
                 "patch_apply": False,

@@ -799,6 +799,8 @@ async function refreshJarvisRuntime(){
     const wakeMode = document.getElementById("wake-mode");
     const wakeSafety = document.getElementById("wake-safety");
     const wakeLastSignal = document.getElementById("wake-last-signal");
+    const wakeCyclesCount = document.getElementById("wake-cycles-count");
+    const wakeCycleState = document.getElementById("wake-cycle-state");
 
     if(data.wake_supervisor){
       const wake = data.wake_supervisor;
@@ -807,6 +809,12 @@ async function refreshJarvisRuntime(){
       if(wakeSilence) wakeSilence.textContent = wake.silence_detected ? "DETECTED" : "OK";
       if(wakeHeartbeat) wakeHeartbeat.textContent = wake.heartbeat_stale ? "STALE" : "OK";
       if(wakeEventsCount) wakeEventsCount.textContent = wake.wake_events_count ?? 0;
+      if(wakeCyclesCount) wakeCyclesCount.textContent = wake.wake_cycles_count ?? 0;
+      if(wakeCycleState){
+        wakeCycleState.textContent = wake.latest_wake_cycle
+          ? wake.latest_wake_cycle.cycle_state
+          : "--";
+      }
       if(wakeMode) wakeMode.textContent = wake.mode || "unknown";
 
       if(wakeSafety){
@@ -1248,6 +1256,14 @@ async function refreshRuntimeActivityFeed(){
     <div class="mini-card">
       <div id="wake-events-count">0</div>
       <span>Wake Signals</span>
+    </div>
+    <div class="mini-card">
+      <div id="wake-cycles-count">0</div>
+      <span>Wake Cycles</span>
+    </div>
+    <div class="mini-card">
+      <div id="wake-cycle-state">--</div>
+      <span>Cycle State</span>
     </div>
   </div>
 
