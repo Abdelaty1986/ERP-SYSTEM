@@ -988,7 +988,15 @@ async function refreshRuntimeActivityFeed(){
       `;
     }).join("");
 
-    container.innerHTML = feedHtml + timelineHtml;
+    const sessionsSection = feedHtml
+      ? `<div class="runtime-session-sub" style="margin:8px 0 6px;opacity:.8">Runtime Sessions</div>${feedHtml}`
+      : "";
+
+    const timelineSection = timelineHtml
+      ? `<div class="runtime-session-sub" style="margin:12px 0 6px;opacity:.8">Timeline Events</div>${timelineHtml}`
+      : "";
+
+    container.innerHTML = sessionsSection + timelineSection;
   }catch(e){
     console.error("Runtime activity feed refresh failed", e);
   }
