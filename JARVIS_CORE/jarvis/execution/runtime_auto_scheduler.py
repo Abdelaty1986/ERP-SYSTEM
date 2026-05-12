@@ -19,7 +19,8 @@ class RuntimeAutoScheduler:
     Safe runtime scheduler v1:
     - manual start only
     - bounded ticks by default
-    - no daemon/background mode yet
+    - daemon simulation mode is bounded and explicit
+    - no background auto-start
     - uses RuntimeQueueWorker.process_once()
     - keeps idle heartbeat alive through the worker
     """
@@ -93,10 +94,77 @@ class RuntimeAutoScheduler:
         return summary
 
 
+    def run_daemon_simulation(self, cycles: int = 2) -> Dict[str, Any]:
+        cycles = max(1, min(int(cycles), 10))
+        daemon_session_id = "daemon-sim-" + utc_now().replace(":", "").replace("-", "")
+        cycle_results: List[Dict[str, Any]] = []
+
+        self.timeline.add_event(
+            session_id=daemon_session_id,
+            stage="daemon_sim_start",
+            agent_id="runtime_auto_scheduler",
+            status="started",
+            message="Runtime daemon simulation started in bounded safe mode",
+            payload={
+                "cycles": cycles,
+                "interval_seconds": self.interval_seconds,
+                "max_ticks": self.max_ticks,
+                "mode": "daemon_simulation_bounded",
+            },
+        )
+
+        for cycle in range(1, cycles + 1):
+            result = self.run()
+            cycle_payload = {
+                "cycle": cycle,
+                "scheduler_session_id": result.get("session_id"),
+                "ticks": result.get("ticks"),
+                "processed_count": result.get("processed_count"),
+                "idle_count": result.get("idle_count"),
+            }
+            cycle_results.append(cycle_payload)
+
+            self.timeline.add_event(
+                session_id=daemon_session_id,
+                stage="daemon_sim_cycle",
+                agent_id="runtime_auto_scheduler",
+                status="completed",
+                message="Runtime daemon simulation cycle completed",
+                payload=cycle_payload,
+            )
+
+            if cycle < cycles:
+                time.sleep(self.interval_seconds)
+
+        summary = {
+            "session_id": daemon_session_id,
+            "status": "completed",
+            "mode": "daemon_simulation_bounded",
+            "cycles": cycles,
+            "total_ticks": sum(c.get("ticks", 0) or 0 for c in cycle_results),
+            "processed_count": sum(c.get("processed_count", 0) or 0 for c in cycle_results),
+            "idle_count": sum(c.get("idle_count", 0) or 0 for c in cycle_results),
+            "cycles_detail": cycle_results,
+        }
+
+        self.timeline.add_event(
+            session_id=daemon_session_id,
+            stage="daemon_sim_completed",
+            agent_id="runtime_auto_scheduler",
+            status="completed",
+            message="Runtime daemon simulation completed bounded run",
+            payload=summary,
+        )
+
+        return summary
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run JARVIS runtime auto scheduler in bounded safe mode.")
     parser.add_argument("--interval", type=float, default=2.0)
     parser.add_argument("--max-ticks", type=int, default=3)
+    parser.add_argument("--daemon-sim", action="store_true")
+    parser.add_argument("--cycles", type=int, default=2)
     args = parser.parse_args()
 
     scheduler = RuntimeAutoScheduler(
@@ -104,7 +172,12 @@ def main() -> None:
         max_ticks=args.max_ticks,
     )
 
-    print(json.dumps(scheduler.run(), ensure_ascii=False, indent=2))
+    if args.daemon_sim:
+        result = scheduler.run_daemon_simulation(cycles=args.cycles)
+    else:
+        result = scheduler.run()
+
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
