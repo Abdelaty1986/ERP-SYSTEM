@@ -1064,6 +1064,33 @@ async function refreshRuntimeActivityFeed(){
     const feed = data.feed || [];
     const timelineEvents = data.timeline_events || [];
 
+    const reasoningContainer = document.getElementById("runtime-reasoning-stream");
+
+    if(reasoningContainer){
+      const reasoningEvents = timelineEvents.filter(
+        e => e.stage === "agent_reasoning"
+      ).slice(0, 6);
+
+      if(reasoningEvents.length){
+        reasoningContainer.innerHTML = reasoningEvents.map(event => `
+          <div class="runtime-session-card ${event.status}">
+            <div class="runtime-session-icon">🧠</div>
+            <div class="runtime-session-body">
+              <div class="runtime-session-title">${event.agent_id}</div>
+              <div class="runtime-session-sub">${event.message}</div>
+              <div class="runtime-session-sub">${event.timestamp || ""}</div>
+            </div>
+            <div class="runtime-session-status ${event.status}">
+              ${event.status}
+            </div>
+          </div>
+        `).join("");
+      }else{
+        reasoningContainer.innerHTML =
+          '<div class="runtime-session-sub">No reasoning events yet.</div>';
+      }
+    }
+
     if(!feed.length && !timelineEvents.length){
       container.innerHTML = `
         <div class="runtime-session-card">
@@ -1170,6 +1197,12 @@ async function refreshRuntimeActivityFeed(){
 
 <div class="panel" id="runtime-activity-feed-panel">
   <div class="panel-title">Runtime Activity Feed</div>
+
+  <div class="panel-sub">Reasoning Stream</div>
+  <div id="runtime-reasoning-stream">
+    <div class="runtime-session-sub">Waiting for reasoning events...</div>
+  </div>
+
 
   <div id="runtime-activity-feed" class="runtime-sessions-feed">
     <div class="runtime-session-card">
