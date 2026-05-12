@@ -117,3 +117,18 @@ class RuntimeSessionManager:
             for session in registry.values()
             if session.get("status") == "active"
         ]
+
+
+    def list_registry_sessions(self, limit=20):
+
+        registry = self._load_registry()
+
+        sessions = list(registry.values())
+
+        sessions = sorted(
+            sessions,
+            key=lambda item: item.get("started_at") or item.get("ended_at") or "",
+            reverse=True
+        )
+
+        return sessions[:limit]
