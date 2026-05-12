@@ -3,6 +3,8 @@ from pathlib import Path
 import uuid
 import json
 
+from jarvis.execution.runtime_queue_worker import queue_file_lock
+
 
 class RuntimeCommandAPI:
     ALLOWED_COMMANDS = {
@@ -19,8 +21,12 @@ class RuntimeCommandAPI:
         self.queue_path.parent.mkdir(parents=True, exist_ok=True)
 
     def persist_command(self, result):
-        with self.queue_path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(result, ensure_ascii=False) + "\n")
+        self.queue_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with queue_file_lock():
+            with self.queue_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(result, ensure_ascii=False) + "\n")
+
         return result
 
     def read_queue(self, limit=20):

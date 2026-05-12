@@ -928,6 +928,12 @@ document.addEventListener("click", async function(e){
     if(typeof refreshJarvisRuntime === "function"){
       refreshJarvisRuntime();
     }
+    if(typeof refreshExecutionSummary === "function"){
+      refreshExecutionSummary();
+    }
+    if(typeof refreshRuntimeActivityFeed === "function"){
+      refreshRuntimeActivityFeed();
+    }
 
   }catch(err){
     if(btn.querySelector("span")) btn.querySelector("span").textContent = "Error";
