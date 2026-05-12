@@ -1,4 +1,5 @@
 from jarvis.execution.runtime_session_manager import RuntimeSessionManager
+from jarvis.execution.runtime_timeline import RuntimeTimeline
 from pathlib import Path
 import csv
 import html
@@ -4068,15 +4069,32 @@ app.view_functions["delete_user"] = login_required(admin_required(build_delete_u
 @app.route("/jarvis/mobile/api/worker/tick", methods=["POST"])
 def jarvis_mobile_worker_tick():
     session_manager = RuntimeSessionManager()
+    timeline = RuntimeTimeline()
     session = session_manager.start_session(
         command_id="runtime_tick",
         command_type="worker_tick",
         source="mobile_hud",
     )
 
+    timeline.add_event(
+        session_id=session["session_id"],
+        stage="queued",
+        agent_id="runtime_worker",
+        status="queued",
+        message="Worker tick queued from mobile HUD",
+    )
+
     session_manager.transition_session(
         session["session_id"],
         "validating"
+    )
+
+    timeline.add_event(
+        session_id=session["session_id"],
+        stage="validating",
+        agent_id="runtime_worker",
+        status="running",
+        message="Worker tick validation started",
     )
     from flask import jsonify
     from jarvis.execution.runtime_queue_worker import RuntimeQueueWorker
