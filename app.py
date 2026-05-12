@@ -4101,7 +4101,16 @@ def jarvis_mobile_runtime_execution_summary():
     from flask import jsonify
 
     manager = RuntimeSessionManager()
-    sessions = manager.list_registry_sessions(limit=50)
+    raw_sessions = manager.list_registry_sessions(limit=50)
+
+    sessions = [
+        s for s in raw_sessions
+        if not (
+            str(s.get("command_id", "")).find("test") != -1 or
+            str(s.get("command_type", "")).find("runtime_test") != -1 or
+            str(s.get("command_type", "")).find("runtime_transition") != -1
+        )
+    ]
 
     return jsonify({
         "latest_session": sessions[0] if sessions else None,
