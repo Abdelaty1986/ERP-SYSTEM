@@ -803,6 +803,8 @@ async function refreshJarvisRuntime(){
     const wakeCycleState = document.getElementById("wake-cycle-state");
     const memoryWakeSize = document.getElementById("memory-wake-size");
     const memoryCognitionSize = document.getElementById("memory-cognition-size");
+    const patternRisk = document.getElementById("pattern-risk");
+    const adaptiveRisk = document.getElementById("adaptive-risk");
 
     if(data.wake_supervisor){
       const wake = data.wake_supervisor;
@@ -821,6 +823,16 @@ async function refreshJarvisRuntime(){
         const memory = wake.observation_memory;
         if(memoryWakeSize) memoryWakeSize.textContent = memory.wake_history_size ?? 0;
         if(memoryCognitionSize) memoryCognitionSize.textContent = memory.cognition_history_size ?? 0;
+      }
+
+      if(wake.pattern_awareness && patternRisk){
+        patternRisk.textContent = wake.pattern_awareness.unstable_runtime_pattern
+          ? "UNSTABLE"
+          : "STABLE";
+      }
+
+      if(wake.adaptive_observer && adaptiveRisk){
+        adaptiveRisk.textContent = (wake.adaptive_observer.escalation_risk || "unknown").toUpperCase();
       }
 
       if(wakeMode) wakeMode.textContent = wake.mode || "unknown";
@@ -1280,6 +1292,14 @@ async function refreshRuntimeActivityFeed(){
     <div class="mini-card">
       <div id="memory-cognition-size">0</div>
       <span>Memory Cognition</span>
+    </div>
+    <div class="mini-card">
+      <div id="pattern-risk">--</div>
+      <span>Pattern Risk</span>
+    </div>
+    <div class="mini-card">
+      <div id="adaptive-risk">--</div>
+      <span>Adaptive Risk</span>
     </div>
   </div>
 
