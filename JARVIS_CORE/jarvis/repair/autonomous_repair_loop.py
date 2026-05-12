@@ -1,6 +1,10 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
 import json
+import uuid
+
+from jarvis.health.runtime_health_monitor import RuntimeHealthMonitor
+from jarvis.execution.runtime_timeline import RuntimeTimeline
 
 
 @dataclass
@@ -77,6 +81,82 @@ class AutonomousRepairLoop:
                 "اعرض الإصلاح للمراجعة البشرية قبل التطبيق.",
             ],
         }
+
+    def analyze_health(self, health_snapshot=None):
+        snapshot = health_snapshot or RuntimeHealthMonitor().overall_health()
+        warnings = snapshot.get("warnings", [])
+        findings = []
+
+        action_map = {
+            "queue_file_missing": "أنشئ queue file فارغ أو شغّل runtime worker لتهيئة queue.",
+            "queue_has_bad_lines": "اعزل السطور التالفة من runtime_command_queue.jsonl قبل أي معالجة.",
+            "queue_backlog_high": "شغّل worker tick تدريجيًا أو راجع سبب تراكم الأوامر.",
+            "timeline_missing": "أنشئ timeline جديد عبر RuntimeTimeline قبل تشغيل telemetry.",
+            "worker_state_missing": "أعد تهيئة RuntimeWorkerState بحالة idle آمنة.",
+            "worker_state_corrupted": "استبدل worker state التالف بحالة idle بعد حفظ نسخة للفحص.",
+            "runtime_health_monitor_failed": "راجع import path وملف runtime_health_monitor.py.",
+        }
+
+        severity_map = {
+            "queue_has_bad_lines": "high",
+            "worker_state_corrupted": "high",
+            "runtime_health_monitor_failed": "high",
+            "queue_backlog_high": "medium",
+            "queue_file_missing": "medium",
+            "timeline_missing": "medium",
+            "worker_state_missing": "medium",
+        }
+
+        for warning in warnings:
+            findings.append(RepairFinding(
+                category=str(warning),
+                severity=severity_map.get(str(warning), "low"),
+                message=f"Runtime health warning detected: {warning}",
+                suggested_action=action_map.get(str(warning), "راجع التحذير يدويًا قبل أي إصلاح."),
+            ))
+
+        if not findings:
+            findings.append(RepairFinding(
+                category="runtime_healthy",
+                severity="low",
+                message="Runtime health monitor reports no active warnings.",
+                suggested_action="لا يوجد إصلاح مطلوب حاليًا. استمر في المراقبة.",
+            ))
+
+        return snapshot, findings
+
+    def propose_health_repair_plan(self, health_snapshot=None):
+        snapshot, findings = self.analyze_health(health_snapshot)
+
+        severity_rank = {"low": 1, "medium": 2, "high": 3}
+        highest = max(findings, key=lambda f: severity_rank.get(f.severity, 1))
+
+        return {
+            "repair_id": "repair-" + uuid.uuid4().hex[:12],
+            "timestamp": datetime.now().isoformat(timespec="seconds"),
+            "source": "runtime_health_monitor",
+            "status": "repair_plan_proposed",
+            "safe_mode": True,
+            "auto_apply": False,
+            "repair_mode": "simulation_only",
+            "health_status": snapshot.get("status", "unknown"),
+            "highest_severity": highest.severity,
+            "findings": [asdict(f) for f in findings],
+            "suggested_actions": [f.suggested_action for f in findings],
+        }
+
+    def simulate_health_repair(self, health_snapshot=None):
+        plan = self.propose_health_repair_plan(health_snapshot)
+        timeline = RuntimeTimeline()
+        timeline.add_event(
+            session_id=plan["repair_id"],
+            stage="repair_simulation",
+            agent_id="autonomous_repair_loop",
+            status=plan["health_status"],
+            message="Repair loop simulation generated safe repair plan",
+            payload=plan,
+        )
+        return plan
 
     def to_json(self, repair_plan):
         return json.dumps(repair_plan, ensure_ascii=False, indent=2)
