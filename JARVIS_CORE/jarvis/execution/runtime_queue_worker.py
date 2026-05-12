@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import time
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +14,7 @@ from jarvis.execution.runtime_timeline import RuntimeTimeline
 
 ROOT = Path("JARVIS_CORE")
 QUEUE_FILE = ROOT / "runtime_logs" / "runtime_command_queue.jsonl"
+QUEUE_LOCK_FILE = ROOT / "runtime_logs" / "runtime_command_queue.lockdir"
 EVENT_LOG = ROOT / "runtime_logs" / "runtime_events.jsonl"
 
 
@@ -27,6 +30,32 @@ def log_event(event: str, payload: Dict[str, Any]) -> None:
             "event": event,
             "payload": payload,
         }, ensure_ascii=False) + "\n")
+
+
+@contextmanager
+def queue_file_lock(timeout_seconds: float = 5.0, poll_seconds: float = 0.05):
+    QUEUE_LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.time() + timeout_seconds
+    acquired = False
+
+    while time.time() < deadline:
+        try:
+            QUEUE_LOCK_FILE.mkdir()
+            acquired = True
+            break
+        except FileExistsError:
+            time.sleep(poll_seconds)
+
+    if not acquired:
+        raise TimeoutError(f"Could not acquire queue lock: {QUEUE_LOCK_FILE}")
+
+    try:
+        yield
+    finally:
+        try:
+            QUEUE_LOCK_FILE.rmdir()
+        except FileNotFoundError:
+            pass
 
 
 @dataclass
@@ -74,11 +103,14 @@ class RuntimeQueueWorker:
         self.timeline = RuntimeTimeline()
 
     def read_queue(self) -> List[QueueItem]:
-        if not self.queue_file.exists():
-            return []
+        with queue_file_lock():
+            if not self.queue_file.exists():
+                return []
+
+            raw_lines = self.queue_file.read_text(encoding="utf-8").splitlines()
 
         items: List[QueueItem] = []
-        for line in self.queue_file.read_text(encoding="utf-8").splitlines():
+        for line in raw_lines:
             line = line.strip()
             if not line:
                 continue
@@ -90,9 +122,13 @@ class RuntimeQueueWorker:
 
     def write_queue(self, items: List[QueueItem]) -> None:
         self.queue_file.parent.mkdir(parents=True, exist_ok=True)
-        with self.queue_file.open("w", encoding="utf-8") as f:
-            for item in items:
-                f.write(json.dumps(asdict(item), ensure_ascii=False) + "\n")
+        temp_file = self.queue_file.with_suffix(self.queue_file.suffix + ".tmp")
+
+        with queue_file_lock():
+            with temp_file.open("w", encoding="utf-8") as f:
+                for item in items:
+                    f.write(json.dumps(asdict(item), ensure_ascii=False) + "\n")
+            temp_file.replace(self.queue_file)
 
     def validate(self, item: QueueItem) -> bool:
         return item.command in self.ALLOWED_COMMANDS
