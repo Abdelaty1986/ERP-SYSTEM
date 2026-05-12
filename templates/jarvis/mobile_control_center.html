@@ -381,6 +381,45 @@ body:before{
   background:rgba(0,255,255,.12);
 }
 
+.runtime-session-status.running,
+.runtime-session-status.started{
+  color:var(--cyan2);
+  border-color:rgba(0,217,255,.42);
+  box-shadow:0 0 12px rgba(0,217,255,.14);
+}
+
+.runtime-session-status.blocked{
+  color:#ffd166;
+  border-color:rgba(255,209,102,.45);
+  box-shadow:0 0 12px rgba(255,209,102,.12);
+}
+
+.runtime-session-status.unknown{
+  color:var(--muted);
+  border-color:rgba(126,174,196,.25);
+}
+
+.timeline-event-card{
+  border-right:3px solid rgba(0,217,255,.45);
+}
+
+.timeline-event-card.completed{
+  border-right-color:rgba(54,255,117,.7);
+}
+
+.timeline-event-card.failed,
+.timeline-event-card.blocked{
+  border-right-color:rgba(255,56,96,.75);
+}
+
+.runtime-feed-updated{
+  margin:4px 0 10px;
+  color:var(--muted);
+  font-size:10px;
+  text-align:left;
+  direction:ltr;
+}
+
 .runtime-session-status.completed{
   color:#00ff9d;
 }
@@ -976,8 +1015,8 @@ async function refreshRuntimeActivityFeed(){
     const timelineHtml = timelineEvents.slice(0, 8).map(event => {
       const status = event.status || "unknown";
       return `
-        <div class="runtime-session-card">
-          <div class="runtime-session-icon">↯</div>
+        <div class="runtime-session-card timeline-event-card ${status}">
+          <div class="runtime-session-icon">${status === "completed" ? "✓" : status === "blocked" || status === "failed" ? "!" : "↯"}</div>
           <div class="runtime-session-body">
             <div class="runtime-session-title">[TIMELINE] ${event.stage || "stage"} / ${event.agent_id || "agent"}</div>
             <div class="runtime-session-sub">${event.message || ""}</div>
@@ -996,7 +1035,10 @@ async function refreshRuntimeActivityFeed(){
       ? `<div class="runtime-session-sub" style="margin:12px 0 6px;opacity:.8">Timeline Events</div>${timelineHtml}`
       : "";
 
-    container.innerHTML = sessionsSection + timelineSection;
+    const updatedAt = new Date().toLocaleTimeString();
+    const updatedHtml = `<div class="runtime-feed-updated">Last updated: ${updatedAt}</div>`;
+
+    container.innerHTML = updatedHtml + sessionsSection + timelineSection;
   }catch(e){
     console.error("Runtime activity feed refresh failed", e);
   }
