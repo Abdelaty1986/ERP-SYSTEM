@@ -608,6 +608,8 @@ body{
       <div class="gitbox"><div class="label">Repair Status</div><div class="value" id="repair-status">Loading...</div></div>
       <div class="gitbox"><div class="label">Auto Apply</div><div class="value" id="repair-auto-apply">--</div></div>
       <div class="gitbox"><div class="label">Finding</div><div class="value" id="repair-finding">--</div></div>
+      <div class="gitbox"><div class="label">Severity</div><div class="value" id="repair-severity">--</div></div>
+      <div class="gitbox"><div class="label">Suggested Action</div><div class="value" id="repair-action">--</div></div>
     </div>
 
 
@@ -754,12 +756,37 @@ async function refreshJarvisRuntime(){
     const repairStatus = document.getElementById("repair-status");
     const repairAutoApply = document.getElementById("repair-auto-apply");
     const repairFinding = document.getElementById("repair-finding");
+    const repairSeverity = document.getElementById("repair-severity");
+    const repairAction = document.getElementById("repair-action");
 
     if(data.repair){
-      if(repairStatus) repairStatus.textContent = data.repair.status;
-      if(repairAutoApply) repairAutoApply.textContent = data.repair.auto_apply ? "YES" : "NO";
-      if(repairFinding && data.repair.findings && data.repair.findings[0]){
-        repairFinding.textContent = data.repair.findings[0].category;
+      if(repairStatus){
+        repairStatus.textContent = data.repair.status === "repair_plan_proposed"
+          ? "SIMULATION READY"
+          : data.repair.status;
+      }
+
+      if(repairAutoApply){
+        repairAutoApply.textContent = data.repair.auto_apply ? "YES" : "NO";
+      }
+
+      if(data.repair.findings && data.repair.findings[0]){
+        const finding = data.repair.findings[0];
+
+        if(repairFinding){
+          repairFinding.textContent =
+            finding.category === "runtime_healthy"
+              ? "Runtime Healthy"
+              : finding.category.replaceAll("_", " ");
+        }
+
+        if(repairSeverity){
+          repairSeverity.textContent = (finding.severity || "unknown").toUpperCase();
+        }
+
+        if(repairAction){
+          repairAction.textContent = finding.suggested_action || "--";
+        }
       }
     }
 
