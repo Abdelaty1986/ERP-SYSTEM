@@ -1723,6 +1723,52 @@ loadArchitectureHotspotsSnapshot();
 setInterval(loadArchitectureHotspotsSnapshot, 10000);
 </script>
 
+
+<script>
+async function loadArchitecturePrioritiesSnapshot() {
+  const criticalEl = document.getElementById("priority-critical");
+  const highEl = document.getElementById("priority-high");
+  const mediumEl = document.getElementById("priority-medium");
+  const feedEl = document.getElementById("priority-feed");
+
+  if (!criticalEl || !highEl || !mediumEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/priorities");
+    const data = await res.json();
+    const summary = data.summary || {};
+
+    criticalEl.textContent = summary.critical ?? 0;
+    highEl.textContent = summary.high ?? 0;
+    mediumEl.textContent = summary.medium ?? 0;
+
+    const priorities = Array.isArray(data.priorities) ? data.priorities.slice(0, 6) : [];
+
+    feedEl.innerHTML = priorities.length
+      ? priorities.map(item => `
+          <div class="runtime-event runtime-insight-card severity-${item.priority || "info"}">
+            <div class="runtime-event-main">
+              ${item.priority?.toUpperCase?.() || "PRIORITY"} · ${item.file}
+            </div>
+            <div class="runtime-event-sub">
+              score ${item.priority_score} · impact ${item.impact_score} · urgency ${item.urgency_score}
+            </div>
+            <div class="runtime-event-sub">
+              ${item.recommended_action}
+            </div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No architecture priorities generated.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Architecture priorities API unavailable.</div>';
+  }
+}
+
+loadArchitecturePrioritiesSnapshot();
+setInterval(loadArchitecturePrioritiesSnapshot, 10000);
+</script>
+
 </body>
 </html>
 
@@ -2118,5 +2164,32 @@ setInterval(loadArchitectureHotspotsSnapshot, 10000);
       <div class="runtime-session-sub" style="margin-top:10px">Fragile Zones</div>
       <div id="fragile-zones-feed" class="runtime-feed">
         <div class="runtime-empty">Waiting for fragile zone analysis...</div>
+      </div>
+    </div>
+
+    </div>
+
+    <div class="panel" id="architecture-priorities-panel">
+      <div class="panel-title">Architecture Priorities</div>
+      <div class="panel-sub">Recommendation intelligence priority scoring</div>
+
+      <div class="metric-row">
+        <span>Critical</span>
+        <b id="priority-critical">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>High</span>
+        <b id="priority-high">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Medium</span>
+        <b id="priority-medium">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Priority Chain</div>
+      <div id="priority-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for priority intelligence...</div>
       </div>
     </div>

@@ -4462,6 +4462,26 @@ def jarvis_mobile_architecture_hotspots():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/priorities")
+def jarvis_mobile_architecture_priorities():
+    try:
+        from JARVIS_CORE.jarvis.architecture.hotspot_detector import ArchitectureHotspotDetector
+        from JARVIS_CORE.jarvis.architecture.priority_engine import ArchitecturePriorityEngine
+
+        hotspots = ArchitectureHotspotDetector(".").analyze()
+        data = ArchitecturePriorityEngine().build_priorities(hotspots)
+        return jsonify(data)
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "recommendation_only",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
