@@ -487,6 +487,43 @@ body{
 }
 
 </style>
+
+<style>
+.runtime-insight-card {
+  padding: 10px 12px;
+  margin: 8px 0;
+  border-radius: 14px;
+  border: 1px solid rgba(120, 230, 255, 0.25);
+  background: rgba(0, 20, 35, 0.35);
+  text-align: start;
+}
+
+.runtime-insight-card .runtime-event-main {
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.severity-safe {
+  border-color: rgba(60, 255, 170, 0.45);
+}
+
+.severity-info {
+  border-color: rgba(120, 230, 255, 0.45);
+}
+
+.severity-watch {
+  border-color: rgba(255, 220, 120, 0.55);
+}
+
+.severity-warning {
+  border-color: rgba(255, 120, 120, 0.6);
+}
+
+.severity-unknown {
+  border-color: rgba(180, 180, 180, 0.35);
+}
+</style>
+
 </head>
 
 <body>
@@ -1286,12 +1323,23 @@ async function loadRuntimeInsightSnapshot() {
       return;
     }
 
-    listEl.innerHTML = insights.map(item => `
-      <div class="runtime-event">
-        <div class="runtime-event-main">${item}</div>
-        <div class="runtime-event-sub">bounded self-explaining runtime insight</div>
-      </div>
-    `).join("");
+    listEl.innerHTML = insights.map(item => {
+      const message = typeof item === "string" ? item : (item.message || "Runtime insight");
+      const category = typeof item === "string" ? "legacy" : (item.category || "runtime");
+      const severity = typeof item === "string" ? "info" : (item.severity || "info");
+      const priority = typeof item === "string" ? "-" : (item.priority ?? "-");
+      const timestamp = typeof item === "string" ? "" : (item.timestamp || "");
+
+      return `
+        <div class="runtime-event runtime-insight-card severity-${severity}">
+          <div class="runtime-event-main">${message}</div>
+          <div class="runtime-event-sub">
+            category: ${category} · severity: ${severity} · priority: ${priority}
+          </div>
+          ${timestamp ? `<div class="runtime-event-sub">${timestamp}</div>` : ""}
+        </div>
+      `;
+    }).join("");
   } catch (err) {
     listEl.innerHTML = '<div class="runtime-empty">Runtime insight API unavailable.</div>';
   }
