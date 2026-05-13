@@ -3946,5 +3946,46 @@ loadExecutionJournalSnapshot();
 setInterval(loadExecutionJournalSnapshot, 30000);
 </script>
 
+
+<div class="panel">
+  <div class="panel-title">Execution Approval Gateway</div>
+  <div class="panel-sub">Human approval / bounded authorization / locked execution</div>
+  <div id="approval-gateway-hud" class="runtime-session-sub">
+    Loading approval gateway...
+  </div>
+</div>
+
+
+<script>
+async function loadApprovalGatewayHud() {
+  const box = document.getElementById("approval-gateway-hud");
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/approval-gateway");
+    const data = await res.json();
+    const s = data.latest_session || {};
+    const g = data.governance || {};
+
+    box.innerHTML = `
+      <div>Session: ${s.session_id || "none"}</div>
+      <div>Approval State: ${s.approval_state || "unknown"}</div>
+      <div>Scope: ${s.authorization_scope || "unknown"}</div>
+      <div>Unlock State: ${s.staged_unlock_state || "locked"}</div>
+      <div>Execution Lock: ${s.execution_lock_state || "locked"}</div>
+      <div>Rollback Binding: ${s.rollback_binding || "required"}</div>
+      <div>Human Approval Required: ${g.human_approval_required === true ? "true" : "unknown"}</div>
+      <div>Autonomous Apply Allowed: ${g.autonomous_apply_allowed === false ? "false" : "blocked"}</div>
+      <div>Real Apply Enabled: ${g.real_apply_enabled === false ? "false" : "blocked"}</div>
+    `;
+  } catch (err) {
+    box.innerHTML = "Approval gateway unavailable";
+  }
+}
+
+loadApprovalGatewayHud();
+setInterval(loadApprovalGatewayHud, 15000);
+</script>
+
 </body>
 </html>

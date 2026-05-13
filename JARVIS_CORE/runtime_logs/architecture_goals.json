@@ -6,8 +6,8 @@
   "desired_strategy": "Blueprint Extraction",
   "safety_mode": "bounded_human_review_required",
   "status": "on_track",
-  "evaluations": 9,
-  "last_evaluated": "2026-05-13T17:19:57.798509Z",
+  "evaluations": 31,
+  "last_evaluated": "2026-05-13T17:31:34.798814Z",
   "last_alignment": {
     "score": 100,
     "state": "strong_alignment",
