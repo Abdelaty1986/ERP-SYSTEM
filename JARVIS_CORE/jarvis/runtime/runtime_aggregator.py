@@ -17,7 +17,7 @@ class RuntimeAggregator:
                 self.root / "runtime_memory" / "approval_lineage.json",
 
             "approval_transition":
-                self.root / "runtime_memory" / "approval_transition_memory.json",
+                self.root / "runtime_memory" / "approval_transitions.json",
 
             "execution_journal":
                 self.root / "runtime_memory" / "execution_journal.json",

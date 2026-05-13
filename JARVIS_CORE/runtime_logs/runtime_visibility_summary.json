@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-05-13T18:24:09.569354+00:00",
+  "visibility_runtime": "runtime_visibility_layer",
+  "bounded": true,
+  "autonomous_apply": false,
+  "real_apply_enabled": false,
+  "execution_unlock_allowed": false,
+  "aggregation_state": "stable",
+  "visible_runtime_count": 5,
+  "hidden_runtime_count": 0,
+  "visible_runtimes": [
+    "approval_gateway",
+    "approval_lineage",
+    "approval_transition",
+    "execution_journal",
+    "safe_execution_queue"
+  ],
+  "hidden_runtimes": [],
+  "global_runtime_state": "stable",
+  "governance": {
+    "approval_required": true,
+    "execution_locked": true,
+    "rollback_awareness": true,
+    "lineage_visibility": true,
+    "bounded_execution": true
+  }
+}
