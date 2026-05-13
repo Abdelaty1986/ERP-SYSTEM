@@ -7,6 +7,7 @@ from pathlib import Path
 from jarvis.runtime.agent_skill_memory import (
     build_agent_skill_snapshot,
 )
+from jarvis.runtime.runtime_audit import RuntimeAudit
 
 
 class RuntimeAggregator:
@@ -89,6 +90,11 @@ class RuntimeAggregator:
         aggregated["agent_skill_snapshot"] = {
             "exists": True,
             "data": build_agent_skill_snapshot()
+        }
+
+        aggregated["runtime_audit"] = {
+            "exists": True,
+            "data": RuntimeAudit(root=str(self.root)).run()
         }
 
         snapshot = {
