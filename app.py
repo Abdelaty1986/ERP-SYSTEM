@@ -4597,6 +4597,32 @@ def jarvis_mobile_strategy_simulation():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/execution-plan")
+def jarvis_mobile_execution_plan():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine import RecommendationEvolutionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_simulation_engine import StrategySimulationEngine
+        from JARVIS_CORE.jarvis.architecture.safe_execution_strategy_planner import SafeExecutionStrategyPlanner
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        evolution = RecommendationEvolutionEngine().analyze(memory)
+        strategies = StrategySimulationEngine().simulate(evolution)
+        data = SafeExecutionStrategyPlanner().build_plan(strategies)
+
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "planning_only",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

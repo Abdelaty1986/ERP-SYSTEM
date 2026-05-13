@@ -2390,6 +2390,36 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="execution-plan-panel">
+      <div class="panel-title">Execution Plan</div>
+      <div class="panel-sub">Planning-only safe refactor execution strategy</div>
+
+      <div class="metric-row">
+        <span>Plans</span>
+        <b id="execution-plan-count">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Rollback Points</span>
+        <b id="execution-rollback-count">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>High Risk Plans</span>
+        <b id="execution-high-risk-count">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Phases</div>
+      <div id="execution-plan-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for execution plan...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Validation Gates</div>
+      <div id="execution-validation-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for validation gates...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -2568,6 +2598,60 @@ async function loadStrategySimulationSnapshot() {
 
 loadStrategySimulationSnapshot();
 setInterval(loadStrategySimulationSnapshot, 15000);
+</script>
+
+
+<script>
+async function loadExecutionPlanSnapshot() {
+  const countEl = document.getElementById("execution-plan-count");
+  const rollbackEl = document.getElementById("execution-rollback-count");
+  const highRiskEl = document.getElementById("execution-high-risk-count");
+  const feedEl = document.getElementById("execution-plan-feed");
+  const validationEl = document.getElementById("execution-validation-feed");
+
+  if (!countEl || !rollbackEl || !highRiskEl || !feedEl || !validationEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/execution-plan");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const plans = Array.isArray(data.execution_plans) ? data.execution_plans : [];
+    const primary = plans[0] || {};
+
+    countEl.textContent = summary.plans_generated ?? 0;
+    rollbackEl.textContent = summary.safe_rollbacks ?? 0;
+    highRiskEl.textContent = summary.high_risk_plans ?? 0;
+
+    const phases = Array.isArray(primary.execution_phases) ? primary.execution_phases : [];
+    const gates = Array.isArray(primary.validation_gates) ? primary.validation_gates : [];
+
+    feedEl.innerHTML = phases.length
+      ? phases.map(item => `
+          <div class="runtime-event runtime-insight-card severity-info">
+            <div class="runtime-event-main">Phase ${item.phase}</div>
+            <div class="runtime-event-sub">${item.action}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No execution phases available.</div>';
+
+    validationEl.innerHTML = gates.length
+      ? gates.map(item => `
+          <div class="runtime-event">
+            <div class="runtime-event-main">${item}</div>
+            <div class="runtime-event-sub">validation gate</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No validation gates available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Execution plan API unavailable.</div>';
+    validationEl.innerHTML = '<div class="runtime-empty">Execution plan API unavailable.</div>';
+  }
+}
+
+loadExecutionPlanSnapshot();
+setInterval(loadExecutionPlanSnapshot, 15000);
 </script>
 
 </body>
