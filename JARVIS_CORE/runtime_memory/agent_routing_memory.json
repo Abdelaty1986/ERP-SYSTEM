@@ -1,0 +1,115 @@
+{
+  "bounded": true,
+  "mode": "dynamic_agent_routing",
+  "autonomous_apply": false,
+  "summary": {
+    "task_type": "planning",
+    "agents_evaluated": 5,
+    "selected_agent": "planner_agent",
+    "routing_score": 100,
+    "routing_state": "adaptive_routing_active"
+  },
+  "selected_agent": {
+    "agent_id": "planner_agent",
+    "role": "planning",
+    "routing_score": 100,
+    "skill_score": 100.0,
+    "best_for": [
+      "strategy_planning",
+      "safe_execution_plans"
+    ],
+    "state": "expert"
+  },
+  "ranked_agents": [
+    {
+      "role": "planning",
+      "uses": 5,
+      "successes": 5,
+      "failures": 0,
+      "best_for": [
+        "strategy_planning",
+        "safe_execution_plans"
+      ],
+      "last_score": 100.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:39:20.808426Z",
+      "agent_id": "planner_agent",
+      "skill_score": 100.0,
+      "state": "expert",
+      "routing_score": 100
+    },
+    {
+      "role": "reflection",
+      "uses": 5,
+      "successes": 5,
+      "failures": 0,
+      "best_for": [
+        "self_review",
+        "safety_alignment"
+      ],
+      "last_score": 100.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:39:20.808444Z",
+      "agent_id": "reflection_agent",
+      "skill_score": 100.0,
+      "state": "expert",
+      "routing_score": 100.0
+    },
+    {
+      "role": "arbitration",
+      "uses": 4,
+      "successes": 4,
+      "failures": 0,
+      "best_for": [
+        "strategy_ranking",
+        "tradeoff_balancing"
+      ],
+      "last_score": 97.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:39:20.808451Z",
+      "agent_id": "arbitration_agent",
+      "skill_score": 97.0,
+      "state": "expert",
+      "routing_score": 97.0
+    },
+    {
+      "role": "learning",
+      "uses": 3,
+      "successes": 3,
+      "failures": 0,
+      "best_for": [
+        "memory_scoring",
+        "learning_evolution"
+      ],
+      "last_score": 94.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:39:20.808456Z",
+      "agent_id": "learning_agent",
+      "skill_score": 94.0,
+      "state": "expert",
+      "routing_score": 94.0
+    },
+    {
+      "role": "failure_guard",
+      "uses": 2,
+      "successes": 2,
+      "failures": 0,
+      "best_for": [
+        "risk_memory",
+        "failure_pattern_tracking"
+      ],
+      "last_score": 91.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:39:20.808462Z",
+      "agent_id": "failure_guard_agent",
+      "skill_score": 91.0,
+      "state": "expert",
+      "routing_score": 91.0
+    }
+  ],
+  "notes": [
+    "Dynamic routing selects the strongest agent for the requested task type.",
+    "Routing remains bounded and human-governed.",
+    "No autonomous execution is performed."
+  ]
+}

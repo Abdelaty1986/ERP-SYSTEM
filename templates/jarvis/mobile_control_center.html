@@ -2715,6 +2715,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="agent-routing-panel">
+      <div class="panel-title">Dynamic Agent Routing</div>
+      <div class="panel-sub">Adaptive bounded agent selection</div>
+
+      <div class="metric-row">
+        <span>Selected Agent</span>
+        <b id="agent-routing-selected">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Routing Score</span>
+        <b id="agent-routing-score">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>State</span>
+        <b id="agent-routing-state">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Routing Decision</div>
+      <div id="agent-routing-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for agent routing...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3425,6 +3450,45 @@ async function loadAgentSkillSnapshot() {
 
 loadAgentSkillSnapshot();
 setInterval(loadAgentSkillSnapshot, 30000);
+</script>
+
+
+<script>
+async function loadAgentRoutingSnapshot() {
+  const selectedEl = document.getElementById("agent-routing-selected");
+  const scoreEl = document.getElementById("agent-routing-score");
+  const stateEl = document.getElementById("agent-routing-state");
+  const feedEl = document.getElementById("agent-routing-feed");
+
+  if (!selectedEl || !scoreEl || !stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/agent-routing");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const selected = data.selected_agent || {};
+    const ranked = Array.isArray(data.ranked_agents) ? data.ranked_agents.slice(0, 3) : [];
+
+    selectedEl.textContent = summary.selected_agent || "unknown";
+    scoreEl.textContent = summary.routing_score ?? 0;
+    stateEl.textContent = summary.routing_state || "unknown";
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${selected.agent_id || "n/a"} · ${selected.role || "n/a"}</div>
+        <div class="runtime-event-sub">score: ${selected.routing_score ?? 0} · state: ${selected.state || "n/a"}</div>
+        <div class="runtime-event-sub">top agents: ${ranked.map(x => x.agent_id).join(" → ")}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Agent routing API unavailable.</div>';
+  }
+}
+
+loadAgentRoutingSnapshot();
+setInterval(loadAgentRoutingSnapshot, 30000);
 </script>
 
 </body>

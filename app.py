@@ -5000,6 +5000,25 @@ def jarvis_mobile_agent_skills():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/agent-routing")
+def jarvis_mobile_agent_routing():
+    try:
+        from JARVIS_CORE.jarvis.architecture.dynamic_agent_routing_engine import DynamicAgentRoutingEngine
+
+        data = DynamicAgentRoutingEngine(".").route("planning")
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "dynamic_agent_routing",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
