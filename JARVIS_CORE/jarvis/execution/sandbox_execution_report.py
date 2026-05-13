@@ -13,6 +13,8 @@ from jarvis.execution.sandbox_apply_simulator import SandboxApplySimulator
 from jarvis.execution.sandbox_patch_applier import SandboxPatchApplier
 from jarvis.execution.sandbox_integrity_verifier import SandboxIntegrityVerifier
 from jarvis.execution.sandbox_post_apply_tester import SandboxPostApplyTester
+from jarvis.execution.runtime_session_manager import RuntimeSessionManager
+from jarvis.execution.runtime_timeline import RuntimeTimeline
 
 
 class SandboxExecutionReport:
@@ -33,7 +35,30 @@ class SandboxExecutionReport:
         return datetime.now(timezone.utc).isoformat()
 
     def run(self, task, file_path, proposed_content, human_approval=None):
-        report_id = f"sandbox-report-{uuid.uuid4()}"
+        session_manager = RuntimeSessionManager(
+            log_dir=str(self.root / "JARVIS_CORE/runtime_logs")
+        )
+        timeline = RuntimeTimeline(
+            log_dir=str(self.root / "JARVIS_CORE/runtime_logs")
+        )
+
+        session = session_manager.start_session(
+            command_id=None,
+            command_type="sandbox_execution_report",
+            source="sandbox_execution_report",
+        )
+
+        session_id = session["session_id"]
+        report_id = f"sandbox-report-{session_id}"
+
+        timeline.add_event(
+            session_id=session_id,
+            stage="sandbox_report_started",
+            agent_id="sandbox_execution_report",
+            status="started",
+            message="Sandbox execution report started.",
+            payload={"task": task},
+        )
 
         target = Path(file_path)
 
@@ -125,6 +150,7 @@ class SandboxExecutionReport:
 
         report = {
             "report_id": report_id,
+            "session_id": session_id,
             "created_at": self._now(),
             "task": task,
             "bounded": True,
@@ -159,6 +185,25 @@ class SandboxExecutionReport:
                 "Real apply remains disabled even if approval is granted.",
             ],
         }
+
+        timeline.add_event(
+            session_id=session_id,
+            stage="sandbox_report_completed",
+            agent_id="sandbox_execution_report",
+            status=report["final_state"],
+            message="Sandbox execution report completed.",
+            payload={
+                "final_state": report["final_state"],
+                "original_files_modified": report["original_files_modified"],
+                "real_apply_enabled": report["real_apply_enabled"],
+            },
+        )
+
+        session_manager.end_session(
+            session_id=session_id,
+            result=report["final_state"],
+            error=None if report["final_state"] == "ready_for_human_review" else "sandbox_review_required",
+        )
 
         report_file = self.report_dir / f"{report_id}.json"
         report_file.write_text(
