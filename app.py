@@ -4574,6 +4574,29 @@ def jarvis_mobile_recommendation_evolution():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/strategy-simulation")
+def jarvis_mobile_strategy_simulation():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine import RecommendationEvolutionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_simulation_engine import StrategySimulationEngine
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        evolution = RecommendationEvolutionEngine().analyze(memory)
+        data = StrategySimulationEngine().simulate(evolution)
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "simulation_only",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

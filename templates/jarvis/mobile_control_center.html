@@ -2365,6 +2365,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="strategy-simulation-panel">
+      <div class="panel-title">Strategy Simulation</div>
+      <div class="panel-sub">Simulation-only architecture strategy planning</div>
+
+      <div class="metric-row">
+        <span>Best Strategy</span>
+        <b id="strategy-best">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Risk Reduction</span>
+        <b id="strategy-reduction">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Target</span>
+        <b id="strategy-target">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Simulated Strategies</div>
+      <div id="strategy-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for strategy simulation...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -2503,6 +2528,46 @@ async function loadRecommendationEvolutionSnapshot() {
 
 loadRecommendationEvolutionSnapshot();
 setInterval(loadRecommendationEvolutionSnapshot, 15000);
+</script>
+
+
+<script>
+async function loadStrategySimulationSnapshot() {
+  const bestEl = document.getElementById("strategy-best");
+  const reductionEl = document.getElementById("strategy-reduction");
+  const targetEl = document.getElementById("strategy-target");
+  const feedEl = document.getElementById("strategy-feed");
+
+  if (!bestEl || !reductionEl || !targetEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/strategy-simulation");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const strategies = Array.isArray(data.strategies) ? data.strategies : [];
+
+    bestEl.textContent = summary.best_strategy || "unknown";
+    reductionEl.textContent = summary.estimated_best_reduction ?? 0;
+    targetEl.textContent = summary.target_file || "unknown";
+
+    feedEl.innerHTML = strategies.length
+      ? strategies.map(item => `
+          <div class="runtime-event runtime-insight-card severity-info">
+            <div class="runtime-event-main">${item.name} · ${item.estimated_risk_reduction}%</div>
+            <div class="runtime-event-sub">${item.reason}</div>
+            <div class="runtime-event-sub">${(item.sequence || []).slice(0,3).join(" → ")}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No strategy simulations available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Strategy simulation API unavailable.</div>';
+  }
+}
+
+loadStrategySimulationSnapshot();
+setInterval(loadStrategySimulationSnapshot, 15000);
 </script>
 
 </body>
