@@ -31,6 +31,30 @@ class RuntimeAggregator:
 
             "agent_skill_memory":
                 self.root / "runtime_memory" / "agent_skill_memory.json",
+
+            "agent_routing_memory":
+                self.root / "runtime_memory" / "agent_routing_memory.json",
+
+            "task_chain_memory":
+                self.root / "runtime_memory" / "task_chain_memory.json",
+
+            "task_execution_simulation":
+                self.root / "runtime_memory" / "task_execution_simulation.json",
+
+            "rollback_checkpoint_memory":
+                self.root / "runtime_memory" / "rollback_checkpoint_memory.json",
+
+            "controlled_apply_decision":
+                self.root / "runtime_memory" / "controlled_apply_decision.json",
+
+            "human_approved_apply":
+                self.root / "runtime_memory" / "human_approved_apply.json",
+
+            "learning_summary":
+                self.root / "runtime_memory" / "learning_summary.json",
+
+            "failure_summary":
+                self.root / "runtime_memory" / "failure_summary.json",
         }
 
         self.output_file = (
