@@ -7,10 +7,21 @@ class JarvisVoiceRuntime:
     Real Arabic/Egyptian voice runtime narrator using Termux TTS.
     """
 
-    def __init__(self, enabled=True, tts_enabled=True, dialect="egyptian"):
+    def __init__(
+        self,
+        enabled=True,
+        tts_enabled=True,
+        dialect="egyptian",
+        voice_profile="jarvis_like_arabic",
+        speech_rate=0.88,
+        speech_pitch=0.82,
+    ):
         self.enabled = enabled
         self.tts_enabled = tts_enabled
         self.dialect = dialect
+        self.voice_profile = voice_profile
+        self.speech_rate = speech_rate
+        self.speech_pitch = speech_pitch
         self.prompts = EgyptianVoicePrompts()
 
     def speak(self, message):
@@ -22,7 +33,12 @@ class JarvisVoiceRuntime:
         if self.tts_enabled:
             try:
                 subprocess.run(
-                    ["termux-tts-speak", message],
+                    [
+                        "termux-tts-speak",
+                        "-r", str(self.speech_rate),
+                        "-p", str(self.speech_pitch),
+                        message,
+                    ],
                     capture_output=True,
                     text=True,
                 )

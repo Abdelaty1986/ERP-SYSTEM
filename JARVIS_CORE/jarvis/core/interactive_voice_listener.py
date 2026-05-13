@@ -49,7 +49,7 @@ class InteractiveVoiceListener:
 
             report = self.orchestrator.process_task(
                 task,
-                human_approval="approve",
+                human_approval=None,
             )
 
             return {
