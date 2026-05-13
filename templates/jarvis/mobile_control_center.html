@@ -2790,6 +2790,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="controlled-apply-decision-panel">
+      <div class="panel-title">Apply Decision</div>
+      <div class="panel-sub">Controlled human-approved execution readiness</div>
+
+      <div class="metric-row">
+        <span>Decision</span>
+        <b id="apply-decision-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Confidence</span>
+        <b id="apply-decision-confidence">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Execution</span>
+        <b id="apply-decision-execution">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Approval Plan</div>
+      <div id="apply-decision-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for apply decision...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3619,6 +3644,46 @@ async function loadExecutionSimulationSnapshot() {
 
 loadExecutionSimulationSnapshot();
 setInterval(loadExecutionSimulationSnapshot, 30000);
+</script>
+
+
+<script>
+async function loadControlledApplyDecisionSnapshot() {
+  const decisionEl = document.getElementById("apply-decision-state");
+  const confidenceEl = document.getElementById("apply-decision-confidence");
+  const executionEl = document.getElementById("apply-decision-execution");
+  const feedEl = document.getElementById("apply-decision-feed");
+
+  if (!decisionEl || !confidenceEl || !executionEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/apply-decision");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const approval = data.approval_plan || {};
+    const checks = Array.isArray(approval.minimum_checks) ? approval.minimum_checks : [];
+
+    decisionEl.textContent = summary.apply_decision || "unknown";
+    confidenceEl.textContent = summary.avg_execution_confidence ?? 0;
+    executionEl.textContent = summary.execution_allowed ? "allowed" : "blocked";
+
+    feedEl.innerHTML = checks.length
+      ? checks.map(item => `
+          <div class="runtime-event runtime-insight-card severity-high">
+            <div class="runtime-event-main">${item}</div>
+            <div class="runtime-event-sub">${approval.approval_type || "approval required"}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No approval checks available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Apply decision API unavailable.</div>';
+  }
+}
+
+loadControlledApplyDecisionSnapshot();
+setInterval(loadControlledApplyDecisionSnapshot, 30000);
 </script>
 
 </body>

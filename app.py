@@ -5057,6 +5057,25 @@ def jarvis_mobile_execution_simulation():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/apply-decision")
+def jarvis_mobile_apply_decision():
+    try:
+        from JARVIS_CORE.jarvis.architecture.controlled_apply_decision_engine import ControlledApplyDecisionEngine
+
+        data = ControlledApplyDecisionEngine(".").decide()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "controlled_apply_decision",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

@@ -1,0 +1,37 @@
+{
+  "bounded": true,
+  "mode": "controlled_apply_decision",
+  "autonomous_apply": false,
+  "summary": {
+    "objective": "safe_architecture_refactor",
+    "apply_decision": "ready_for_human_approval",
+    "avg_execution_confidence": 96.0,
+    "max_risk": "medium",
+    "rollback_ready": true,
+    "human_approval_required": true,
+    "execution_allowed": false
+  },
+  "approval_plan": {
+    "required": true,
+    "approval_type": "explicit_human_approval",
+    "minimum_checks": [
+      "Review simulated steps",
+      "Confirm rollback readiness",
+      "Confirm target files",
+      "Run py_compile before apply",
+      "Run endpoint smoke tests after apply"
+    ]
+  },
+  "simulation_summary": {
+    "objective": "safe_architecture_refactor",
+    "steps_simulated": 5,
+    "chain_feasibility": "high",
+    "execution_mode": "simulation_only",
+    "human_review_required": true
+  },
+  "notes": [
+    "Controlled apply decision only determines readiness.",
+    "No code changes are applied.",
+    "Execution remains disabled until explicit human approval."
+  ]
+}
