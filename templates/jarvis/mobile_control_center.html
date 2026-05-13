@@ -1265,7 +1265,42 @@ loadRuntimeCorrelationSnapshot();
 setInterval(loadRuntimeCorrelationSnapshot, 5000);
 </script>
 
-</body>
+
+<script>
+async function loadRuntimeInsightSnapshot() {
+  const countEl = document.getElementById("runtime-insight-count");
+  const listEl = document.getElementById("runtime-insight-list");
+
+  if (!countEl || !listEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/insights");
+    const data = await res.json();
+
+    countEl.textContent = data.insight_count ?? 0;
+
+    const insights = Array.isArray(data.insights) ? data.insights : [];
+
+    if (!insights.length) {
+      listEl.innerHTML = '<div class="runtime-empty">No runtime insights yet.</div>';
+      return;
+    }
+
+    listEl.innerHTML = insights.map(item => `
+      <div class="runtime-event">
+        <div class="runtime-event-main">${item}</div>
+        <div class="runtime-event-sub">bounded self-explaining runtime insight</div>
+      </div>
+    `).join("");
+  } catch (err) {
+    listEl.innerHTML = '<div class="runtime-empty">Runtime insight API unavailable.</div>';
+  }
+}
+
+loadRuntimeInsightSnapshot();
+setInterval(loadRuntimeInsightSnapshot, 5000);
+</script>
+\n</body>
 </html>
 
 
@@ -1438,5 +1473,20 @@ setInterval(loadRuntimeCorrelationSnapshot, 5000);
       <div class="runtime-session-sub" style="margin-top:10px">Correlation Insights</div>
       <div id="runtime-correlation-insights" class="runtime-feed">
         <div class="runtime-empty">Waiting for correlation insights...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="runtime-insight-panel">
+      <div class="panel-title">Runtime Insights</div>
+      <div class="panel-sub">Self-explaining cognition layer</div>
+
+      <div class="metric-row">
+        <span>Insight Count</span>
+        <b id="runtime-insight-count">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Reasoning Explanations</div>
+      <div id="runtime-insight-list" class="runtime-feed">
+        <div class="runtime-empty">Waiting for runtime insights...</div>
       </div>
     </div>

@@ -4136,6 +4136,14 @@ def jarvis_mobile_scheduler_run():
     return jsonify(result), 200
 
 
+
+@app.route("/jarvis/mobile/api/runtime/insights")
+def jarvis_mobile_runtime_insights():
+    from jarvis.cognition.runtime_insight_engine import build_runtime_insight_snapshot
+
+    return jsonify(build_runtime_insight_snapshot())
+
+
 @app.route("/jarvis/mobile/api/runtime/correlation")
 def jarvis_mobile_runtime_correlation():
     from jarvis.mobile.mobile_runtime_api import load_runtime_correlation_snapshot
