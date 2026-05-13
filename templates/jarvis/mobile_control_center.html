@@ -1670,6 +1670,59 @@ loadEngineeringRecommendationsSnapshot();
 setInterval(loadEngineeringRecommendationsSnapshot, 10000);
 </script>
 
+
+<script>
+async function loadArchitectureHotspotsSnapshot() {
+  const totalEl = document.getElementById("hotspots-total");
+  const highEl = document.getElementById("hotspots-high-risk");
+  const routeEl = document.getElementById("hotspots-route-dense");
+  const feedEl = document.getElementById("hotspots-feed");
+  const fragileEl = document.getElementById("fragile-zones-feed");
+
+  if (!totalEl || !highEl || !routeEl || !feedEl || !fragileEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/hotspots");
+    const data = await res.json();
+    const summary = data.summary || {};
+
+    totalEl.textContent = summary.hotspots_found ?? 0;
+    highEl.textContent = summary.high_risk_files ?? 0;
+    routeEl.textContent = summary.route_dense_files ?? 0;
+
+    const hotspots = Array.isArray(data.top_hotspots) ? data.top_hotspots.slice(0, 6) : [];
+    const fragile = Array.isArray(data.fragile_zones) ? data.fragile_zones.slice(0, 6) : [];
+
+    feedEl.innerHTML = hotspots.length
+      ? hotspots.map(item => `
+          <div class="runtime-event runtime-insight-card severity-${item.risk || "info"}">
+            <div class="runtime-event-main">${item.file}</div>
+            <div class="runtime-event-sub">
+              score ${item.hotspot_score} · ${item.lines} lines · ${item.routes} routes · ${item.functions} funcs
+            </div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No hotspots detected.</div>';
+
+    fragileEl.innerHTML = fragile.length
+      ? fragile.map(item => `
+          <div class="runtime-event runtime-insight-card severity-${item.risk || "info"}">
+            <div class="runtime-event-main">${item.file}</div>
+            <div class="runtime-event-sub">${item.reason}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No fragile zones detected.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Architecture hotspots API unavailable.</div>';
+    fragileEl.innerHTML = '<div class="runtime-empty">Architecture hotspots API unavailable.</div>';
+  }
+}
+
+loadArchitectureHotspotsSnapshot();
+setInterval(loadArchitectureHotspotsSnapshot, 10000);
+</script>
+
 </body>
 </html>
 
@@ -2033,5 +2086,37 @@ setInterval(loadEngineeringRecommendationsSnapshot, 10000);
       <div class="runtime-session-sub" style="margin-top:10px">Strategic Notes</div>
       <div id="engineering-strategic-notes" class="runtime-feed">
         <div class="runtime-empty">Waiting for strategic architecture notes...</div>
+      </div>
+    </div>
+
+    </div>
+
+    <div class="panel" id="architecture-hotspots-panel">
+      <div class="panel-title">Architecture Hotspots</div>
+      <div class="panel-sub">Runtime structural risk and hotspot analysis</div>
+
+      <div class="metric-row">
+        <span>Hotspots Found</span>
+        <b id="hotspots-total">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>High Risk Files</span>
+        <b id="hotspots-high-risk">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Route Dense Files</span>
+        <b id="hotspots-route-dense">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Top Hotspots</div>
+      <div id="hotspots-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for hotspot analysis...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Fragile Zones</div>
+      <div id="fragile-zones-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for fragile zone analysis...</div>
       </div>
     </div>

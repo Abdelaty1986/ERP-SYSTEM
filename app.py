@@ -4445,6 +4445,23 @@ def jarvis_mobile_api_command(command):
     )
     return jsonify(result), 202 if result.get("accepted") else 400
 
+
+
+@app.route("/jarvis/mobile/api/architecture/hotspots")
+def jarvis_mobile_architecture_hotspots():
+    try:
+        from JARVIS_CORE.jarvis.architecture.hotspot_detector import ArchitectureHotspotDetector
+        data = ArchitectureHotspotDetector(".").analyze()
+        return jsonify(data)
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "read_only_analysis",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
