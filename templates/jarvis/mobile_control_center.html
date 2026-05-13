@@ -1608,6 +1608,68 @@ loadStructuralTrendSnapshot();
 setInterval(loadStructuralTrendSnapshot, 10000);
 </script>
 
+
+<script>
+async function loadEngineeringRecommendationsSnapshot() {
+  const highEl = document.getElementById("engineering-high-priority");
+  const mediumEl = document.getElementById("engineering-medium-priority");
+  const lowEl = document.getElementById("engineering-low-priority");
+
+  const feedEl = document.getElementById("engineering-recommendations-feed");
+  const notesEl = document.getElementById("engineering-strategic-notes");
+
+  if (!highEl || !mediumEl || !lowEl || !feedEl || !notesEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/recommendations");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+
+    highEl.textContent = summary.high_priority ?? 0;
+    mediumEl.textContent = summary.medium_priority ?? 0;
+    lowEl.textContent = summary.low_priority ?? 0;
+
+    const recommendations = Array.isArray(data.recommendations)
+      ? data.recommendations
+      : [];
+
+    const notes = Array.isArray(data.strategic_notes)
+      ? data.strategic_notes
+      : [];
+
+    feedEl.innerHTML = recommendations.length
+      ? recommendations.map(item => `
+          <div class="runtime-event runtime-insight-card severity-${item.priority || "info"}">
+            <div class="runtime-event-main">
+              ${item.domain} · ${item.type}
+            </div>
+            <div class="runtime-event-sub">
+              ${item.recommendation}
+            </div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No engineering recommendations detected.</div>';
+
+    notesEl.innerHTML = notes.length
+      ? notes.map(note => `
+          <div class="runtime-event">
+            <div class="runtime-event-main">${note}</div>
+            <div class="runtime-event-sub">strategic architecture guidance</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No strategic notes detected.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Engineering recommendations API unavailable.</div>';
+    notesEl.innerHTML = '<div class="runtime-empty">Engineering recommendations API unavailable.</div>';
+  }
+}
+
+loadEngineeringRecommendationsSnapshot();
+setInterval(loadEngineeringRecommendationsSnapshot, 10000);
+</script>
+
 </body>
 </html>
 
@@ -1941,5 +2003,35 @@ setInterval(loadStructuralTrendSnapshot, 10000);
       <div class="runtime-session-sub" style="margin-top:10px">Domain Movement</div>
       <div id="structural-domain-movement" class="runtime-feed">
         <div class="runtime-empty">Waiting for domain movement analysis...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="engineering-recommendations-panel">
+      <div class="panel-title">Engineering Recommendations</div>
+      <div class="panel-sub">AI software architecture advisor runtime</div>
+
+      <div class="metric-row">
+        <span>High Priority</span>
+        <b id="engineering-high-priority">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Medium Priority</span>
+        <b id="engineering-medium-priority">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Low Priority</span>
+        <b id="engineering-low-priority">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Recommendations</div>
+      <div id="engineering-recommendations-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for engineering recommendations...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Strategic Notes</div>
+      <div id="engineering-strategic-notes" class="runtime-feed">
+        <div class="runtime-empty">Waiting for strategic architecture notes...</div>
       </div>
     </div>
