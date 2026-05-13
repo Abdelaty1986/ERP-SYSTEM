@@ -4140,6 +4140,16 @@ def jarvis_mobile_scheduler_run():
 
 
 
+
+@app.route("/jarvis/mobile/api/architecture/trends")
+def jarvis_mobile_architecture_trends():
+    from jarvis.supervision.structural_trend_forecaster import (
+        build_structural_trend_forecast,
+    )
+
+    return jsonify(build_structural_trend_forecast())
+
+
 @app.route("/jarvis/mobile/api/architecture/drift")
 def jarvis_mobile_architecture_drift():
     from jarvis.supervision.architecture_drift_detector import (
