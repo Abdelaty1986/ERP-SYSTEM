@@ -4139,6 +4139,16 @@ def jarvis_mobile_scheduler_run():
 
 
 
+
+@app.route("/jarvis/mobile/api/architecture/drift")
+def jarvis_mobile_architecture_drift():
+    from jarvis.supervision.architecture_drift_detector import (
+        build_architecture_drift_snapshot,
+    )
+
+    return jsonify(build_architecture_drift_snapshot())
+
+
 @app.route("/jarvis/mobile/api/runtime/supervision")
 def jarvis_mobile_runtime_supervision():
     from jarvis.supervision.runtime_supervision_engine import (
