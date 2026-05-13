@@ -2,7 +2,7 @@
   "gateway_state": "active",
   "latest_session": {
     "session_id": "approval-20260513171232-84802123",
-    "approval_state": "awaiting_human_approval",
+    "approval_state": "locked",
     "authorization_scope": "execution_preparation_only",
     "staged_unlock_state": "locked",
     "execution_lock_state": "locked",
@@ -19,5 +19,5 @@
     "rollback_required": true,
     "real_apply_enabled": false
   },
-  "updated_at": "2026-05-13T17:12:32.955123+00:00"
+  "updated_at": "2026-05-13T18:05:04.931881+00:00"
 }

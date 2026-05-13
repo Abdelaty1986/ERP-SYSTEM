@@ -83,9 +83,13 @@ class ApprovalGatewayEngine:
         if not self.memory_path.exists():
             return self.create_session()
 
-        return json.loads(
-            self.memory_path.read_text(encoding="utf-8")
-        )
+        try:
+            raw = self.memory_path.read_text(encoding="utf-8").strip()
+            if not raw:
+                return self.create_session()
+            return json.loads(raw)
+        except Exception:
+            return self.create_session()
 
 
 if __name__ == "__main__":

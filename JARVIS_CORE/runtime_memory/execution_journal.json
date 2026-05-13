@@ -3,7 +3,7 @@
   "mode": "execution_journal_runtime",
   "autonomous_apply": false,
   "summary": {
-    "journal_id": "journal-20260513174207",
+    "journal_id": "journal-20260513180505",
     "objective": "safe_architecture_refactor",
     "entries_recorded": 5,
     "lineage_state": "persistent_execution_memory",
@@ -12,51 +12,51 @@
   },
   "journal_entries": [
     {
-      "entry_id": "journal-20260513174207-step-1",
+      "entry_id": "journal-20260513180505-step-1",
       "phase": "planning",
       "task": "Generate bounded execution strategy",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513174207",
+      "rollback_checkpoint": "checkpoint-20260513180505",
       "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     },
     {
-      "entry_id": "journal-20260513174207-step-2",
+      "entry_id": "journal-20260513180505-step-2",
       "phase": "reflection",
       "task": "Validate execution coherence",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513174207",
+      "rollback_checkpoint": "checkpoint-20260513180505",
       "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     },
     {
-      "entry_id": "journal-20260513174207-step-3",
+      "entry_id": "journal-20260513180505-step-3",
       "phase": "arbitration",
       "task": "Rank execution decisions",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513174207",
+      "rollback_checkpoint": "checkpoint-20260513180505",
       "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     },
     {
-      "entry_id": "journal-20260513174207-step-4",
+      "entry_id": "journal-20260513180505-step-4",
       "phase": "learning",
       "task": "Record bounded learning signals",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513174207",
+      "rollback_checkpoint": "checkpoint-20260513180505",
       "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     },
     {
-      "entry_id": "journal-20260513174207-step-5",
+      "entry_id": "journal-20260513180505-step-5",
       "phase": "failure_guard",
       "task": "Monitor execution drift",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513174207",
+      "rollback_checkpoint": "checkpoint-20260513180505",
       "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false

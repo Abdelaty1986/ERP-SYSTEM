@@ -4028,5 +4028,46 @@ loadApprovalLineageHud();
 setInterval(loadApprovalLineageHud, 15000);
 </script>
 
+
+<div class="panel">
+  <div class="panel-title">Approval Transition Runtime</div>
+  <div class="panel-sub">State transitions / revoke-expire-ready / locked execution</div>
+  <div id="approval-transition-hud" class="runtime-session-sub">
+    Loading approval transitions...
+  </div>
+</div>
+
+
+<script>
+async function loadApprovalTransitionHud() {
+  const box = document.getElementById("approval-transition-hud");
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/approval-transition");
+    const data = await res.json();
+    const t = data.latest_transition || {};
+    const g = data.governance || {};
+
+    box.innerHTML = `
+      <div>Transition State: ${data.transition_state || "unknown"}</div>
+      <div>Event Count: ${data.event_count || 0}</div>
+      <div>From: ${t.from_state || "unknown"}</div>
+      <div>To: ${t.to_state || "unknown"}</div>
+      <div>Allowed: ${t.transition_allowed === true ? "true" : "false"}</div>
+      <div>Execution Lock: ${t.execution_lock_state || "locked"}</div>
+      <div>Real Apply Enabled: ${t.real_apply_enabled === false ? "false" : "blocked"}</div>
+      <div>Transition Replay Ready: ${g.transition_replay_ready === true ? "true" : "unknown"}</div>
+      <div>Execution Unlock Allowed: ${g.execution_unlock_allowed === false ? "false" : "blocked"}</div>
+    `;
+  } catch (err) {
+    box.innerHTML = "Approval transition unavailable";
+  }
+}
+
+loadApprovalTransitionHud();
+setInterval(loadApprovalTransitionHud, 15000);
+</script>
+
 </body>
 </html>
