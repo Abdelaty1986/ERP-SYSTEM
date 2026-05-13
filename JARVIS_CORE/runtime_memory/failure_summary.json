@@ -1,12 +1,12 @@
 {
-  "failures_recorded": 8,
+  "failures_recorded": 11,
   "top_failure_category": "runtime_validation",
   "top_affected_component": "runtime_memory",
   "risk_state": "stable",
   "severity_distribution": {
-    "medium": 8
+    "medium": 11
   },
   "failure_categories": {
-    "runtime_validation": 8
+    "runtime_validation": 11
   }
 }

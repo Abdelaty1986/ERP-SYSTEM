@@ -28,6 +28,8 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from JARVIS_CORE.jarvis.architecture.approval_gateway_engine import ApprovalGatewayEngine
+
 from db import PERMISSION_MODULES, init_db
 from migrations import get_migration_status, run_migrations
 from system_health import build_system_health
@@ -5151,6 +5153,12 @@ def jarvis_mobile_execution_journal():
             "error": str(exc)
         }), 500
 
+
+
+@app.route("/jarvis/mobile/api/architecture/approval-gateway")
+def jarvis_mobile_approval_gateway():
+    gateway_state = ApprovalGatewayEngine().load_state()
+    return jsonify(gateway_state)
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")

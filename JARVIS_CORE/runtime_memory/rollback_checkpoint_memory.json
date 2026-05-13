@@ -3,7 +3,7 @@
   "mode": "rollback_checkpoint_runtime",
   "autonomous_apply": false,
   "summary": {
-    "checkpoint_id": "checkpoint-20260513165015",
+    "checkpoint_id": "checkpoint-20260513171957",
     "objective": "safe_architecture_refactor",
     "checkpoint_state": "ready",
     "rollback_ready": true,

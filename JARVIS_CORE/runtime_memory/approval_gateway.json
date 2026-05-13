@@ -1,0 +1,23 @@
+{
+  "gateway_state": "active",
+  "latest_session": {
+    "session_id": "approval-20260513171232-84802123",
+    "approval_state": "awaiting_human_approval",
+    "authorization_scope": "execution_preparation_only",
+    "staged_unlock_state": "locked",
+    "execution_lock_state": "locked",
+    "rollback_binding": "required",
+    "expires_at": "2026-05-13T17:42:32.955123+00:00",
+    "bounded": true,
+    "autonomous_apply": false,
+    "created_at": "2026-05-13T17:12:32.955123+00:00"
+  },
+  "governance": {
+    "human_approval_required": true,
+    "autonomous_apply_allowed": false,
+    "bounded_authorization": true,
+    "rollback_required": true,
+    "real_apply_enabled": false
+  },
+  "updated_at": "2026-05-13T17:12:32.955123+00:00"
+}
