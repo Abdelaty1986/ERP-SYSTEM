@@ -4839,6 +4839,54 @@ def jarvis_mobile_runtime_identity():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/continuity")
+def jarvis_mobile_runtime_continuity():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.runtime_forecast_engine import RuntimeForecastEngine
+        from JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine import RecommendationEvolutionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_simulation_engine import StrategySimulationEngine
+        from JARVIS_CORE.jarvis.architecture.safe_execution_strategy_planner import SafeExecutionStrategyPlanner
+        from JARVIS_CORE.jarvis.architecture.runtime_reflection_engine import RuntimeReflectionEngine
+        from JARVIS_CORE.jarvis.architecture.cognitive_decision_engine import CognitiveDecisionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_arbitration_engine import StrategyArbitrationEngine
+        from JARVIS_CORE.jarvis.architecture.multi_agent_deliberation_engine import MultiAgentDeliberationEngine
+        from JARVIS_CORE.jarvis.architecture.goal_persistence_engine import GoalPersistenceEngine
+        from JARVIS_CORE.jarvis.architecture.runtime_identity_engine import RuntimeIdentityEngine
+        from JARVIS_CORE.jarvis.architecture.runtime_continuity_memory import RuntimeContinuityMemory
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        forecast = RuntimeForecastEngine().analyze(memory)
+        evolution = RecommendationEvolutionEngine().analyze(memory)
+        strategy = StrategySimulationEngine().simulate(evolution)
+        plan = SafeExecutionStrategyPlanner().build_plan(strategy)
+        reflection = RuntimeReflectionEngine().reflect(forecast, evolution, strategy, plan)
+        decision = CognitiveDecisionEngine().decide(reflection, strategy, plan)
+        arbitration = StrategyArbitrationEngine().arbitrate(decision)
+        deliberation = MultiAgentDeliberationEngine().deliberate(reflection, decision, arbitration)
+        goal = GoalPersistenceEngine(".").evaluate(deliberation)
+
+        identity = RuntimeIdentityEngine().build_identity(
+            goal,
+            deliberation,
+            arbitration,
+            reflection
+        )
+
+        data = RuntimeContinuityMemory(".").persist(identity)
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "runtime_continuity_memory",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

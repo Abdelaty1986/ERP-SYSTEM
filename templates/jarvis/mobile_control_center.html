@@ -2590,6 +2590,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="runtime-continuity-panel">
+      <div class="panel-title">Runtime Continuity</div>
+      <div class="panel-sub">Persistent cognitive state restoration</div>
+
+      <div class="metric-row">
+        <span>State</span>
+        <b id="continuity-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Score</span>
+        <b id="continuity-score">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Goal</span>
+        <b id="continuity-goal">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Restored State</div>
+      <div id="continuity-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for runtime continuity...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3107,6 +3132,45 @@ async function loadRuntimeIdentitySnapshot() {
 
 loadRuntimeIdentitySnapshot();
 setInterval(loadRuntimeIdentitySnapshot, 15000);
+</script>
+
+
+<script>
+async function loadRuntimeContinuitySnapshot() {
+  const stateEl = document.getElementById("continuity-state");
+  const scoreEl = document.getElementById("continuity-score");
+  const goalEl = document.getElementById("continuity-goal");
+  const feedEl = document.getElementById("continuity-feed");
+
+  if (!stateEl || !scoreEl || !goalEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/continuity");
+    const data = await res.json();
+
+    const memory = data.continuity_memory || {};
+    const continuity = memory.continuity || {};
+    const current = memory.current_state || {};
+
+    stateEl.textContent = data.state || "unknown";
+    scoreEl.textContent = continuity.score ?? 0;
+    goalEl.textContent = current.active_goal || "n/a";
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${continuity.state || "continuity"}</div>
+        <div class="runtime-event-sub">${memory.self_description || "No continuity description available."}</div>
+        <div class="runtime-event-sub">strategy: ${current.best_strategy || "n/a"} · forecast: ${current.forecast_state || "n/a"}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Runtime continuity API unavailable.</div>';
+  }
+}
+
+loadRuntimeContinuitySnapshot();
+setInterval(loadRuntimeContinuitySnapshot, 15000);
 </script>
 
 </body>
