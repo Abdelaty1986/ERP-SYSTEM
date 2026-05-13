@@ -1,0 +1,35 @@
+{
+  "bounded": true,
+  "mode": "rollback_checkpoint_runtime",
+  "autonomous_apply": false,
+  "summary": {
+    "checkpoint_id": "checkpoint-20260513161835",
+    "objective": "safe_architecture_refactor",
+    "checkpoint_state": "ready",
+    "rollback_ready": true,
+    "execution_allowed": false,
+    "human_approval_required": true
+  },
+  "recovery_plan": {
+    "strategy": "bounded_restore_sequence",
+    "validation_required": true,
+    "recovery_steps": [
+      "Restore modified files",
+      "Re-run py_compile validation",
+      "Re-run endpoint smoke tests",
+      "Verify runtime integrity",
+      "Confirm bounded runtime state"
+    ]
+  },
+  "checkpoint_lineage": {
+    "source_runtime": "controlled_apply_decision",
+    "linked_objective": "safe_architecture_refactor",
+    "continuity_state": "preserved",
+    "recovery_graph_state": "stable"
+  },
+  "notes": [
+    "Rollback checkpoints prepare recovery states.",
+    "No restore execution is performed automatically.",
+    "Recovery remains human-governed."
+  ]
+}

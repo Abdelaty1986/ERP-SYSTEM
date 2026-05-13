@@ -5076,6 +5076,25 @@ def jarvis_mobile_apply_decision():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/rollback-checkpoint")
+def jarvis_mobile_rollback_checkpoint():
+    try:
+        from JARVIS_CORE.jarvis.architecture.rollback_checkpoint_engine import RollbackCheckpointEngine
+
+        data = RollbackCheckpointEngine(".").build_checkpoint()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "rollback_checkpoint_runtime",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

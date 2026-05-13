@@ -2815,6 +2815,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="rollback-checkpoint-panel">
+      <div class="panel-title">Rollback Checkpoint</div>
+      <div class="panel-sub">Human-governed recovery readiness planning</div>
+
+      <div class="metric-row">
+        <span>Checkpoint</span>
+        <b id="rollback-checkpoint-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Rollback</span>
+        <b id="rollback-ready-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Execution</span>
+        <b id="rollback-execution-state">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Recovery Plan</div>
+      <div id="rollback-checkpoint-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for rollback checkpoint...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3684,6 +3709,46 @@ async function loadControlledApplyDecisionSnapshot() {
 
 loadControlledApplyDecisionSnapshot();
 setInterval(loadControlledApplyDecisionSnapshot, 30000);
+</script>
+
+
+<script>
+async function loadRollbackCheckpointSnapshot() {
+  const checkpointEl = document.getElementById("rollback-checkpoint-state");
+  const rollbackEl = document.getElementById("rollback-ready-state");
+  const executionEl = document.getElementById("rollback-execution-state");
+  const feedEl = document.getElementById("rollback-checkpoint-feed");
+
+  if (!checkpointEl || !rollbackEl || !executionEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/rollback-checkpoint");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const recovery = data.recovery_plan || {};
+    const steps = Array.isArray(recovery.recovery_steps) ? recovery.recovery_steps : [];
+
+    checkpointEl.textContent = summary.checkpoint_state || "unknown";
+    rollbackEl.textContent = summary.rollback_ready ? "ready" : "not ready";
+    executionEl.textContent = summary.execution_allowed ? "allowed" : "blocked";
+
+    feedEl.innerHTML = steps.length
+      ? steps.map(item => `
+          <div class="runtime-event runtime-insight-card severity-high">
+            <div class="runtime-event-main">${item}</div>
+            <div class="runtime-event-sub">${recovery.strategy || "recovery plan"} · validation required</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No recovery steps available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Rollback checkpoint API unavailable.</div>';
+  }
+}
+
+loadRollbackCheckpointSnapshot();
+setInterval(loadRollbackCheckpointSnapshot, 30000);
 </script>
 
 </body>
