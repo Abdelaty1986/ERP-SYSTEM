@@ -4981,6 +4981,25 @@ def jarvis_mobile_failure_learning():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/agent-skills")
+def jarvis_mobile_agent_skills():
+    try:
+        from JARVIS_CORE.jarvis.architecture.agent_skill_scoring_engine import AgentSkillScoringEngine
+
+        data = AgentSkillScoringEngine(".").evaluate()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "agent_skill_scoring",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

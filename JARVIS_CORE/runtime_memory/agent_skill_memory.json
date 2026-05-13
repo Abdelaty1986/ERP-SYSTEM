@@ -1,0 +1,69 @@
+{
+  "agents": {
+    "planner_agent": {
+      "role": "planning",
+      "uses": 5,
+      "successes": 5,
+      "failures": 0,
+      "best_for": [
+        "strategy_planning",
+        "safe_execution_plans"
+      ],
+      "last_score": 100.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:31:21.541521Z"
+    },
+    "reflection_agent": {
+      "role": "reflection",
+      "uses": 5,
+      "successes": 5,
+      "failures": 0,
+      "best_for": [
+        "self_review",
+        "safety_alignment"
+      ],
+      "last_score": 100.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:31:21.541540Z"
+    },
+    "arbitration_agent": {
+      "role": "arbitration",
+      "uses": 4,
+      "successes": 4,
+      "failures": 0,
+      "best_for": [
+        "strategy_ranking",
+        "tradeoff_balancing"
+      ],
+      "last_score": 97.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:31:21.541545Z"
+    },
+    "learning_agent": {
+      "role": "learning",
+      "uses": 3,
+      "successes": 3,
+      "failures": 0,
+      "best_for": [
+        "memory_scoring",
+        "learning_evolution"
+      ],
+      "last_score": 94.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:31:21.541551Z"
+    },
+    "failure_guard_agent": {
+      "role": "failure_guard",
+      "uses": 2,
+      "successes": 2,
+      "failures": 0,
+      "best_for": [
+        "risk_memory",
+        "failure_pattern_tracking"
+      ],
+      "last_score": 91.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T15:31:21.541556Z"
+    }
+  }
+}

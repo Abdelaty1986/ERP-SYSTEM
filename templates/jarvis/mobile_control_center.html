@@ -2690,6 +2690,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="agent-skill-panel">
+      <div class="panel-title">Agent Skill Scoring</div>
+      <div class="panel-sub">Adaptive agent performance and routing readiness</div>
+
+      <div class="metric-row">
+        <span>Agents</span>
+        <b id="agent-skill-count">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Best Agent</span>
+        <b id="agent-skill-best">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Best Score</span>
+        <b id="agent-skill-score">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Agent Ranking</div>
+      <div id="agent-skill-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for agent skill scoring...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3360,6 +3385,46 @@ async function loadFailureLearningSnapshot() {
 
 loadFailureLearningSnapshot();
 setInterval(loadFailureLearningSnapshot, 30000);
+</script>
+
+
+<script>
+async function loadAgentSkillSnapshot() {
+  const countEl = document.getElementById("agent-skill-count");
+  const bestEl = document.getElementById("agent-skill-best");
+  const scoreEl = document.getElementById("agent-skill-score");
+  const feedEl = document.getElementById("agent-skill-feed");
+
+  if (!countEl || !bestEl || !scoreEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/agent-skills");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const agents = Array.isArray(data.agents) ? data.agents : [];
+
+    countEl.textContent = summary.agents_tracked ?? agents.length;
+    bestEl.textContent = summary.best_agent || "unknown";
+    scoreEl.textContent = summary.best_score ?? 0;
+
+    feedEl.innerHTML = agents.length
+      ? agents.map(item => `
+          <div class="runtime-event runtime-insight-card severity-info">
+            <div class="runtime-event-main">${item.agent_id} · ${item.state}</div>
+            <div class="runtime-event-sub">role: ${item.role} · score: ${item.skill_score}</div>
+            <div class="runtime-event-sub">best for: ${(item.best_for || []).join(" · ")}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No agent skill data available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Agent skill API unavailable.</div>';
+  }
+}
+
+loadAgentSkillSnapshot();
+setInterval(loadAgentSkillSnapshot, 30000);
 </script>
 
 </body>
