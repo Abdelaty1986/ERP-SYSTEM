@@ -2310,6 +2310,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="runtime-forecast-panel">
+      <div class="panel-title">Runtime Forecast</div>
+      <div class="panel-sub">Predictive cognitive architecture forecasting</div>
+
+      <div class="metric-row">
+        <span>Forecast State</span>
+        <b id="forecast-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Instability</span>
+        <b id="forecast-instability">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Acceleration</span>
+        <b id="forecast-acceleration">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Top Forecast</div>
+      <div id="forecast-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for runtime forecast...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -2355,6 +2380,45 @@ async function loadArchitectureMemorySnapshot() {
 
 loadArchitectureMemorySnapshot();
 setInterval(loadArchitectureMemorySnapshot, 15000);
+</script>
+
+
+<script>
+async function loadRuntimeForecastSnapshot() {
+  const stateEl = document.getElementById("forecast-state");
+  const instabilityEl = document.getElementById("forecast-instability");
+  const accelerationEl = document.getElementById("forecast-acceleration");
+  const feedEl = document.getElementById("forecast-feed");
+
+  if (!stateEl || !instabilityEl || !accelerationEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/forecast");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const top = data.top_forecast || {};
+    const notes = Array.isArray(data.forecast_notes) ? data.forecast_notes : [];
+
+    stateEl.textContent = summary.forecast_state || "unknown";
+    instabilityEl.textContent = summary.instability_probability ?? 0;
+    accelerationEl.textContent = summary.risk_acceleration ?? 0;
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-high">
+        <div class="runtime-event-main">${top.file || "n/a"} · ${top.risk || "unknown"}</div>
+        <div class="runtime-event-sub">${top.forecast || "No forecast available."}</div>
+        <div class="runtime-event-sub">${notes.slice(0,2).join(" · ")}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Runtime forecast API unavailable.</div>';
+  }
+}
+
+loadRuntimeForecastSnapshot();
+setInterval(loadRuntimeForecastSnapshot, 15000);
 </script>
 
 </body>

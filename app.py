@@ -4532,6 +4532,27 @@ def jarvis_mobile_architecture_memory():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/forecast")
+def jarvis_mobile_architecture_forecast():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.runtime_forecast_engine import RuntimeForecastEngine
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        data = RuntimeForecastEngine().analyze(memory)
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "predictive_forecasting",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
