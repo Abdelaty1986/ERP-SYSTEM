@@ -4719,6 +4719,126 @@ def jarvis_mobile_strategy_arbitration():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/deliberation")
+def jarvis_mobile_multi_agent_deliberation():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.runtime_forecast_engine import RuntimeForecastEngine
+        from JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine import RecommendationEvolutionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_simulation_engine import StrategySimulationEngine
+        from JARVIS_CORE.jarvis.architecture.safe_execution_strategy_planner import SafeExecutionStrategyPlanner
+        from JARVIS_CORE.jarvis.architecture.runtime_reflection_engine import RuntimeReflectionEngine
+        from JARVIS_CORE.jarvis.architecture.cognitive_decision_engine import CognitiveDecisionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_arbitration_engine import StrategyArbitrationEngine
+        from JARVIS_CORE.jarvis.architecture.multi_agent_deliberation_engine import MultiAgentDeliberationEngine
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        forecast = RuntimeForecastEngine().analyze(memory)
+        evolution = RecommendationEvolutionEngine().analyze(memory)
+        strategy = StrategySimulationEngine().simulate(evolution)
+        plan = SafeExecutionStrategyPlanner().build_plan(strategy)
+        reflection = RuntimeReflectionEngine().reflect(forecast, evolution, strategy, plan)
+        decision = CognitiveDecisionEngine().decide(reflection, strategy, plan)
+        arbitration = StrategyArbitrationEngine().arbitrate(decision)
+
+        data = MultiAgentDeliberationEngine().deliberate(reflection, decision, arbitration)
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "multi_agent_deliberation_only",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
+
+
+@app.route("/jarvis/mobile/api/architecture/goal")
+def jarvis_mobile_architecture_goal():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.runtime_forecast_engine import RuntimeForecastEngine
+        from JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine import RecommendationEvolutionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_simulation_engine import StrategySimulationEngine
+        from JARVIS_CORE.jarvis.architecture.safe_execution_strategy_planner import SafeExecutionStrategyPlanner
+        from JARVIS_CORE.jarvis.architecture.runtime_reflection_engine import RuntimeReflectionEngine
+        from JARVIS_CORE.jarvis.architecture.cognitive_decision_engine import CognitiveDecisionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_arbitration_engine import StrategyArbitrationEngine
+        from JARVIS_CORE.jarvis.architecture.multi_agent_deliberation_engine import MultiAgentDeliberationEngine
+        from JARVIS_CORE.jarvis.architecture.goal_persistence_engine import GoalPersistenceEngine
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        forecast = RuntimeForecastEngine().analyze(memory)
+        evolution = RecommendationEvolutionEngine().analyze(memory)
+        strategy = StrategySimulationEngine().simulate(evolution)
+        plan = SafeExecutionStrategyPlanner().build_plan(strategy)
+        reflection = RuntimeReflectionEngine().reflect(forecast, evolution, strategy, plan)
+        decision = CognitiveDecisionEngine().decide(reflection, strategy, plan)
+        arbitration = StrategyArbitrationEngine().arbitrate(decision)
+        deliberation = MultiAgentDeliberationEngine().deliberate(reflection, decision, arbitration)
+
+        data = GoalPersistenceEngine(".").evaluate(deliberation)
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "goal_persistence_only",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
+
+
+@app.route("/jarvis/mobile/api/architecture/identity")
+def jarvis_mobile_runtime_identity():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.runtime_forecast_engine import RuntimeForecastEngine
+        from JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine import RecommendationEvolutionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_simulation_engine import StrategySimulationEngine
+        from JARVIS_CORE.jarvis.architecture.safe_execution_strategy_planner import SafeExecutionStrategyPlanner
+        from JARVIS_CORE.jarvis.architecture.runtime_reflection_engine import RuntimeReflectionEngine
+        from JARVIS_CORE.jarvis.architecture.cognitive_decision_engine import CognitiveDecisionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_arbitration_engine import StrategyArbitrationEngine
+        from JARVIS_CORE.jarvis.architecture.multi_agent_deliberation_engine import MultiAgentDeliberationEngine
+        from JARVIS_CORE.jarvis.architecture.goal_persistence_engine import GoalPersistenceEngine
+        from JARVIS_CORE.jarvis.architecture.runtime_identity_engine import RuntimeIdentityEngine
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        forecast = RuntimeForecastEngine().analyze(memory)
+        evolution = RecommendationEvolutionEngine().analyze(memory)
+        strategy = StrategySimulationEngine().simulate(evolution)
+        plan = SafeExecutionStrategyPlanner().build_plan(strategy)
+        reflection = RuntimeReflectionEngine().reflect(forecast, evolution, strategy, plan)
+        decision = CognitiveDecisionEngine().decide(reflection, strategy, plan)
+        arbitration = StrategyArbitrationEngine().arbitrate(decision)
+        deliberation = MultiAgentDeliberationEngine().deliberate(reflection, decision, arbitration)
+        goal = GoalPersistenceEngine(".").evaluate(deliberation)
+
+        data = RuntimeIdentityEngine().build_identity(
+            goal,
+            deliberation,
+            arbitration,
+            reflection
+        )
+
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "runtime_identity_only",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

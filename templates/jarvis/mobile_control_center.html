@@ -2510,6 +2510,86 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="multi-agent-deliberation-panel">
+      <div class="panel-title">Multi-Agent Deliberation</div>
+      <div class="panel-sub">Consensus reasoning across cognitive engines</div>
+
+      <div class="metric-row">
+        <span>Consensus</span>
+        <b id="deliberation-consensus">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Agreements</span>
+        <b id="deliberation-agreements">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Tensions</span>
+        <b id="deliberation-tensions">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Executive Consensus</div>
+      <div id="deliberation-executive-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for executive consensus...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Agreements / Tensions</div>
+      <div id="deliberation-signals-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for deliberation signals...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="goal-persistence-panel">
+      <div class="panel-title">Goal Persistence</div>
+      <div class="panel-sub">Long-horizon architecture goal tracking</div>
+
+      <div class="metric-row">
+        <span>Status</span>
+        <b id="goal-status">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Alignment</span>
+        <b id="goal-alignment">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Evaluations</span>
+        <b id="goal-evaluations">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Persistent Goal</div>
+      <div id="goal-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for goal persistence...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="runtime-identity-panel">
+      <div class="panel-title">Runtime Identity</div>
+      <div class="panel-sub">Unified cognitive operating identity</div>
+
+      <div class="metric-row">
+        <span>Mode</span>
+        <b id="identity-mode">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Continuity</span>
+        <b id="identity-continuity">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Safety</span>
+        <b id="identity-safety">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Self Description</div>
+      <div id="identity-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for runtime identity...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -2893,6 +2973,140 @@ async function loadStrategyArbitrationSnapshot() {
 
 loadStrategyArbitrationSnapshot();
 setInterval(loadStrategyArbitrationSnapshot, 15000);
+</script>
+
+
+<script>
+async function loadMultiAgentDeliberationSnapshot() {
+  const consensusEl = document.getElementById("deliberation-consensus");
+  const agreementsEl = document.getElementById("deliberation-agreements");
+  const tensionsEl = document.getElementById("deliberation-tensions");
+  const executiveEl = document.getElementById("deliberation-executive-feed");
+  const signalsEl = document.getElementById("deliberation-signals-feed");
+
+  if (!consensusEl || !agreementsEl || !tensionsEl || !executiveEl || !signalsEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/deliberation");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const executive = data.executive_consensus || {};
+    const agreements = Array.isArray(data.agreements) ? data.agreements : [];
+    const tensions = Array.isArray(data.tensions) ? data.tensions : [];
+
+    consensusEl.textContent = summary.consensus_state || "unknown";
+    agreementsEl.textContent = summary.agreements ?? agreements.length;
+    tensionsEl.textContent = summary.tensions ?? tensions.length;
+
+    executiveEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-high">
+        <div class="runtime-event-main">${executive.strategy || "n/a"} · ${executive.consensus || "n/a"}</div>
+        <div class="runtime-event-sub">${executive.reasoning || "No consensus reasoning available."}</div>
+      </div>
+    `;
+
+    signalsEl.innerHTML = [
+      ...agreements.map(item => `
+        <div class="runtime-event runtime-insight-card severity-info">
+          <div class="runtime-event-main">Agreement</div>
+          <div class="runtime-event-sub">${item}</div>
+        </div>
+      `),
+      ...tensions.map(item => `
+        <div class="runtime-event runtime-insight-card severity-high">
+          <div class="runtime-event-main">Tension</div>
+          <div class="runtime-event-sub">${item}</div>
+        </div>
+      `)
+    ].join("") || '<div class="runtime-empty">No deliberation signals available.</div>';
+
+  } catch (err) {
+    executiveEl.innerHTML = '<div class="runtime-empty">Deliberation API unavailable.</div>';
+    signalsEl.innerHTML = '<div class="runtime-empty">Deliberation API unavailable.</div>';
+  }
+}
+
+loadMultiAgentDeliberationSnapshot();
+setInterval(loadMultiAgentDeliberationSnapshot, 15000);
+</script>
+
+
+<script>
+async function loadGoalPersistenceSnapshot() {
+  const statusEl = document.getElementById("goal-status");
+  const alignmentEl = document.getElementById("goal-alignment");
+  const evaluationsEl = document.getElementById("goal-evaluations");
+  const feedEl = document.getElementById("goal-feed");
+
+  if (!statusEl || !alignmentEl || !evaluationsEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/goal");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const goal = data.goal || {};
+    const alignment = data.alignment || {};
+
+    statusEl.textContent = summary.status || "unknown";
+    alignmentEl.textContent = summary.alignment_state || "unknown";
+    evaluationsEl.textContent = summary.evaluations ?? 0;
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${goal.goal_id || "architecture goal"}</div>
+        <div class="runtime-event-sub">${goal.objective || "No goal objective available."}</div>
+        <div class="runtime-event-sub">target: ${goal.target || "n/a"} · score ${alignment.score ?? 0}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Goal persistence API unavailable.</div>';
+  }
+}
+
+loadGoalPersistenceSnapshot();
+setInterval(loadGoalPersistenceSnapshot, 15000);
+</script>
+
+
+<script>
+async function loadRuntimeIdentitySnapshot() {
+  const modeEl = document.getElementById("identity-mode");
+  const continuityEl = document.getElementById("identity-continuity");
+  const safetyEl = document.getElementById("identity-safety");
+  const feedEl = document.getElementById("identity-feed");
+
+  if (!modeEl || !continuityEl || !safetyEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/identity");
+    const data = await res.json();
+
+    const identity = data.identity || {};
+    const continuity = data.continuity || {};
+    const state = data.current_state || {};
+
+    modeEl.textContent = identity.operational_mode || "unknown";
+    continuityEl.textContent = continuity.state || "unknown";
+    safetyEl.textContent = identity.safety_posture || "unknown";
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${identity.name || "JARVIS CORE"} · ${identity.runtime_type || "runtime"}</div>
+        <div class="runtime-event-sub">${data.self_description || "No identity description available."}</div>
+        <div class="runtime-event-sub">goal: ${state.active_goal || "n/a"} · strategy: ${state.best_strategy || "n/a"}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Runtime identity API unavailable.</div>';
+  }
+}
+
+loadRuntimeIdentitySnapshot();
+setInterval(loadRuntimeIdentitySnapshot, 15000);
 </script>
 
 </body>
