@@ -5114,6 +5114,25 @@ def jarvis_mobile_execution_queue():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/human-approved-apply")
+def jarvis_mobile_human_approved_apply():
+    try:
+        from JARVIS_CORE.jarvis.architecture.human_approved_apply_engine import HumanApprovedApplyEngine
+
+        data = HumanApprovedApplyEngine(".").prepare_apply()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "human_approved_apply",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

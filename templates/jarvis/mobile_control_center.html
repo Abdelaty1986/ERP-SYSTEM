@@ -2865,6 +2865,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="human-approved-apply-panel">
+      <div class="panel-title">Human Approved Apply</div>
+      <div class="panel-sub">Governed staged apply preparation</div>
+
+      <div class="metric-row">
+        <span>Apply State</span>
+        <b id="human-apply-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Steps</span>
+        <b id="human-apply-steps">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Execution</span>
+        <b id="human-apply-execution">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Staged Apply</div>
+      <div id="human-approved-apply-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for human-approved apply...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3814,6 +3839,46 @@ async function loadSafeExecutionQueueSnapshot() {
 
 loadSafeExecutionQueueSnapshot();
 setInterval(loadSafeExecutionQueueSnapshot, 30000);
+</script>
+
+
+<script>
+async function loadHumanApprovedApplySnapshot() {
+  const stateEl = document.getElementById("human-apply-state");
+  const stepsEl = document.getElementById("human-apply-steps");
+  const executionEl = document.getElementById("human-apply-execution");
+  const feedEl = document.getElementById("human-approved-apply-feed");
+
+  if (!stateEl || !stepsEl || !executionEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/human-approved-apply");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const staged = Array.isArray(data.staged_execution) ? data.staged_execution : [];
+
+    stateEl.textContent = summary.apply_state || "unknown";
+    stepsEl.textContent = summary.staged_steps ?? staged.length;
+    executionEl.textContent = summary.execution_allowed ? "allowed" : "locked";
+
+    feedEl.innerHTML = staged.length
+      ? staged.map(item => `
+          <div class="runtime-event runtime-insight-card severity-high">
+            <div class="runtime-event-main">${item.phase} · ${item.execution_state}</div>
+            <div class="runtime-event-sub">${item.task}</div>
+            <div class="runtime-event-sub">locked: ${item.execution_locked ? "yes" : "no"} · rollback: ${item.rollback_checkpoint}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No staged apply steps available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Human approved apply API unavailable.</div>';
+  }
+}
+
+loadHumanApprovedApplySnapshot();
+setInterval(loadHumanApprovedApplySnapshot, 30000);
 </script>
 
 </body>
