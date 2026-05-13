@@ -1,72 +1,77 @@
 {
   "bounded": true,
-  "mode": "human_approved_apply",
+  "mode": "execution_journal_runtime",
   "autonomous_apply": false,
   "summary": {
-    "apply_id": "apply-20260513165015",
+    "journal_id": "journal-20260513165015",
     "objective": "safe_architecture_refactor",
-    "apply_state": "awaiting_human_approval",
-    "staged_steps": 5,
+    "entries_recorded": 5,
+    "lineage_state": "persistent_execution_memory",
     "execution_allowed": false,
     "rollback_ready": true
   },
-  "staged_execution": [
+  "journal_entries": [
     {
+      "entry_id": "journal-20260513165015-step-1",
       "phase": "planning",
       "task": "Generate bounded execution strategy",
       "execution_state": "awaiting_human_approval",
       "rollback_checkpoint": "checkpoint-20260513165015",
-      "execution_locked": true,
+      "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     },
     {
+      "entry_id": "journal-20260513165015-step-2",
       "phase": "reflection",
       "task": "Validate execution coherence",
       "execution_state": "awaiting_human_approval",
       "rollback_checkpoint": "checkpoint-20260513165015",
-      "execution_locked": true,
+      "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     },
     {
+      "entry_id": "journal-20260513165015-step-3",
       "phase": "arbitration",
       "task": "Rank execution decisions",
       "execution_state": "awaiting_human_approval",
       "rollback_checkpoint": "checkpoint-20260513165015",
-      "execution_locked": true,
+      "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     },
     {
+      "entry_id": "journal-20260513165015-step-4",
       "phase": "learning",
       "task": "Record bounded learning signals",
       "execution_state": "awaiting_human_approval",
       "rollback_checkpoint": "checkpoint-20260513165015",
-      "execution_locked": true,
+      "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     },
     {
+      "entry_id": "journal-20260513165015-step-5",
       "phase": "failure_guard",
       "task": "Monitor execution drift",
       "execution_state": "awaiting_human_approval",
       "rollback_checkpoint": "checkpoint-20260513165015",
-      "execution_locked": true,
+      "journal_state": "recorded",
       "bounded": true,
       "autonomous_apply": false
     }
   ],
-  "governance": {
-    "human_approval_required": true,
-    "rollback_required": true,
-    "execution_locking": true,
-    "recovery_tracking": true,
-    "journal_mode": "bounded_execution_journal"
+  "lineage": {
+    "source_runtime": "human_approved_apply",
+    "trace_mode": "bounded_execution_trace",
+    "recovery_trace_enabled": true,
+    "audit_state": "persistent",
+    "continuity_state": "stable"
   },
   "notes": [
-    "Human approved apply prepares staged execution only.",
-    "No code changes are executed automatically.",
-    "All execution remains human-governed and reversible."
+    "Execution journal records governed runtime execution lineage.",
+    "No execution is performed automatically.",
+    "All runtime operations remain bounded and human-controlled."
   ]
 }

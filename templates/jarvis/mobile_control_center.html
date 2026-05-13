@@ -2890,6 +2890,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="execution-journal-panel">
+      <div class="panel-title">Execution Journal</div>
+      <div class="panel-sub">Persistent bounded execution lineage</div>
+
+      <div class="metric-row">
+        <span>Entries</span>
+        <b id="execution-journal-entries">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Lineage</span>
+        <b id="execution-journal-lineage">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Execution</span>
+        <b id="execution-journal-execution">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Journal Entries</div>
+      <div id="execution-journal-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for execution journal...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3879,6 +3904,46 @@ async function loadHumanApprovedApplySnapshot() {
 
 loadHumanApprovedApplySnapshot();
 setInterval(loadHumanApprovedApplySnapshot, 30000);
+</script>
+
+
+<script>
+async function loadExecutionJournalSnapshot() {
+  const entriesEl = document.getElementById("execution-journal-entries");
+  const lineageEl = document.getElementById("execution-journal-lineage");
+  const executionEl = document.getElementById("execution-journal-execution");
+  const feedEl = document.getElementById("execution-journal-feed");
+
+  if (!entriesEl || !lineageEl || !executionEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/execution-journal");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const entries = Array.isArray(data.journal_entries) ? data.journal_entries : [];
+
+    entriesEl.textContent = summary.entries_recorded ?? entries.length;
+    lineageEl.textContent = summary.lineage_state || "unknown";
+    executionEl.textContent = summary.execution_allowed ? "allowed" : "locked";
+
+    feedEl.innerHTML = entries.length
+      ? entries.map(item => `
+          <div class="runtime-event runtime-insight-card severity-info">
+            <div class="runtime-event-main">${item.phase} · ${item.journal_state}</div>
+            <div class="runtime-event-sub">${item.task}</div>
+            <div class="runtime-event-sub">state: ${item.execution_state} · rollback: ${item.rollback_checkpoint}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No execution journal entries available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Execution journal API unavailable.</div>';
+  }
+}
+
+loadExecutionJournalSnapshot();
+setInterval(loadExecutionJournalSnapshot, 30000);
 </script>
 
 </body>

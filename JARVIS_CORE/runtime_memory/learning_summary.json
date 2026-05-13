@@ -1,12 +1,12 @@
 {
-  "events_recorded": 5,
+  "events_recorded": 7,
   "top_strategy": "Blueprint Extraction",
   "top_goal": "architecture-pressure-reduction-v1",
   "strategy_frequency": {
-    "Blueprint Extraction": 5
+    "Blueprint Extraction": 7
   },
   "goal_frequency": {
-    "architecture-pressure-reduction-v1": 5
+    "architecture-pressure-reduction-v1": 7
   },
   "learning_state": "active"
 }

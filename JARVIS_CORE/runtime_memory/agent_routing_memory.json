@@ -3,24 +3,42 @@
   "mode": "dynamic_agent_routing",
   "autonomous_apply": false,
   "summary": {
-    "task_type": "planning",
+    "task_type": "failure_guard",
     "agents_evaluated": 5,
-    "selected_agent": "planner_agent",
+    "selected_agent": "failure_guard_agent",
     "routing_score": 100,
     "routing_state": "adaptive_routing_active"
   },
   "selected_agent": {
-    "agent_id": "planner_agent",
-    "role": "planning",
+    "agent_id": "failure_guard_agent",
+    "role": "failure_guard",
     "routing_score": 100,
-    "skill_score": 100.0,
+    "skill_score": 91.0,
     "best_for": [
-      "strategy_planning",
-      "safe_execution_plans"
+      "risk_memory",
+      "failure_pattern_tracking"
     ],
     "state": "expert"
   },
   "ranked_agents": [
+    {
+      "role": "failure_guard",
+      "uses": 2,
+      "successes": 2,
+      "failures": 0,
+      "best_for": [
+        "risk_memory",
+        "failure_pattern_tracking"
+      ],
+      "last_score": 91.0,
+      "last_state": "expert",
+      "updated_at": "2026-05-13T16:50:15.147508Z",
+      "agent_id": "failure_guard_agent",
+      "skill_score": 91.0,
+      "state": "expert",
+      "routing_score": 100,
+      "role_match": 1
+    },
     {
       "role": "planning",
       "uses": 5,
@@ -32,11 +50,12 @@
       ],
       "last_score": 100.0,
       "last_state": "expert",
-      "updated_at": "2026-05-13T15:39:20.808426Z",
+      "updated_at": "2026-05-13T16:50:15.147478Z",
       "agent_id": "planner_agent",
       "skill_score": 100.0,
       "state": "expert",
-      "routing_score": 100
+      "routing_score": 100.0,
+      "role_match": 0
     },
     {
       "role": "reflection",
@@ -49,11 +68,12 @@
       ],
       "last_score": 100.0,
       "last_state": "expert",
-      "updated_at": "2026-05-13T15:39:20.808444Z",
+      "updated_at": "2026-05-13T16:50:15.147494Z",
       "agent_id": "reflection_agent",
       "skill_score": 100.0,
       "state": "expert",
-      "routing_score": 100.0
+      "routing_score": 100.0,
+      "role_match": 0
     },
     {
       "role": "arbitration",
@@ -66,11 +86,12 @@
       ],
       "last_score": 97.0,
       "last_state": "expert",
-      "updated_at": "2026-05-13T15:39:20.808451Z",
+      "updated_at": "2026-05-13T16:50:15.147499Z",
       "agent_id": "arbitration_agent",
       "skill_score": 97.0,
       "state": "expert",
-      "routing_score": 97.0
+      "routing_score": 97.0,
+      "role_match": 0
     },
     {
       "role": "learning",
@@ -83,28 +104,12 @@
       ],
       "last_score": 94.0,
       "last_state": "expert",
-      "updated_at": "2026-05-13T15:39:20.808456Z",
+      "updated_at": "2026-05-13T16:50:15.147504Z",
       "agent_id": "learning_agent",
       "skill_score": 94.0,
       "state": "expert",
-      "routing_score": 94.0
-    },
-    {
-      "role": "failure_guard",
-      "uses": 2,
-      "successes": 2,
-      "failures": 0,
-      "best_for": [
-        "risk_memory",
-        "failure_pattern_tracking"
-      ],
-      "last_score": 91.0,
-      "last_state": "expert",
-      "updated_at": "2026-05-13T15:39:20.808462Z",
-      "agent_id": "failure_guard_agent",
-      "skill_score": 91.0,
-      "state": "expert",
-      "routing_score": 91.0
+      "routing_score": 94.0,
+      "role_match": 0
     }
   ],
   "notes": [

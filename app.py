@@ -5133,6 +5133,25 @@ def jarvis_mobile_human_approved_apply():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/execution-journal")
+def jarvis_mobile_execution_journal():
+    try:
+        from JARVIS_CORE.jarvis.architecture.execution_journal_engine import ExecutionJournalEngine
+
+        data = ExecutionJournalEngine(".").build_journal()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "execution_journal_runtime",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
