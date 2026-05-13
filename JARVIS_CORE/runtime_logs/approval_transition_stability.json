@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-05-13T18:13:06.282230+00:00",
+  "stabilizer": "approval_transition_stabilizer",
+  "bounded": true,
+  "real_apply_enabled": false,
+  "autonomous_apply": false,
+  "execution_unlock_allowed": false,
+  "current_state": "locked",
+  "transition_count": 0,
+  "unsafe_unlock_detected": false,
+  "stability_state": "stable",
+  "recommendation": "continue_to_runtime_aggregation"
+}
