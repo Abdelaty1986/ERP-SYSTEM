@@ -1769,13 +1769,74 @@ loadArchitecturePrioritiesSnapshot();
 setInterval(loadArchitecturePrioritiesSnapshot, 10000);
 </script>
 
-</body>
-</html>
 
+<script>
+async function loadDependencyReasoningSnapshot() {
+  const highEl = document.getElementById("dependency-high-cascade");
+  const mediumEl = document.getElementById("dependency-medium-cascade");
+  const lowEl = document.getElementById("dependency-low-cascade");
 
+  const feedEl = document.getElementById("dependency-feed");
+  const sequenceEl = document.getElementById("dependency-sequences-feed");
 
+  if (!highEl || !mediumEl || !lowEl || !feedEl || !sequenceEl) return;
 
-  <div class="panel-sub" id="runtime-latest-session">
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/dependency-reasoning");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+
+    highEl.textContent = summary.high_cascade ?? 0;
+    mediumEl.textContent = summary.medium_cascade ?? 0;
+    lowEl.textContent = summary.low_cascade ?? 0;
+
+    const reasoning = Array.isArray(data.dependency_reasoning)
+      ? data.dependency_reasoning.slice(0, 5)
+      : [];
+
+    feedEl.innerHTML = reasoning.length
+      ? reasoning.map(item => `
+          <div class="runtime-event runtime-insight-card severity-${item.cascade_risk || "info"}">
+            <div class="runtime-event-main">
+              ${item.cascade_risk?.toUpperCase?.() || "RISK"} · ${item.file}
+            </div>
+
+            <div class="runtime-event-sub">
+              ${item.reasoning}
+            </div>
+
+            <div class="runtime-event-sub">
+              affected: ${(item.affected_components || []).slice(0,3).join(" · ")}
+            </div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No dependency reasoning available.</div>';
+
+    sequenceEl.innerHTML = reasoning.length
+      ? reasoning.map(item => `
+          <div class="runtime-event">
+            <div class="runtime-event-main">
+              ${item.file}
+            </div>
+
+            <div class="runtime-event-sub">
+              ${(item.safe_sequence || []).slice(0,3).join(" → ")}
+            </div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No safe sequences available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Dependency reasoning API unavailable.</div>';
+    sequenceEl.innerHTML = '<div class="runtime-empty">Dependency reasoning API unavailable.</div>';
+  }
+}
+
+loadDependencyReasoningSnapshot();
+setInterval(loadDependencyReasoningSnapshot, 10000);
+</script>
+<div class="panel-sub" id="runtime-latest-session">
     Latest session: none
   </div>
 </div>
@@ -2193,3 +2254,44 @@ setInterval(loadArchitecturePrioritiesSnapshot, 10000);
         <div class="runtime-empty">Waiting for priority intelligence...</div>
       </div>
     </div>
+
+    <div class="panel" id="dependency-reasoning-panel">
+      <div class="panel-title">Dependency Planning</div>
+      <div class="panel-sub">Cascade risk and safe refactor reasoning</div>
+
+      <div class="metric-row">
+        <span>High Cascade</span>
+        <b id="dependency-high-cascade">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Medium Cascade</span>
+        <b id="dependency-medium-cascade">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Low Cascade</span>
+        <b id="dependency-low-cascade">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Dependency Chains</div>
+      <div id="dependency-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for dependency reasoning...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Safe Sequences</div>
+      <div id="dependency-sequences-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for safe planning sequences...</div>
+      </div>
+    </div>
+
+<script>
+setTimeout(() => {
+  if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
+  if (typeof loadArchitecturePrioritiesSnapshot === "function") loadArchitecturePrioritiesSnapshot();
+  if (typeof loadDependencyReasoningSnapshot === "function") loadDependencyReasoningSnapshot();
+}, 500);
+</script>
+
+</body>
+</html>
