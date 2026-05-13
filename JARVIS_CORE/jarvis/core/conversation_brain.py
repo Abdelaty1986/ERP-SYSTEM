@@ -1,5 +1,8 @@
 from jarvis.core.intent_detector import IntentDetector
 from jarvis.core.conversation_memory import ConversationMemory
+from jarvis.agents.groq_agent import GroqAgent
+from jarvis.agents.gemini_agent import GeminiAgent
+from jarvis.agents.openrouter_agent import OpenRouterAgent
 
 
 class ConversationBrain:
@@ -40,24 +43,36 @@ class ConversationBrain:
         }
 
     def general_response(self, text):
-        lowered = text.strip().lower()
+        prompt = (
+            "أنت جارفيس، مساعد هندسي تفاعلي داخل مشروع JARVIS CORE. "
+            "رد على هاني باللهجة المصرية بشكل مختصر وعملي. "
+            "لا تدّعي أنك طبقت تعديلات. "
+            "لو السؤال عن تنفيذ أو تعديل، وضّح أن التنفيذ الحقيقي مقفول "
+            "وأن الوضع المتاح هو Live Safe Mode و Sandbox فقط.\n\n"
+            f"رسالة هاني: {text}"
+        )
 
-        if "انت مين" in lowered or "انت ايه" in lowered:
-            return (
-                "أنا جارفيس، مساعدك الهندسي الذكي. "
-                "أقدر أناقشك، أراجع مشروعك، وأساعدك تطور بأمان."
-            )
+        agents = [
+            GeminiAgent(),
+            GroqAgent(),
+            OpenRouterAgent(),
+        ]
 
-        if "تقدر تعمل ايه" in lowered:
-            return (
-                "أقدر أفهم المهام، أوزعها على Agents مجانية، "
-                "أحلل المخاطر، وأجهز خطة تنفيذ قبل أي تعديل."
-            )
+        skipped = []
 
-        if "عامل ايه" in lowered:
-            return "جاهز للعمل يا هاني."
+        for agent in agents:
+            result = agent.think(prompt)
+            if result.get("enabled") and result.get("analysis"):
+                return result["analysis"].strip()
 
-        return "فاهمك. كمل، وأنا هتابع معاك."
+            skipped.append(result.get("analysis", ""))
+
+        return (
+            "أنا سامعك، لكن المخ الحواري الخارجي غير متصل حاليًا "
+            "لأن مفاتيح GEMINI/GROQ/OPENROUTER غير مفعلة. "
+            "أقدر أشغل أوامر Live Safe Mode والـ Sandbox، "
+            "لكن النقاش الذكي الحر محتاج API key مفعّل."
+        )
 
 
 if __name__ == "__main__":
