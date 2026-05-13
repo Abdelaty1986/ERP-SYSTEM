@@ -1348,7 +1348,52 @@ async function loadRuntimeInsightSnapshot() {
 loadRuntimeInsightSnapshot();
 setInterval(loadRuntimeInsightSnapshot, 5000);
 </script>
-\n</body>
+\n
+<script>
+async function loadERPIntelligenceSnapshot() {
+  const routeEl = document.getElementById("erp-route-count");
+  const templateEl = document.getElementById("erp-template-count");
+  const moduleEl = document.getElementById("erp-module-count");
+  const staticEl = document.getElementById("erp-static-count");
+  const autonomyEl = document.getElementById("erp-autonomy");
+  const categoriesEl = document.getElementById("erp-route-categories");
+
+  if (!routeEl || !templateEl || !moduleEl || !staticEl || !autonomyEl || !categoriesEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/erp/intelligence");
+    const data = await res.json();
+    const summary = data.summary || {};
+    const categories = summary.route_categories || {};
+
+    routeEl.textContent = summary.route_count ?? 0;
+    templateEl.textContent = summary.template_count ?? 0;
+    moduleEl.textContent = summary.module_count ?? 0;
+    staticEl.textContent = summary.static_file_count ?? 0;
+    autonomyEl.textContent = data.autonomy || "unknown";
+
+    const rows = Object.entries(categories)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => `
+        <div class="runtime-event">
+          <div class="runtime-event-main">${name}: ${count}</div>
+          <div class="runtime-event-sub">ERP route category</div>
+        </div>
+      `);
+
+    categoriesEl.innerHTML = rows.length
+      ? rows.join("")
+      : '<div class="runtime-empty">No route categories detected.</div>';
+  } catch (err) {
+    categoriesEl.innerHTML = '<div class="runtime-empty">ERP intelligence API unavailable.</div>';
+  }
+}
+
+loadERPIntelligenceSnapshot();
+setInterval(loadERPIntelligenceSnapshot, 10000);
+</script>
+
+</body>
 </html>
 
 
@@ -1536,5 +1581,40 @@ setInterval(loadRuntimeInsightSnapshot, 5000);
       <div class="runtime-session-sub" style="margin-top:10px">Reasoning Explanations</div>
       <div id="runtime-insight-list" class="runtime-feed">
         <div class="runtime-empty">Waiting for runtime insights...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="erp-intelligence-panel">
+      <div class="panel-title">ERP Intelligence</div>
+      <div class="panel-sub">Project-aware observation layer</div>
+
+      <div class="metric-row">
+        <span>Routes</span>
+        <b id="erp-route-count">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Templates</span>
+        <b id="erp-template-count">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Modules</span>
+        <b id="erp-module-count">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Static Files</span>
+        <b id="erp-static-count">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Autonomy</span>
+        <b id="erp-autonomy">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Route Categories</div>
+      <div id="erp-route-categories" class="runtime-feed">
+        <div class="runtime-empty">Waiting for ERP intelligence...</div>
       </div>
     </div>
