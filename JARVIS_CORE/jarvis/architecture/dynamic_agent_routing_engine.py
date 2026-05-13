@@ -1,6 +1,8 @@
 from pathlib import Path
 import json
 
+from jarvis.runtime.agent_skill_memory import recommend_agent
+
 
 class DynamicAgentRoutingEngine:
     def __init__(self, project_root="."):
@@ -38,6 +40,25 @@ class DynamicAgentRoutingEngine:
             return []
 
     def route(self, task_type="planning"):
+        try:
+            unified = recommend_agent(skill=task_type, task_type=task_type)
+            selected_unified = unified.get("recommended_agent") or {}
+
+            if selected_unified.get("agent_id"):
+                payload = self._route_with_unified_recommendation(
+                    task_type=task_type,
+                    unified=unified,
+                )
+
+                self.routing_file.write_text(
+                    json.dumps(payload, ensure_ascii=False, indent=2),
+                    encoding="utf-8"
+                )
+
+                return payload
+        except Exception:
+            pass
+
         agents = self._load_skills()
 
         if not agents:
@@ -119,3 +140,64 @@ class DynamicAgentRoutingEngine:
         )
 
         return payload
+
+
+def _dynamic_route_with_unified_recommendation(self, task_type, unified):
+    candidates = unified.get("candidates", [])
+    selected = unified.get("recommended_agent") or {}
+
+    ranked_agents = []
+
+    for candidate in candidates:
+        ranking_score = float(candidate.get("final_score", 0) or 0)
+        routing_score = round(min(ranking_score * 100, 100), 2)
+
+        ranked_agents.append({
+            "agent_id": candidate.get("agent_id"),
+            "routing_score": routing_score,
+            "ranking_score": ranking_score,
+            "base_score": candidate.get("base_score", 0),
+            "match_bonus": candidate.get("match_bonus", 0),
+            "state": candidate.get("state", "unknown"),
+            "role_match": 1 if candidate.get("match_bonus", 0) else 0,
+            "source": "runtime.agent_skill_memory.recommend_agent"
+        })
+
+    selected_score = round(
+        min(float(selected.get("final_score", 0) or 0) * 100, 100),
+        2
+    )
+
+    return {
+        "bounded": True,
+        "mode": "dynamic_agent_routing",
+        "routing_source": "unified_recommend_agent",
+        "autonomous_apply": False,
+        "real_apply_enabled": False,
+        "execution_allowed": False,
+        "summary": {
+            "task_type": task_type,
+            "agents_evaluated": len(ranked_agents),
+            "selected_agent": selected.get("agent_id"),
+            "routing_score": selected_score,
+            "routing_state": "adaptive_routing_active"
+        },
+        "selected_agent": {
+            "agent_id": selected.get("agent_id"),
+            "routing_score": selected_score,
+            "ranking_score": selected.get("final_score", 0),
+            "state": selected.get("state", "unknown"),
+            "source": "runtime.agent_skill_memory.recommend_agent"
+        },
+        "ranked_agents": ranked_agents,
+        "notes": [
+            "Dynamic routing uses the unified runtime recommendation interface.",
+            "Legacy routing fallback remains available if unified recommendation fails.",
+            "No autonomous execution is performed."
+        ]
+    }
+
+
+DynamicAgentRoutingEngine._route_with_unified_recommendation = (
+    _dynamic_route_with_unified_recommendation
+)
