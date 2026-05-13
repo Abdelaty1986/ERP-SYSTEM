@@ -2640,6 +2640,56 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="learning-evolution-panel">
+      <div class="panel-title">Learning Evolution</div>
+      <div class="panel-sub">Meta-learning quality and drift scoring</div>
+
+      <div class="metric-row">
+        <span>Learning Score</span>
+        <b id="learning-evolution-score">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Drift</span>
+        <b id="learning-evolution-drift">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Events</span>
+        <b id="learning-evolution-events">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Evolution Signal</div>
+      <div id="learning-evolution-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for learning evolution...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="failure-learning-panel">
+      <div class="panel-title">Failure Learning</div>
+      <div class="panel-sub">Risk memory and repeated failure pattern tracking</div>
+
+      <div class="metric-row">
+        <span>Failures</span>
+        <b id="failure-count">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Risk State</span>
+        <b id="failure-risk-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Top Component</span>
+        <b id="failure-top-component">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Latest Failure Pattern</div>
+      <div id="failure-learning-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for failure learning...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3234,6 +3284,82 @@ async function loadSelfLearningSnapshot() {
 
 loadSelfLearningSnapshot();
 setInterval(loadSelfLearningSnapshot, 20000);
+</script>
+
+
+<script>
+async function loadLearningEvolutionSnapshot() {
+  const scoreEl = document.getElementById("learning-evolution-score");
+  const driftEl = document.getElementById("learning-evolution-drift");
+  const eventsEl = document.getElementById("learning-evolution-events");
+  const feedEl = document.getElementById("learning-evolution-feed");
+
+  if (!scoreEl || !driftEl || !eventsEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/learning-evolution");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const signals = data.signals || {};
+
+    scoreEl.textContent = summary.learning_score ?? 0;
+    driftEl.textContent = summary.cognitive_drift || "unknown";
+    eventsEl.textContent = summary.events_analyzed ?? 0;
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${summary.learning_state || "learning evolution"}</div>
+        <div class="runtime-event-sub">${data.recommendation || "No recommendation available."}</div>
+        <div class="runtime-event-sub">strategy: ${signals.top_strategy || "n/a"} · stability: ${summary.strategy_stability || "n/a"}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Learning evolution API unavailable.</div>';
+  }
+}
+
+loadLearningEvolutionSnapshot();
+setInterval(loadLearningEvolutionSnapshot, 20000);
+</script>
+
+
+<script>
+async function loadFailureLearningSnapshot() {
+  const countEl = document.getElementById("failure-count");
+  const riskEl = document.getElementById("failure-risk-state");
+  const componentEl = document.getElementById("failure-top-component");
+  const feedEl = document.getElementById("failure-learning-feed");
+
+  if (!countEl || !riskEl || !componentEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/failure-learning");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const event = data.failure_event || {};
+
+    countEl.textContent = summary.failures_recorded ?? 0;
+    riskEl.textContent = summary.risk_state || "unknown";
+    componentEl.textContent = summary.top_affected_component || "unknown";
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${event.category || "failure pattern"} · ${event.severity || "unknown"}</div>
+        <div class="runtime-event-sub">${event.cause || "No cause recorded."}</div>
+        <div class="runtime-event-sub">recovery: ${event.recovery || "n/a"}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Failure learning API unavailable.</div>';
+  }
+}
+
+loadFailureLearningSnapshot();
+setInterval(loadFailureLearningSnapshot, 30000);
 </script>
 
 </body>

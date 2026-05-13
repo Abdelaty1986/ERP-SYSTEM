@@ -4936,6 +4936,51 @@ def jarvis_mobile_self_learning_memory():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/learning-evolution")
+def jarvis_mobile_learning_evolution():
+    try:
+        from JARVIS_CORE.jarvis.architecture.learning_evolution_scoring_engine import LearningEvolutionScoringEngine
+
+        data = LearningEvolutionScoringEngine(".").score()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "learning_evolution_scoring",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
+
+
+@app.route("/jarvis/mobile/api/architecture/failure-learning")
+def jarvis_mobile_failure_learning():
+    try:
+        from JARVIS_CORE.jarvis.architecture.failure_learning_engine import FailureLearningEngine
+
+        data = FailureLearningEngine(".").record_failure(
+            category="runtime_validation",
+            cause="Runtime cycle reviewed for repeated memory drift patterns.",
+            severity="medium",
+            affected_component="runtime_memory",
+            recovery="restore_clean_runtime_state"
+        )
+
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "failure_learning",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
