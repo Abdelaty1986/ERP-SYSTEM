@@ -1393,6 +1393,66 @@ loadERPIntelligenceSnapshot();
 setInterval(loadERPIntelligenceSnapshot, 10000);
 </script>
 
+
+<script>
+async function loadERPRelationshipSnapshot() {
+  const domainCountEl = document.getElementById("erp-relationship-domains");
+  const domainMapEl = document.getElementById("erp-domain-map");
+  const notesEl = document.getElementById("erp-architecture-notes");
+
+  if (!domainCountEl || !domainMapEl || !notesEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/erp/intelligence");
+    const data = await res.json();
+    const summary = data.summary || {};
+    const relationships = data.relationships || {};
+    const domainMap = relationships.domain_map || {};
+    const notes = Array.isArray(relationships.architecture_notes)
+      ? relationships.architecture_notes
+      : [];
+
+    domainCountEl.textContent = summary.relationship_domains ?? Object.keys(domainMap).length;
+
+    const domainRows = Object.entries(domainMap)
+      .sort((a, b) => {
+        const av = (a[1].templates || 0) + (a[1].modules || 0);
+        const bv = (b[1].templates || 0) + (b[1].modules || 0);
+        return bv - av;
+      })
+      .map(([name, value]) => `
+        <div class="runtime-event">
+          <div class="runtime-event-main">${name}</div>
+          <div class="runtime-event-sub">
+            templates: ${value.templates || 0} · modules: ${value.modules || 0}
+          </div>
+        </div>
+      `);
+
+    domainMapEl.innerHTML = domainRows.length
+      ? domainRows.join("")
+      : '<div class="runtime-empty">No domain relationships detected.</div>';
+
+    const noteRows = notes.slice(0, 8).map(note => `
+      <div class="runtime-event">
+        <div class="runtime-event-main">${note}</div>
+        <div class="runtime-event-sub">architecture relationship insight</div>
+      </div>
+    `);
+
+    notesEl.innerHTML = noteRows.length
+      ? noteRows.join("")
+      : '<div class="runtime-empty">No architecture notes detected.</div>';
+  } catch (err) {
+    domainMapEl.innerHTML = '<div class="runtime-empty">ERP relationship API unavailable.</div>';
+    notesEl.innerHTML = '<div class="runtime-empty">ERP relationship API unavailable.</div>';
+  }
+}
+
+loadERPRelationshipSnapshot();
+setInterval(loadERPRelationshipSnapshot, 10000);
+</script>
+
 </body>
 </html>
 
@@ -1616,5 +1676,25 @@ setInterval(loadERPIntelligenceSnapshot, 10000);
       <div class="runtime-session-sub" style="margin-top:10px">Route Categories</div>
       <div id="erp-route-categories" class="runtime-feed">
         <div class="runtime-empty">Waiting for ERP intelligence...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="erp-relationship-panel">
+      <div class="panel-title">ERP Relationships</div>
+      <div class="panel-sub">Architecture-aware relationship mapper</div>
+
+      <div class="metric-row">
+        <span>Domains</span>
+        <b id="erp-relationship-domains">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Domain Map</div>
+      <div id="erp-domain-map" class="runtime-feed">
+        <div class="runtime-empty">Waiting for domain relationships...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Architecture Notes</div>
+      <div id="erp-architecture-notes" class="runtime-feed">
+        <div class="runtime-empty">Waiting for architecture notes...</div>
       </div>
     </div>
