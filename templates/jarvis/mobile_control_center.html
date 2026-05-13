@@ -1549,6 +1549,65 @@ loadArchitectureDriftSnapshot();
 setInterval(loadArchitectureDriftSnapshot, 10000);
 </script>
 
+
+<script>
+async function loadStructuralTrendSnapshot() {
+  const stateEl = document.getElementById("structural-trend-state");
+  const scoreEl = document.getElementById("structural-trend-score");
+  const historyEl = document.getElementById("structural-trend-history");
+  const notesEl = document.getElementById("structural-trend-notes");
+  const movementEl = document.getElementById("structural-domain-movement");
+
+  if (!stateEl || !scoreEl || !historyEl || !notesEl || !movementEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/trends");
+    const data = await res.json();
+
+    stateEl.textContent = data.forecast_state || "unknown";
+    scoreEl.textContent = data.forecast_score ?? 0;
+    historyEl.textContent = data.history_count ?? 0;
+
+    const notes = Array.isArray(data.trend_notes)
+      ? data.trend_notes
+      : [];
+
+    notesEl.innerHTML = notes.length
+      ? notes.map(note => `
+          <div class="runtime-event">
+            <div class="runtime-event-main">${note}</div>
+            <div class="runtime-event-sub">predictive architecture analysis</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No trend notes detected.</div>';
+
+    const movement = Array.isArray(data.domain_trends)
+      ? data.domain_trends
+      : [];
+
+    movementEl.innerHTML = movement.length
+      ? movement.map(item => `
+          <div class="runtime-event">
+            <div class="runtime-event-main">
+              ${item.domain} · ${item.direction}
+            </div>
+            <div class="runtime-event-sub">
+              templates Δ ${item.template_delta} · modules Δ ${item.module_delta}
+            </div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No domain movement detected.</div>';
+
+  } catch (err) {
+    notesEl.innerHTML = '<div class="runtime-empty">Structural trend API unavailable.</div>';
+    movementEl.innerHTML = '<div class="runtime-empty">Structural trend API unavailable.</div>';
+  }
+}
+
+loadStructuralTrendSnapshot();
+setInterval(loadStructuralTrendSnapshot, 10000);
+</script>
+
 </body>
 </html>
 
@@ -1852,5 +1911,35 @@ setInterval(loadArchitectureDriftSnapshot, 10000);
       <div class="runtime-session-sub" style="margin-top:10px">Drift Notes</div>
       <div id="architecture-drift-notes" class="runtime-feed">
         <div class="runtime-empty">Waiting for architecture drift notes...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="structural-trend-panel">
+      <div class="panel-title">Structural Trends</div>
+      <div class="panel-sub">Predictive architecture runtime layer</div>
+
+      <div class="metric-row">
+        <span>Forecast State</span>
+        <b id="structural-trend-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Forecast Score</span>
+        <b id="structural-trend-score">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>History Count</span>
+        <b id="structural-trend-history">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Trend Notes</div>
+      <div id="structural-trend-notes" class="runtime-feed">
+        <div class="runtime-empty">Waiting for structural trend notes...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Domain Movement</div>
+      <div id="structural-domain-movement" class="runtime-feed">
+        <div class="runtime-empty">Waiting for domain movement analysis...</div>
       </div>
     </div>
