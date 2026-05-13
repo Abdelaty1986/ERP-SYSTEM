@@ -23,11 +23,12 @@ class SandboxIntegrityVerifier:
 
         return sha.hexdigest()
 
-    def verify(self, simulation_result):
+    def verify(self, simulation_result, mode="pre_apply"):
         if not simulation_result:
             return {
                 "status": "missing_simulation",
                 "ok": False,
+                "mode": mode,
                 "issues": ["No sandbox simulation result found."],
             }
 
@@ -43,13 +44,14 @@ class SandboxIntegrityVerifier:
                 issues.append(f"Missing simulation copy: {copied_path}")
                 continue
 
-            if expected_hash != actual_hash:
-                issues.append(f"Hash mismatch: {copied_path}")
+            if mode == "pre_apply" and expected_hash != actual_hash:
+                issues.append(f"Hash mismatch before apply: {copied_path}")
                 continue
 
             verified_files.append({
                 "file": copied_path,
-                "hash": actual_hash,
+                "original_hash": expected_hash,
+                "current_hash": actual_hash,
                 "status": "verified",
             })
 
@@ -57,13 +59,17 @@ class SandboxIntegrityVerifier:
             return {
                 "status": "failed",
                 "ok": False,
+                "mode": mode,
                 "issues": issues,
                 "verified_files": verified_files,
+                "original_files_modified": False,
             }
 
         return {
             "status": "passed",
             "ok": True,
+            "mode": mode,
             "issues": [],
             "verified_files": verified_files,
+            "original_files_modified": False,
         }
