@@ -57,18 +57,30 @@ class DynamicAgentRoutingEngine:
 
             routing_bonus = 0
 
-            if task_type in role:
+            preferred = {
+                "planning": "planning",
+                "reflection": "reflection",
+                "arbitration": "arbitration",
+                "learning": "learning",
+                "failure_guard": "failure_guard",
+            }
+
+            if preferred.get(task_type) == role:
+                routing_bonus += 25
+            elif task_type in role:
                 routing_bonus += 10
 
+            role_match = 1 if preferred.get(task_type) == role else 0
             final_score = min(score + routing_bonus, 100)
 
             scored.append({
                 **agent,
-                "routing_score": final_score
+                "routing_score": final_score,
+                "role_match": role_match
             })
 
         scored.sort(
-            key=lambda x: x["routing_score"],
+            key=lambda x: (x["role_match"], x["routing_score"]),
             reverse=True
         )
 

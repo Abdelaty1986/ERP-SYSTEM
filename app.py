@@ -5019,6 +5019,25 @@ def jarvis_mobile_agent_routing():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/task-chain")
+def jarvis_mobile_task_chain():
+    try:
+        from JARVIS_CORE.jarvis.architecture.autonomous_task_chaining_engine import AutonomousTaskChainingEngine
+
+        data = AutonomousTaskChainingEngine(".").build_chain()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "autonomous_task_chaining",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

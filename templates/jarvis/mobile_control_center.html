@@ -2740,6 +2740,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="task-chain-panel">
+      <div class="panel-title">Task Chain</div>
+      <div class="panel-sub">Bounded autonomous workflow planning</div>
+
+      <div class="metric-row">
+        <span>Steps</span>
+        <b id="task-chain-steps">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>State</span>
+        <b id="task-chain-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Mode</span>
+        <b id="task-chain-mode">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Planned Workflow</div>
+      <div id="task-chain-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for task chain...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3489,6 +3514,46 @@ async function loadAgentRoutingSnapshot() {
 
 loadAgentRoutingSnapshot();
 setInterval(loadAgentRoutingSnapshot, 30000);
+</script>
+
+
+<script>
+async function loadTaskChainSnapshot() {
+  const stepsEl = document.getElementById("task-chain-steps");
+  const stateEl = document.getElementById("task-chain-state");
+  const modeEl = document.getElementById("task-chain-mode");
+  const feedEl = document.getElementById("task-chain-feed");
+
+  if (!stepsEl || !stateEl || !modeEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/task-chain");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const chain = Array.isArray(data.chain) ? data.chain : [];
+
+    stepsEl.textContent = summary.chain_steps ?? chain.length;
+    stateEl.textContent = summary.routing_state || "unknown";
+    modeEl.textContent = summary.execution_mode || "unknown";
+
+    feedEl.innerHTML = chain.length
+      ? chain.map(item => `
+          <div class="runtime-event runtime-insight-card severity-info">
+            <div class="runtime-event-main">${item.phase} → ${item.selected_agent}</div>
+            <div class="runtime-event-sub">${item.task}</div>
+            <div class="runtime-event-sub">routing score: ${item.routing_score} · ${item.state}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No task chain available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Task chain API unavailable.</div>';
+  }
+}
+
+loadTaskChainSnapshot();
+setInterval(loadTaskChainSnapshot, 30000);
 </script>
 
 </body>
