@@ -4,6 +4,10 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from jarvis.runtime.agent_skill_memory import (
+    build_agent_skill_snapshot,
+)
+
 
 class RuntimeAggregator:
     def __init__(self, root: str = "JARVIS_CORE"):
@@ -24,6 +28,9 @@ class RuntimeAggregator:
 
             "safe_execution_queue":
                 self.root / "runtime_memory" / "safe_execution_queue.json",
+
+            "agent_skill_memory":
+                self.root / "runtime_memory" / "agent_skill_memory.json",
         }
 
         self.output_file = (
@@ -54,6 +61,11 @@ class RuntimeAggregator:
 
         for name, path in self.sources.items():
             aggregated[name] = self._load_json(path)
+
+        aggregated["agent_skill_snapshot"] = {
+            "exists": True,
+            "data": build_agent_skill_snapshot()
+        }
 
         snapshot = {
             "timestamp": datetime.now(timezone.utc).isoformat(),

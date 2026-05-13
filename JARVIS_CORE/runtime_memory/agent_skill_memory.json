@@ -11,7 +11,34 @@
       ],
       "last_score": 100.0,
       "last_state": "expert",
-      "updated_at": "2026-05-13T18:05:05.007910Z"
+      "updated_at": "2026-05-13T18:05:05.007910Z",
+      "skills": {
+        "planning": {
+          "skill": "planning",
+          "task_types": {
+            "runtime_strategy": {
+              "runs": 1,
+              "success": 1,
+              "failure": 0
+            }
+          },
+          "runs": 1,
+          "success": 1,
+          "failure": 0,
+          "confidence_avg": 0.82,
+          "last_result": "success",
+          "notes": [
+            {
+              "timestamp": "2026-05-13T18:32:08.435511+00:00",
+              "note": "Initial bounded planning capability recorded."
+            }
+          ]
+        }
+      },
+      "total_runs": 1,
+      "success_runs": 1,
+      "failure_runs": 0,
+      "last_seen": "2026-05-13T18:32:08.435494+00:00"
     },
     "reflection_agent": {
       "role": "reflection",
@@ -64,6 +91,37 @@
       "last_score": 91.0,
       "last_state": "expert",
       "updated_at": "2026-05-13T18:05:05.007947Z"
+    },
+    "reviewer_agent": {
+      "agent_id": "reviewer_agent",
+      "skills": {
+        "validation": {
+          "skill": "validation",
+          "task_types": {
+            "runtime_review": {
+              "runs": 1,
+              "success": 1,
+              "failure": 0
+            }
+          },
+          "runs": 1,
+          "success": 1,
+          "failure": 0,
+          "confidence_avg": 0.88,
+          "last_result": "success",
+          "notes": [
+            {
+              "timestamp": "2026-05-13T18:32:08.440618+00:00",
+              "note": "Initial validation capability recorded."
+            }
+          ]
+        }
+      },
+      "total_runs": 1,
+      "success_runs": 1,
+      "failure_runs": 0,
+      "last_seen": "2026-05-13T18:32:08.440598+00:00"
     }
-  }
+  },
+  "updated_at": "2026-05-13T18:32:08.440626+00:00"
 }
