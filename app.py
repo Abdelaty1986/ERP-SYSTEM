@@ -4553,6 +4553,27 @@ def jarvis_mobile_architecture_forecast():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/recommendation-evolution")
+def jarvis_mobile_recommendation_evolution():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine import RecommendationEvolutionEngine
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        data = RecommendationEvolutionEngine().analyze(memory)
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "adaptive_recommendation_memory",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

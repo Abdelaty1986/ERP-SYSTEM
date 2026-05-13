@@ -2335,6 +2335,36 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="recommendation-evolution-panel">
+      <div class="panel-title">Recommendation Evolution</div>
+      <div class="panel-sub">Adaptive recommendation confidence memory</div>
+
+      <div class="metric-row">
+        <span>Confidence</span>
+        <b id="recommendation-evolution-confidence">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>State</span>
+        <b id="recommendation-evolution-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Pressure Signals</span>
+        <b id="recommendation-evolution-pressure">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Recurring Patterns</div>
+      <div id="recommendation-evolution-patterns" class="runtime-feed">
+        <div class="runtime-empty">Waiting for recommendation evolution...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Pressure Signals</div>
+      <div id="recommendation-evolution-signals" class="runtime-feed">
+        <div class="runtime-empty">Waiting for pressure signals...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -2419,6 +2449,60 @@ async function loadRuntimeForecastSnapshot() {
 
 loadRuntimeForecastSnapshot();
 setInterval(loadRuntimeForecastSnapshot, 15000);
+</script>
+
+
+<script>
+async function loadRecommendationEvolutionSnapshot() {
+  const confidenceEl = document.getElementById("recommendation-evolution-confidence");
+  const stateEl = document.getElementById("recommendation-evolution-state");
+  const pressureEl = document.getElementById("recommendation-evolution-pressure");
+  const patternsEl = document.getElementById("recommendation-evolution-patterns");
+  const signalsEl = document.getElementById("recommendation-evolution-signals");
+
+  if (!confidenceEl || !stateEl || !pressureEl || !patternsEl || !signalsEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/recommendation-evolution");
+    const data = await res.json();
+
+    const confidence = data.recommendation_confidence || {};
+    const summary = data.summary || {};
+    const patterns = Array.isArray(data.recurring_patterns) ? data.recurring_patterns : [];
+    const signals = Array.isArray(data.pressure_signals) ? data.pressure_signals : [];
+
+    confidenceEl.textContent = confidence.score ?? 0;
+    stateEl.textContent = confidence.state || "unknown";
+    pressureEl.textContent = summary.pressure_signals ?? signals.length;
+
+    patternsEl.innerHTML = patterns.length
+      ? patterns.map(item => `
+          <div class="runtime-event runtime-insight-card severity-info">
+            <div class="runtime-event-main">${item.file}</div>
+            <div class="runtime-event-sub">
+              occurrences ${item.occurrences} · ${item.stability}
+            </div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No recurring recommendation patterns detected.</div>';
+
+    signalsEl.innerHTML = signals.length
+      ? signals.map(item => `
+          <div class="runtime-event runtime-insight-card severity-${item.severity || "info"}">
+            <div class="runtime-event-main">${item.type}</div>
+            <div class="runtime-event-sub">${item.message}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No pressure signals detected.</div>';
+
+  } catch (err) {
+    patternsEl.innerHTML = '<div class="runtime-empty">Recommendation evolution API unavailable.</div>';
+    signalsEl.innerHTML = '<div class="runtime-empty">Recommendation evolution API unavailable.</div>';
+  }
+}
+
+loadRecommendationEvolutionSnapshot();
+setInterval(loadRecommendationEvolutionSnapshot, 15000);
 </script>
 
 </body>
