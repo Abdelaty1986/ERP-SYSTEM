@@ -4137,6 +4137,14 @@ def jarvis_mobile_scheduler_run():
 
 
 
+
+@app.route("/jarvis/mobile/api/erp/intelligence")
+def jarvis_mobile_erp_intelligence():
+    from jarvis.intelligence.erp_project_intelligence import build_erp_project_snapshot
+
+    return jsonify(build_erp_project_snapshot())
+
+
 @app.route("/jarvis/mobile/api/runtime/insights")
 def jarvis_mobile_runtime_insights():
     from jarvis.cognition.runtime_insight_engine import build_runtime_insight_snapshot
