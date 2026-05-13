@@ -1,8 +1,13 @@
 from jarvis.core.intent_detector import IntentDetector
 from jarvis.core.conversation_memory import ConversationMemory
-from jarvis.agents.groq_agent import GroqAgent
+
 from jarvis.agents.gemini_agent import GeminiAgent
+from jarvis.agents.groq_agent import GroqAgent
 from jarvis.agents.openrouter_agent import OpenRouterAgent
+
+from jarvis.runtime.runtime_aggregator import RuntimeAggregator
+from jarvis.runtime.runtime_visibility import RuntimeVisibility
+from jarvis.runtime.runtime_audit import RuntimeAudit
 
 
 class ConversationBrain:
@@ -25,7 +30,7 @@ class ConversationBrain:
             }
 
         if intent == IntentDetector.DEVELOPMENT_TASK:
-            response = "فهمت. سأتعامل مع هذا كطلب تطوير وأراجعه بأمان."
+            response = "فهمت. هتعامل مع ده كمهمة تطوير آمنة داخل Live Safe Mode."
             self.memory.add("assistant", response)
             return {
                 "intent": intent,
@@ -58,31 +63,71 @@ class ConversationBrain:
             OpenRouterAgent(),
         ]
 
-        skipped = []
-
         for agent in agents:
             result = agent.think(prompt)
             if result.get("enabled") and result.get("analysis"):
                 return result["analysis"].strip()
 
-            skipped.append(result.get("analysis", ""))
+        local = self.local_runtime_response(text)
+        if local:
+            return local
 
         return (
-            "أنا سامعك، لكن المخ الحواري الخارجي غير متصل حاليًا "
-            "لأن مفاتيح GEMINI/GROQ/OPENROUTER غير مفعلة. "
-            "أقدر أشغل أوامر Live Safe Mode والـ Sandbox، "
-            "لكن النقاش الذكي الحر محتاج API key مفعّل."
+            "أنا سامعك. المخ الخارجي مش متاح حاليًا، "
+            "لكن أقدر أرد بناءً على حالة الـ Runtime المحلية "
+            "وأشغل Live Safe Mode و Sandbox بدون تعديل حقيقي."
         )
+
+    def local_runtime_response(self, text):
+        lowered = text.strip().lower()
+
+        try:
+            RuntimeAggregator().aggregate()
+            visibility = RuntimeVisibility().build_visibility_summary()
+            audit = RuntimeAudit().run()
+        except Exception as exc:
+            return f"حاولت أقرأ حالتي الداخلية لكن حصل خطأ: {exc}"
+
+        security = audit.get("security", {})
+        audit_summary = visibility.get("audit_summary", {})
+
+        asks_status = any(word in lowered for word in [
+            "حالتك", "وصلت لفين", "فين", "نسبة", "امن", "أمان",
+            "شغال", "صاحي", "جاهز", "status", "safe", "runtime",
+        ])
+
+        asks_what_next = any(word in lowered for word in [
+            "فاضل", "الخطوة", "نعمل ايه", "بعد كده", "next",
+        ])
+
+        if asks_status:
+            return (
+                "أنا شغال محليًا في Live Safe Mode.\n"
+                f"حالة الـ Runtime: {visibility.get('global_runtime_state')}\n"
+                f"حالة الأمان: {security.get('security_state')}\n"
+                f"عدد الطبقات المرئية: {visibility.get('visible_runtime_count')}\n"
+                f"ذاكرة ناقصة: {audit_summary.get('missing_memory_count')}\n"
+                f"موديولات ناقصة: {audit_summary.get('missing_modules_count')}\n"
+                "التنفيذ الحقيقي مازال مقفول، وأي مراجعة بتتم داخل Sandbox فقط."
+            )
+
+        if asks_what_next:
+            return (
+                "الخطوة العملية الجاية: ربط اللوب التفاعلي بالصوت أو بالـ HUD.\n"
+                "الأساس الآمن شغال: Sandbox، Audit، Visibility، Sessions.\n"
+                "مش محتاجين نبني Layers جديدة دلوقتي؛ نربط الموجود ونختبره."
+            )
+
+        return None
 
 
 if __name__ == "__main__":
     brain = ConversationBrain()
 
     tests = [
-        "انت تعرف انت ايه",
-        "تقدر تعمل ايه",
-        "راجع المشروع",
-        "اسكت"
+        "يا جارفيس انت وصلت لفين؟",
+        "حالتك ايه دلوقتي؟",
+        "فاضل ايه بعد كده؟",
     ]
 
     for item in tests:
