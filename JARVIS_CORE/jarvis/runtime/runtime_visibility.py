@@ -42,6 +42,24 @@ class RuntimeVisibility:
             else:
                 hidden.append(name)
 
+        audit_data = (
+            runtimes.get("runtime_audit", {})
+            .get("data", {})
+        )
+
+        audit_security = audit_data.get("security", {})
+
+        audit_summary = {
+            "audit_final_state": audit_data.get("final_state", "unknown"),
+            "security_state": audit_security.get("security_state", "unknown"),
+            "missing_memory_count": len(audit_data.get("missing_memory", [])),
+            "missing_modules_count": len(audit_data.get("missing_modules", [])),
+            "duplicate_layer_notes": (
+                audit_data.get("duplicates", {})
+                .get("note", "")
+            ),
+        }
+
         summary = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "visibility_runtime": "runtime_visibility_layer",
@@ -54,6 +72,7 @@ class RuntimeVisibility:
             "hidden_runtime_count": len(hidden),
             "visible_runtimes": visible,
             "hidden_runtimes": hidden,
+            "audit_summary": audit_summary,
             "global_runtime_state": (
                 "stable"
                 if snapshot.get("aggregation_state") == "stable"
