@@ -4623,6 +4623,36 @@ def jarvis_mobile_execution_plan():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/reflection")
+def jarvis_mobile_runtime_reflection():
+    try:
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+        from JARVIS_CORE.jarvis.architecture.runtime_forecast_engine import RuntimeForecastEngine
+        from JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine import RecommendationEvolutionEngine
+        from JARVIS_CORE.jarvis.architecture.strategy_simulation_engine import StrategySimulationEngine
+        from JARVIS_CORE.jarvis.architecture.safe_execution_strategy_planner import SafeExecutionStrategyPlanner
+        from JARVIS_CORE.jarvis.architecture.runtime_reflection_engine import RuntimeReflectionEngine
+
+        memory = ArchitectureMemory(".").build_evolution_report()
+        forecast = RuntimeForecastEngine().analyze(memory)
+        evolution = RecommendationEvolutionEngine().analyze(memory)
+        strategy = StrategySimulationEngine().simulate(evolution)
+        plan = SafeExecutionStrategyPlanner().build_plan(strategy)
+
+        data = RuntimeReflectionEngine().reflect(forecast, evolution, strategy, plan)
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "self_reflection_only",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 

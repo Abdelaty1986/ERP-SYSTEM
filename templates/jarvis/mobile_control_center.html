@@ -2420,6 +2420,36 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="runtime-reflection-panel">
+      <div class="panel-title">Runtime Reflection</div>
+      <div class="panel-sub">Self-review of reasoning consistency and safety alignment</div>
+
+      <div class="metric-row">
+        <span>Reflection Score</span>
+        <b id="reflection-score">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Issues</span>
+        <b id="reflection-issues">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Safeguards</span>
+        <b id="reflection-safeguards">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Reflection</div>
+      <div id="reflection-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for runtime reflection...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Safeguards</div>
+      <div id="reflection-safeguards-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for safeguards...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -2652,6 +2682,57 @@ async function loadExecutionPlanSnapshot() {
 
 loadExecutionPlanSnapshot();
 setInterval(loadExecutionPlanSnapshot, 15000);
+</script>
+
+
+<script>
+async function loadRuntimeReflectionSnapshot() {
+  const scoreEl = document.getElementById("reflection-score");
+  const issuesEl = document.getElementById("reflection-issues");
+  const safeguardsEl = document.getElementById("reflection-safeguards");
+  const feedEl = document.getElementById("reflection-feed");
+  const safeguardsFeedEl = document.getElementById("reflection-safeguards-feed");
+
+  if (!scoreEl || !issuesEl || !safeguardsEl || !feedEl || !safeguardsFeedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/reflection");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const confirmations = Array.isArray(data.confirmations) ? data.confirmations : [];
+    const safeguards = Array.isArray(data.safeguards) ? data.safeguards : [];
+
+    scoreEl.textContent = summary.reflection_score ?? 0;
+    issuesEl.textContent = summary.issues ?? 0;
+    safeguardsEl.textContent = summary.safeguards ?? safeguards.length;
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${data.reflection || "No reflection available."}</div>
+        <div class="runtime-event-sub">
+          ${confirmations.slice(0,2).join(" · ")}
+        </div>
+      </div>
+    `;
+
+    safeguardsFeedEl.innerHTML = safeguards.length
+      ? safeguards.map(item => `
+          <div class="runtime-event runtime-insight-card severity-high">
+            <div class="runtime-event-main">${item}</div>
+            <div class="runtime-event-sub">safety alignment</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No safeguards detected.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Runtime reflection API unavailable.</div>';
+    safeguardsFeedEl.innerHTML = '<div class="runtime-empty">Runtime reflection API unavailable.</div>';
+  }
+}
+
+loadRuntimeReflectionSnapshot();
+setInterval(loadRuntimeReflectionSnapshot, 15000);
 </script>
 
 </body>
