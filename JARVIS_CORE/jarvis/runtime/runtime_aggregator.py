@@ -81,6 +81,35 @@ class RuntimeAggregator:
                 "data": {}
             }
 
+    def _load_latest_sandbox_report(self):
+        reports_dir = (
+            self.root / "runtime_logs" / "sandbox_execution_reports"
+        )
+
+        if not reports_dir.exists():
+            return {
+                "exists": False,
+                "data": {},
+                "reason": "no_sandbox_reports"
+            }
+
+        reports = sorted(
+            reports_dir.glob("*.json"),
+            key=lambda item: item.stat().st_mtime,
+            reverse=True,
+        )
+
+        if not reports:
+            return {
+                "exists": False,
+                "data": {},
+                "reason": "empty_sandbox_reports"
+            }
+
+        latest = self._load_json(reports[0])
+        latest["latest_report_file"] = str(reports[0])
+        return latest
+
     def aggregate(self):
         aggregated = {}
 
@@ -96,6 +125,10 @@ class RuntimeAggregator:
             "exists": True,
             "data": RuntimeAudit(root=str(self.root)).run()
         }
+
+        aggregated["latest_sandbox_execution_report"] = (
+            self._load_latest_sandbox_report()
+        )
 
         snapshot = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
