@@ -1506,6 +1506,49 @@ loadRuntimeSupervisionSnapshot();
 setInterval(loadRuntimeSupervisionSnapshot, 10000);
 </script>
 
+
+<script>
+async function loadArchitectureDriftSnapshot() {
+  const stateEl = document.getElementById("architecture-drift-state");
+  const scoreEl = document.getElementById("architecture-drift-score");
+  const historyEl = document.getElementById("architecture-drift-history");
+  const notesEl = document.getElementById("architecture-drift-notes");
+
+  if (!stateEl || !scoreEl || !historyEl || !notesEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/drift");
+    const data = await res.json();
+
+    stateEl.textContent = data.drift_state || "unknown";
+    scoreEl.textContent = data.drift_score ?? 0;
+    historyEl.textContent = data.history_count ?? 0;
+
+    const notes = Array.isArray(data.drift_notes)
+      ? data.drift_notes
+      : [];
+
+    if (!notes.length) {
+      notesEl.innerHTML = '<div class="runtime-empty">No architecture drift notes yet.</div>';
+      return;
+    }
+
+    notesEl.innerHTML = notes.map(note => `
+      <div class="runtime-event">
+        <div class="runtime-event-main">${note}</div>
+        <div class="runtime-event-sub">persistent architecture evolution memory</div>
+      </div>
+    `).join("");
+
+  } catch (err) {
+    notesEl.innerHTML = '<div class="runtime-empty">Architecture drift API unavailable.</div>';
+  }
+}
+
+loadArchitectureDriftSnapshot();
+setInterval(loadArchitectureDriftSnapshot, 10000);
+</script>
+
 </body>
 </html>
 
@@ -1784,5 +1827,30 @@ setInterval(loadRuntimeSupervisionSnapshot, 10000);
       <div class="runtime-session-sub" style="margin-top:10px">Supervision Notes</div>
       <div id="runtime-supervision-notes" class="runtime-feed">
         <div class="runtime-empty">Waiting for supervision notes...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="architecture-drift-panel">
+      <div class="panel-title">Architecture Drift</div>
+      <div class="panel-sub">Persistent architecture evolution memory</div>
+
+      <div class="metric-row">
+        <span>Drift State</span>
+        <b id="architecture-drift-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Drift Score</span>
+        <b id="architecture-drift-score">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>History Count</span>
+        <b id="architecture-drift-history">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Drift Notes</div>
+      <div id="architecture-drift-notes" class="runtime-feed">
+        <div class="runtime-empty">Waiting for architecture drift notes...</div>
       </div>
     </div>
