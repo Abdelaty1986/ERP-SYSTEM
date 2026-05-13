@@ -4141,6 +4141,16 @@ def jarvis_mobile_scheduler_run():
 
 
 
+
+@app.route("/jarvis/mobile/api/architecture/recommendations")
+def jarvis_mobile_architecture_recommendations():
+    from jarvis.supervision.runtime_engineering_recommender import (
+        build_engineering_recommendations,
+    )
+
+    return jsonify(build_engineering_recommendations())
+
+
 @app.route("/jarvis/mobile/api/architecture/trends")
 def jarvis_mobile_architecture_trends():
     from jarvis.supervision.structural_trend_forecaster import (
