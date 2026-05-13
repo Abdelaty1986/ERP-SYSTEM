@@ -66,3 +66,37 @@ class JarvisMobileRuntimeAPI:
                 "source": "jarvis_mobile_runtime_api",
             },
         }
+
+
+# Runtime Correlation HUD Snapshot
+def load_runtime_correlation_snapshot():
+    import json
+    from pathlib import Path
+
+    path = Path("JARVIS_CORE/runtime_logs/runtime_correlation_analysis.json")
+
+    default = {
+        "available": False,
+        "correlation_strength": "unknown",
+        "forecast_state": "unknown",
+        "escalation_risk": "unknown",
+        "wake_cycle_count": 0,
+        "silence_detection_count": 0,
+        "cognition_persistence": 0,
+        "correlation_insights": [],
+        "safe_mode": True,
+        "bounded": True,
+    }
+
+    if not path.exists():
+        return default
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        default.update(data)
+        default["available"] = True
+        return default
+    except Exception as exc:
+        default["error"] = str(exc)
+        return default
+

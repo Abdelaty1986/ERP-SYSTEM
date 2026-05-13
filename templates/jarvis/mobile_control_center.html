@@ -1223,6 +1223,48 @@ async function refreshRuntimeActivityFeed(){
 
 </script>
 
+
+<script>
+async function loadRuntimeCorrelationSnapshot() {
+  const strengthEl = document.getElementById("runtime-correlation-strength");
+  const forecastEl = document.getElementById("runtime-correlation-forecast");
+  const riskEl = document.getElementById("runtime-correlation-risk");
+  const insightsEl = document.getElementById("runtime-correlation-insights");
+
+  if (!strengthEl || !forecastEl || !riskEl || !insightsEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/correlation");
+    const data = await res.json();
+
+    strengthEl.textContent = data.correlation_strength || "unknown";
+    forecastEl.textContent = data.forecast_state || "unknown";
+    riskEl.textContent = data.escalation_risk || "unknown";
+
+    const insights = Array.isArray(data.correlation_insights)
+      ? data.correlation_insights
+      : [];
+
+    if (!insights.length) {
+      insightsEl.innerHTML = '<div class="runtime-empty">No correlation insights yet.</div>';
+      return;
+    }
+
+    insightsEl.innerHTML = insights.map(item => `
+      <div class="runtime-event">
+        <div class="runtime-event-main">${item}</div>
+        <div class="runtime-event-sub">bounded cognitive correlation</div>
+      </div>
+    `).join("");
+  } catch (err) {
+    insightsEl.innerHTML = '<div class="runtime-empty">Correlation API unavailable.</div>';
+  }
+}
+
+loadRuntimeCorrelationSnapshot();
+setInterval(loadRuntimeCorrelationSnapshot, 5000);
+</script>
+
 </body>
 </html>
 
@@ -1373,3 +1415,28 @@ async function refreshRuntimeActivityFeed(){
     </div>
   </div>
 </div>
+
+    <div class="panel" id="runtime-correlation-panel">
+      <div class="panel-title">Runtime Correlation</div>
+      <div class="panel-sub">Cognitive relationship state</div>
+
+      <div class="metric-row">
+        <span>Strength</span>
+        <b id="runtime-correlation-strength">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Forecast</span>
+        <b id="runtime-correlation-forecast">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Escalation Risk</span>
+        <b id="runtime-correlation-risk">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Correlation Insights</div>
+      <div id="runtime-correlation-insights" class="runtime-feed">
+        <div class="runtime-empty">Waiting for correlation insights...</div>
+      </div>
+    </div>

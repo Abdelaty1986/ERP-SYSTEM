@@ -18,6 +18,7 @@ from flask import (
     Flask,
     Response,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -4133,6 +4134,14 @@ def jarvis_mobile_scheduler_run():
     ).run()
 
     return jsonify(result), 200
+
+
+@app.route("/jarvis/mobile/api/runtime/correlation")
+def jarvis_mobile_runtime_correlation():
+    from jarvis.mobile.mobile_runtime_api import load_runtime_correlation_snapshot
+
+    return jsonify(load_runtime_correlation_snapshot())
+
 
 @app.route("/jarvis/mobile/api/runtime/activity-feed")
 def jarvis_mobile_runtime_activity_feed():
