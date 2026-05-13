@@ -12,7 +12,7 @@
     "rollback_binding": "required",
     "bounded": true,
     "autonomous_apply": false,
-    "observed_at": "2026-05-13T17:36:49.161904+00:00"
+    "observed_at": "2026-05-13T17:42:09.665727+00:00"
   },
   "events": [
     {
@@ -38,9 +38,93 @@
       "bounded": true,
       "autonomous_apply": false,
       "observed_at": "2026-05-13T17:36:49.161904+00:00"
+    },
+    {
+      "event_type": "approval_session_observed",
+      "session_id": "approval-20260513171232-84802123",
+      "approval_state": "awaiting_human_approval",
+      "authorization_scope": "execution_preparation_only",
+      "execution_lock_state": "locked",
+      "staged_unlock_state": "locked",
+      "rollback_binding": "required",
+      "bounded": true,
+      "autonomous_apply": false,
+      "observed_at": "2026-05-13T17:40:20.799463+00:00"
+    },
+    {
+      "event_type": "approval_session_observed",
+      "session_id": "approval-20260513171232-84802123",
+      "approval_state": "awaiting_human_approval",
+      "authorization_scope": "execution_preparation_only",
+      "execution_lock_state": "locked",
+      "staged_unlock_state": "locked",
+      "rollback_binding": "required",
+      "bounded": true,
+      "autonomous_apply": false,
+      "observed_at": "2026-05-13T17:40:35.333822+00:00"
+    },
+    {
+      "event_type": "approval_session_observed",
+      "session_id": "approval-20260513171232-84802123",
+      "approval_state": "awaiting_human_approval",
+      "authorization_scope": "execution_preparation_only",
+      "execution_lock_state": "locked",
+      "staged_unlock_state": "locked",
+      "rollback_binding": "required",
+      "bounded": true,
+      "autonomous_apply": false,
+      "observed_at": "2026-05-13T17:40:50.746404+00:00"
+    },
+    {
+      "event_type": "approval_session_observed",
+      "session_id": "approval-20260513171232-84802123",
+      "approval_state": "awaiting_human_approval",
+      "authorization_scope": "execution_preparation_only",
+      "execution_lock_state": "locked",
+      "staged_unlock_state": "locked",
+      "rollback_binding": "required",
+      "bounded": true,
+      "autonomous_apply": false,
+      "observed_at": "2026-05-13T17:41:14.649744+00:00"
+    },
+    {
+      "event_type": "approval_session_observed",
+      "session_id": "approval-20260513171232-84802123",
+      "approval_state": "awaiting_human_approval",
+      "authorization_scope": "execution_preparation_only",
+      "execution_lock_state": "locked",
+      "staged_unlock_state": "locked",
+      "rollback_binding": "required",
+      "bounded": true,
+      "autonomous_apply": false,
+      "observed_at": "2026-05-13T17:41:21.431924+00:00"
+    },
+    {
+      "event_type": "approval_session_observed",
+      "session_id": "approval-20260513171232-84802123",
+      "approval_state": "awaiting_human_approval",
+      "authorization_scope": "execution_preparation_only",
+      "execution_lock_state": "locked",
+      "staged_unlock_state": "locked",
+      "rollback_binding": "required",
+      "bounded": true,
+      "autonomous_apply": false,
+      "observed_at": "2026-05-13T17:42:06.925852+00:00"
+    },
+    {
+      "event_type": "approval_session_observed",
+      "session_id": "approval-20260513171232-84802123",
+      "approval_state": "awaiting_human_approval",
+      "authorization_scope": "execution_preparation_only",
+      "execution_lock_state": "locked",
+      "staged_unlock_state": "locked",
+      "rollback_binding": "required",
+      "bounded": true,
+      "autonomous_apply": false,
+      "observed_at": "2026-05-13T17:42:09.665727+00:00"
     }
   ],
-  "event_count": 2,
+  "event_count": 9,
   "governance": {
     "human_approval_required": true,
     "execution_unlock_allowed": false,
@@ -48,5 +132,5 @@
     "rollback_trace_required": true,
     "lineage_replay_ready": true
   },
-  "updated_at": "2026-05-13T17:36:49.163475+00:00"
+  "updated_at": "2026-05-13T17:42:09.667443+00:00"
 }

@@ -3,7 +3,7 @@
   "mode": "human_approved_apply",
   "autonomous_apply": false,
   "summary": {
-    "apply_id": "apply-20260513173122",
+    "apply_id": "apply-20260513174207",
     "objective": "safe_architecture_refactor",
     "apply_state": "awaiting_human_approval",
     "staged_steps": 5,
@@ -15,7 +15,7 @@
       "phase": "planning",
       "task": "Generate bounded execution strategy",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513173122",
+      "rollback_checkpoint": "checkpoint-20260513174207",
       "execution_locked": true,
       "bounded": true,
       "autonomous_apply": false
@@ -24,7 +24,7 @@
       "phase": "reflection",
       "task": "Validate execution coherence",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513173122",
+      "rollback_checkpoint": "checkpoint-20260513174207",
       "execution_locked": true,
       "bounded": true,
       "autonomous_apply": false
@@ -33,7 +33,7 @@
       "phase": "arbitration",
       "task": "Rank execution decisions",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513173122",
+      "rollback_checkpoint": "checkpoint-20260513174207",
       "execution_locked": true,
       "bounded": true,
       "autonomous_apply": false
@@ -42,7 +42,7 @@
       "phase": "learning",
       "task": "Record bounded learning signals",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513173122",
+      "rollback_checkpoint": "checkpoint-20260513174207",
       "execution_locked": true,
       "bounded": true,
       "autonomous_apply": false
@@ -51,7 +51,7 @@
       "phase": "failure_guard",
       "task": "Monitor execution drift",
       "execution_state": "awaiting_human_approval",
-      "rollback_checkpoint": "checkpoint-20260513173122",
+      "rollback_checkpoint": "checkpoint-20260513174207",
       "execution_locked": true,
       "bounded": true,
       "autonomous_apply": false

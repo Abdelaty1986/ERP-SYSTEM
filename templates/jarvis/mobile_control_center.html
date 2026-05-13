@@ -3955,6 +3955,15 @@ setInterval(loadExecutionJournalSnapshot, 30000);
   </div>
 </div>
 
+<div class="panel">
+  <div class="panel-title">Approval Session Lineage</div>
+  <div class="panel-sub">Approval history / governance trace / replay readiness</div>
+  <div id="approval-lineage-hud" class="runtime-session-sub">
+    Loading approval lineage...
+  </div>
+</div>
+
+
 
 <script>
 async function loadApprovalGatewayHud() {
@@ -3985,6 +3994,38 @@ async function loadApprovalGatewayHud() {
 
 loadApprovalGatewayHud();
 setInterval(loadApprovalGatewayHud, 15000);
+</script>
+
+
+<script>
+async function loadApprovalLineageHud() {
+  const box = document.getElementById("approval-lineage-hud");
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/approval-lineage");
+    const data = await res.json();
+    const e = data.latest_event || {};
+    const g = data.governance || {};
+
+    box.innerHTML = `
+      <div>Lineage State: ${data.lineage_state || "unknown"}</div>
+      <div>Event Count: ${data.event_count || 0}</div>
+      <div>Latest Event: ${e.event_type || "none"}</div>
+      <div>Session: ${e.session_id || "none"}</div>
+      <div>Approval State: ${e.approval_state || "unknown"}</div>
+      <div>Execution Lock: ${e.execution_lock_state || "locked"}</div>
+      <div>Rollback Trace Required: ${g.rollback_trace_required === true ? "true" : "unknown"}</div>
+      <div>Lineage Replay Ready: ${g.lineage_replay_ready === true ? "true" : "unknown"}</div>
+      <div>Execution Unlock Allowed: ${g.execution_unlock_allowed === false ? "false" : "blocked"}</div>
+    `;
+  } catch (err) {
+    box.innerHTML = "Approval lineage unavailable";
+  }
+}
+
+loadApprovalLineageHud();
+setInterval(loadApprovalLineageHud, 15000);
 </script>
 
 </body>
