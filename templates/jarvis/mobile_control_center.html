@@ -2765,6 +2765,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="execution-simulation-panel">
+      <div class="panel-title">Execution Simulation</div>
+      <div class="panel-sub">Simulation-only chain feasibility and risk forecast</div>
+
+      <div class="metric-row">
+        <span>Feasibility</span>
+        <b id="execution-simulation-feasibility">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Steps</span>
+        <b id="execution-simulation-steps">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Mode</span>
+        <b id="execution-simulation-mode">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Simulated Steps</div>
+      <div id="execution-simulation-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for execution simulation...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3554,6 +3579,46 @@ async function loadTaskChainSnapshot() {
 
 loadTaskChainSnapshot();
 setInterval(loadTaskChainSnapshot, 30000);
+</script>
+
+
+<script>
+async function loadExecutionSimulationSnapshot() {
+  const feasibilityEl = document.getElementById("execution-simulation-feasibility");
+  const stepsEl = document.getElementById("execution-simulation-steps");
+  const modeEl = document.getElementById("execution-simulation-mode");
+  const feedEl = document.getElementById("execution-simulation-feed");
+
+  if (!feasibilityEl || !stepsEl || !modeEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/execution-simulation");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const steps = Array.isArray(data.simulated_steps) ? data.simulated_steps : [];
+
+    feasibilityEl.textContent = summary.chain_feasibility || "unknown";
+    stepsEl.textContent = summary.steps_simulated ?? steps.length;
+    modeEl.textContent = summary.execution_mode || "unknown";
+
+    feedEl.innerHTML = steps.length
+      ? steps.map(item => `
+          <div class="runtime-event runtime-insight-card severity-info">
+            <div class="runtime-event-main">${item.phase} · ${item.execution_confidence}%</div>
+            <div class="runtime-event-sub">${item.selected_agent} · risk: ${item.estimated_risk}</div>
+            <div class="runtime-event-sub">${item.simulated_status} · rollback: ${item.rollback_ready ? "ready" : "not ready"}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No execution simulation available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Execution simulation API unavailable.</div>';
+  }
+}
+
+loadExecutionSimulationSnapshot();
+setInterval(loadExecutionSimulationSnapshot, 30000);
 </script>
 
 </body>

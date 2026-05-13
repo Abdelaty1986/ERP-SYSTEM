@@ -5038,6 +5038,25 @@ def jarvis_mobile_task_chain():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/execution-simulation")
+def jarvis_mobile_execution_simulation():
+    try:
+        from JARVIS_CORE.jarvis.architecture.task_execution_simulation_engine import TaskExecutionSimulationEngine
+
+        data = TaskExecutionSimulationEngine(".").simulate()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "task_execution_simulation",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
