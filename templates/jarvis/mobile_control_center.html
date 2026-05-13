@@ -2285,12 +2285,76 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="architecture-memory-panel">
+      <div class="panel-title">Architecture Memory</div>
+      <div class="panel-sub">Persistent architecture evolution memory</div>
+
+      <div class="metric-row">
+        <span>Snapshots</span>
+        <b id="architecture-memory-snapshots">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Hotspot Delta</span>
+        <b id="architecture-memory-hotspot-delta">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Cascade Delta</span>
+        <b id="architecture-memory-cascade-delta">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Evolution</div>
+      <div id="architecture-memory-evolution" class="runtime-feed">
+        <div class="runtime-empty">Waiting for architecture memory...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
   if (typeof loadArchitecturePrioritiesSnapshot === "function") loadArchitecturePrioritiesSnapshot();
   if (typeof loadDependencyReasoningSnapshot === "function") loadDependencyReasoningSnapshot();
 }, 500);
+</script>
+
+
+<script>
+async function loadArchitectureMemorySnapshot() {
+  const snapshotsEl = document.getElementById("architecture-memory-snapshots");
+  const hotspotDeltaEl = document.getElementById("architecture-memory-hotspot-delta");
+  const cascadeDeltaEl = document.getElementById("architecture-memory-cascade-delta");
+  const evolutionEl = document.getElementById("architecture-memory-evolution");
+
+  if (!snapshotsEl || !hotspotDeltaEl || !cascadeDeltaEl || !evolutionEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/memory");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const evolution = data.evolution || {};
+    const latest = data.latest || {};
+
+    snapshotsEl.textContent = summary.snapshots_recorded ?? 0;
+    hotspotDeltaEl.textContent = evolution.hotspot_delta ?? 0;
+    cascadeDeltaEl.textContent = evolution.cascade_delta ?? 0;
+
+    evolutionEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${evolution.state || "memory"}</div>
+        <div class="runtime-event-sub">${evolution.message || "No evolution message available."}</div>
+        <div class="runtime-event-sub">top: ${latest.top_hotspot?.file || "n/a"} · ${latest.top_hotspot?.risk || "n/a"}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    evolutionEl.innerHTML = '<div class="runtime-empty">Architecture memory API unavailable.</div>';
+  }
+}
+
+loadArchitectureMemorySnapshot();
+setInterval(loadArchitectureMemorySnapshot, 15000);
 </script>
 
 </body>

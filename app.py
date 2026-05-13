@@ -4506,6 +4506,32 @@ def jarvis_mobile_dependency_reasoning():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/memory")
+def jarvis_mobile_architecture_memory():
+    try:
+        from JARVIS_CORE.jarvis.architecture.hotspot_detector import ArchitectureHotspotDetector
+        from JARVIS_CORE.jarvis.architecture.priority_engine import ArchitecturePriorityEngine
+        from JARVIS_CORE.jarvis.architecture.dependency_reasoning_engine import DependencyReasoningEngine
+        from JARVIS_CORE.jarvis.architecture.architecture_memory import ArchitectureMemory
+
+        hotspots = ArchitectureHotspotDetector(".").analyze()
+        priorities = ArchitecturePriorityEngine().build_priorities(hotspots)
+        dependencies = DependencyReasoningEngine(".").analyze(priorities)
+
+        data = ArchitectureMemory(".").record_snapshot(hotspots, priorities, dependencies)
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "persistent_observation_memory",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
