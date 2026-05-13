@@ -1453,6 +1453,59 @@ loadERPRelationshipSnapshot();
 setInterval(loadERPRelationshipSnapshot, 10000);
 </script>
 
+
+<script>
+async function loadRuntimeSupervisionSnapshot() {
+  const stateEl = document.getElementById("runtime-supervision-state");
+  const warningsEl = document.getElementById("runtime-supervision-warnings");
+  const watchEl = document.getElementById("runtime-supervision-watch");
+  const healthyEl = document.getElementById("runtime-supervision-healthy");
+  const findingsEl = document.getElementById("runtime-supervision-findings");
+  const notesEl = document.getElementById("runtime-supervision-notes");
+
+  if (!stateEl || !warningsEl || !watchEl || !healthyEl || !findingsEl || !notesEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/supervision");
+    const data = await res.json();
+    const summary = data.summary || {};
+    const findings = Array.isArray(data.domain_findings) ? data.domain_findings : [];
+    const notes = Array.isArray(data.supervision_notes) ? data.supervision_notes : [];
+
+    stateEl.textContent = data.overall_state || "unknown";
+    warningsEl.textContent = summary.warning_domains ?? 0;
+    watchEl.textContent = summary.watch_domains ?? 0;
+    healthyEl.textContent = summary.healthy_domains ?? 0;
+
+    findingsEl.innerHTML = findings.length
+      ? findings.map(item => `
+          <div class="runtime-event runtime-insight-card severity-${item.severity || "info"}">
+            <div class="runtime-event-main">${item.domain || "domain"} · ${item.severity || "unknown"}</div>
+            <div class="runtime-event-sub">
+              templates: ${item.templates ?? 0} · modules: ${item.modules ?? 0} · risk: ${item.risk_score ?? 0}
+            </div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No supervision findings detected.</div>';
+
+    notesEl.innerHTML = notes.length
+      ? notes.slice(0, 8).map(note => `
+          <div class="runtime-event">
+            <div class="runtime-event-main">${note}</div>
+            <div class="runtime-event-sub">architecture supervision note</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No supervision notes detected.</div>';
+  } catch (err) {
+    findingsEl.innerHTML = '<div class="runtime-empty">Runtime supervision API unavailable.</div>';
+    notesEl.innerHTML = '<div class="runtime-empty">Runtime supervision API unavailable.</div>';
+  }
+}
+
+loadRuntimeSupervisionSnapshot();
+setInterval(loadRuntimeSupervisionSnapshot, 10000);
+</script>
+
 </body>
 </html>
 
@@ -1696,5 +1749,40 @@ setInterval(loadERPRelationshipSnapshot, 10000);
       <div class="runtime-session-sub" style="margin-top:10px">Architecture Notes</div>
       <div id="erp-architecture-notes" class="runtime-feed">
         <div class="runtime-empty">Waiting for architecture notes...</div>
+      </div>
+    </div>
+
+    <div class="panel" id="runtime-supervision-panel">
+      <div class="panel-title">Runtime Supervision</div>
+      <div class="panel-sub">AI architecture supervision layer</div>
+
+      <div class="metric-row">
+        <span>Overall State</span>
+        <b id="runtime-supervision-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Warnings</span>
+        <b id="runtime-supervision-warnings">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Watch</span>
+        <b id="runtime-supervision-watch">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Healthy</span>
+        <b id="runtime-supervision-healthy">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Domain Findings</div>
+      <div id="runtime-supervision-findings" class="runtime-feed">
+        <div class="runtime-empty">Waiting for supervision findings...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Supervision Notes</div>
+      <div id="runtime-supervision-notes" class="runtime-feed">
+        <div class="runtime-empty">Waiting for supervision notes...</div>
       </div>
     </div>
