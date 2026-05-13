@@ -29,6 +29,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from JARVIS_CORE.jarvis.architecture.approval_gateway_engine import ApprovalGatewayEngine
+from JARVIS_CORE.jarvis.architecture.approval_lineage_engine import ApprovalLineageEngine
 
 from db import PERMISSION_MODULES, init_db
 from migrations import get_migration_status, run_migrations
@@ -5159,6 +5160,12 @@ def jarvis_mobile_execution_journal():
 def jarvis_mobile_approval_gateway():
     gateway_state = ApprovalGatewayEngine().load_state()
     return jsonify(gateway_state)
+
+
+@app.route("/jarvis/mobile/api/architecture/approval-lineage")
+def jarvis_mobile_approval_lineage():
+    lineage = ApprovalLineageEngine().build_lineage()
+    return jsonify(lineage)
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
