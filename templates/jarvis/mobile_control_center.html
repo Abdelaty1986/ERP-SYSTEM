@@ -2840,6 +2840,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="safe-execution-queue-panel">
+      <div class="panel-title">Safe Execution Queue</div>
+      <div class="panel-sub">Governed bounded execution queue</div>
+
+      <div class="metric-row">
+        <span>Queue State</span>
+        <b id="execution-queue-state">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Steps</span>
+        <b id="execution-queue-steps">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Execution</span>
+        <b id="execution-queue-allowed">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Queued Steps</div>
+      <div id="execution-queue-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for execution queue...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3749,6 +3774,46 @@ async function loadRollbackCheckpointSnapshot() {
 
 loadRollbackCheckpointSnapshot();
 setInterval(loadRollbackCheckpointSnapshot, 30000);
+</script>
+
+
+<script>
+async function loadSafeExecutionQueueSnapshot() {
+  const stateEl = document.getElementById("execution-queue-state");
+  const stepsEl = document.getElementById("execution-queue-steps");
+  const allowedEl = document.getElementById("execution-queue-allowed");
+  const feedEl = document.getElementById("execution-queue-feed");
+
+  if (!stateEl || !stepsEl || !allowedEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/execution-queue");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const queue = Array.isArray(data.queue) ? data.queue : [];
+
+    stateEl.textContent = summary.queue_state || "unknown";
+    stepsEl.textContent = summary.queued_steps ?? queue.length;
+    allowedEl.textContent = summary.execution_allowed ? "allowed" : "locked";
+
+    feedEl.innerHTML = queue.length
+      ? queue.map(item => `
+          <div class="runtime-event runtime-insight-card severity-high">
+            <div class="runtime-event-main">${item.step}. ${item.phase} · ${item.status}</div>
+            <div class="runtime-event-sub">${item.task}</div>
+            <div class="runtime-event-sub">locked: ${item.execution_locked ? "yes" : "no"} · rollback: ${item.rollback_checkpoint}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No queued execution steps available.</div>';
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Safe execution queue API unavailable.</div>';
+  }
+}
+
+loadSafeExecutionQueueSnapshot();
+setInterval(loadSafeExecutionQueueSnapshot, 30000);
 </script>
 
 </body>

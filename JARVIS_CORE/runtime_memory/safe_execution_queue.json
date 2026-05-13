@@ -1,0 +1,86 @@
+{
+  "bounded": true,
+  "mode": "safe_execution_queue",
+  "autonomous_apply": false,
+  "summary": {
+    "execution_id": "exec-20260513162631",
+    "objective": "safe_architecture_refactor",
+    "queue_state": "ready_for_human_governance",
+    "queued_steps": 5,
+    "rollback_ready": true,
+    "execution_allowed": false
+  },
+  "queue": [
+    {
+      "step": 1,
+      "phase": "planning",
+      "task": "Generate bounded execution strategy",
+      "status": "queued",
+      "execution_window": "bounded",
+      "rollback_checkpoint": "checkpoint-20260513162631",
+      "human_approval_required": true,
+      "execution_locked": true,
+      "autonomous_apply": false,
+      "bounded": true
+    },
+    {
+      "step": 2,
+      "phase": "reflection",
+      "task": "Validate execution coherence",
+      "status": "queued",
+      "execution_window": "bounded",
+      "rollback_checkpoint": "checkpoint-20260513162631",
+      "human_approval_required": true,
+      "execution_locked": true,
+      "autonomous_apply": false,
+      "bounded": true
+    },
+    {
+      "step": 3,
+      "phase": "arbitration",
+      "task": "Rank execution decisions",
+      "status": "queued",
+      "execution_window": "bounded",
+      "rollback_checkpoint": "checkpoint-20260513162631",
+      "human_approval_required": true,
+      "execution_locked": true,
+      "autonomous_apply": false,
+      "bounded": true
+    },
+    {
+      "step": 4,
+      "phase": "learning",
+      "task": "Record bounded learning signals",
+      "status": "queued",
+      "execution_window": "bounded",
+      "rollback_checkpoint": "checkpoint-20260513162631",
+      "human_approval_required": true,
+      "execution_locked": true,
+      "autonomous_apply": false,
+      "bounded": true
+    },
+    {
+      "step": 5,
+      "phase": "failure_guard",
+      "task": "Monitor execution drift",
+      "status": "queued",
+      "execution_window": "bounded",
+      "rollback_checkpoint": "checkpoint-20260513162631",
+      "human_approval_required": true,
+      "execution_locked": true,
+      "autonomous_apply": false,
+      "bounded": true
+    }
+  ],
+  "governance": {
+    "approval_required": true,
+    "execution_locking": true,
+    "retry_policy": "human_review_only",
+    "recovery_mode": "checkpoint_restore"
+  },
+  "notes": [
+    "Safe execution queue prepares governed execution ordering.",
+    "No queued task is executed automatically.",
+    "Execution remains human-controlled."
+  ]
+}

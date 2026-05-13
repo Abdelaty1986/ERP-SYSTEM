@@ -5095,6 +5095,25 @@ def jarvis_mobile_rollback_checkpoint():
         }), 500
 
 
+
+
+@app.route("/jarvis/mobile/api/architecture/execution-queue")
+def jarvis_mobile_execution_queue():
+    try:
+        from JARVIS_CORE.jarvis.architecture.safe_execution_queue_engine import SafeExecutionQueueEngine
+
+        data = SafeExecutionQueueEngine(".").build_queue()
+        return jsonify(data)
+
+    except Exception as exc:
+        return jsonify({
+            "bounded": True,
+            "mode": "safe_execution_queue",
+            "autonomous_apply": False,
+            "error": str(exc)
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
 
