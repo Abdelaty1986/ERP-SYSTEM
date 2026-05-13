@@ -2615,6 +2615,31 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="self-learning-panel">
+      <div class="panel-title">Self Learning Memory</div>
+      <div class="panel-sub">Long-term bounded learning from cognitive cycles</div>
+
+      <div class="metric-row">
+        <span>Events</span>
+        <b id="learning-events">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Top Strategy</span>
+        <b id="learning-top-strategy">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>State</span>
+        <b id="learning-state">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Latest Lesson</div>
+      <div id="learning-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for learning memory...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -3171,6 +3196,44 @@ async function loadRuntimeContinuitySnapshot() {
 
 loadRuntimeContinuitySnapshot();
 setInterval(loadRuntimeContinuitySnapshot, 15000);
+</script>
+
+
+<script>
+async function loadSelfLearningSnapshot() {
+  const eventsEl = document.getElementById("learning-events");
+  const strategyEl = document.getElementById("learning-top-strategy");
+  const stateEl = document.getElementById("learning-state");
+  const feedEl = document.getElementById("learning-feed");
+
+  if (!eventsEl || !strategyEl || !stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/learning");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const event = data.learning_event || {};
+
+    eventsEl.textContent = summary.events_recorded ?? 0;
+    strategyEl.textContent = summary.top_strategy || "unknown";
+    stateEl.textContent = summary.learning_state || "unknown";
+
+    feedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-info">
+        <div class="runtime-event-main">${event.best_strategy || "learning event"}</div>
+        <div class="runtime-event-sub">${event.lesson || "No lesson recorded."}</div>
+        <div class="runtime-event-sub">goal: ${event.active_goal || "n/a"} · consensus: ${event.consensus_state || "n/a"}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    feedEl.innerHTML = '<div class="runtime-empty">Self learning API unavailable.</div>';
+  }
+}
+
+loadSelfLearningSnapshot();
+setInterval(loadSelfLearningSnapshot, 20000);
 </script>
 
 </body>
