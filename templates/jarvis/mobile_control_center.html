@@ -2450,6 +2450,36 @@ setInterval(loadDependencyReasoningSnapshot, 10000);
       </div>
     </div>
 
+    <div class="panel" id="cognitive-decision-panel">
+      <div class="panel-title">Cognitive Decision</div>
+      <div class="panel-sub">Decision-support strategy selection runtime</div>
+
+      <div class="metric-row">
+        <span>Best Strategy</span>
+        <b id="decision-best-strategy">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Best Score</span>
+        <b id="decision-best-score">loading...</b>
+      </div>
+
+      <div class="metric-row">
+        <span>Human Review</span>
+        <b id="decision-human-review">loading...</b>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Best Decision</div>
+      <div id="decision-best-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for cognitive decision...</div>
+      </div>
+
+      <div class="runtime-session-sub" style="margin-top:10px">Alternatives</div>
+      <div id="decision-alternatives-feed" class="runtime-feed">
+        <div class="runtime-empty">Waiting for decision alternatives...</div>
+      </div>
+    </div>
+
 <script>
 setTimeout(() => {
   if (typeof loadArchitectureHotspotsSnapshot === "function") loadArchitectureHotspotsSnapshot();
@@ -2733,6 +2763,56 @@ async function loadRuntimeReflectionSnapshot() {
 
 loadRuntimeReflectionSnapshot();
 setInterval(loadRuntimeReflectionSnapshot, 15000);
+</script>
+
+
+<script>
+async function loadCognitiveDecisionSnapshot() {
+  const bestStrategyEl = document.getElementById("decision-best-strategy");
+  const bestScoreEl = document.getElementById("decision-best-score");
+  const humanReviewEl = document.getElementById("decision-human-review");
+  const bestFeedEl = document.getElementById("decision-best-feed");
+  const alternativesEl = document.getElementById("decision-alternatives-feed");
+
+  if (!bestStrategyEl || !bestScoreEl || !humanReviewEl || !bestFeedEl || !alternativesEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/architecture/decision");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const best = data.best_decision || {};
+    const decisions = Array.isArray(data.decisions) ? data.decisions.slice(1, 4) : [];
+
+    bestStrategyEl.textContent = summary.best_strategy || "unknown";
+    bestScoreEl.textContent = summary.best_score ?? 0;
+    humanReviewEl.textContent = summary.human_review_required ? "required" : "not required";
+
+    bestFeedEl.innerHTML = `
+      <div class="runtime-event runtime-insight-card severity-high">
+        <div class="runtime-event-main">${best.strategy || "n/a"} · ${best.decision || "n/a"}</div>
+        <div class="runtime-event-sub">${best.reason || "No decision reason available."}</div>
+        <div class="runtime-event-sub">target: ${best.target || "n/a"} · risk: ${best.risk || "n/a"}</div>
+      </div>
+    `;
+
+    alternativesEl.innerHTML = decisions.length
+      ? decisions.map(item => `
+          <div class="runtime-event runtime-insight-card severity-info">
+            <div class="runtime-event-main">${item.strategy} · score ${item.decision_score}</div>
+            <div class="runtime-event-sub">${item.decision}</div>
+          </div>
+        `).join("")
+      : '<div class="runtime-empty">No alternative decisions available.</div>';
+
+  } catch (err) {
+    bestFeedEl.innerHTML = '<div class="runtime-empty">Cognitive decision API unavailable.</div>';
+    alternativesEl.innerHTML = '<div class="runtime-empty">Cognitive decision API unavailable.</div>';
+  }
+}
+
+loadCognitiveDecisionSnapshot();
+setInterval(loadCognitiveDecisionSnapshot, 15000);
 </script>
 
 </body>
