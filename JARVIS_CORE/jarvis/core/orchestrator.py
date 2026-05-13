@@ -16,6 +16,7 @@ from jarvis.execution.diff_renderer import DiffRenderer
 from jarvis.execution.patch_validator import PatchValidator
 from jarvis.execution.approval_manager import ApprovalManager
 from jarvis.execution.test_runner import TestRunner
+from jarvis.execution.sandbox_execution_report import SandboxExecutionReport
 
 from jarvis.execution.rollback_manager import RollbackManager
 from jarvis.execution.apply_engine import ApplyEngine
@@ -161,6 +162,16 @@ def main():
         help="Force proposal/report mode only. Real apply remains disabled.",
     )
     parser.add_argument(
+        "--live-safe",
+        action="store_true",
+        help="Run a live safe sandbox-only command. Real apply remains disabled.",
+    )
+    parser.add_argument(
+        "--target-file",
+        default="JARVIS_CORE/jarvis/runtime/runtime_audit.py",
+        help="Target file for live safe sandbox report.",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="Print runtime report as JSON.",
@@ -197,13 +208,31 @@ def main():
 
     real_apply_mode = "gated_apply" if args.gated_apply else "simulation_only"
 
-    report = Orchestrator().process_task(
-        args.task,
-        human_approval=human_approval,
-        real_apply_mode=real_apply_mode,
-        tag_execution=args.tag_execution,
-        isolated_branch=args.isolated_branch,
-    )
+    if args.live_safe:
+        target = Path(args.target_file)
+        if not target.exists() or not target.is_file():
+            raise SystemExit(f"Target file not found: {target}")
+
+        original = target.read_text(encoding="utf-8")
+        proposed_content = (
+            original
+            + "\n# live_safe_review_marker: generated in sandbox only\n"
+        )
+
+        report = SandboxExecutionReport().run(
+            task=args.task,
+            file_path=str(target),
+            proposed_content=proposed_content,
+            human_approval=None,
+        )
+    else:
+        report = Orchestrator().process_task(
+            args.task,
+            human_approval=human_approval,
+            real_apply_mode=real_apply_mode,
+            tag_execution=args.tag_execution,
+            isolated_branch=args.isolated_branch,
+        )
 
     if args.unsafe_allow_apply:
         print("WARNING: --unsafe-allow-apply is reserved. Real apply is still disabled.")
