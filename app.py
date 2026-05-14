@@ -4198,6 +4198,14 @@ def jarvis_mobile_runtime_insights():
 
 
 
+
+@app.route("/jarvis/mobile/api/runtime/provider-optimizer")
+def jarvis_mobile_provider_optimizer():
+    from jarvis.runtime.provider_optimizer_report import ProviderOptimizerReport
+
+    return jsonify(ProviderOptimizerReport().generate())
+
+
 @app.route("/jarvis/mobile/api/runtime/provider-forecast")
 def jarvis_mobile_provider_forecast():
     from jarvis.runtime.provider_forecast_report import ProviderForecastReport

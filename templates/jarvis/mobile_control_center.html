@@ -4159,5 +4159,54 @@ setInterval(loadProviderForecastHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Provider Optimizer Runtime</div>
+  <div class="panel-sub">Dynamic provider optimization / ranking engine</div>
+
+  <div id="provider-optimizer-hud" class="runtime-session-sub">
+    Loading provider optimizer...
+  </div>
+</div>
+
+<script>
+async function loadProviderOptimizerHud() {
+  const box = document.getElementById("provider-optimizer-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/provider-optimizer");
+    const data = await res.json();
+
+    const providers = data.providers || {};
+
+    const rows = Object.entries(providers)
+      .sort((a, b) => (b[1].optimization_score || 0) - (a[1].optimization_score || 0))
+      .map(([name, p]) => `
+        <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+          <div><b>${name}</b> — Score: ${p.optimization_score ?? "--"}</div>
+          <div>Risk: ${p.risk_level || "unknown"} | Recommendation: ${p.recommendation || "none"}</div>
+          <div>Health: ${p.health_score ?? "--"} | Failures: ${p.failure_count ?? 0}</div>
+          <div>Latency: ${p.average_latency_ms ?? "--"} ms</div>
+        </div>
+      `).join("");
+
+    box.innerHTML = `
+      <div><b>Optimization State:</b> ${data.optimization_state || "unknown"}</div>
+      <div><b>Recommended Provider:</b> ${data.recommended_provider || "unknown"}</div>
+      <div><b>Updated:</b> ${data.timestamp || "--"}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Provider optimizer unavailable";
+  }
+}
+
+loadProviderOptimizerHud();
+setInterval(loadProviderOptimizerHud, 15000);
+</script>
+
+
 </body>
 </html>
