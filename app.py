@@ -5367,5 +5367,28 @@ except Exception as runtime_governance_decision_error:
 
 # --- End Layer 3 ---
 
+
+
+# --- Layer 4 Safe Self-Development Readiness Engine ---
+
+try:
+    from jarvis.runtime.self_development_readiness import (
+        run_self_development_readiness,
+        get_self_development_readiness,
+    )
+
+    @app.route("/jarvis/runtime/self-development/readiness/run", methods=["POST"])
+    def jarvis_self_development_readiness_run():
+        return jsonify(run_self_development_readiness())
+
+    @app.route("/jarvis/runtime/self-development/readiness", methods=["GET"])
+    def jarvis_self_development_readiness_state():
+        return jsonify(get_self_development_readiness())
+
+except Exception as self_development_readiness_error:
+    print("self development readiness disabled:", self_development_readiness_error)
+
+# --- End Layer 4 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")

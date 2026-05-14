@@ -4917,5 +4917,67 @@ setInterval(loadRuntimeGovernanceDecisions, 5000);
 <!-- End Layer 3 -->
 
 
+
+
+<!-- Layer 4 Safe Self-Development Readiness Engine -->
+
+<div class="panel" id="self-development-readiness-panel">
+  <div class="panel-title">Self-Development Readiness</div>
+  <div class="panel-sub">safe diagnostics · approval contract · no autonomous apply</div>
+
+  <button onclick="runSelfDevelopmentReadiness()"
+          style="margin-top:10px;padding:10px 14px;border-radius:12px;border:0;cursor:pointer">
+    Run Readiness Check
+  </button>
+
+  <div id="self-development-readiness-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="self-development-readiness-feed"
+       style="margin-top:10px;font-size:12px;line-height:1.5">
+  </div>
+</div>
+
+<script>
+async function loadSelfDevelopmentReadiness() {
+  const stateEl = document.getElementById("self-development-readiness-state");
+  const feedEl = document.getElementById("self-development-readiness-feed");
+  if (!stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/runtime/self-development/readiness");
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "state=" + (data.readiness_state || data.state) +
+      " · bounded=" + data.bounded +
+      " · dangerous_apply=" + data.dangerous_autonomous_apply;
+
+    const checks = data.checks || [];
+    feedEl.innerHTML = checks.map(c => `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.05)">
+        <div><b>${c.name}</b> · ok=${c.ok} · code=${c.returncode}</div>
+        <pre style="white-space:pre-wrap;opacity:.7;max-height:120px;overflow:auto">${(c.stdout || c.stderr || c.error || "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+      </div>
+    `).join("");
+  } catch(e) {
+    stateEl.innerHTML = "self-development readiness unavailable";
+  }
+}
+
+async function runSelfDevelopmentReadiness() {
+  await fetch("/jarvis/runtime/self-development/readiness/run", {method: "POST"});
+  loadSelfDevelopmentReadiness();
+}
+
+loadSelfDevelopmentReadiness();
+setInterval(loadSelfDevelopmentReadiness, 7000);
+</script>
+
+<!-- End Layer 4 -->
+
+
 </body>
 </html>
