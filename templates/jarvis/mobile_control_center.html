@@ -5135,5 +5135,69 @@ setInterval(
 <!-- End Layer 5 -->
 
 
+
+
+<!-- Layer 6 Sandbox Patch Apply Engine -->
+
+<div class="panel" id="sandbox-patch-apply-panel">
+  <div class="panel-title">Sandbox Patch Apply</div>
+  <div class="panel-sub">sandbox only · project mutation blocked</div>
+
+  <button onclick="runSandboxPatchApply()"
+          style="margin-top:10px;padding:10px 14px;border-radius:12px;border:0;cursor:pointer">
+    Apply To Sandbox
+  </button>
+
+  <div id="sandbox-patch-apply-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="sandbox-patch-apply-feed"
+       style="margin-top:10px;font-size:12px;line-height:1.5">
+  </div>
+</div>
+
+<script>
+async function loadSandboxPatchApplyResult() {
+  const stateEl = document.getElementById("sandbox-patch-apply-state");
+  const feedEl = document.getElementById("sandbox-patch-apply-feed");
+  if (!stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/runtime/sandbox-patch/result");
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "state=" + data.state +
+      " · bounded=" + data.bounded +
+      " · project_mutation=" + data.project_mutation_allowed +
+      " · dangerous_apply=" + data.dangerous_autonomous_apply;
+
+    feedEl.innerHTML = `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.05)">
+        <div>ok=${data.ok} · scope=${data.apply_scope || "none"}</div>
+        <div style="opacity:.75">target=${data.target_file || "none"}</div>
+        <div style="opacity:.75">sandbox=${data.sandbox_file || "none"}</div>
+        <div style="opacity:.55;font-size:11px">reason=${data.reason || ""}</div>
+      </div>
+    `;
+  } catch(e) {
+    stateEl.innerHTML = "sandbox patch apply unavailable";
+  }
+}
+
+async function runSandboxPatchApply() {
+  await fetch("/jarvis/runtime/sandbox-patch/apply", {method: "POST"});
+  loadSandboxPatchApplyResult();
+}
+
+loadSandboxPatchApplyResult();
+setInterval(loadSandboxPatchApplyResult, 7000);
+</script>
+
+<!-- End Layer 6 -->
+
+
 </body>
 </html>

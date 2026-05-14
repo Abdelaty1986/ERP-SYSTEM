@@ -5424,5 +5424,28 @@ except Exception as staged_patch_error:
 
 # --- End Layer 5 ---
 
+
+
+# --- Layer 6 Sandbox Patch Apply Engine ---
+
+try:
+    from jarvis.runtime.sandbox_patch_apply import (
+        sandbox_apply_latest_patch,
+        get_sandbox_apply_result,
+    )
+
+    @app.route("/jarvis/runtime/sandbox-patch/apply", methods=["POST"])
+    def jarvis_runtime_sandbox_patch_apply():
+        return jsonify(sandbox_apply_latest_patch())
+
+    @app.route("/jarvis/runtime/sandbox-patch/result", methods=["GET"])
+    def jarvis_runtime_sandbox_patch_result():
+        return jsonify(get_sandbox_apply_result())
+
+except Exception as sandbox_patch_apply_error:
+    print("sandbox patch apply disabled:", sandbox_patch_apply_error)
+
+# --- End Layer 6 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
