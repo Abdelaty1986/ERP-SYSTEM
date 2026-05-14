@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-05-14T12:38:09.048504+00:00",
+  "runtime": "adaptive_learning_scoring",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "scoring_mode": "safe_read_only_adaptive_learning_score",
+  "inputs": {
+    "learning_events": 30,
+    "failures_recorded": 25,
+    "correlation_recommendation": "continue_bounded_learning"
+  },
+  "score_components": {
+    "base_score": 0.75,
+    "pressure_factor": 0.5,
+    "recommendation_factor": 1.0
+  },
+  "adaptive_learning_score": 0.76,
+  "learning_state": "strong_adaptive_signal",
+  "recommended_next_action": "continue_memory_compression",
+  "result": "adaptive_learning_score_built"
+}
