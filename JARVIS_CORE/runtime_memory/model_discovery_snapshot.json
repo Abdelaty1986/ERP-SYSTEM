@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-05-14T12:14:26.025094+00:00",
+  "runtime": "model_discovery_engine",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "discovery_mode": "safe_env_snapshot",
+  "providers": {
+    "openrouter": {
+      "enabled": true,
+      "configured_model": "deepseek/deepseek-v4-flash:free",
+      "source": "env",
+      "discovery_state": "configured"
+    },
+    "gemini": {
+      "enabled": true,
+      "configured_model": "not_configured",
+      "source": "env",
+      "discovery_state": "configured"
+    },
+    "groq": {
+      "enabled": true,
+      "configured_model": "not_configured",
+      "source": "env",
+      "discovery_state": "configured"
+    }
+  },
+  "active_provider_count": 1,
+  "active_providers": [
+    "openrouter"
+  ],
+  "result": "models_discovered"
+}
