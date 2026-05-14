@@ -10,6 +10,8 @@ from jarvis.agents.groq_agent import GroqAgent
 from jarvis.agents.openrouter_agent import OpenRouterAgent
 
 PROVIDER_TIMEOUT_SECONDS = 20
+MIN_PROVIDER_TIMEOUT_SECONDS = 8
+MAX_PROVIDER_TIMEOUT_SECONDS = 30
 
 
 class ProviderRouter:
@@ -24,6 +26,27 @@ class ProviderRouter:
             "groq": GroqAgent,
             "openrouter": OpenRouterAgent,
         }
+
+
+    def _provider_timeout_seconds(self, name: str) -> int:
+        provider = self.reliability_memory.get_provider(name)
+
+        avg_latency = provider.get("average_latency_ms")
+        failures = int(provider.get("failure_count", 0))
+
+        timeout = PROVIDER_TIMEOUT_SECONDS
+
+        if avg_latency is not None:
+            timeout = int((avg_latency / 1000) * 3) + 5
+
+        if failures >= 3:
+            timeout = min(timeout, 12)
+
+        return max(
+            MIN_PROVIDER_TIMEOUT_SECONDS,
+            min(MAX_PROVIDER_TIMEOUT_SECONDS, timeout)
+        )
+
 
     def think(self, task: str):
         attempted = []
@@ -56,13 +79,14 @@ class ProviderRouter:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
                     future = executor.submit(agent.think, task)
                     try:
-                        result = future.result(timeout=PROVIDER_TIMEOUT_SECONDS)
+                        timeout_seconds = self._provider_timeout_seconds(name)
+                        result = future.result(timeout=timeout_seconds)
                     except concurrent.futures.TimeoutError:
                         latency_ms = int((perf_counter() - start) * 1000)
                         self.registry.mark_failure(name)
                         self.reliability_memory.record_failure(
                             name,
-                            error=f"provider_timeout_after_{PROVIDER_TIMEOUT_SECONDS}s"
+                            error=f"provider_timeout_after_{timeout_seconds}s"
                         )
 
                         optimization_score = optimizer_providers.get(
@@ -74,7 +98,7 @@ class ProviderRouter:
                             optimization_score=optimization_score,
                             success=False,
                             latency_ms=latency_ms,
-                            reason=f"provider_timeout_after_{PROVIDER_TIMEOUT_SECONDS}s"
+                            reason=f"provider_timeout_after_{timeout_seconds}s"
                         )
 
                         continue
