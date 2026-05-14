@@ -4601,5 +4601,39 @@ setInterval(loadConfidenceDecayHud, 15000);
 </script>
 
 
+
+<script>
+async function loadRecoveryRecommendations() {
+  const box = document.getElementById("recovery-recommendations-content");
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/recovery-recommendations");
+    const data = await res.json();
+    const providers = data?.hud?.providers || {};
+
+    const rows = Object.values(providers).map(p => `
+      <div class="runtime-row">
+        <div>
+          <b>${p.provider}</b>
+          <div class="panel-sub">${p.operational_state} · ${p.recommended_action}</div>
+        </div>
+        <div>
+          <b>${p.recovery_score}%</b>
+          <div class="panel-sub">cooldown ${p.cooldown_seconds}s</div>
+        </div>
+      </div>
+    `).join("");
+
+    box.innerHTML = rows || "<div class='panel-sub'>No recovery recommendations available</div>";
+  } catch (err) {
+    box.innerHTML = "<div class='panel-sub'>Recovery recommendations unavailable</div>";
+  }
+}
+
+loadRecoveryRecommendations();
+setInterval(loadRecoveryRecommendations, 15000);
+</script>
+
 </body>
 </html>
