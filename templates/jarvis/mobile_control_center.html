@@ -4556,5 +4556,50 @@ setInterval(loadAdaptiveProviderRankingHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Confidence Decay Runtime</div>
+  <div class="panel-sub">Temporal trust aging / stale confidence prevention</div>
+
+  <div id="confidence-decay-hud" class="runtime-session-sub">
+    Loading confidence decay runtime...
+  </div>
+</div>
+
+<script>
+async function loadConfidenceDecayHud() {
+  const box = document.getElementById("confidence-decay-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/confidence-decay");
+    const data = await res.json();
+
+    const rows = (data.decay_results || []).map(item => `
+      <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div><b>${item.provider}</b></div>
+        <div>Old Score: ${item.old_score}</div>
+        <div>New Score: ${item.new_score}</div>
+        <div>Decay: ${item.decay_factor}</div>
+        <div>Age Hours: ${item.age_hours}</div>
+      </div>
+    `).join("");
+
+    box.innerHTML = `
+      <div><b>Bounded:</b> ${data.bounded === true ? "true" : "false"}</div>
+      <div><b>Provider Count:</b> ${data.provider_count || 0}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Confidence decay runtime unavailable";
+  }
+}
+
+loadConfidenceDecayHud();
+setInterval(loadConfidenceDecayHud, 15000);
+</script>
+
+
 </body>
 </html>
