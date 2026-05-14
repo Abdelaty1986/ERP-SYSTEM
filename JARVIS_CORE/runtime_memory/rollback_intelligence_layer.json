@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-05-14T12:51:38.277169+00:00",
+  "runtime": "rollback_intelligence_layer",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "rollback_mode": "safe_read_only_rollback_analysis",
+  "checkpoint_available": true,
+  "rollback_required": true,
+  "rollback_state": "rollback_ready",
+  "execution_supervision_state": "execution_locked_pending_review",
+  "rollback_decision": "allow_guarded_planning_only",
+  "guardrails": {
+    "rollback_required_before_apply": true,
+    "human_review_required": true,
+    "autonomous_apply_allowed": false
+  },
+  "result": "rollback_intelligence_built"
+}
