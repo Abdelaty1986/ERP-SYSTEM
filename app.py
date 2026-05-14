@@ -5309,5 +5309,39 @@ except Exception as _runtime_chat_console_route_error:
     print("Runtime chat console route init skipped:", _runtime_chat_console_route_error)
 # --- End Layer 1 ---
 
+
+
+# --- Layer 2 Runtime Intent Pipeline ---
+
+try:
+    from jarvis.runtime.runtime_intent_pipeline import (
+        create_intent_entry,
+        get_runtime_intent_queue,
+    )
+
+    @app.route("/jarvis/runtime/intent", methods=["POST"])
+    def jarvis_runtime_intent():
+        data = request.get_json(silent=True) or {}
+
+        result = create_intent_entry(
+            data.get("message", "")
+        )
+
+        return jsonify(result)
+
+    @app.route("/jarvis/runtime/intent/queue", methods=["GET"])
+    def jarvis_runtime_intent_queue():
+        return jsonify(
+            get_runtime_intent_queue()
+        )
+
+except Exception as runtime_intent_error:
+    print(
+        "runtime intent pipeline disabled:",
+        runtime_intent_error
+    )
+
+# --- End Layer 2 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")

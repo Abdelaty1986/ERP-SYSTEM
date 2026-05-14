@@ -4742,5 +4742,103 @@ setInterval(loadRuntimeChatConsoleState, 5000);
 </script>
 <!-- End Layer 1 -->
 
+
+
+<!-- Layer 2 Runtime Intent Pipeline -->
+
+<div class="panel" id="runtime-intent-panel">
+
+  <div class="panel-title">
+    Runtime Intent Pipeline
+  </div>
+
+  <div class="panel-sub">
+    monitored intent classification · simulation only
+  </div>
+
+  <div id="runtime-intent-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="runtime-intent-feed"
+       style="margin-top:10px">
+  </div>
+
+</div>
+
+<script>
+
+async function loadRuntimeIntentPipeline() {
+
+  const stateEl =
+    document.getElementById(
+      "runtime-intent-state"
+    );
+
+  const feedEl =
+    document.getElementById(
+      "runtime-intent-feed"
+    );
+
+  if (!stateEl || !feedEl) return;
+
+  try {
+
+    const res = await fetch(
+      "/jarvis/runtime/intent/queue"
+    );
+
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "queue=" + data.queue_size +
+      " · bounded=" + data.bounded +
+      " · dangerous_apply=" +
+      data.dangerous_autonomous_apply;
+
+    const queue = data.queue || [];
+
+    feedEl.innerHTML = queue
+      .slice()
+      .reverse()
+      .map(item => `
+        <div style="
+          padding:8px;
+          margin:6px 0;
+          border-radius:10px;
+          background:rgba(255,255,255,.05)
+        ">
+          <div>${item.classified_intent}</div>
+          <div style="opacity:.75">
+            ${item.message}
+          </div>
+          <div style="opacity:.55;font-size:11px">
+            execution=${item.execution_mode}
+          </div>
+        </div>
+      `)
+      .join("");
+
+  } catch(e) {
+
+    stateEl.innerHTML =
+      "intent pipeline unavailable";
+
+  }
+}
+
+loadRuntimeIntentPipeline();
+
+setInterval(
+  loadRuntimeIntentPipeline,
+  5000
+);
+
+</script>
+
+<!-- End Layer 2 -->
+
+
 </body>
 </html>
