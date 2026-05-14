@@ -21,8 +21,8 @@ class AdaptiveProviderRanking:
 
     def _state_bonus(self, state):
         bonuses = {
-            "healthy": 0.20,
-            "rate_limited": -0.10,
+            "healthy": 0.35,
+            "rate_limited": -0.45,
             "missing_credentials": -0.35,
             "model_unavailable": -0.25,
             "degraded": -0.15,
