@@ -4356,5 +4356,53 @@ setInterval(loadProviderRecoveryHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Provider Recovery Executor Runtime</div>
+  <div class="panel-sub">Bounded recovery executor / dry-run governance</div>
+
+  <div id="provider-recovery-executor-hud" class="runtime-session-sub">
+    Loading provider recovery executor...
+  </div>
+</div>
+
+<script>
+async function loadProviderRecoveryExecutorHud() {
+  const box = document.getElementById("provider-recovery-executor-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/provider-recovery-executor");
+    const data = await res.json();
+
+    const actions = data.actions || {};
+
+    const rows = Object.entries(actions).map(([name, p]) => `
+      <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div><b>${name}</b></div>
+        <div>Planned Recovery: ${p.planned_recovery || "none"}</div>
+        <div>Status: ${p.status || "unknown"} | Executed: ${p.executed === true ? "true" : "false"}</div>
+        <div>Reason: ${p.reason || "unknown"}</div>
+      </div>
+    `).join("");
+
+    box.innerHTML = `
+      <div><b>Execution State:</b> ${data.execution_state || "unknown"}</div>
+      <div><b>Dry Run:</b> ${data.dry_run === true ? "true" : "false"}</div>
+      <div><b>Bounded:</b> ${data.bounded === true ? "true" : "false"}</div>
+      <div><b>Updated:</b> ${data.timestamp || "--"}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Provider recovery executor unavailable";
+  }
+}
+
+loadProviderRecoveryExecutorHud();
+setInterval(loadProviderRecoveryExecutorHud, 15000);
+</script>
+
+
 </body>
 </html>

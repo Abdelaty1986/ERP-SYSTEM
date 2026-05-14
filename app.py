@@ -4202,6 +4202,14 @@ def jarvis_mobile_runtime_insights():
 
 
 
+
+@app.route("/jarvis/mobile/api/runtime/provider-recovery-executor")
+def jarvis_mobile_provider_recovery_executor():
+    from jarvis.runtime.provider_recovery_executor_report import ProviderRecoveryExecutorReport
+
+    return jsonify(ProviderRecoveryExecutorReport().generate(dry_run=True))
+
+
 @app.route("/jarvis/mobile/api/runtime/provider-recovery")
 def jarvis_mobile_provider_recovery():
     from jarvis.runtime.provider_recovery_report import ProviderRecoveryReport
