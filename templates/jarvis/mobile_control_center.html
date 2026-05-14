@@ -4672,5 +4672,75 @@ loadRouterOptimizationHud();
 setInterval(loadRouterOptimizationHud, 15000);
 </script>
 
+
+<!-- Layer 1: Jarvis Runtime Chat Console HUD -->
+<div class="panel" id="runtime-chat-console-panel">
+  <div class="panel-title">Jarvis Runtime Chat Console</div>
+  <div class="panel-sub">Bounded monitored messages · no autonomous apply</div>
+
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <input id="runtime-chat-console-input"
+           placeholder="اكتب رسالة مراقبة لجارفيس..."
+           style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.25);color:inherit">
+    <button onclick="sendRuntimeChatConsoleMessage()"
+            style="padding:10px 14px;border-radius:12px;border:0;cursor:pointer">
+      Send
+    </button>
+  </div>
+
+  <div id="runtime-chat-console-state" class="panel-sub" style="margin-top:8px">
+    State: loading...
+  </div>
+
+  <div id="runtime-chat-console-feed" style="margin-top:10px;font-size:13px;line-height:1.5"></div>
+</div>
+
+<script>
+async function loadRuntimeChatConsoleState() {
+  const stateEl = document.getElementById("runtime-chat-console-state");
+  const feedEl = document.getElementById("runtime-chat-console-feed");
+  if (!stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/chat-console/state");
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "State: " + data.state +
+      " · bounded=" + data.bounded +
+      " · dangerous_apply=" + data.dangerous_autonomous_apply;
+
+    const messages = data.messages || [];
+    feedEl.innerHTML = messages.slice().reverse().map(m => `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.06)">
+        <div style="opacity:.7">${m.timestamp || ""}</div>
+        <div>${(m.message || "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+        <div style="opacity:.65">state=${m.state} · execution_allowed=${m.execution_allowed}</div>
+      </div>
+    `).join("");
+  } catch (e) {
+    stateEl.innerHTML = "State: unavailable";
+  }
+}
+
+async function sendRuntimeChatConsoleMessage() {
+  const input = document.getElementById("runtime-chat-console-input");
+  if (!input || !input.value.trim()) return;
+
+  await fetch("/jarvis/mobile/api/chat-console/submit", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({message: input.value, source: "mobile_hud"})
+  });
+
+  input.value = "";
+  loadRuntimeChatConsoleState();
+}
+
+loadRuntimeChatConsoleState();
+setInterval(loadRuntimeChatConsoleState, 5000);
+</script>
+<!-- End Layer 1 -->
+
 </body>
 </html>

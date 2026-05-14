@@ -5287,5 +5287,27 @@ def jarvis_mobile_approval_transition():
 def jarvis_mobile_router_optimization():
     return jsonify(get_router_optimization_status())
 
+
+# --- Layer 1: Jarvis Runtime Chat Console API ---
+try:
+    from flask import request, jsonify
+    from jarvis.runtime.runtime_chat_console import submit_chat_message, get_chat_console_state
+
+    @app.route("/jarvis/mobile/api/chat-console/submit", methods=["POST"])
+    def jarvis_mobile_chat_console_submit():
+        data = request.get_json(silent=True) or {}
+        result = submit_chat_message(
+            message=data.get("message", ""),
+            source=data.get("source", "mobile_hud"),
+        )
+        return jsonify(result)
+
+    @app.route("/jarvis/mobile/api/chat-console/state", methods=["GET"])
+    def jarvis_mobile_chat_console_state():
+        return jsonify(get_chat_console_state())
+except Exception as _runtime_chat_console_route_error:
+    print("Runtime chat console route init skipped:", _runtime_chat_console_route_error)
+# --- End Layer 1 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
