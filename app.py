@@ -1,3 +1,4 @@
+from jarvis.runtime.provider_trust_report import build_report as build_provider_trust_report
 from jarvis.runtime.targeted_provider_probe_report import build_report
 from jarvis.execution.runtime_session_manager import RuntimeSessionManager
 from jarvis.execution.runtime_timeline import RuntimeTimeline
@@ -795,6 +796,12 @@ def ai_dashboard():
 @app.route("/jarvis/mobile/api/targeted-provider-probe")
 def jarvis_targeted_provider_probe():
     return build_report()
+
+
+
+@app.route("/jarvis/mobile/api/provider-trust")
+def jarvis_provider_trust_report():
+    return build_provider_trust_report()
 
 
 @app.route("/jarvis/mobile")
