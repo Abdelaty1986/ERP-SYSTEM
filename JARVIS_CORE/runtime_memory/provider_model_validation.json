@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-05-14T12:16:38.762157+00:00",
+  "runtime": "provider_model_validation",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "validation_mode": "safe_static_provider_check",
+  "providers": {
+    "openrouter": {
+      "has_key": true,
+      "model": "deepseek/deepseek-v4-flash:free",
+      "has_model": true,
+      "ready": true,
+      "confidence_score": 1.0,
+      "validation_state": "ready"
+    },
+    "gemini": {
+      "has_key": true,
+      "model": "not_configured",
+      "has_model": false,
+      "ready": false,
+      "confidence_score": 0.35,
+      "validation_state": "needs_model_config"
+    },
+    "groq": {
+      "has_key": true,
+      "model": "not_configured",
+      "has_model": false,
+      "ready": false,
+      "confidence_score": 0.35,
+      "validation_state": "needs_model_config"
+    }
+  },
+  "ready_provider_count": 1,
+  "ready_providers": [
+    "openrouter"
+  ],
+  "fallback_ready": false,
+  "result": "validation_passed"
+}
