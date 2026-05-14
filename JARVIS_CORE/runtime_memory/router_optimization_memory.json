@@ -2,7 +2,7 @@
   "runtime": "router_self_optimization",
   "bounded": true,
   "dangerous_autonomous_apply": false,
-  "last_updated": "2026-05-14T11:30:33.991793+00:00",
+  "last_updated": "2026-05-14T11:32:08.124588+00:00",
   "routing_weights": {
     "gemini": {
       "trust": 0.7,
@@ -81,5 +81,20 @@
       "balanced_weight": 0.57,
       "bounded": true
     }
-  ]
+  ],
+  "adaptive_decision": {
+    "decision_state": "adaptive_routing_ready",
+    "preferred_provider": "groq",
+    "preferred_weight": 0.655,
+    "preferred_state": "balanced",
+    "fallback_provider": "gemini",
+    "fallback_weight": 0.645,
+    "routing_confidence": "moderate",
+    "bounded": true,
+    "autonomous_apply": false,
+    "notes": [
+      "Adaptive routing remains advisory",
+      "No autonomous execution enabled"
+    ]
+  }
 }

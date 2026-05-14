@@ -121,6 +121,42 @@ class RouterSelfOptimization:
             reverse=True
         )
 
+    def build_adaptive_decision(self, balancing_plan):
+        if not balancing_plan:
+            return {
+                "decision_state": "no_candidates",
+                "bounded": True
+            }
+
+        primary = balancing_plan[0]
+        fallback = balancing_plan[1] if len(balancing_plan) > 1 else primary
+
+        confidence = "low"
+
+        if primary["balanced_weight"] >= 0.75:
+            confidence = "high"
+        elif primary["balanced_weight"] >= 0.60:
+            confidence = "moderate"
+
+        decision = {
+            "decision_state": "adaptive_routing_ready",
+            "preferred_provider": primary["provider"],
+            "preferred_weight": primary["balanced_weight"],
+            "preferred_state": primary["state"],
+            "fallback_provider": fallback["provider"],
+            "fallback_weight": fallback["balanced_weight"],
+            "routing_confidence": confidence,
+            "bounded": True,
+            "autonomous_apply": False,
+            "notes": [
+                "Adaptive routing remains advisory",
+                "No autonomous execution enabled"
+            ]
+        }
+
+        return decision
+
+
     def execute(self):
         memory = self.load_memory()
 
@@ -139,6 +175,11 @@ class RouterSelfOptimization:
             for item in balancing_plan
         ]
 
+        adaptive_decision = self.build_adaptive_decision(
+            balancing_plan
+        )
+
+        memory["adaptive_decision"] = adaptive_decision
         memory["balancing_plan"] = balancing_plan
         memory["last_updated"] = self._now()
         memory["optimization_state"] = "provider_balancing_ready"
