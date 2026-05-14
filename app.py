@@ -5560,5 +5560,33 @@ except Exception as project_apply_validation_error:
 
 # --- End Layer 10 ---
 
+
+
+# --- Layer 11 Structured Real Patch Mutation Engine ---
+
+try:
+    from jarvis.runtime.structured_patch_mutation import (
+        apply_structured_mutation,
+        get_structured_mutation_state,
+    )
+
+    @app.route("/jarvis/runtime/structured-mutation/apply", methods=["POST"])
+    def jarvis_runtime_structured_mutation_apply():
+        data = request.get_json(silent=True) or {}
+        return jsonify(
+            apply_structured_mutation(
+                data.get("approval_phrase", "")
+            )
+        )
+
+    @app.route("/jarvis/runtime/structured-mutation/state", methods=["GET"])
+    def jarvis_runtime_structured_mutation_state():
+        return jsonify(get_structured_mutation_state())
+
+except Exception as structured_mutation_error:
+    print("structured patch mutation disabled:", structured_mutation_error)
+
+# --- End Layer 11 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")

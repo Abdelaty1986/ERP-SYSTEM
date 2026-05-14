@@ -5550,5 +5550,84 @@ setInterval(loadProjectApplyValidationState, 7000);
 <!-- End Layer 10 -->
 
 
+
+
+<!-- Layer 11 Structured Real Patch Mutation Engine -->
+
+<div class="panel" id="structured-mutation-panel">
+  <div class="panel-title">Structured Patch Mutation</div>
+  <div class="panel-sub">allowed targets · managed block only · approval gated</div>
+
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <input id="structured-mutation-input"
+           placeholder="اكتب APPROVE_STRUCTURED_MUTATION للتنفيذ..."
+           style="flex:1;min-width:0;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.25);color:inherit">
+
+    <button onclick="runStructuredMutation()"
+            style="padding:10px 14px;border-radius:12px;border:0;cursor:pointer">
+      Mutate
+    </button>
+  </div>
+
+  <div id="structured-mutation-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="structured-mutation-feed"
+       style="margin-top:10px;font-size:12px;line-height:1.5">
+  </div>
+</div>
+
+<script>
+async function loadStructuredMutationState() {
+  const stateEl = document.getElementById("structured-mutation-state");
+  const feedEl = document.getElementById("structured-mutation-feed");
+  if (!stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/runtime/structured-mutation/state");
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "state=" + data.state +
+      " · mutation=" + data.project_mutation_allowed +
+      " · validation_ok=" + data.validation_ok +
+      " · dangerous_apply=" + data.dangerous_autonomous_apply;
+
+    feedEl.innerHTML = `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.05)">
+        <div>target=${data.target_file || "none"}</div>
+        <div style="opacity:.75">rollback_required=${data.rollback_required}</div>
+        <div style="opacity:.75">reason=${data.reason || ""}</div>
+        <div style="opacity:.55;font-size:11px">approval_required=${data.approval_phrase_required || "APPROVE_STRUCTURED_MUTATION"}</div>
+      </div>
+    `;
+  } catch(e) {
+    stateEl.innerHTML = "structured mutation unavailable";
+  }
+}
+
+async function runStructuredMutation() {
+  const input = document.getElementById("structured-mutation-input");
+  if (!input || !input.value.trim()) return;
+
+  await fetch("/jarvis/runtime/structured-mutation/apply", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({approval_phrase: input.value})
+  });
+
+  input.value = "";
+  loadStructuredMutationState();
+}
+
+loadStructuredMutationState();
+setInterval(loadStructuredMutationState, 7000);
+</script>
+
+<!-- End Layer 11 -->
+
+
 </body>
 </html>
