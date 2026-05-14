@@ -4258,5 +4258,53 @@ setInterval(loadProviderArbitrationHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Provider Self-Healing Runtime</div>
+  <div class="panel-sub">Recovery planning / cooldown awareness / provider healing</div>
+
+  <div id="provider-self-healing-hud" class="runtime-session-sub">
+    Loading provider self-healing...
+  </div>
+</div>
+
+<script>
+async function loadProviderSelfHealingHud() {
+  const box = document.getElementById("provider-self-healing-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/provider-self-healing");
+    const data = await res.json();
+
+    const providers = data.providers || {};
+
+    const rows = Object.entries(providers).map(([name, p]) => `
+      <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div><b>${name}</b> — Action: ${p.action || "unknown"}</div>
+        <div>Risk: ${p.risk_level || "unknown"} | Health: ${p.health_score ?? "--"}</div>
+        <div>Failures: ${p.failure_count ?? 0} | Latency: ${p.average_latency_ms ?? "--"} ms</div>
+        <div>Cooldown: ${p.cooldown_until || "none"}</div>
+      </div>
+    `).join("");
+
+    box.innerHTML = `
+      <div><b>Healing State:</b> ${data.healing_state || "unknown"}</div>
+      <div><b>Overall State:</b> ${data.overall_state || "unknown"}</div>
+      <div><b>Selected Provider:</b> ${data.selected_provider || "unknown"}</div>
+      <div><b>Updated:</b> ${data.timestamp || "--"}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Provider self-healing unavailable";
+  }
+}
+
+loadProviderSelfHealingHud();
+setInterval(loadProviderSelfHealingHud, 15000);
+</script>
+
+
 </body>
 </html>

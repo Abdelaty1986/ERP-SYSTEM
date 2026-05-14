@@ -4200,6 +4200,14 @@ def jarvis_mobile_runtime_insights():
 
 
 
+
+@app.route("/jarvis/mobile/api/runtime/provider-self-healing")
+def jarvis_mobile_provider_self_healing():
+    from jarvis.runtime.provider_self_healing_report import ProviderSelfHealingReport
+
+    return jsonify(ProviderSelfHealingReport().generate())
+
+
 @app.route("/jarvis/mobile/api/runtime/provider-arbitration")
 def jarvis_mobile_provider_arbitration():
     from jarvis.runtime.provider_arbitration_report import ProviderArbitrationReport
