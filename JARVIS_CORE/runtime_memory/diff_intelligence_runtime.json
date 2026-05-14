@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-05-14T12:43:53.951407+00:00",
+  "runtime": "diff_intelligence_runtime",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "analysis_mode": "safe_read_only_git_diff_analysis",
+  "working_tree_clean": false,
+  "changed_file_count": 1,
+  "changed_files": [
+    {
+      "state": "??",
+      "path": "JARVIS_CORE/jarvis/runtime/diff_intelligence_runtime.py"
+    }
+  ],
+  "diff_stat": {
+    "ok": true,
+    "stdout": "",
+    "stderr": ""
+  },
+  "staged_diff_stat": {
+    "ok": true,
+    "stdout": "",
+    "stderr": ""
+  },
+  "risk_state": "code_changed",
+  "recommendation": "review_changes_before_next_layer",
+  "result": "diff_intelligence_built"
+}
