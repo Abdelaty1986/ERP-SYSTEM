@@ -1,3 +1,4 @@
+import concurrent.futures
 from jarvis.runtime.provider_registry import ProviderRegistry
 from jarvis.runtime.provider_reliability_memory import ProviderReliabilityMemory
 from jarvis.runtime.provider_optimizer import ProviderOptimizer
@@ -7,6 +8,8 @@ from time import perf_counter
 from jarvis.agents.gemini_agent import GeminiAgent
 from jarvis.agents.groq_agent import GroqAgent
 from jarvis.agents.openrouter_agent import OpenRouterAgent
+
+PROVIDER_TIMEOUT_SECONDS = 20
 
 
 class ProviderRouter:
@@ -49,7 +52,33 @@ class ProviderRouter:
                 agent = agent_class()
 
                 start = perf_counter()
-                result = agent.think(task)
+
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(agent.think, task)
+                    try:
+                        result = future.result(timeout=PROVIDER_TIMEOUT_SECONDS)
+                    except concurrent.futures.TimeoutError:
+                        latency_ms = int((perf_counter() - start) * 1000)
+                        self.registry.mark_failure(name)
+                        self.reliability_memory.record_failure(
+                            name,
+                            error=f"provider_timeout_after_{PROVIDER_TIMEOUT_SECONDS}s"
+                        )
+
+                        optimization_score = optimizer_providers.get(
+                            name, {}
+                        ).get("optimization_score", 0)
+
+                        self.strategy_memory.record_strategy(
+                            provider=name,
+                            optimization_score=optimization_score,
+                            success=False,
+                            latency_ms=latency_ms,
+                            reason=f"provider_timeout_after_{PROVIDER_TIMEOUT_SECONDS}s"
+                        )
+
+                        continue
+
                 latency_ms = int((perf_counter() - start) * 1000)
 
                 analysis = str(result.get("analysis", "")).lower()
