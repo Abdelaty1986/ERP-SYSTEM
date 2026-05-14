@@ -72,12 +72,25 @@ class TargetedProviderProbe:
             )
 
             response_text = str(response)
+            analysis_text = ""
 
-            success = "provider_online" in response_text
+            if isinstance(response, dict):
+                analysis_text = str(response.get("analysis", ""))
+                enabled = bool(response.get("enabled", False))
+            else:
+                analysis_text = response_text
+                enabled = True
+
+            success = (
+                enabled
+                and analysis_text.strip().lower() == "provider_online"
+            )
 
             result["probe_result"].update({
                 "probe_attempted": True,
                 "probe_success": success,
+                "provider_enabled": enabled,
+                "analysis_excerpt": analysis_text[:300],
                 "response_excerpt": response_text[:300],
             })
 
@@ -94,9 +107,25 @@ class TargetedProviderProbe:
 if __name__ == "__main__":
     probe = TargetedProviderProbe()
 
-    result = probe.execute(
-        provider_name="gemini",
-        dry_run=False,
-    )
+    providers = [
+        "gemini",
+        "groq",
+        "openrouter",
+    ]
 
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    results = []
+
+    for provider in providers:
+        results.append(
+            probe.execute(
+                provider_name=provider,
+                dry_run=False,
+            )
+        )
+
+    print(json.dumps({
+        "runtime": "multi_targeted_provider_probe",
+        "bounded": True,
+        "provider_count": len(results),
+        "results": results,
+    }, ensure_ascii=False, indent=2))
