@@ -1,3 +1,4 @@
+from jarvis.runtime.adaptive_provider_ranking import AdaptiveProviderRanking
 from jarvis.runtime.provider_trust_report import build_report as build_provider_trust_report
 from jarvis.runtime.targeted_provider_probe_report import build_report
 from jarvis.execution.runtime_session_manager import RuntimeSessionManager
@@ -802,6 +803,12 @@ def jarvis_targeted_provider_probe():
 @app.route("/jarvis/mobile/api/provider-trust")
 def jarvis_provider_trust_report():
     return build_provider_trust_report()
+
+
+
+@app.route("/jarvis/mobile/api/adaptive-provider-ranking")
+def jarvis_adaptive_provider_ranking():
+    return AdaptiveProviderRanking().rank()
 
 
 @app.route("/jarvis/mobile")
