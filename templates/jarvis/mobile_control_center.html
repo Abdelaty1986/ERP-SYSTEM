@@ -5409,5 +5409,83 @@ setInterval(loadHumanApprovedEngineeringState, 7000);
 <!-- End Layer 8 -->
 
 
+
+
+<!-- Layer 9 Approved Project Apply Gate -->
+
+<div class="panel" id="approved-project-apply-panel">
+  <div class="panel-title">Approved Project Apply Gate</div>
+  <div class="panel-sub">human phrase required · checkpoint · compile validation</div>
+
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <input id="approved-project-apply-input"
+           placeholder="اكتب APPROVE_PROJECT_APPLY للتطبيق..."
+           style="flex:1;min-width:0;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.25);color:inherit">
+
+    <button onclick="runApprovedProjectApply()"
+            style="padding:10px 14px;border-radius:12px;border:0;cursor:pointer">
+      Apply
+    </button>
+  </div>
+
+  <div id="approved-project-apply-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="approved-project-apply-feed"
+       style="margin-top:10px;font-size:12px;line-height:1.5">
+  </div>
+</div>
+
+<script>
+async function loadApprovedProjectApplyState() {
+  const stateEl = document.getElementById("approved-project-apply-state");
+  const feedEl = document.getElementById("approved-project-apply-feed");
+  if (!stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/runtime/project-apply/state");
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "state=" + data.state +
+      " · project_apply=" + data.project_apply_allowed +
+      " · dangerous_apply=" + data.dangerous_autonomous_apply;
+
+    feedEl.innerHTML = `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.05)">
+        <div>target=${data.target_file || "none"}</div>
+        <div style="opacity:.75">validation_ok=${data.validation_ok}</div>
+        <div style="opacity:.75">reason=${data.reason || ""}</div>
+        <div style="opacity:.55;font-size:11px">approval_required=${data.approval_phrase_required || "APPROVE_PROJECT_APPLY"}</div>
+      </div>
+    `;
+  } catch(e) {
+    stateEl.innerHTML = "approved project apply unavailable";
+  }
+}
+
+async function runApprovedProjectApply() {
+  const input = document.getElementById("approved-project-apply-input");
+  if (!input || !input.value.trim()) return;
+
+  await fetch("/jarvis/runtime/project-apply/approve", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({approval_phrase: input.value})
+  });
+
+  input.value = "";
+  loadApprovedProjectApplyState();
+}
+
+loadApprovedProjectApplyState();
+setInterval(loadApprovedProjectApplyState, 7000);
+</script>
+
+<!-- End Layer 9 -->
+
+
 </body>
 </html>

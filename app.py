@@ -5507,5 +5507,35 @@ except Exception as human_approved_engineering_error:
 
 # --- End Layer 8 ---
 
+
+
+# --- Layer 9 Approved Project Apply Gate ---
+
+try:
+    from jarvis.runtime.approved_project_apply_gate import (
+        approved_project_apply,
+        get_approved_project_apply_state,
+    )
+
+    @app.route("/jarvis/runtime/project-apply/approve", methods=["POST"])
+    def jarvis_runtime_project_apply_approve():
+        data = request.get_json(silent=True) or {}
+        return jsonify(
+            approved_project_apply(
+                data.get("approval_phrase", "")
+            )
+        )
+
+    @app.route("/jarvis/runtime/project-apply/state", methods=["GET"])
+    def jarvis_runtime_project_apply_state():
+        return jsonify(
+            get_approved_project_apply_state()
+        )
+
+except Exception as approved_project_apply_error:
+    print("approved project apply gate disabled:", approved_project_apply_error)
+
+# --- End Layer 9 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
