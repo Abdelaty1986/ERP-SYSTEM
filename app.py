@@ -1,3 +1,4 @@
+from jarvis.runtime.confidence_decay_report import build_report as build_confidence_decay_report
 from jarvis.runtime.adaptive_provider_ranking import AdaptiveProviderRanking
 from jarvis.runtime.provider_trust_report import build_report as build_provider_trust_report
 from jarvis.runtime.targeted_provider_probe_report import build_report
@@ -809,6 +810,12 @@ def jarvis_provider_trust_report():
 @app.route("/jarvis/mobile/api/adaptive-provider-ranking")
 def jarvis_adaptive_provider_ranking():
     return AdaptiveProviderRanking().rank()
+
+
+
+@app.route("/jarvis/mobile/api/confidence-decay")
+def jarvis_confidence_decay_report():
+    return build_confidence_decay_report()
 
 
 @app.route("/jarvis/mobile")
