@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-05-14T12:47:58.165345+00:00",
+  "runtime": "execution_supervision_runtime",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "supervision_mode": "safe_execution_supervision",
+  "planning_state": "requires_review_before_patch_planning",
+  "supervision_state": "execution_locked_pending_review",
+  "execution_controls": {
+    "proposal_only": true,
+    "human_approval_required": true,
+    "rollback_checkpoint_required": true,
+    "autonomous_apply_allowed": false,
+    "runtime_monitoring_required": true
+  },
+  "active_strategy": "Blueprint Extraction",
+  "active_goal": "architecture-pressure-reduction-v1",
+  "execution_decision": "blocked_until_clean_review",
+  "result": "execution_supervision_built"
+}
