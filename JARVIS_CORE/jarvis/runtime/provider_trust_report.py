@@ -1,9 +1,13 @@
 import json
 
 from jarvis.runtime.provider_trust_memory import ProviderTrustMemory
+from jarvis.runtime.confidence_decay_runtime import ConfidenceDecayRuntime
 
 
-def build_report():
+def build_report(apply_decay=True):
+    if apply_decay:
+        ConfidenceDecayRuntime().apply_decay()
+
     memory = ProviderTrustMemory().load()
     providers = memory.get("providers", {})
 
