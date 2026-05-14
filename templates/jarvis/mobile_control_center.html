@@ -4208,5 +4208,55 @@ setInterval(loadProviderOptimizerHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Provider Arbitration Runtime</div>
+  <div class="panel-sub">Cognitive provider decision / weighted scoring</div>
+
+  <div id="provider-arbitration-hud" class="runtime-session-sub">
+    Loading provider arbitration...
+  </div>
+</div>
+
+<script>
+async function loadProviderArbitrationHud() {
+  const box = document.getElementById("provider-arbitration-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/provider-arbitration");
+    const data = await res.json();
+
+    const candidates = data.candidates || {};
+
+    const rows = Object.entries(candidates)
+      .sort((a, b) => (b[1].final_score || 0) - (a[1].final_score || 0))
+      .map(([name, p]) => `
+        <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+          <div><b>${name}</b> — Final Score: ${p.final_score ?? "--"}</div>
+          <div>Base: ${p.base_score ?? "--"} | Strategy Bonus: ${p.strategy_bonus ?? 0}</div>
+          <div>Risk: ${p.risk_level || "unknown"} | Risk Penalty: ${p.risk_penalty ?? 0}</div>
+          <div>Available: ${p.available === true ? "true" : "false"}</div>
+        </div>
+      `).join("");
+
+    box.innerHTML = `
+      <div><b>Arbitration State:</b> ${data.arbitration_state || "unknown"}</div>
+      <div><b>Selected Provider:</b> ${data.selected_provider || "unknown"}</div>
+      <div><b>Reason:</b> ${data.reason || "none"}</div>
+      <div><b>Updated:</b> ${data.timestamp || "--"}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Provider arbitration unavailable";
+  }
+}
+
+loadProviderArbitrationHud();
+setInterval(loadProviderArbitrationHud, 15000);
+</script>
+
+
 </body>
 </html>

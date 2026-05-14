@@ -4199,6 +4199,14 @@ def jarvis_mobile_runtime_insights():
 
 
 
+
+@app.route("/jarvis/mobile/api/runtime/provider-arbitration")
+def jarvis_mobile_provider_arbitration():
+    from jarvis.runtime.provider_arbitration_report import ProviderArbitrationReport
+
+    return jsonify(ProviderArbitrationReport().generate())
+
+
 @app.route("/jarvis/mobile/api/runtime/provider-optimizer")
 def jarvis_mobile_provider_optimizer():
     from jarvis.runtime.provider_optimizer_report import ProviderOptimizerReport
