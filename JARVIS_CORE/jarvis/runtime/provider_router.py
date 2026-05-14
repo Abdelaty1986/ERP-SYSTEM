@@ -2,6 +2,7 @@ import concurrent.futures
 from jarvis.runtime.provider_registry import ProviderRegistry
 from jarvis.runtime.provider_reliability_memory import ProviderReliabilityMemory
 from jarvis.runtime.provider_optimizer import ProviderOptimizer
+from jarvis.runtime.provider_arbitration import ProviderArbitration
 from jarvis.runtime.provider_strategy_memory import ProviderStrategyMemory
 from time import perf_counter
 
@@ -19,6 +20,7 @@ class ProviderRouter:
         self.registry = ProviderRegistry()
         self.reliability_memory = ProviderReliabilityMemory()
         self.optimizer = ProviderOptimizer()
+        self.arbitration = ProviderArbitration()
         self.strategy_memory = ProviderStrategyMemory()
 
         self.providers = {
@@ -56,13 +58,13 @@ class ProviderRouter:
             if self.reliability_memory.is_available(p.name)
         ]
 
-        optimizer_snapshot = self.optimizer.snapshot()
-        optimizer_providers = optimizer_snapshot.get("providers", {})
+        arbitration = self.arbitration.decide()
+        arbitration_candidates = arbitration.get("candidates", {})
 
         available = sorted(
             available,
             key=lambda p: -int(
-                optimizer_providers.get(p.name, {}).get("optimization_score", 0)
+                arbitration_candidates.get(p.name, {}).get("final_score", 0)
             )
         )
 
@@ -114,9 +116,9 @@ class ProviderRouter:
                     self.registry.mark_failure(name)
                     self.reliability_memory.record_failure(name, error=result.get('analysis'))
 
-                    optimization_score = optimizer_providers.get(
+                    optimization_score = arbitration_candidates.get(
                         name, {}
-                    ).get("optimization_score", 0)
+                    ).get("final_score", 0)
 
                     self.strategy_memory.record_strategy(
                         provider=name,
@@ -131,9 +133,9 @@ class ProviderRouter:
                 self.registry.mark_success(name)
                 self.reliability_memory.record_success(name, latency_ms=latency_ms)
 
-                optimization_score = optimizer_providers.get(
+                optimization_score = arbitration_candidates.get(
                     name, {}
-                ).get("optimization_score", 0)
+                ).get("final_score", 0)
 
                 self.strategy_memory.record_strategy(
                     provider=name,
@@ -148,15 +150,17 @@ class ProviderRouter:
                     "attempted": attempted,
                     "result": result,
                     "fallback_used": len(attempted) > 1,
+                    "arbitration_state": arbitration.get("arbitration_state"),
+                    "arbitration_reason": arbitration.get("reason"),
                 }
 
             except Exception as e:
                 self.registry.mark_failure(name)
                 self.reliability_memory.record_failure(name, error=str(e))
 
-                optimization_score = optimizer_providers.get(
+                optimization_score = arbitration_candidates.get(
                     name, {}
-                ).get("optimization_score", 0)
+                ).get("final_score", 0)
 
                 self.strategy_memory.record_strategy(
                     provider=name,
