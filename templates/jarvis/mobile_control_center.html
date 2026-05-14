@@ -4112,5 +4112,52 @@ setInterval(loadProviderIntelligenceHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Provider Forecast Runtime</div>
+  <div class="panel-sub">Predictive provider stability / degradation detection</div>
+
+  <div id="provider-forecast-hud" class="runtime-session-sub">
+    Loading provider forecast...
+  </div>
+</div>
+
+<script>
+async function loadProviderForecastHud() {
+  const box = document.getElementById("provider-forecast-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/provider-forecast");
+    const data = await res.json();
+
+    const providers = data.providers || {};
+
+    const rows = Object.entries(providers).map(([name, p]) => `
+      <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div><b>${name}</b> — Risk: ${p.risk_level || "unknown"}</div>
+        <div>Recommendation: ${p.recommendation || "none"}</div>
+        <div>Health: ${p.health_score ?? "--"} | Failures: ${p.failure_count ?? 0}</div>
+        <div>Latency: ${p.average_latency_ms ?? "--"} ms</div>
+      </div>
+    `).join("");
+
+    box.innerHTML = `
+      <div><b>Overall State:</b> ${data.overall_state || "unknown"}</div>
+      <div><b>Recommended Provider:</b> ${data.recommended_provider || "unknown"}</div>
+      <div><b>Updated:</b> ${data.timestamp || "--"}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Provider forecast unavailable";
+  }
+}
+
+loadProviderForecastHud();
+setInterval(loadProviderForecastHud, 15000);
+</script>
+
+
 </body>
 </html>
