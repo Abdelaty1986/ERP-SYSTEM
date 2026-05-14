@@ -98,6 +98,29 @@ class RecoveryRecommendationEngine:
             "direct_apply_allowed": False,
         }
 
+
+    def _retry_cooldown_policy(self, score, action):
+        policies = {
+            "keep_active": (True, 1, 0, False, 0),
+            "retry_with_monitoring": (True, 1, 60, False, 5),
+            "cooldown_then_probe": (False, 0, 300, True, 15),
+            "rehabilitation_required": (False, 0, 900, True, 30),
+        }
+        retry_allowed, max_retry_attempts, cooldown_seconds, probe_required, routing_penalty = policies.get(
+            action,
+            policies["rehabilitation_required"],
+        )
+
+        return {
+            "retry_allowed": retry_allowed,
+            "max_retry_attempts": max_retry_attempts,
+            "cooldown_seconds": cooldown_seconds,
+            "probe_required": probe_required,
+            "routing_penalty": routing_penalty,
+            "bounded": True,
+            "direct_apply_allowed": False,
+        }
+
     def execute(self, dry_run=True):
         sources = self._collect_runtime_sources()
         providers = self._provider_names(sources)
@@ -120,13 +143,14 @@ class RecoveryRecommendationEngine:
                 "direct_apply_allowed": False,
                 "reasons": reasons or ["baseline bounded recovery evaluation"],
                 "rehabilitation": self._rehabilitation_plan(provider, score, action),
+                "retry_cooldown_policy": self._retry_cooldown_policy(score, action),
             }
 
         result = {
             "timestamp": self._now(),
             "runtime": "recovery_recommendation_engine",
             "phase": "Autonomous Recovery Recommendation Engine",
-            "layer": "2/5",
+            "layer": "3/5",
             "bounded": True,
             "rollback_safe": True,
             "governed": True,
