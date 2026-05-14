@@ -158,9 +158,43 @@ if __name__ == "__main__":
             )
         )
 
+    healthy_count = 0
+    degraded_count = 0
+
+    best_provider = None
+    best_confidence = -1
+
+    for item in results:
+        probe = item.get("probe_result", {})
+
+        confidence = probe.get("recovery_confidence", 0)
+        state = probe.get("recovery_state")
+
+        if state == "healthy":
+            healthy_count += 1
+        else:
+            degraded_count += 1
+
+        if confidence > best_confidence:
+            best_confidence = confidence
+            best_provider = item.get("provider")
+
+    summary = {
+        "healthy_provider_count": healthy_count,
+        "degraded_provider_count": degraded_count,
+        "recommended_provider": best_provider,
+        "recommended_confidence": best_confidence,
+        "runtime_state": (
+            "stable"
+            if healthy_count > 0
+            else "degraded"
+        ),
+    }
+
     print(json.dumps({
         "runtime": "multi_targeted_provider_probe",
         "bounded": True,
         "provider_count": len(results),
+        "summary": summary,
         "results": results,
     }, ensure_ascii=False, indent=2))
