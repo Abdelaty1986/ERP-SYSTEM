@@ -74,6 +74,30 @@ class RecoveryRecommendationEngine:
             return "cooldown_then_probe"
         return "rehabilitation_required"
 
+    def _rehabilitation_plan(self, provider, score, action):
+        if action == "keep_active":
+            steps = ["continue normal routing", "keep passive monitoring enabled"]
+            priority = "low"
+        elif action == "retry_with_monitoring":
+            steps = ["allow bounded retry", "monitor next provider response", "avoid priority boost until stable"]
+            priority = "medium"
+        elif action == "cooldown_then_probe":
+            steps = ["apply cooldown recommendation", "run targeted health probe", "restore only after successful probe"]
+            priority = "high"
+        else:
+            steps = ["remove from preferred routing", "require manual or scheduled probe", "do not restore without stable signal"]
+            priority = "critical"
+
+        return {
+            "provider": provider,
+            "rehabilitation_priority": priority,
+            "rehabilitation_steps": steps,
+            "restoration_allowed": action in ("keep_active", "retry_with_monitoring"),
+            "requires_probe_before_restore": action in ("cooldown_then_probe", "rehabilitation_required"),
+            "bounded": True,
+            "direct_apply_allowed": False,
+        }
+
     def execute(self, dry_run=True):
         sources = self._collect_runtime_sources()
         providers = self._provider_names(sources)
@@ -95,13 +119,14 @@ class RecoveryRecommendationEngine:
                 "dry_run": dry_run,
                 "direct_apply_allowed": False,
                 "reasons": reasons or ["baseline bounded recovery evaluation"],
+                "rehabilitation": self._rehabilitation_plan(provider, score, action),
             }
 
         result = {
             "timestamp": self._now(),
             "runtime": "recovery_recommendation_engine",
             "phase": "Autonomous Recovery Recommendation Engine",
-            "layer": "1/5",
+            "layer": "2/5",
             "bounded": True,
             "rollback_safe": True,
             "governed": True,
