@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-05-14T12:19:04.863534+00:00",
+  "runtime": "fallback_graph_runtime",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "graph_mode": "safe_provider_fallback_map",
+  "nodes": {
+    "openrouter": {
+      "has_key": true,
+      "model": "deepseek/deepseek-v4-flash:free",
+      "priority": 1,
+      "ready": true,
+      "fallback_eligible": true,
+      "state": "ready"
+    },
+    "gemini": {
+      "has_key": true,
+      "model": "not_configured",
+      "priority": 2,
+      "ready": false,
+      "fallback_eligible": false,
+      "state": "standby_needs_model"
+    },
+    "groq": {
+      "has_key": true,
+      "model": "not_configured",
+      "priority": 3,
+      "ready": false,
+      "fallback_eligible": false,
+      "state": "standby_needs_model"
+    }
+  },
+  "ready_nodes": [
+    "openrouter"
+  ],
+  "fallback_edges": [
+    {
+      "from": "openrouter",
+      "to": null,
+      "edge_state": "terminal"
+    }
+  ],
+  "fallback_depth": 0,
+  "fallback_ready": false,
+  "primary_provider": "openrouter",
+  "result": "fallback_graph_built"
+}
