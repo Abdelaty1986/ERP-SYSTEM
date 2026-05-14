@@ -1,0 +1,85 @@
+{
+  "runtime": "router_self_optimization",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "last_updated": "2026-05-14T11:30:33.991793+00:00",
+  "routing_weights": {
+    "gemini": {
+      "trust": 0.7,
+      "latency": 0.5,
+      "availability": 0.7,
+      "recovery": 0.6,
+      "final_weight": 0.645
+    },
+    "groq": {
+      "trust": 0.65,
+      "latency": 0.75,
+      "availability": 0.65,
+      "recovery": 0.55,
+      "final_weight": 0.655
+    },
+    "openrouter": {
+      "trust": 0.55,
+      "latency": 0.45,
+      "availability": 0.5,
+      "recovery": 0.65,
+      "final_weight": 0.53
+    }
+  },
+  "optimization_state": "provider_balancing_ready",
+  "notes": [
+    "Layer 1 initialized dynamic routing weights",
+    "No autonomous apply enabled",
+    "Weights are advisory only",
+    "Layer 2 added provider balancing engine"
+  ],
+  "ranking": [
+    {
+      "provider": "groq",
+      "final_weight": 0.655,
+      "balanced_weight": 0.655,
+      "state": "balanced"
+    },
+    {
+      "provider": "gemini",
+      "final_weight": 0.645,
+      "balanced_weight": 0.645,
+      "state": "balanced"
+    },
+    {
+      "provider": "openrouter",
+      "final_weight": 0.53,
+      "balanced_weight": 0.57,
+      "state": "rehabilitation_candidate"
+    }
+  ],
+  "balancing_plan": [
+    {
+      "provider": "groq",
+      "state": "balanced",
+      "reason": "within_safe_operating_range",
+      "base_weight": 0.655,
+      "adjustment": 0.0,
+      "balanced_weight": 0.655,
+      "bounded": true
+    },
+    {
+      "provider": "gemini",
+      "state": "balanced",
+      "reason": "within_safe_operating_range",
+      "base_weight": 0.645,
+      "adjustment": 0.0,
+      "balanced_weight": 0.645,
+      "bounded": true
+    },
+    {
+      "provider": "openrouter",
+      "state": "rehabilitation_candidate",
+      "reason": "recovery_strength_detected",
+      "base_weight": 0.53,
+      "adjustment": 0.04,
+      "balanced_weight": 0.57,
+      "bounded": true
+    }
+  ]
+}
