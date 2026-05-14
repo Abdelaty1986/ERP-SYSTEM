@@ -4458,5 +4458,52 @@ setInterval(loadTargetedProviderProbeHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Provider Trust Evolution Runtime</div>
+  <div class="panel-sub">Historical provider reliability / adaptive trust scoring</div>
+
+  <div id="provider-trust-runtime-hud" class="runtime-session-sub">
+    Loading provider trust runtime...
+  </div>
+</div>
+
+<script>
+async function loadProviderTrustHud() {
+  const box = document.getElementById("provider-trust-runtime-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/provider-trust");
+    const data = await res.json();
+
+    const providers = data.providers || {};
+
+    const rows = Object.entries(providers).map(([name, p]) => `
+      <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div><b>${name}</b></div>
+        <div>Trust Score: ${p.trust_score || 0}</div>
+        <div>State: ${p.last_state || "unknown"}</div>
+        <div>Success: ${p.success_count || 0} | Failure: ${p.failure_count || 0}</div>
+      </div>
+    `).join("");
+
+    box.innerHTML = `
+      <div><b>Top Provider:</b> ${data.top_provider || "--"}</div>
+      <div><b>Provider Count:</b> ${data.provider_count || 0}</div>
+      <div><b>Updated:</b> ${data.timestamp || "--"}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Provider trust runtime unavailable";
+  }
+}
+
+loadProviderTrustHud();
+setInterval(loadProviderTrustHud, 15000);
+</script>
+
+
 </body>
 </html>
