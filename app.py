@@ -5390,5 +5390,39 @@ except Exception as self_development_readiness_error:
 
 # --- End Layer 4 ---
 
+
+
+# --- Layer 5 Staged Patch Generator ---
+
+try:
+    from jarvis.runtime.staged_patch_generator import (
+        generate_staged_patch,
+        get_staged_patch_preview,
+    )
+
+    @app.route("/jarvis/runtime/staged-patch/generate", methods=["POST"])
+    def jarvis_runtime_generate_staged_patch():
+        data = request.get_json(silent=True) or {}
+
+        return jsonify(
+            generate_staged_patch(
+                data.get("message", "")
+            )
+        )
+
+    @app.route("/jarvis/runtime/staged-patch/preview", methods=["GET"])
+    def jarvis_runtime_patch_preview():
+        return jsonify(
+            get_staged_patch_preview()
+        )
+
+except Exception as staged_patch_error:
+    print(
+        "staged patch generator disabled:",
+        staged_patch_error
+    )
+
+# --- End Layer 5 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")

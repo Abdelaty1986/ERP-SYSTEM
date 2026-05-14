@@ -4979,5 +4979,161 @@ setInterval(loadSelfDevelopmentReadiness, 7000);
 <!-- End Layer 4 -->
 
 
+
+
+<!-- Layer 5 Staged Patch Generator -->
+
+<div class="panel" id="staged-patch-generator-panel">
+
+  <div class="panel-title">
+    Staged Patch Generator
+  </div>
+
+  <div class="panel-sub">
+    preview only · no direct apply
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:10px">
+
+    <input
+      id="staged-patch-input"
+      placeholder="اطلب patch آمن..."
+      style="
+        flex:1;
+        min-width:0;
+        padding:10px;
+        border-radius:12px;
+        border:1px solid rgba(255,255,255,.15);
+        background:rgba(0,0,0,.25);
+        color:inherit
+      "
+    >
+
+    <button
+      onclick="generateStagedPatch()"
+      style="
+        padding:10px 14px;
+        border-radius:12px;
+        border:0;
+        cursor:pointer
+      "
+    >
+      Generate
+    </button>
+
+  </div>
+
+  <div id="staged-patch-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="staged-patch-feed"
+       style="margin-top:10px;font-size:12px">
+  </div>
+
+</div>
+
+<script>
+
+async function loadStagedPatchPreview() {
+
+  const stateEl =
+    document.getElementById(
+      "staged-patch-state"
+    );
+
+  const feedEl =
+    document.getElementById(
+      "staged-patch-feed"
+    );
+
+  if (!stateEl || !feedEl) return;
+
+  try {
+
+    const res = await fetch(
+      "/jarvis/runtime/staged-patch/preview"
+    );
+
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "state=" + (
+        data.patch_state || data.state
+      ) +
+      " · bounded=" +
+      data.bounded +
+      " · dangerous_apply=" +
+      data.dangerous_autonomous_apply;
+
+    const preview =
+      data.patch_preview || [];
+
+    feedEl.innerHTML = `
+      <div style="
+        padding:8px;
+        border-radius:10px;
+        background:rgba(255,255,255,.05)
+      ">
+        <div>
+          target=${data.target_file || "unknown"}
+        </div>
+
+        <pre style="
+          white-space:pre-wrap;
+          opacity:.75;
+          margin-top:8px
+        ">${preview.join("\n")}</pre>
+      </div>
+    `;
+
+  } catch(e) {
+
+    stateEl.innerHTML =
+      "patch preview unavailable";
+
+  }
+}
+
+async function generateStagedPatch() {
+
+  const input =
+    document.getElementById(
+      "staged-patch-input"
+    );
+
+  if (!input || !input.value.trim()) return;
+
+  await fetch(
+    "/jarvis/runtime/staged-patch/generate",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: input.value
+      })
+    }
+  );
+
+  input.value = "";
+
+  loadStagedPatchPreview();
+}
+
+loadStagedPatchPreview();
+
+setInterval(
+  loadStagedPatchPreview,
+  7000
+);
+
+</script>
+
+<!-- End Layer 5 -->
+
+
 </body>
 </html>
