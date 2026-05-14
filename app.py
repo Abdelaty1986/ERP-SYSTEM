@@ -1,3 +1,4 @@
+from JARVIS_CORE.jarvis.runtime.router_optimization_api import get_router_optimization_status
 from jarvis.runtime.confidence_decay_report import build_report as build_confidence_decay_report
 from jarvis.runtime.adaptive_provider_ranking import AdaptiveProviderRanking
 from jarvis.runtime.provider_trust_report import build_report as build_provider_trust_report
@@ -5281,6 +5282,10 @@ def jarvis_mobile_approval_transition():
     )
     return jsonify(transition)
 
+
+@app.route("/jarvis/mobile/api/router-optimization")
+def jarvis_mobile_router_optimization():
+    return jsonify(get_router_optimization_status())
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
-
