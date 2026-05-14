@@ -4404,5 +4404,59 @@ setInterval(loadProviderRecoveryExecutorHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Targeted Provider Probe Runtime</div>
+  <div class="panel-sub">Comparative provider intelligence / recovery confidence</div>
+
+  <div id="targeted-provider-probe-hud" class="runtime-session-sub">
+    Loading targeted provider probe runtime...
+  </div>
+</div>
+
+<script>
+async function loadTargetedProviderProbeHud() {
+  const box = document.getElementById("targeted-provider-probe-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/targeted-provider-probe");
+    const data = await res.json();
+
+    const summary = data.summary || {};
+    const results = data.results || [];
+
+    const rows = results.map(item => {
+      const probe = item.probe_result || {};
+
+      return `
+        <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+          <div><b>${item.provider}</b></div>
+          <div>State: ${probe.recovery_state || "unknown"}</div>
+          <div>Confidence: ${probe.recovery_confidence || 0}</div>
+          <div>Success: ${probe.probe_success === true ? "true" : "false"}</div>
+        </div>
+      `;
+    }).join("");
+
+    box.innerHTML = `
+      <div><b>Runtime State:</b> ${summary.runtime_state || "unknown"}</div>
+      <div><b>Recommended Provider:</b> ${summary.recommended_provider || "--"}</div>
+      <div><b>Recommended Confidence:</b> ${summary.recommended_confidence || 0}</div>
+      <div><b>Healthy Providers:</b> ${summary.healthy_provider_count || 0}</div>
+      <div><b>Degraded Providers:</b> ${summary.degraded_provider_count || 0}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Targeted provider probe runtime unavailable";
+  }
+}
+
+loadTargetedProviderProbeHud();
+setInterval(loadTargetedProviderProbeHud, 15000);
+</script>
+
+
 </body>
 </html>
