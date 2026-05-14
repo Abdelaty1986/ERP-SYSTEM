@@ -4306,5 +4306,55 @@ setInterval(loadProviderSelfHealingHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Provider Recovery Planning Runtime</div>
+  <div class="panel-sub">Bounded recovery plans / cooldown probes / recovery governance</div>
+
+  <div id="provider-recovery-hud" class="runtime-session-sub">
+    Loading provider recovery planning...
+  </div>
+</div>
+
+<script>
+async function loadProviderRecoveryHud() {
+  const box = document.getElementById("provider-recovery-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/provider-recovery");
+    const data = await res.json();
+
+    const plans = data.plans || {};
+
+    const rows = Object.entries(plans).map(([name, p]) => `
+      <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div><b>${name}</b></div>
+        <div>Current Action: ${p.current_action || "unknown"}</div>
+        <div>Recovery Plan: ${p.recommended_recovery || "none"}</div>
+        <div>Risk: ${p.risk_level || "unknown"}</div>
+        <div>Approval Required: ${p.requires_human_approval === true ? "true" : "false"}</div>
+        <div>Reason: ${p.reason || "unknown"}</div>
+      </div>
+    `).join("");
+
+    box.innerHTML = `
+      <div><b>Healing State:</b> ${data.healing_state || "unknown"}</div>
+      <div><b>Overall State:</b> ${data.overall_state || "unknown"}</div>
+      <div><b>Execution Mode:</b> ${data.execution_mode || "unknown"}</div>
+      <div><b>Bounded:</b> ${data.bounded === true ? "true" : "false"}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Provider recovery planning unavailable";
+  }
+}
+
+loadProviderRecoveryHud();
+setInterval(loadProviderRecoveryHud, 15000);
+</script>
+
+
 </body>
 </html>
