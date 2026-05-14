@@ -1,6 +1,7 @@
 import json
 
 from jarvis.runtime.targeted_provider_probe import TargetedProviderProbe
+from jarvis.runtime.provider_trust_memory import ProviderTrustMemory
 
 
 def build_report():
@@ -12,15 +13,31 @@ def build_report():
         "openrouter",
     ]
 
+    trust_memory = ProviderTrustMemory()
+
     results = []
 
     for provider in providers:
-        results.append(
-            probe.execute(
-                provider_name=provider,
-                dry_run=False,
-            )
+        result = probe.execute(
+            provider_name=provider,
+            dry_run=False,
         )
+
+        probe_result = result.get("probe_result", {})
+
+        trust_memory.update_provider(
+            provider_name=provider,
+            recovery_state=probe_result.get(
+                "recovery_state",
+                "unknown",
+            ),
+            confidence=probe_result.get(
+                "recovery_confidence",
+                0,
+            ),
+        )
+
+        results.append(result)
 
     healthy_count = 0
     degraded_count = 0
