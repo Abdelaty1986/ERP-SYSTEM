@@ -81,15 +81,50 @@ class TargetedProviderProbe:
                 analysis_text = response_text
                 enabled = True
 
+            normalized_analysis = analysis_text.strip().lower()
+
             success = (
                 enabled
-                and analysis_text.strip().lower() == "provider_online"
+                and normalized_analysis == "provider_online"
             )
+
+            recovery_state = "unavailable"
+
+            if success:
+                recovery_state = "healthy"
+
+            elif "api_key" in normalized_analysis:
+                recovery_state = "missing_credentials"
+
+            elif "429" in normalized_analysis:
+                recovery_state = "rate_limited"
+
+            elif "404" in normalized_analysis:
+                recovery_state = "model_unavailable"
+
+            elif enabled:
+                recovery_state = "degraded"
+
+            confidence_score = 0.15
+
+            if recovery_state == "healthy":
+                confidence_score = 0.95
+
+            elif recovery_state == "rate_limited":
+                confidence_score = 0.70
+
+            elif recovery_state == "degraded":
+                confidence_score = 0.45
+
+            elif recovery_state == "model_unavailable":
+                confidence_score = 0.30
 
             result["probe_result"].update({
                 "probe_attempted": True,
                 "probe_success": success,
                 "provider_enabled": enabled,
+                "recovery_state": recovery_state,
+                "recovery_confidence": confidence_score,
                 "analysis_excerpt": analysis_text[:300],
                 "response_excerpt": response_text[:300],
             })
