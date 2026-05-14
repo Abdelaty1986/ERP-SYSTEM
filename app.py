@@ -1,3 +1,4 @@
+from jarvis.runtime.targeted_provider_probe_report import build_report
 from jarvis.execution.runtime_session_manager import RuntimeSessionManager
 from jarvis.execution.runtime_timeline import RuntimeTimeline
 from pathlib import Path
@@ -788,6 +789,12 @@ def ai_dashboard():
         latest_patch_plan=latest_patch_plan,
     )
 
+
+
+
+@app.route("/jarvis/mobile/api/targeted-provider-probe")
+def jarvis_targeted_provider_probe():
+    return build_report()
 
 
 @app.route("/jarvis/mobile")
