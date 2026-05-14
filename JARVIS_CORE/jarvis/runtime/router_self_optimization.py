@@ -157,6 +157,25 @@ class RouterSelfOptimization:
         return decision
 
 
+    def build_routing_history_entry(self, adaptive_decision):
+        return {
+            "timestamp": self._now(),
+            "preferred_provider": adaptive_decision.get(
+                "preferred_provider"
+            ),
+            "fallback_provider": adaptive_decision.get(
+                "fallback_provider"
+            ),
+            "routing_confidence": adaptive_decision.get(
+                "routing_confidence"
+            ),
+            "decision_state": adaptive_decision.get(
+                "decision_state"
+            ),
+            "bounded": True
+        }
+
+
     def execute(self):
         memory = self.load_memory()
 
@@ -179,6 +198,14 @@ class RouterSelfOptimization:
             balancing_plan
         )
 
+        history_entry = self.build_routing_history_entry(
+            adaptive_decision
+        )
+
+        history = memory.get("routing_history", [])
+        history.append(history_entry)
+
+        memory["routing_history"] = history[-15:]
         memory["adaptive_decision"] = adaptive_decision
         memory["balancing_plan"] = balancing_plan
         memory["last_updated"] = self._now()
