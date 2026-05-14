@@ -154,6 +154,32 @@ class RecoveryRecommendationEngine:
             "direct_apply_allowed": False,
         }
 
+
+    def _hud_summary(self, recommendations):
+        states = {}
+        for provider, data in recommendations.items():
+            scoring = data.get("recovery_scoring_runtime", {})
+            policy = data.get("retry_cooldown_policy", {})
+            states[provider] = {
+                "provider": provider,
+                "recommended_action": data.get("recommended_action"),
+                "recovery_score": data.get("recovery_score"),
+                "operational_state": scoring.get("operational_state", "unknown"),
+                "routing_stability": scoring.get("routing_stability", 0),
+                "rehabilitation_urgency": scoring.get("rehabilitation_urgency", "unknown"),
+                "retry_allowed": policy.get("retry_allowed", False),
+                "cooldown_seconds": policy.get("cooldown_seconds", 0),
+            }
+
+        return {
+            "hud_state": "ready",
+            "title": "Autonomous Recovery Recommendations",
+            "provider_count": len(states),
+            "providers": states,
+            "bounded": True,
+            "direct_apply_allowed": False,
+        }
+
     def execute(self, dry_run=True):
         sources = self._collect_runtime_sources()
         providers = self._provider_names(sources)
@@ -184,13 +210,14 @@ class RecoveryRecommendationEngine:
             "timestamp": self._now(),
             "runtime": "recovery_recommendation_engine",
             "phase": "Autonomous Recovery Recommendation Engine",
-            "layer": "4/5",
+            "layer": "5/5",
             "bounded": True,
             "rollback_safe": True,
             "governed": True,
             "dry_run": dry_run,
             "dangerous_autonomous_apply": False,
             "recommendation_state": "generated",
+            "hud": self._hud_summary(recommendations),
             "recommendations": recommendations,
         }
 
