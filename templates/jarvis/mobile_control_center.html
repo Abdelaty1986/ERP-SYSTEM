@@ -4069,5 +4069,48 @@ loadApprovalTransitionHud();
 setInterval(loadApprovalTransitionHud, 15000);
 </script>
 
+
+<div class="panel">
+  <div class="panel-title">Provider Intelligence Runtime</div>
+  <div class="panel-sub">Multi-LLM health / latency / recommendation</div>
+  <div id="provider-intelligence-hud" class="runtime-session-sub">
+    Loading provider intelligence...
+  </div>
+</div>
+
+
+<script>
+async function loadProviderIntelligenceHud() {
+  const box = document.getElementById("provider-intelligence-hud");
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/runtime/provider-intelligence");
+    const data = await res.json();
+    const providers = data.providers || {};
+    const rows = Object.entries(providers).map(([name, p]) => `
+      <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div><b>${name}</b> — ${p.available ? "available" : "cooldown"}</div>
+        <div>Health: ${p.health_score ?? "--"} | Stability: ${p.stability || "unknown"} | Speed: ${p.speed || "unknown"}</div>
+        <div>Latency: ${p.average_latency_ms ?? "--"} ms | Success: ${p.success_count ?? 0} | Failures: ${p.failure_count ?? 0}</div>
+        <div>Cooldown: ${p.cooldown_until || "none"}</div>
+      </div>
+    `).join("");
+
+    box.innerHTML = `
+      <div>Recommended Provider: <b>${data.recommended_provider || "unknown"}</b></div>
+      <div>Updated: ${data.timestamp || "--"}</div>
+      ${rows || "<div>No provider data available</div>"}
+    `;
+  } catch (err) {
+    box.innerHTML = "Provider intelligence unavailable";
+  }
+}
+
+loadProviderIntelligenceHud();
+setInterval(loadProviderIntelligenceHud, 15000);
+</script>
+
+
 </body>
 </html>

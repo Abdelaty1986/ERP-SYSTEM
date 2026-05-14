@@ -4196,6 +4196,14 @@ def jarvis_mobile_runtime_insights():
     return jsonify(build_runtime_insight_snapshot())
 
 
+
+@app.route("/jarvis/mobile/api/runtime/provider-intelligence")
+def jarvis_mobile_provider_intelligence():
+    from jarvis.runtime.provider_intelligence_report import ProviderIntelligenceReport
+
+    return jsonify(ProviderIntelligenceReport().generate())
+
+
 @app.route("/jarvis/mobile/api/runtime/correlation")
 def jarvis_mobile_runtime_correlation():
     from jarvis.mobile.mobile_runtime_api import load_runtime_correlation_snapshot
