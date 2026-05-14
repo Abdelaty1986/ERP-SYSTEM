@@ -121,6 +121,39 @@ class RecoveryRecommendationEngine:
             "direct_apply_allowed": False,
         }
 
+
+    def _recovery_scoring_runtime(self, score, action):
+        recovery_confidence = min(100, score + 10)
+
+        if action == "keep_active":
+            routing_stability = 95
+            rehabilitation_urgency = "low"
+            operational_state = "stable"
+
+        elif action == "retry_with_monitoring":
+            routing_stability = 70
+            rehabilitation_urgency = "moderate"
+            operational_state = "recovering"
+
+        elif action == "cooldown_then_probe":
+            routing_stability = 40
+            rehabilitation_urgency = "high"
+            operational_state = "degraded"
+
+        else:
+            routing_stability = 15
+            rehabilitation_urgency = "critical"
+            operational_state = "unstable"
+
+        return {
+            "recovery_confidence": recovery_confidence,
+            "routing_stability": routing_stability,
+            "rehabilitation_urgency": rehabilitation_urgency,
+            "operational_state": operational_state,
+            "bounded": True,
+            "direct_apply_allowed": False,
+        }
+
     def execute(self, dry_run=True):
         sources = self._collect_runtime_sources()
         providers = self._provider_names(sources)
@@ -144,13 +177,14 @@ class RecoveryRecommendationEngine:
                 "reasons": reasons or ["baseline bounded recovery evaluation"],
                 "rehabilitation": self._rehabilitation_plan(provider, score, action),
                 "retry_cooldown_policy": self._retry_cooldown_policy(score, action),
+                "recovery_scoring_runtime": self._recovery_scoring_runtime(score, action),
             }
 
         result = {
             "timestamp": self._now(),
             "runtime": "recovery_recommendation_engine",
             "phase": "Autonomous Recovery Recommendation Engine",
-            "layer": "3/5",
+            "layer": "4/5",
             "bounded": True,
             "rollback_safe": True,
             "governed": True,
