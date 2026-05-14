@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-05-14T12:27:48.748770+00:00",
+  "runtime": "adaptive_model_routing_hud",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "hud_mode": "safe_runtime_visibility",
+  "adaptive_routing_decision": {
+    "recommended_provider": "openrouter",
+    "decision_state": "ready",
+    "fallback_mode": "single_provider_terminal"
+  },
+  "result": "adaptive_model_routing_hud_built"
+}
