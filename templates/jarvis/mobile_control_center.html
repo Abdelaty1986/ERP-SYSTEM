@@ -4505,5 +4505,56 @@ setInterval(loadProviderTrustHud, 15000);
 </script>
 
 
+
+<div class="panel">
+  <div class="panel-title">Adaptive Provider Ranking Runtime</div>
+  <div class="panel-sub">Adaptive provider selection / bounded ranking intelligence</div>
+
+  <div id="adaptive-provider-ranking-hud" class="runtime-session-sub">
+    Loading adaptive provider ranking...
+  </div>
+</div>
+
+<script>
+async function loadAdaptiveProviderRankingHud() {
+  const box = document.getElementById("adaptive-provider-ranking-hud");
+
+  if (!box) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/adaptive-provider-ranking");
+    const data = await res.json();
+
+    const rankings = data.rankings || [];
+
+    const rows = rankings.map(item => `
+      <div style="margin:8px 0;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div>
+          <b>${item.provider}</b>
+          ${item.recommended === true ? "⭐" : ""}
+        </div>
+
+        <div>Final Score: ${item.final_score}</div>
+        <div>Trust Score: ${item.trust_score}</div>
+        <div>Success Ratio: ${item.success_ratio}</div>
+        <div>State: ${item.last_state}</div>
+      </div>
+    `).join("");
+
+    box.innerHTML = `
+      <div><b>Recommended Provider:</b> ${data.recommended_provider || "--"}</div>
+      <div><b>Provider Count:</b> ${data.provider_count || 0}</div>
+      ${rows}
+    `;
+  } catch (err) {
+    box.innerHTML = "Adaptive provider ranking unavailable";
+  }
+}
+
+loadAdaptiveProviderRankingHud();
+setInterval(loadAdaptiveProviderRankingHud, 15000);
+</script>
+
+
 </body>
 </html>
