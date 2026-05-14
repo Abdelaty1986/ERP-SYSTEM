@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-05-14T12:36:32.584703+00:00",
+  "runtime": "outcome_correlation_engine",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "correlation_mode": "safe_read_only_outcome_analysis",
+  "signals": {
+    "failures_recorded": 25,
+    "learning_events": 30,
+    "top_failure_category": "runtime_validation",
+    "learning_state": "active",
+    "risk_pressure": "medium",
+    "learning_signal": "strong",
+    "trusted_provider": "openrouter"
+  },
+  "correlations": [
+    {
+      "name": "runtime_failure_to_learning_activity",
+      "strength": "moderate",
+      "interpretation": "Learning activity is responding to runtime validation pressure."
+    },
+    {
+      "name": "provider_trust_to_routing_stability",
+      "strength": "moderate",
+      "interpretation": "Provider trust memory supports stable routing decisions."
+    }
+  ],
+  "recommendation": "continue_bounded_learning",
+  "result": "outcome_correlation_built"
+}
