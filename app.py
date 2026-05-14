@@ -5343,5 +5343,29 @@ except Exception as runtime_intent_error:
 
 # --- End Layer 2 ---
 
+
+
+# --- Layer 3 Runtime Governance Decision Engine ---
+
+try:
+    from jarvis.runtime.runtime_governance_decision import (
+        create_governance_decision,
+        get_governance_decisions,
+    )
+
+    @app.route("/jarvis/runtime/governance/decision", methods=["POST"])
+    def jarvis_runtime_governance_decision():
+        data = request.get_json(silent=True) or {}
+        return jsonify(create_governance_decision(data.get("message", "")))
+
+    @app.route("/jarvis/runtime/governance/decisions", methods=["GET"])
+    def jarvis_runtime_governance_decisions():
+        return jsonify(get_governance_decisions())
+
+except Exception as runtime_governance_decision_error:
+    print("runtime governance decision disabled:", runtime_governance_decision_error)
+
+# --- End Layer 3 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")

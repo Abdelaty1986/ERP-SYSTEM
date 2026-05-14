@@ -4840,5 +4840,82 @@ setInterval(
 <!-- End Layer 2 -->
 
 
+
+
+<!-- Layer 3 Runtime Governance Decision Engine -->
+
+<div class="panel" id="runtime-governance-decision-panel">
+  <div class="panel-title">Runtime Governance Decisions</div>
+  <div class="panel-sub">risk · confidence · approval gate · simulation only</div>
+
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <input id="runtime-governance-decision-input"
+           placeholder="اختبر قرار governance..."
+           style="flex:1;min-width:0;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.25);color:inherit">
+    <button onclick="sendRuntimeGovernanceDecision()"
+            style="padding:10px 14px;border-radius:12px;border:0;cursor:pointer">
+      Gate
+    </button>
+  </div>
+
+  <div id="runtime-governance-decision-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="runtime-governance-decision-feed"
+       style="margin-top:10px">
+  </div>
+</div>
+
+<script>
+async function loadRuntimeGovernanceDecisions() {
+  const stateEl = document.getElementById("runtime-governance-decision-state");
+  const feedEl = document.getElementById("runtime-governance-decision-feed");
+  if (!stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/runtime/governance/decisions");
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "decisions=" + data.decision_count +
+      " · bounded=" + data.bounded +
+      " · dangerous_apply=" + data.dangerous_autonomous_apply;
+
+    const decisions = data.decisions || [];
+    feedEl.innerHTML = decisions.slice().reverse().map(item => `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.05)">
+        <div><b>${item.risk_level}</b> · gate=${item.approval_gate} · confidence=${item.confidence}</div>
+        <div style="opacity:.75">${(item.message || "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+        <div style="opacity:.55;font-size:11px">intent=${item.classified_intent} · execution=${item.execution_mode}</div>
+      </div>
+    `).join("");
+  } catch(e) {
+    stateEl.innerHTML = "governance decision unavailable";
+  }
+}
+
+async function sendRuntimeGovernanceDecision() {
+  const input = document.getElementById("runtime-governance-decision-input");
+  if (!input || !input.value.trim()) return;
+
+  await fetch("/jarvis/runtime/governance/decision", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({message: input.value})
+  });
+
+  input.value = "";
+  loadRuntimeGovernanceDecisions();
+}
+
+loadRuntimeGovernanceDecisions();
+setInterval(loadRuntimeGovernanceDecisions, 5000);
+</script>
+
+<!-- End Layer 3 -->
+
+
 </body>
 </html>
