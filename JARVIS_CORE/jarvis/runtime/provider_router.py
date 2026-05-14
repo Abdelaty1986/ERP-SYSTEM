@@ -1,4 +1,6 @@
 from jarvis.runtime.provider_registry import ProviderRegistry
+from jarvis.runtime.provider_reliability_memory import ProviderReliabilityMemory
+from time import perf_counter
 
 from jarvis.agents.gemini_agent import GeminiAgent
 from jarvis.agents.groq_agent import GroqAgent
@@ -8,6 +10,7 @@ from jarvis.agents.openrouter_agent import OpenRouterAgent
 class ProviderRouter:
     def __init__(self):
         self.registry = ProviderRegistry()
+        self.reliability_memory = ProviderReliabilityMemory()
 
         self.providers = {
             "gemini": GeminiAgent,
@@ -26,7 +29,9 @@ class ProviderRouter:
                 agent_class = self.providers[name]
                 agent = agent_class()
 
+                start = perf_counter()
                 result = agent.think(task)
+                latency_ms = int((perf_counter() - start) * 1000)
 
                 analysis = str(result.get("analysis", "")).lower()
 
@@ -35,9 +40,11 @@ class ProviderRouter:
                     or result.get("enabled") is False
                 ):
                     self.registry.mark_failure(name)
+                    self.reliability_memory.record_failure(name, error=result.get('analysis'))
                     continue
 
                 self.registry.mark_success(name)
+                self.reliability_memory.record_success(name, latency_ms=latency_ms)
 
                 return {
                     "provider": name,
@@ -48,6 +55,7 @@ class ProviderRouter:
 
             except Exception as e:
                 self.registry.mark_failure(name)
+                self.reliability_memory.record_failure(name, error=str(e))
 
         return {
             "provider": None,
