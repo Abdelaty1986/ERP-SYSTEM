@@ -4273,6 +4273,25 @@ def jarvis_mobile_provider_forecast():
     return jsonify(ProviderForecastReport().generate())
 
 
+
+@app.route("/jarvis/mobile/api/runtime/recovery-recommendations")
+def jarvis_mobile_recovery_recommendations():
+    try:
+        from JARVIS_CORE.jarvis.runtime.recovery_recommendation_engine import RecoveryRecommendationEngine
+
+        result = RecoveryRecommendationEngine().execute(dry_run=True)
+        return jsonify(result)
+    except Exception as exc:
+        return jsonify({
+            "runtime": "recovery_recommendation_engine",
+            "bounded": True,
+            "rollback_safe": True,
+            "governed": True,
+            "dangerous_autonomous_apply": False,
+            "recommendation_state": "error",
+            "error": str(exc),
+        }), 500
+
 @app.route("/jarvis/mobile/api/runtime/provider-intelligence")
 def jarvis_mobile_provider_intelligence():
     from jarvis.runtime.provider_intelligence_report import ProviderIntelligenceReport
