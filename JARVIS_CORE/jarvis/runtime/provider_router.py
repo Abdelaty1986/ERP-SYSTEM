@@ -1,5 +1,6 @@
 from jarvis.runtime.provider_registry import ProviderRegistry
 from jarvis.runtime.provider_reliability_memory import ProviderReliabilityMemory
+from jarvis.runtime.provider_optimizer import ProviderOptimizer
 from time import perf_counter
 
 from jarvis.agents.gemini_agent import GeminiAgent
@@ -11,6 +12,7 @@ class ProviderRouter:
     def __init__(self):
         self.registry = ProviderRegistry()
         self.reliability_memory = ProviderReliabilityMemory()
+        self.optimizer = ProviderOptimizer()
 
         self.providers = {
             "gemini": GeminiAgent,
@@ -26,9 +28,14 @@ class ProviderRouter:
             if self.reliability_memory.is_available(p.name)
         ]
 
+        optimizer_snapshot = self.optimizer.snapshot()
+        optimizer_providers = optimizer_snapshot.get("providers", {})
+
         available = sorted(
             available,
-            key=lambda p: self.reliability_memory.provider_rank(p.name)
+            key=lambda p: -int(
+                optimizer_providers.get(p.name, {}).get("optimization_score", 0)
+            )
         )
 
         for provider in available:
