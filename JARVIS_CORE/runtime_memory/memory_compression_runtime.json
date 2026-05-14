@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-05-14T12:39:49.874555+00:00",
+  "runtime": "memory_compression_runtime",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "compression_mode": "safe_summary_only_memory_compression",
+  "source_count": 4,
+  "compressed_memory": {
+    "learning_state": "active",
+    "top_strategy": "Blueprint Extraction",
+    "top_goal": "architecture-pressure-reduction-v1",
+    "risk_state": "stable",
+    "top_failure_category": "runtime_validation",
+    "top_affected_component": "runtime_memory",
+    "adaptive_learning_score": 0.76,
+    "learning_signal": "strong_adaptive_signal",
+    "correlation_recommendation": "continue_bounded_learning"
+  },
+  "compression_state": "ready",
+  "discarded_detail_policy": "raw_runtime_detail_not_persisted",
+  "result": "memory_compression_built"
+}
