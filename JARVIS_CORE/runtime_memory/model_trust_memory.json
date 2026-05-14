@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-05-14T12:21:00.152049+00:00",
+  "runtime": "model_trust_memory",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "trust_mode": "safe_static_trust_evaluation",
+  "providers": {
+    "openrouter": {
+      "enabled": true,
+      "model": "deepseek/deepseek-v4-flash:free",
+      "historical_stability": 0.92,
+      "fallback_resilience": 0.88,
+      "configured": true,
+      "trust_score": 0.9,
+      "trust_state": "trusted"
+    },
+    "gemini": {
+      "enabled": true,
+      "model": "not_configured",
+      "historical_stability": 0.7,
+      "fallback_resilience": 0.65,
+      "configured": false,
+      "trust_score": 0.34,
+      "trust_state": "low_confidence"
+    },
+    "groq": {
+      "enabled": true,
+      "model": "not_configured",
+      "historical_stability": 0.72,
+      "fallback_resilience": 0.66,
+      "configured": false,
+      "trust_score": 0.35,
+      "trust_state": "low_confidence"
+    }
+  },
+  "trust_ranking": [
+    {
+      "provider": "openrouter",
+      "trust_score": 0.9
+    },
+    {
+      "provider": "groq",
+      "trust_score": 0.35
+    },
+    {
+      "provider": "gemini",
+      "trust_score": 0.34
+    }
+  ],
+  "primary_trusted_provider": "openrouter",
+  "result": "trust_memory_built"
+}
