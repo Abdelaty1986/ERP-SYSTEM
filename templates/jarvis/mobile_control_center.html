@@ -663,6 +663,15 @@ body{
 
 
 
+    <div class="panel" id="router-optimization-panel">
+      <div class="panel-title">Router Optimization</div>
+      <div class="gitbox"><div class="label">Preferred Provider</div><div class="value" id="router-preferred-provider">Loading...</div></div>
+      <div class="gitbox"><div class="label">Fallback Provider</div><div class="value" id="router-fallback-provider">--</div></div>
+      <div class="gitbox"><div class="label">Confidence</div><div class="value" id="router-confidence">--</div></div>
+      <div class="gitbox"><div class="label">State</div><div class="value" id="router-state">--</div></div>
+      <div class="gitbox"><div class="label">History Count</div><div class="value" id="router-history-count">--</div></div>
+    </div>
+
     <div class="panel" id="runtime-worker-panel">
       <div class="panel-title">Runtime Worker</div>
       <div class="panel-sub">Worker State + Heartbeat</div>
@@ -4633,6 +4642,34 @@ async function loadRecoveryRecommendations() {
 
 loadRecoveryRecommendations();
 setInterval(loadRecoveryRecommendations, 15000);
+</script>
+
+<script>
+async function loadRouterOptimizationHud(){
+  try{
+    const res = await fetch("/jarvis/mobile/api/router-optimization");
+    const data = await res.json();
+    const decision = data.adaptive_decision || {};
+
+    const preferred = document.getElementById("router-preferred-provider");
+    const fallback = document.getElementById("router-fallback-provider");
+    const confidence = document.getElementById("router-confidence");
+    const state = document.getElementById("router-state");
+    const history = document.getElementById("router-history-count");
+
+    if(preferred) preferred.textContent = decision.preferred_provider || "--";
+    if(fallback) fallback.textContent = decision.fallback_provider || "--";
+    if(confidence) confidence.textContent = decision.routing_confidence || "--";
+    if(state) state.textContent = data.optimization_state || "--";
+    if(history) history.textContent = data.routing_history_count ?? "--";
+  }catch(e){
+    const preferred = document.getElementById("router-preferred-provider");
+    if(preferred) preferred.textContent = "Unavailable";
+  }
+}
+
+loadRouterOptimizationHud();
+setInterval(loadRouterOptimizationHud, 15000);
 </script>
 
 </body>
