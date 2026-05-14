@@ -88,6 +88,38 @@ class ProviderReliabilityMemory:
 
         self.save()
 
+
+    def is_available(self, name: str) -> bool:
+        provider = self.ensure_provider(name)
+        cooldown_until = provider.get("cooldown_until")
+
+        if not cooldown_until:
+            return True
+
+        try:
+            cooldown_time = datetime.fromisoformat(cooldown_until)
+            return datetime.now(timezone.utc) >= cooldown_time
+        except Exception:
+            return True
+
+    def provider_rank(self, name: str) -> tuple:
+        provider = self.ensure_provider(name)
+
+        health = int(provider.get("health_score", 100))
+        avg_latency = provider.get("average_latency_ms")
+
+        if avg_latency is None:
+            avg_latency = 999999
+
+        available_penalty = 0 if self.is_available(name) else 1
+
+        return (
+            available_penalty,
+            -health,
+            int(avg_latency),
+            int(provider.get("failure_count", 0)),
+        )
+
     def get_provider(self, name: str) -> Dict[str, Any]:
         return self.ensure_provider(name)
 

@@ -21,7 +21,17 @@ class ProviderRouter:
     def think(self, task: str):
         attempted = []
 
-        for provider in self.registry.available_providers():
+        available = [
+            p for p in self.registry.available_providers()
+            if self.reliability_memory.is_available(p.name)
+        ]
+
+        available = sorted(
+            available,
+            key=lambda p: self.reliability_memory.provider_rank(p.name)
+        )
+
+        for provider in available:
             name = provider.name
             attempted.append(name)
 
