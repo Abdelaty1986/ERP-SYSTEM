@@ -1,6 +1,7 @@
 from jarvis.runtime.provider_registry import ProviderRegistry
 from jarvis.runtime.provider_reliability_memory import ProviderReliabilityMemory
 from jarvis.runtime.provider_optimizer import ProviderOptimizer
+from jarvis.runtime.provider_strategy_memory import ProviderStrategyMemory
 from time import perf_counter
 
 from jarvis.agents.gemini_agent import GeminiAgent
@@ -13,6 +14,7 @@ class ProviderRouter:
         self.registry = ProviderRegistry()
         self.reliability_memory = ProviderReliabilityMemory()
         self.optimizer = ProviderOptimizer()
+        self.strategy_memory = ProviderStrategyMemory()
 
         self.providers = {
             "gemini": GeminiAgent,
@@ -58,10 +60,35 @@ class ProviderRouter:
                 ):
                     self.registry.mark_failure(name)
                     self.reliability_memory.record_failure(name, error=result.get('analysis'))
+
+                    optimization_score = optimizer_providers.get(
+                        name, {}
+                    ).get("optimization_score", 0)
+
+                    self.strategy_memory.record_strategy(
+                        provider=name,
+                        optimization_score=optimization_score,
+                        success=False,
+                        latency_ms=latency_ms,
+                        reason="provider_returned_error"
+                    )
+
                     continue
 
                 self.registry.mark_success(name)
                 self.reliability_memory.record_success(name, latency_ms=latency_ms)
+
+                optimization_score = optimizer_providers.get(
+                    name, {}
+                ).get("optimization_score", 0)
+
+                self.strategy_memory.record_strategy(
+                    provider=name,
+                    optimization_score=optimization_score,
+                    success=True,
+                    latency_ms=latency_ms,
+                    reason="optimizer_router_selection"
+                )
 
                 return {
                     "provider": name,
@@ -73,6 +100,18 @@ class ProviderRouter:
             except Exception as e:
                 self.registry.mark_failure(name)
                 self.reliability_memory.record_failure(name, error=str(e))
+
+                optimization_score = optimizer_providers.get(
+                    name, {}
+                ).get("optimization_score", 0)
+
+                self.strategy_memory.record_strategy(
+                    provider=name,
+                    optimization_score=optimization_score,
+                    success=False,
+                    latency_ms=None,
+                    reason=str(e)
+                )
 
         return {
             "provider": None,
