@@ -1,0 +1,235 @@
+{
+  "timestamp": "2026-05-14T12:33:58.315955+00:00",
+  "runtime": "learning_ingestion_runtime",
+  "bounded": true,
+  "dangerous_autonomous_apply": false,
+  "ingestion_mode": "safe_read_only_runtime_snapshot",
+  "available_source_count": 7,
+  "available_sources": [
+    "provider_validation",
+    "fallback_graph",
+    "model_trust",
+    "adaptive_model_routing",
+    "failure_summary",
+    "learning_summary",
+    "architecture_goals"
+  ],
+  "missing_sources": [],
+  "unreadable_sources": [],
+  "learning_ready": true,
+  "ingested_sources": {
+    "provider_validation": {
+      "exists": true,
+      "data": {
+        "timestamp": "2026-05-14T12:16:38.762157+00:00",
+        "runtime": "provider_model_validation",
+        "bounded": true,
+        "dangerous_autonomous_apply": false,
+        "validation_mode": "safe_static_provider_check",
+        "providers": {
+          "openrouter": {
+            "has_key": true,
+            "model": "deepseek/deepseek-v4-flash:free",
+            "has_model": true,
+            "ready": true,
+            "confidence_score": 1.0,
+            "validation_state": "ready"
+          },
+          "gemini": {
+            "has_key": true,
+            "model": "not_configured",
+            "has_model": false,
+            "ready": false,
+            "confidence_score": 0.35,
+            "validation_state": "needs_model_config"
+          },
+          "groq": {
+            "has_key": true,
+            "model": "not_configured",
+            "has_model": false,
+            "ready": false,
+            "confidence_score": 0.35,
+            "validation_state": "needs_model_config"
+          }
+        },
+        "ready_provider_count": 1,
+        "ready_providers": [
+          "openrouter"
+        ],
+        "fallback_ready": false,
+        "result": "validation_passed"
+      }
+    },
+    "fallback_graph": {
+      "exists": true,
+      "data": {
+        "timestamp": "2026-05-14T12:19:04.863534+00:00",
+        "runtime": "fallback_graph_runtime",
+        "bounded": true,
+        "dangerous_autonomous_apply": false,
+        "graph_mode": "safe_provider_fallback_map",
+        "nodes": {
+          "openrouter": {
+            "has_key": true,
+            "model": "deepseek/deepseek-v4-flash:free",
+            "priority": 1,
+            "ready": true,
+            "fallback_eligible": true,
+            "state": "ready"
+          },
+          "gemini": {
+            "has_key": true,
+            "model": "not_configured",
+            "priority": 2,
+            "ready": false,
+            "fallback_eligible": false,
+            "state": "standby_needs_model"
+          },
+          "groq": {
+            "has_key": true,
+            "model": "not_configured",
+            "priority": 3,
+            "ready": false,
+            "fallback_eligible": false,
+            "state": "standby_needs_model"
+          }
+        },
+        "ready_nodes": [
+          "openrouter"
+        ],
+        "fallback_edges": [
+          {
+            "from": "openrouter",
+            "to": null,
+            "edge_state": "terminal"
+          }
+        ],
+        "fallback_depth": 0,
+        "fallback_ready": false,
+        "primary_provider": "openrouter",
+        "result": "fallback_graph_built"
+      }
+    },
+    "model_trust": {
+      "exists": true,
+      "data": {
+        "timestamp": "2026-05-14T12:21:00.152049+00:00",
+        "runtime": "model_trust_memory",
+        "bounded": true,
+        "dangerous_autonomous_apply": false,
+        "trust_mode": "safe_static_trust_evaluation",
+        "providers": {
+          "openrouter": {
+            "enabled": true,
+            "model": "deepseek/deepseek-v4-flash:free",
+            "historical_stability": 0.92,
+            "fallback_resilience": 0.88,
+            "configured": true,
+            "trust_score": 0.9,
+            "trust_state": "trusted"
+          },
+          "gemini": {
+            "enabled": true,
+            "model": "not_configured",
+            "historical_stability": 0.7,
+            "fallback_resilience": 0.65,
+            "configured": false,
+            "trust_score": 0.34,
+            "trust_state": "low_confidence"
+          },
+          "groq": {
+            "enabled": true,
+            "model": "not_configured",
+            "historical_stability": 0.72,
+            "fallback_resilience": 0.66,
+            "configured": false,
+            "trust_score": 0.35,
+            "trust_state": "low_confidence"
+          }
+        },
+        "trust_ranking": [
+          {
+            "provider": "openrouter",
+            "trust_score": 0.9
+          },
+          {
+            "provider": "groq",
+            "trust_score": 0.35
+          },
+          {
+            "provider": "gemini",
+            "trust_score": 0.34
+          }
+        ],
+        "primary_trusted_provider": "openrouter",
+        "result": "trust_memory_built"
+      }
+    },
+    "adaptive_model_routing": {
+      "exists": true,
+      "data": {
+        "timestamp": "2026-05-14T12:27:48.748770+00:00",
+        "runtime": "adaptive_model_routing_hud",
+        "bounded": true,
+        "dangerous_autonomous_apply": false,
+        "hud_mode": "safe_runtime_visibility",
+        "adaptive_routing_decision": {
+          "recommended_provider": "openrouter",
+          "decision_state": "ready",
+          "fallback_mode": "single_provider_terminal"
+        },
+        "result": "adaptive_model_routing_hud_built"
+      }
+    },
+    "failure_summary": {
+      "exists": true,
+      "data": {
+        "failures_recorded": 25,
+        "top_failure_category": "runtime_validation",
+        "top_affected_component": "runtime_memory",
+        "risk_state": "stable",
+        "severity_distribution": {
+          "medium": 25
+        },
+        "failure_categories": {
+          "runtime_validation": 25
+        }
+      }
+    },
+    "learning_summary": {
+      "exists": true,
+      "data": {
+        "events_recorded": 30,
+        "top_strategy": "Blueprint Extraction",
+        "top_goal": "architecture-pressure-reduction-v1",
+        "strategy_frequency": {
+          "Blueprint Extraction": 30
+        },
+        "goal_frequency": {
+          "architecture-pressure-reduction-v1": 30
+        },
+        "learning_state": "active"
+      }
+    },
+    "architecture_goals": {
+      "exists": true,
+      "data": {
+        "goal_id": "architecture-pressure-reduction-v1",
+        "created_at": "2026-05-13T17:40:50.556495Z",
+        "objective": "Reduce app.py architectural pressure safely through bounded blueprint extraction planning.",
+        "target": "app.py",
+        "desired_strategy": "Blueprint Extraction",
+        "safety_mode": "bounded_human_review_required",
+        "status": "on_track",
+        "evaluations": 55,
+        "last_evaluated": "2026-05-13T18:05:04.960977Z",
+        "last_alignment": {
+          "score": 100,
+          "state": "strong_alignment",
+          "reason": "Consensus strategy 'Blueprint Extraction' compared against persistent goal strategy 'Blueprint Extraction'."
+        }
+      }
+    }
+  },
+  "result": "learning_ingestion_ready"
+}
