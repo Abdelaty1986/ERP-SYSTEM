@@ -5447,5 +5447,35 @@ except Exception as sandbox_patch_apply_error:
 
 # --- End Layer 6 ---
 
+
+
+# --- Layer 7 Rollback + Recovery Engine ---
+
+try:
+    from jarvis.runtime.rollback_recovery_engine import (
+        create_runtime_checkpoint,
+        get_rollback_state,
+    )
+
+    @app.route("/jarvis/runtime/rollback/checkpoint", methods=["POST"])
+    def jarvis_runtime_checkpoint():
+        return jsonify(
+            create_runtime_checkpoint()
+        )
+
+    @app.route("/jarvis/runtime/rollback/state", methods=["GET"])
+    def jarvis_runtime_rollback_state():
+        return jsonify(
+            get_rollback_state()
+        )
+
+except Exception as rollback_runtime_error:
+    print(
+        "rollback recovery engine disabled:",
+        rollback_runtime_error
+    )
+
+# --- End Layer 7 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")

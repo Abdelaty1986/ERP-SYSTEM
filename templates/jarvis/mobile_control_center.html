@@ -5199,5 +5199,136 @@ setInterval(loadSandboxPatchApplyResult, 7000);
 <!-- End Layer 6 -->
 
 
+
+
+<!-- Layer 7 Rollback + Recovery Engine -->
+
+<div class="panel" id="rollback-recovery-panel">
+
+  <div class="panel-title">
+    Rollback + Recovery Engine
+  </div>
+
+  <div class="panel-sub">
+    checkpoint snapshots · recovery governance
+  </div>
+
+  <button
+    onclick="createRollbackCheckpoint()"
+    style="
+      margin-top:10px;
+      padding:10px 14px;
+      border-radius:12px;
+      border:0;
+      cursor:pointer
+    "
+  >
+    Create Checkpoint
+  </button>
+
+  <div id="rollback-recovery-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="rollback-recovery-feed"
+       style="margin-top:10px;font-size:12px">
+  </div>
+
+</div>
+
+<script>
+
+async function loadRollbackRecoveryState() {
+
+  const stateEl =
+    document.getElementById(
+      "rollback-recovery-state"
+    );
+
+  const feedEl =
+    document.getElementById(
+      "rollback-recovery-feed"
+    );
+
+  if (!stateEl || !feedEl) return;
+
+  try {
+
+    const res = await fetch(
+      "/jarvis/runtime/rollback/state"
+    );
+
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "state=" + (
+        data.checkpoint_state || data.state
+      ) +
+      " · bounded=" +
+      data.bounded +
+      " · dangerous_apply=" +
+      data.dangerous_autonomous_apply;
+
+    const files =
+      data.tracked_files || [];
+
+    feedEl.innerHTML = `
+      <div style="
+        padding:8px;
+        border-radius:10px;
+        background:rgba(255,255,255,.05)
+      ">
+        <div>
+          checkpoint=${data.checkpoint_id || "none"}
+        </div>
+
+        <div style="
+          opacity:.75;
+          margin-top:6px
+        ">
+          rollback_ready=${data.rollback_ready}
+        </div>
+
+        <pre style="
+          white-space:pre-wrap;
+          opacity:.7;
+          margin-top:8px
+        ">${files.join("\n")}</pre>
+      </div>
+    `;
+
+  } catch(e) {
+
+    stateEl.innerHTML =
+      "rollback engine unavailable";
+
+  }
+}
+
+async function createRollbackCheckpoint() {
+
+  await fetch(
+    "/jarvis/runtime/rollback/checkpoint",
+    {
+      method: "POST"
+    }
+  );
+
+  loadRollbackRecoveryState();
+}
+
+loadRollbackRecoveryState();
+
+setInterval(
+  loadRollbackRecoveryState,
+  7000
+);
+
+</script>
+
+<!-- End Layer 7 -->
+
+
 </body>
 </html>
