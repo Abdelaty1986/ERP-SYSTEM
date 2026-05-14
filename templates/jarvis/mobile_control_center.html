@@ -5330,5 +5330,84 @@ setInterval(
 <!-- End Layer 7 -->
 
 
+
+
+<!-- Layer 8 Human Approved Autonomous Engineering -->
+
+<div class="panel" id="human-approved-engineering-panel">
+  <div class="panel-title">Human Approved Engineering</div>
+  <div class="panel-sub">prepare · sandbox · checkpoint · await approval</div>
+
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <input id="human-approved-engineering-input"
+           placeholder="اطلب تطوير آمن..."
+           style="flex:1;min-width:0;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.25);color:inherit">
+
+    <button onclick="prepareHumanApprovedEngineering()"
+            style="padding:10px 14px;border-radius:12px;border:0;cursor:pointer">
+      Prepare
+    </button>
+  </div>
+
+  <div id="human-approved-engineering-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="human-approved-engineering-feed"
+       style="margin-top:10px;font-size:12px;line-height:1.5">
+  </div>
+</div>
+
+<script>
+async function loadHumanApprovedEngineeringState() {
+  const stateEl = document.getElementById("human-approved-engineering-state");
+  const feedEl = document.getElementById("human-approved-engineering-feed");
+  if (!stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/runtime/engineering/state");
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "state=" + data.engineering_state +
+      " · ready=" + data.ready_for_human_review +
+      " · project_apply=" + data.project_apply_allowed +
+      " · dangerous_apply=" + data.dangerous_autonomous_apply;
+
+    feedEl.innerHTML = `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.05)">
+        <div>request=${data.request || "none"}</div>
+        <div style="opacity:.75">approval=${data.requires_explicit_human_approval}</div>
+        <div style="opacity:.75">phrase=${(data.approval_contract || {}).approval_phrase_required || "none"}</div>
+        <div style="opacity:.55;font-size:11px">session=${data.session_id || "none"}</div>
+      </div>
+    `;
+  } catch(e) {
+    stateEl.innerHTML = "human approved engineering unavailable";
+  }
+}
+
+async function prepareHumanApprovedEngineering() {
+  const input = document.getElementById("human-approved-engineering-input");
+  if (!input || !input.value.trim()) return;
+
+  await fetch("/jarvis/runtime/engineering/prepare", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({message: input.value})
+  });
+
+  input.value = "";
+  loadHumanApprovedEngineeringState();
+}
+
+loadHumanApprovedEngineeringState();
+setInterval(loadHumanApprovedEngineeringState, 7000);
+</script>
+
+<!-- End Layer 8 -->
+
+
 </body>
 </html>

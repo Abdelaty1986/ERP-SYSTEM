@@ -5477,5 +5477,35 @@ except Exception as rollback_runtime_error:
 
 # --- End Layer 7 ---
 
+
+
+# --- Layer 8 Human Approved Autonomous Engineering ---
+
+try:
+    from jarvis.runtime.human_approved_engineering import (
+        prepare_human_approved_engineering,
+        get_human_approved_engineering_state,
+    )
+
+    @app.route("/jarvis/runtime/engineering/prepare", methods=["POST"])
+    def jarvis_runtime_engineering_prepare():
+        data = request.get_json(silent=True) or {}
+        return jsonify(
+            prepare_human_approved_engineering(
+                data.get("message", "")
+            )
+        )
+
+    @app.route("/jarvis/runtime/engineering/state", methods=["GET"])
+    def jarvis_runtime_engineering_state():
+        return jsonify(
+            get_human_approved_engineering_state()
+        )
+
+except Exception as human_approved_engineering_error:
+    print("human approved engineering disabled:", human_approved_engineering_error)
+
+# --- End Layer 8 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
