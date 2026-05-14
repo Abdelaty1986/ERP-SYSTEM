@@ -5537,5 +5537,28 @@ except Exception as approved_project_apply_error:
 
 # --- End Layer 9 ---
 
+
+
+# --- Layer 10 Project Apply Validation Guard ---
+
+try:
+    from jarvis.runtime.project_apply_validation_guard import (
+        validate_latest_project_apply,
+        get_project_apply_validation_state,
+    )
+
+    @app.route("/jarvis/runtime/project-apply/validate", methods=["POST"])
+    def jarvis_runtime_project_apply_validate():
+        return jsonify(validate_latest_project_apply())
+
+    @app.route("/jarvis/runtime/project-apply/validation-state", methods=["GET"])
+    def jarvis_runtime_project_apply_validation_state():
+        return jsonify(get_project_apply_validation_state())
+
+except Exception as project_apply_validation_error:
+    print("project apply validation guard disabled:", project_apply_validation_error)
+
+# --- End Layer 10 ---
+
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")

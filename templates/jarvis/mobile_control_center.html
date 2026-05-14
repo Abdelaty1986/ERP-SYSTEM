@@ -5487,5 +5487,68 @@ setInterval(loadApprovedProjectApplyState, 7000);
 <!-- End Layer 9 -->
 
 
+
+
+<!-- Layer 10 Project Apply Validation Guard -->
+
+<div class="panel" id="project-apply-validation-panel">
+  <div class="panel-title">Project Apply Validation Guard</div>
+  <div class="panel-sub">compile · git status · rollback signal</div>
+
+  <button onclick="runProjectApplyValidation()"
+          style="margin-top:10px;padding:10px 14px;border-radius:12px;border:0;cursor:pointer">
+    Validate Apply
+  </button>
+
+  <div id="project-apply-validation-state"
+       style="margin-top:8px;font-size:12px;opacity:.8">
+    loading...
+  </div>
+
+  <div id="project-apply-validation-feed"
+       style="margin-top:10px;font-size:12px;line-height:1.5">
+  </div>
+</div>
+
+<script>
+async function loadProjectApplyValidationState() {
+  const stateEl = document.getElementById("project-apply-validation-state");
+  const feedEl = document.getElementById("project-apply-validation-feed");
+  if (!stateEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/runtime/project-apply/validation-state");
+    const data = await res.json();
+
+    stateEl.innerHTML =
+      "state=" + data.state +
+      " · validation_ok=" + data.validation_ok +
+      " · rollback_required=" + data.rollback_required +
+      " · dangerous_apply=" + data.dangerous_autonomous_apply;
+
+    const checks = data.checks || [];
+    feedEl.innerHTML = checks.map(c => `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.05)">
+        <div><b>${c.command}</b> · ok=${c.ok} · code=${c.returncode}</div>
+        <pre style="white-space:pre-wrap;opacity:.7;max-height:100px;overflow:auto">${(c.stdout || c.stderr || c.error || "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+      </div>
+    `).join("");
+  } catch(e) {
+    stateEl.innerHTML = "project apply validation unavailable";
+  }
+}
+
+async function runProjectApplyValidation() {
+  await fetch("/jarvis/runtime/project-apply/validate", {method: "POST"});
+  loadProjectApplyValidationState();
+}
+
+loadProjectApplyValidationState();
+setInterval(loadProjectApplyValidationState, 7000);
+</script>
+
+<!-- End Layer 10 -->
+
+
 </body>
 </html>
