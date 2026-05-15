@@ -1,0 +1,1 @@
+{"timestamp": "2026-05-15T08:53:37.590818+00:00", "runtime": "learning_stability_monitor", "learning_state": "learning_stability_watch", "safety_stability": "stable", "learning_stability": "watch", "next_runtime_allowed": true, "execution_allowed": false, "apply_allowed": false, "human_approval_required": true}
