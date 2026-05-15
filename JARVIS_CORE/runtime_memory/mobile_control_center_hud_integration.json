@@ -1,0 +1,2157 @@
+{
+  "timestamp": "2026-05-15T09:46:13.605442+00:00",
+  "runtime": "mobile_control_center_hud_integration",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "hud_mode": "safe_read_only_mobile_control_center_integration",
+  "phase": "phase_6_full_mobile_control_center",
+  "layer": "mobile_control_center_ui_integration",
+  "mobile_hud": {
+    "status": "watch",
+    "human_review_required": true,
+    "section_states": {
+      "cognitive": "stable",
+      "agent_society": "stable",
+      "engineering": "locked",
+      "learning": "watch",
+      "toolchain": "watch",
+      "warnings_locks": "watch"
+    },
+    "sections": {
+      "unified": {
+        "timestamp": "2026-05-15T09:35:45.999713+00:00",
+        "runtime": "unified_runtime_hud_api",
+        "bounded": true,
+        "execution_allowed": false,
+        "apply_allowed": false,
+        "autonomous_apply": false,
+        "dangerous_autonomous_apply": false,
+        "human_approval_required": true,
+        "api_mode": "safe_read_only_runtime_hud_aggregation",
+        "phase": "phase_6_full_mobile_control_center",
+        "layer": "unified_runtime_hud_api",
+        "source_policy": "runtime_memory_only",
+        "available_source_count": 30,
+        "available_sources": [
+          "approval_gateway",
+          "controlled_apply_decision",
+          "rollback_intelligence_layer",
+          "rollback_checkpoint_memory",
+          "execution_supervision_runtime",
+          "execution_journal",
+          "agent_society_registry",
+          "agent_society_routing",
+          "agent_society_delegation",
+          "agent_society_consensus",
+          "agent_society_event_summary",
+          "agent_society_aggregate_state",
+          "runtime_self_monitoring_hud",
+          "cognition_health_report",
+          "runtime_silence_detection",
+          "cognitive_stability_analysis",
+          "cognitive_reflection_runtime",
+          "long_running_runtime_loop",
+          "runtime_learning_summary",
+          "provider_scoring_memory",
+          "adaptive_routing_recommendations",
+          "learning_stability_monitor",
+          "safe_learning_hud_report",
+          "ide_awareness_runtime",
+          "container_execution_awareness",
+          "ci_cd_awareness_runtime",
+          "local_test_runner_observer",
+          "dependency_health_observer",
+          "toolchain_risk_classifier",
+          "external_toolchain_hud"
+        ],
+        "missing_sources": [
+          "project_apply_validation_guard"
+        ],
+        "unreadable_sources": [],
+        "sections": {
+          "engineering": {
+            "available_count": 6,
+            "sources": {
+              "approval_gateway": {
+                "exists": true,
+                "data": {
+                  "gateway_state": "active",
+                  "latest_session": {
+                    "session_id": "approval-20260513171232-84802123",
+                    "approval_state": "locked",
+                    "authorization_scope": "execution_preparation_only",
+                    "staged_unlock_state": "locked",
+                    "execution_lock_state": "locked",
+                    "rollback_binding": "required",
+                    "expires_at": "2026-05-13T17:42:32.955123+00:00",
+                    "bounded": true,
+                    "autonomous_apply": false,
+                    "created_at": "2026-05-13T17:12:32.955123+00:00"
+                  },
+                  "governance": {
+                    "human_approval_required": true,
+                    "autonomous_apply_allowed": false,
+                    "bounded_authorization": true,
+                    "rollback_required": true,
+                    "real_apply_enabled": false
+                  },
+                  "updated_at": "2026-05-15T09:35:31.514413+00:00"
+                }
+              },
+              "controlled_apply_decision": {
+                "exists": true,
+                "data": {
+                  "bounded": true,
+                  "mode": "controlled_apply_decision",
+                  "autonomous_apply": false,
+                  "summary": {
+                    "objective": "safe_architecture_refactor",
+                    "apply_decision": "ready_for_human_approval",
+                    "avg_execution_confidence": 96.0,
+                    "max_risk": "medium",
+                    "rollback_ready": true,
+                    "human_approval_required": true,
+                    "execution_allowed": false
+                  },
+                  "approval_plan": {
+                    "required": true,
+                    "approval_type": "explicit_human_approval",
+                    "minimum_checks": [
+                      "Review simulated steps",
+                      "Confirm rollback readiness",
+                      "Confirm target files",
+                      "Run py_compile before apply",
+                      "Run endpoint smoke tests after apply"
+                    ]
+                  },
+                  "simulation_summary": {
+                    "objective": "safe_architecture_refactor",
+                    "steps_simulated": 5,
+                    "chain_feasibility": "high",
+                    "execution_mode": "simulation_only",
+                    "human_review_required": true
+                  },
+                  "notes": [
+                    "Controlled apply decision only determines readiness.",
+                    "No code changes are applied.",
+                    "Execution remains disabled until explicit human approval."
+                  ]
+                }
+              },
+              "rollback_intelligence_layer": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-14T12:51:38.277169+00:00",
+                  "runtime": "rollback_intelligence_layer",
+                  "bounded": true,
+                  "dangerous_autonomous_apply": false,
+                  "rollback_mode": "safe_read_only_rollback_analysis",
+                  "checkpoint_available": true,
+                  "rollback_required": true,
+                  "rollback_state": "rollback_ready",
+                  "execution_supervision_state": "execution_locked_pending_review",
+                  "rollback_decision": "allow_guarded_planning_only",
+                  "guardrails": {
+                    "rollback_required_before_apply": true,
+                    "human_review_required": true,
+                    "autonomous_apply_allowed": false
+                  },
+                  "result": "rollback_intelligence_built"
+                }
+              },
+              "rollback_checkpoint_memory": {
+                "exists": true,
+                "data": {
+                  "bounded": true,
+                  "mode": "rollback_checkpoint_runtime",
+                  "autonomous_apply": false,
+                  "summary": {
+                    "checkpoint_id": "checkpoint-20260515093531",
+                    "objective": "safe_architecture_refactor",
+                    "checkpoint_state": "ready",
+                    "rollback_ready": true,
+                    "execution_allowed": false,
+                    "human_approval_required": true
+                  },
+                  "recovery_plan": {
+                    "strategy": "bounded_restore_sequence",
+                    "validation_required": true,
+                    "recovery_steps": [
+                      "Restore modified files",
+                      "Re-run py_compile validation",
+                      "Re-run endpoint smoke tests",
+                      "Verify runtime integrity",
+                      "Confirm bounded runtime state"
+                    ]
+                  },
+                  "checkpoint_lineage": {
+                    "source_runtime": "controlled_apply_decision",
+                    "linked_objective": "safe_architecture_refactor",
+                    "continuity_state": "preserved",
+                    "recovery_graph_state": "stable"
+                  },
+                  "notes": [
+                    "Rollback checkpoints prepare recovery states.",
+                    "No restore execution is performed automatically.",
+                    "Recovery remains human-governed."
+                  ]
+                }
+              },
+              "execution_supervision_runtime": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-14T12:47:58.165345+00:00",
+                  "runtime": "execution_supervision_runtime",
+                  "bounded": true,
+                  "dangerous_autonomous_apply": false,
+                  "supervision_mode": "safe_execution_supervision",
+                  "planning_state": "requires_review_before_patch_planning",
+                  "supervision_state": "execution_locked_pending_review",
+                  "execution_controls": {
+                    "proposal_only": true,
+                    "human_approval_required": true,
+                    "rollback_checkpoint_required": true,
+                    "autonomous_apply_allowed": false,
+                    "runtime_monitoring_required": true
+                  },
+                  "active_strategy": "Blueprint Extraction",
+                  "active_goal": "architecture-pressure-reduction-v1",
+                  "execution_decision": "blocked_until_clean_review",
+                  "result": "execution_supervision_built"
+                }
+              },
+              "project_apply_validation_guard": {
+                "exists": false,
+                "data": null
+              },
+              "execution_journal": {
+                "exists": true,
+                "data": {
+                  "bounded": true,
+                  "mode": "execution_journal_runtime",
+                  "autonomous_apply": false,
+                  "summary": {
+                    "journal_id": "journal-20260515093531",
+                    "objective": "safe_architecture_refactor",
+                    "entries_recorded": 5,
+                    "lineage_state": "persistent_execution_memory",
+                    "execution_allowed": false,
+                    "rollback_ready": true
+                  },
+                  "journal_entries": [
+                    {
+                      "entry_id": "journal-20260515093531-step-1",
+                      "phase": "planning",
+                      "task": "Generate bounded execution strategy",
+                      "execution_state": "awaiting_human_approval",
+                      "rollback_checkpoint": "checkpoint-20260515093531",
+                      "journal_state": "recorded",
+                      "bounded": true,
+                      "autonomous_apply": false
+                    },
+                    {
+                      "entry_id": "journal-20260515093531-step-2",
+                      "phase": "reflection",
+                      "task": "Validate execution coherence",
+                      "execution_state": "awaiting_human_approval",
+                      "rollback_checkpoint": "checkpoint-20260515093531",
+                      "journal_state": "recorded",
+                      "bounded": true,
+                      "autonomous_apply": false
+                    },
+                    {
+                      "entry_id": "journal-20260515093531-step-3",
+                      "phase": "arbitration",
+                      "task": "Rank execution decisions",
+                      "execution_state": "awaiting_human_approval",
+                      "rollback_checkpoint": "checkpoint-20260515093531",
+                      "journal_state": "recorded",
+                      "bounded": true,
+                      "autonomous_apply": false
+                    },
+                    {
+                      "entry_id": "journal-20260515093531-step-4",
+                      "phase": "learning",
+                      "task": "Record bounded learning signals",
+                      "execution_state": "awaiting_human_approval",
+                      "rollback_checkpoint": "checkpoint-20260515093531",
+                      "journal_state": "recorded",
+                      "bounded": true,
+                      "autonomous_apply": false
+                    },
+                    {
+                      "entry_id": "journal-20260515093531-step-5",
+                      "phase": "failure_guard",
+                      "task": "Monitor execution drift",
+                      "execution_state": "awaiting_human_approval",
+                      "rollback_checkpoint": "checkpoint-20260515093531",
+                      "journal_state": "recorded",
+                      "bounded": true,
+                      "autonomous_apply": false
+                    }
+                  ],
+                  "lineage": {
+                    "source_runtime": "human_approved_apply",
+                    "trace_mode": "bounded_execution_trace",
+                    "recovery_trace_enabled": true,
+                    "audit_state": "persistent",
+                    "continuity_state": "stable"
+                  },
+                  "notes": [
+                    "Execution journal records governed runtime execution lineage.",
+                    "No execution is performed automatically.",
+                    "All runtime operations remain bounded and human-controlled."
+                  ]
+                }
+              }
+            }
+          },
+          "agent_society": {
+            "available_count": 6,
+            "sources": {
+              "agent_society_registry": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T05:19:11.086225+00:00",
+                  "runtime": "agent_society_registry",
+                  "bounded": true,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "society_state": "initialized",
+                  "agents": {
+                    "planner_agent": {
+                      "role": "planning",
+                      "can_apply": false,
+                      "risk_level": "low",
+                      "description": "Breaks tasks into safe engineering steps."
+                    },
+                    "patch_agent": {
+                      "role": "patch_generation",
+                      "can_apply": false,
+                      "risk_level": "medium",
+                      "description": "Generates structured patch proposals only."
+                    },
+                    "reviewer_agent": {
+                      "role": "review",
+                      "can_apply": false,
+                      "risk_level": "low",
+                      "description": "Reviews proposed changes before approval."
+                    },
+                    "validator_agent": {
+                      "role": "validation",
+                      "can_apply": false,
+                      "risk_level": "low",
+                      "description": "Runs compile and runtime validation checks."
+                    },
+                    "rollback_agent": {
+                      "role": "recovery",
+                      "can_apply": false,
+                      "risk_level": "medium",
+                      "description": "Prepares rollback recommendations."
+                    },
+                    "memory_agent": {
+                      "role": "memory",
+                      "can_apply": false,
+                      "risk_level": "low",
+                      "description": "Records engineering outcomes and lessons."
+                    },
+                    "security_agent": {
+                      "role": "governance",
+                      "can_apply": false,
+                      "risk_level": "high",
+                      "description": "Blocks unsafe or destructive actions."
+                    }
+                  },
+                  "policy": {
+                    "human_approval_required": true,
+                    "auto_git_commit": false,
+                    "auto_git_push": false,
+                    "filesystem_scope": "bounded_project_runtime_only",
+                    "mutation_mode": "proposal_first"
+                  }
+                }
+              },
+              "agent_society_routing": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T07:11:08.121056+00:00",
+                  "runtime": "agent_society_router",
+                  "bounded": true,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "task": "implement safe runtime dashboard patch",
+                  "selected_agent": "patch_agent",
+                  "selected_role": "patch_generation",
+                  "can_apply": false,
+                  "risk_level": "medium",
+                  "routing_state": "routed",
+                  "approval_required": true,
+                  "execution_allowed": false
+                }
+              },
+              "agent_society_delegation": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T07:11:08.122961+00:00",
+                  "runtime": "agent_society_delegation",
+                  "bounded": true,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "task": "implement safe runtime dashboard patch",
+                  "workflow_state": "delegated",
+                  "approval_required": true,
+                  "execution_allowed": false,
+                  "workflow": [
+                    {
+                      "step": 1,
+                      "agent": "planner_agent",
+                      "action": "analyze_task"
+                    },
+                    {
+                      "step": 2,
+                      "agent": "patch_agent",
+                      "action": "generate_patch"
+                    },
+                    {
+                      "step": 3,
+                      "agent": "validator_agent",
+                      "action": "run_validation"
+                    },
+                    {
+                      "step": 4,
+                      "agent": "reviewer_agent",
+                      "action": "review_results"
+                    },
+                    {
+                      "step": 5,
+                      "agent": "security_agent",
+                      "action": "governance_check"
+                    },
+                    {
+                      "step": 6,
+                      "agent": "memory_agent",
+                      "action": "record_outcome"
+                    }
+                  ]
+                }
+              },
+              "agent_society_consensus": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T07:11:08.126210+00:00",
+                  "runtime": "agent_society_consensus",
+                  "bounded": true,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "task": "implement safe runtime dashboard patch",
+                  "delegation_state": "delegated",
+                  "consensus_state": "approved_for_planning_only",
+                  "votes": {
+                    "validator_agent": {
+                      "vote": "approve",
+                      "reason": "Validation path is bounded."
+                    },
+                    "reviewer_agent": {
+                      "vote": "approve",
+                      "reason": "Workflow structure is reviewable."
+                    },
+                    "security_agent": {
+                      "vote": "approve",
+                      "reason": "No dangerous terms detected."
+                    }
+                  },
+                  "approval_required": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false
+                }
+              },
+              "agent_society_event_summary": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T06:38:48.854435+00:00",
+                  "runtime": "agent_society_event_summary",
+                  "bounded": true,
+                  "latest_event_type": "orchestration_recorded",
+                  "latest_selected_agent": "patch_agent",
+                  "latest_consensus_state": "approved_for_planning_only",
+                  "event_log_path": "JARVIS_CORE/runtime_logs/agent_society_events.jsonl",
+                  "summary_state": "updated"
+                }
+              },
+              "agent_society_aggregate_state": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T07:11:08.231625+00:00",
+                  "runtime": "agent_society_aggregator",
+                  "bounded": true,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "society_state": "initialized",
+                  "agent_count": 7,
+                  "latest_task": "implement safe runtime dashboard patch",
+                  "selected_agent": "patch_agent",
+                  "workflow_state": "delegated",
+                  "workflow_steps": 6,
+                  "consensus_state": "approved_for_planning_only",
+                  "latest_event_type": "orchestration_recorded",
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "approval_required": true,
+                  "aggregate_state": "ready",
+                  "sources": {
+                    "registry": true,
+                    "routing": true,
+                    "delegation": true,
+                    "consensus": true,
+                    "orchestrator": true,
+                    "event_summary": true
+                  }
+                }
+              }
+            }
+          },
+          "cognition": {
+            "available_count": 6,
+            "sources": {
+              "runtime_self_monitoring_hud": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T08:24:07.886129+00:00",
+                  "runtime": "runtime_self_monitoring_hud",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "hud_state": "online",
+                  "cognitive_supervision": {
+                    "health_state": "stable",
+                    "health_score": 100,
+                    "silence_state": "active",
+                    "silence_risk": "low",
+                    "stability_state": "stable",
+                    "stability_score": 100,
+                    "loop_state": "completed",
+                    "reflection_state": "clear",
+                    "next_runtime_allowed": true
+                  },
+                  "safety": {
+                    "human_approval_required": true,
+                    "autonomous_unlock_allowed": false,
+                    "hud_is_monitoring_only": true
+                  },
+                  "status_text": "Persistent Cognitive Runtime is stable, active, and visible in HUD."
+                }
+              },
+              "cognition_health_report": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T08:18:27.755036+00:00",
+                  "runtime": "cognition_health_monitor",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "health_state": "stable",
+                  "health_score": 100,
+                  "checks": {
+                    "persistent_cognition_state_exists": true,
+                    "cognition_continuity_state_exists": true,
+                    "cognition_timeline_event_count": 3,
+                    "missing_components": []
+                  },
+                  "recommendations": [
+                    "Cognition runtime appears stable and ready for next monitoring layer."
+                  ]
+                }
+              },
+              "runtime_silence_detection": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T08:18:27.847039+00:00",
+                  "runtime": "runtime_silence_detection",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "silence_state": "active",
+                  "silence_risk": "low",
+                  "timeline_event_count": 3,
+                  "latest_event": {
+                    "timestamp": "2026-05-15T08:18:27.660883+00:00",
+                    "runtime": "cognition_wake_cycle",
+                    "bounded": true,
+                    "cognition_state": "wake_cycle",
+                    "execution_allowed": false,
+                    "apply_allowed": false,
+                    "autonomous_apply": false,
+                    "dangerous_autonomous_apply": false,
+                    "wake_reason": "continuity_enrichment",
+                    "runtime_activity": "bounded_monitoring"
+                  },
+                  "health_state": "stable",
+                  "reasons": [],
+                  "recommendations": [
+                    "Runtime activity appears sufficient for the next monitoring layer."
+                  ]
+                }
+              },
+              "cognitive_stability_analysis": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T08:18:27.947173+00:00",
+                  "runtime": "cognitive_stability_analysis",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "stability_state": "stable",
+                  "stability_score": 100,
+                  "inputs": {
+                    "health_state": "stable",
+                    "health_score": 100,
+                    "silence_state": "active",
+                    "silence_risk": "low",
+                    "timeline_event_count": 3
+                  },
+                  "reasons": [],
+                  "recommendations": [
+                    "Cognitive runtime is stable enough for the next bounded runtime layer."
+                  ]
+                }
+              },
+              "cognitive_reflection_runtime": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T08:22:31.807669+00:00",
+                  "runtime": "cognitive_reflection_runtime",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "reflection_state": "clear",
+                  "summary": {
+                    "health_state": "stable",
+                    "health_score": 100,
+                    "silence_state": "active",
+                    "silence_risk": "low",
+                    "stability_state": "stable",
+                    "stability_score": 100,
+                    "loop_state": "completed",
+                    "cycles_completed": 3
+                  },
+                  "interpretation": "Persistent Cognitive Runtime is stable, active, and ready for bounded self-monitoring HUD integration.",
+                  "blockers": [],
+                  "next_runtime_allowed": true,
+                  "recommendations": [
+                    "Proceed to Runtime Self-Monitoring HUD.",
+                    "Keep autonomous execution locked until explicit governance expansion."
+                  ]
+                }
+              },
+              "long_running_runtime_loop": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T08:20:50.627972+00:00",
+                  "runtime": "long_running_runtime_loop",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "loop_state": "completed",
+                  "cycles_completed": 3,
+                  "monitoring_mode": "cognitive_supervision_only",
+                  "events_recorded": 3,
+                  "continuous_runtime": true
+                }
+              }
+            }
+          },
+          "learning": {
+            "available_count": 5,
+            "sources": {
+              "runtime_learning_summary": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:09:06.334087+00:00",
+                  "runtime": "runtime_learning_summary",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "memory_mode": "safe_read_only_runtime_learning_summary",
+                  "phase": "phase_4_runtime_learning_system",
+                  "layer": "runtime_learning_summary",
+                  "available_source_count": 6,
+                  "available_sources": [
+                    "engineering_learning_memory",
+                    "agent_performance_memory",
+                    "provider_scoring_memory",
+                    "adaptive_routing_recommendations",
+                    "learning_ingestion_runtime",
+                    "adaptive_learning_scoring"
+                  ],
+                  "missing_sources": [],
+                  "unreadable_sources": [],
+                  "layer_states": {
+                    "engineering_learning_memory": {
+                      "available": true,
+                      "learning_state": "stable_learning_ready",
+                      "execution_allowed": false,
+                      "apply_allowed": false,
+                      "human_approval_required": true
+                    },
+                    "agent_performance_memory": {
+                      "available": true,
+                      "learning_state": "stable_agent_performance_memory",
+                      "execution_allowed": false,
+                      "apply_allowed": false,
+                      "human_approval_required": true
+                    },
+                    "provider_scoring_memory": {
+                      "available": true,
+                      "learning_state": "provider_scores_need_review",
+                      "execution_allowed": false,
+                      "apply_allowed": false,
+                      "human_approval_required": true
+                    },
+                    "adaptive_routing_recommendations": {
+                      "available": true,
+                      "learning_state": "routing_recommendations_need_review",
+                      "execution_allowed": false,
+                      "apply_allowed": false,
+                      "human_approval_required": true
+                    },
+                    "learning_ingestion_runtime": {
+                      "available": true,
+                      "learning_state": "learning_ingestion_ready",
+                      "execution_allowed": false,
+                      "apply_allowed": false,
+                      "human_approval_required": true
+                    },
+                    "adaptive_learning_scoring": {
+                      "available": true,
+                      "learning_state": "strong_adaptive_signal",
+                      "execution_allowed": false,
+                      "apply_allowed": false,
+                      "human_approval_required": true
+                    }
+                  },
+                  "review_items": [
+                    {
+                      "provider": "openrouter",
+                      "reason": "static_validation_ready_but_runtime_trust_missing"
+                    }
+                  ],
+                  "blocked_capabilities": [],
+                  "learning_summary": {
+                    "engineering_learning": "stable_learning_ready",
+                    "agent_learning": "stable_agent_performance_memory",
+                    "provider_learning": "provider_scores_need_review",
+                    "routing_learning": "routing_recommendations_need_review",
+                    "review_required": true
+                  },
+                  "learning_assessment": {
+                    "learning_state": "runtime_learning_review_required",
+                    "safe_to_display_in_hud": true,
+                    "may_execute_recommendations": false,
+                    "may_apply_changes": false
+                  },
+                  "recommendation": "use_as_memory_input_for_learning_stability_monitor",
+                  "result": "runtime_learning_summary_built"
+                }
+              },
+              "provider_scoring_memory": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:06:54.109611+00:00",
+                  "runtime": "provider_scoring_memory",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "memory_mode": "safe_read_only_provider_scoring",
+                  "phase": "phase_4_runtime_learning_system",
+                  "layer": "provider_scoring_memory",
+                  "available_source_count": 5,
+                  "available_sources": [
+                    "provider_model_validation",
+                    "model_trust_memory",
+                    "adaptive_model_routing_hud",
+                    "adaptive_learning_scoring",
+                    "agent_performance_memory"
+                  ],
+                  "missing_sources": [
+                    "provider_trust_memory",
+                    "provider_strategy_memory"
+                  ],
+                  "unreadable_sources": [],
+                  "provider_count": 3,
+                  "provider_scores": {
+                    "gemini": {
+                      "validation_state": "needs_model_config",
+                      "runtime_state": null,
+                      "model_trust_state": "low_confidence",
+                      "configured_model": "not_configured",
+                      "validation_confidence": 0.35,
+                      "runtime_trust_score": 0.0,
+                      "model_trust_score": 0.34,
+                      "combined_observation_score": 0.207,
+                      "ready_in_static_validation": false,
+                      "review_required": false,
+                      "recommendation_scope": "routing_memory_only"
+                    },
+                    "groq": {
+                      "validation_state": "needs_model_config",
+                      "runtime_state": null,
+                      "model_trust_state": "low_confidence",
+                      "configured_model": "not_configured",
+                      "validation_confidence": 0.35,
+                      "runtime_trust_score": 0.0,
+                      "model_trust_score": 0.35,
+                      "combined_observation_score": 0.21,
+                      "ready_in_static_validation": false,
+                      "review_required": false,
+                      "recommendation_scope": "routing_memory_only"
+                    },
+                    "openrouter": {
+                      "validation_state": "ready",
+                      "runtime_state": null,
+                      "model_trust_state": "trusted",
+                      "configured_model": "deepseek/deepseek-v4-flash:free",
+                      "validation_confidence": 1.0,
+                      "runtime_trust_score": 0.0,
+                      "model_trust_score": 0.9,
+                      "combined_observation_score": 0.575,
+                      "ready_in_static_validation": true,
+                      "review_required": true,
+                      "recommendation_scope": "routing_memory_only"
+                    }
+                  },
+                  "ranked_providers": [
+                    "openrouter",
+                    "groq",
+                    "gemini"
+                  ],
+                  "recommended_provider_for_review": "openrouter",
+                  "prior_routing_recommendation": "openrouter",
+                  "agent_learning_state": "stable_agent_performance_memory",
+                  "review_flags": [
+                    {
+                      "provider": "openrouter",
+                      "reason": "static_validation_ready_but_runtime_trust_missing"
+                    }
+                  ],
+                  "learning_assessment": {
+                    "learning_state": "provider_scores_need_review",
+                    "safe_to_inform_routing_recommendations": true,
+                    "may_execute_recommendations": false,
+                    "may_apply_changes": false
+                  },
+                  "recommendation": "use_as_memory_input_for_adaptive_routing_recommendations",
+                  "result": "provider_scoring_memory_built"
+                }
+              },
+              "adaptive_routing_recommendations": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:07:57.421739+00:00",
+                  "runtime": "adaptive_routing_recommendations",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "memory_mode": "safe_read_only_routing_recommendations",
+                  "phase": "phase_4_runtime_learning_system",
+                  "layer": "adaptive_routing_recommendations",
+                  "available_source_count": 5,
+                  "available_sources": [
+                    "provider_scoring_memory",
+                    "agent_performance_memory",
+                    "engineering_learning_memory",
+                    "agent_society_routing",
+                    "adaptive_model_routing_hud"
+                  ],
+                  "missing_sources": [],
+                  "unreadable_sources": [],
+                  "recommendations": {
+                    "provider": {
+                      "recommended_provider_for_review": "openrouter",
+                      "decision_state": "review_required_before_use",
+                      "reason": "provider scoring found review flags",
+                      "review_flags": [
+                        {
+                          "provider": "openrouter",
+                          "reason": "static_validation_ready_but_runtime_trust_missing"
+                        }
+                      ],
+                      "apply_to_runtime": false
+                    },
+                    "agent": {
+                      "current_selected_agent": "patch_agent",
+                      "recommended_planning_agents": [
+                        {
+                          "agent": "planner_agent",
+                          "role": "planning",
+                          "risk_level": "low",
+                          "signal": "participated_in_bounded_workflow"
+                        },
+                        {
+                          "agent": "patch_agent",
+                          "role": "patch_generation",
+                          "risk_level": "medium",
+                          "signal": "selected_for_bounded_planning"
+                        },
+                        {
+                          "agent": "reviewer_agent",
+                          "role": "review",
+                          "risk_level": "low",
+                          "signal": "positive_planning_signal"
+                        },
+                        {
+                          "agent": "validator_agent",
+                          "role": "validation",
+                          "risk_level": "low",
+                          "signal": "positive_planning_signal"
+                        },
+                        {
+                          "agent": "memory_agent",
+                          "role": "memory",
+                          "risk_level": "low",
+                          "signal": "participated_in_bounded_workflow"
+                        },
+                        {
+                          "agent": "security_agent",
+                          "role": "governance",
+                          "risk_level": "high",
+                          "signal": "positive_planning_signal"
+                        }
+                      ],
+                      "decision_state": "planning_memory_only",
+                      "apply_to_runtime": false
+                    },
+                    "engineering": {
+                      "learning_state": "stable_learning_ready",
+                      "routing_constraint": "proposal_only_human_approval_required",
+                      "apply_to_runtime": false
+                    },
+                    "prior_hud": {
+                      "recommended_provider": "openrouter",
+                      "fallback_mode": "single_provider_terminal"
+                    }
+                  },
+                  "learning_assessment": {
+                    "learning_state": "routing_recommendations_need_review",
+                    "safe_to_display_in_hud": true,
+                    "may_execute_recommendations": false,
+                    "may_apply_changes": false
+                  },
+                  "recommendation": "use_as_memory_input_for_runtime_learning_summary",
+                  "result": "adaptive_routing_recommendations_built"
+                }
+              },
+              "learning_stability_monitor": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:10:25.037245+00:00",
+                  "runtime": "learning_stability_monitor",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "memory_mode": "safe_read_only_learning_stability_monitor",
+                  "phase": "phase_4_runtime_learning_system",
+                  "layer": "learning_stability_monitor",
+                  "available_source_count": 6,
+                  "available_sources": [
+                    "runtime_learning_summary",
+                    "engineering_learning_memory",
+                    "agent_performance_memory",
+                    "provider_scoring_memory",
+                    "adaptive_routing_recommendations",
+                    "runtime_self_monitoring_hud"
+                  ],
+                  "missing_sources": [],
+                  "unreadable_sources": [],
+                  "stability_inputs": {
+                    "layer_count": 6,
+                    "stable_layer_count": 4,
+                    "review_item_count": 1,
+                    "unsafe_layer_count": 0,
+                    "health_state": "stable",
+                    "silence_state": "active",
+                    "stability_state": "stable",
+                    "reflection_state": "clear"
+                  },
+                  "safety_stability": "stable",
+                  "learning_stability": "watch",
+                  "review_items": [
+                    {
+                      "provider": "openrouter",
+                      "reason": "static_validation_ready_but_runtime_trust_missing"
+                    }
+                  ],
+                  "unsafe_layers": [],
+                  "monitor_decision": {
+                    "next_runtime_allowed": true,
+                    "requires_human_review": true,
+                    "allow_autonomous_execution": false,
+                    "allow_autonomous_apply": false
+                  },
+                  "learning_assessment": {
+                    "learning_state": "learning_stability_watch",
+                    "safe_to_display_in_hud": true,
+                    "may_execute_recommendations": false,
+                    "may_apply_changes": false
+                  },
+                  "recommendation": "use_as_memory_input_for_safe_learning_hud_report",
+                  "result": "learning_stability_monitor_built"
+                }
+              },
+              "safe_learning_hud_report": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:11:43.300782+00:00",
+                  "runtime": "safe_learning_hud_report",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "memory_mode": "safe_read_only_learning_hud",
+                  "phase": "phase_4_runtime_learning_system",
+                  "layer": "safe_learning_hud_report",
+                  "available_source_count": 6,
+                  "available_sources": [
+                    "engineering_learning_memory",
+                    "agent_performance_memory",
+                    "provider_scoring_memory",
+                    "adaptive_routing_recommendations",
+                    "runtime_learning_summary",
+                    "learning_stability_monitor"
+                  ],
+                  "missing_sources": [],
+                  "unreadable_sources": [],
+                  "hud": {
+                    "title": "Runtime Learning System",
+                    "phase": "Phase 4",
+                    "status": "watch",
+                    "safety_stability": "stable",
+                    "next_runtime_allowed": true,
+                    "requires_human_review": true,
+                    "sections": {
+                      "engineering_learning": {
+                        "state": "stable_learning_ready",
+                        "active_strategy": "Blueprint Extraction",
+                        "active_goal": "architecture-pressure-reduction-v1"
+                      },
+                      "agent_performance": {
+                        "state": "stable_agent_performance_memory",
+                        "agent_count": 7,
+                        "selected_agent": "patch_agent"
+                      },
+                      "provider_scoring": {
+                        "state": "provider_scores_need_review",
+                        "provider_count": 3,
+                        "recommended_provider_for_review": "openrouter"
+                      },
+                      "routing_recommendations": {
+                        "state": "routing_recommendations_need_review",
+                        "provider_decision_state": "review_required_before_use",
+                        "agent_decision_state": "planning_memory_only"
+                      }
+                    },
+                    "warnings": [
+                      {
+                        "type": "provider_review",
+                        "message": "static_validation_ready_but_runtime_trust_missing",
+                        "subject": "openrouter"
+                      }
+                    ],
+                    "locks": {
+                      "execution_allowed": false,
+                      "apply_allowed": false,
+                      "autonomous_apply": false,
+                      "dangerous_autonomous_apply": false,
+                      "human_approval_required": true
+                    }
+                  },
+                  "learning_assessment": {
+                    "learning_state": "safe_learning_hud_review_visible",
+                    "safe_to_display_in_hud": true,
+                    "may_execute_recommendations": false,
+                    "may_apply_changes": false
+                  },
+                  "recommendation": "phase_4_complete_continue_to_external_toolchain_runtime",
+                  "result": "safe_learning_hud_report_built"
+                }
+              }
+            }
+          },
+          "toolchain": {
+            "available_count": 7,
+            "sources": {
+              "ide_awareness_runtime": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:18:00.709746+00:00",
+                  "runtime": "ide_awareness_runtime",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "awareness_mode": "safe_read_only_ide_observation",
+                  "phase": "phase_5_external_toolchain_runtime",
+                  "layer": "ide_awareness_runtime",
+                  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+                  "ide_indicators": {
+                    "vscode_workspace": {
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.vscode",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    "idea_workspace": {
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.idea",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    "editorconfig": {
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.editorconfig",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    "devcontainer": {
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.devcontainer",
+                      "exists": false,
+                      "kind": "missing"
+                    }
+                  },
+                  "detected_indicators": [],
+                  "terminal_hints": {
+                    "term_program": null,
+                    "vscode_pid_present": false,
+                    "cursor_trace_present": false,
+                    "shell": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+                  },
+                  "ide_awareness_state": "not_detected",
+                  "risk_signal": "low",
+                  "notes": [
+                    "IDE awareness is observation-only.",
+                    "No editor automation or file mutation was attempted.",
+                    "No autonomous execution capability is enabled."
+                  ],
+                  "recommendation": "use_as_input_for_container_execution_awareness",
+                  "result": "ide_awareness_runtime_built"
+                }
+              },
+              "container_execution_awareness": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:19:16.817732+00:00",
+                  "runtime": "container_execution_awareness",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "awareness_mode": "safe_read_only_container_observation",
+                  "phase": "phase_5_external_toolchain_runtime",
+                  "layer": "container_execution_awareness",
+                  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+                  "observed_files": [
+                    {
+                      "relative_path": "Dockerfile",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\Dockerfile",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "Containerfile",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\Containerfile",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "docker-compose.yml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\docker-compose.yml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "docker-compose.yaml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\docker-compose.yaml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "compose.yml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\compose.yml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "compose.yaml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\compose.yaml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": ".dockerignore",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.dockerignore",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": ".devcontainer/devcontainer.json",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.devcontainer\\devcontainer.json",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": ".devcontainer/Dockerfile",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.devcontainer\\Dockerfile",
+                      "exists": false,
+                      "kind": "missing"
+                    }
+                  ],
+                  "detected_file_count": 0,
+                  "detected_files": [],
+                  "container_signals": {
+                    "compose_present": false,
+                    "image_definition_present": false,
+                    "devcontainer_present": false
+                  },
+                  "container_awareness_state": "not_detected",
+                  "risk_signal": "low",
+                  "prohibited_actions": [
+                    "docker_build",
+                    "docker_run",
+                    "docker_compose_up",
+                    "podman_run",
+                    "container_mutation"
+                  ],
+                  "notes": [
+                    "Container awareness is observation-only.",
+                    "No Docker, Podman, or compose commands were executed.",
+                    "No images, networks, volumes, or containers were created or modified."
+                  ],
+                  "recommendation": "use_as_input_for_ci_cd_awareness_runtime",
+                  "result": "container_execution_awareness_built"
+                }
+              },
+              "ci_cd_awareness_runtime": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:20:47.550346+00:00",
+                  "runtime": "ci_cd_awareness_runtime",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "awareness_mode": "safe_read_only_ci_cd_observation",
+                  "phase": "phase_5_external_toolchain_runtime",
+                  "layer": "ci_cd_awareness_runtime",
+                  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+                  "observed_paths": [
+                    {
+                      "relative_path": ".github/workflows",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.github\\workflows",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": ".gitlab-ci.yml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.gitlab-ci.yml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "azure-pipelines.yml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\azure-pipelines.yml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "Jenkinsfile",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\Jenkinsfile",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": ".circleci/config.yml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.circleci\\config.yml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": ".buildkite/pipeline.yml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.buildkite\\pipeline.yml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "Procfile",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\Procfile",
+                      "exists": true,
+                      "kind": "file"
+                    },
+                    {
+                      "relative_path": "nixpacks.toml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\nixpacks.toml",
+                      "exists": true,
+                      "kind": "file"
+                    },
+                    {
+                      "relative_path": "render.yaml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\render.yaml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "vercel.json",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\vercel.json",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "netlify.toml",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\netlify.toml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "deploy.sh",
+                      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\deploy.sh",
+                      "exists": true,
+                      "kind": "file"
+                    }
+                  ],
+                  "detected_paths": [
+                    "Procfile",
+                    "nixpacks.toml",
+                    "deploy.sh"
+                  ],
+                  "detected_path_count": 3,
+                  "workflow_file_count": 0,
+                  "ci_cd_awareness_state": "detected",
+                  "risk_signal": "watch",
+                  "prohibited_actions": [
+                    "deploy",
+                    "remote_ci_trigger",
+                    "workflow_dispatch",
+                    "git_push",
+                    "secret_mutation"
+                  ],
+                  "notes": [
+                    "CI/CD awareness is observation-only.",
+                    "No remote operations, deployments, or workflow triggers were executed.",
+                    "Configuration files were detected by path only."
+                  ],
+                  "recommendation": "use_as_input_for_local_test_runner_observer",
+                  "result": "ci_cd_awareness_runtime_built"
+                }
+              },
+              "local_test_runner_observer": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:21:57.448950+00:00",
+                  "runtime": "local_test_runner_observer",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "awareness_mode": "safe_read_only_test_runner_observation",
+                  "phase": "phase_5_external_toolchain_runtime",
+                  "layer": "local_test_runner_observer",
+                  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+                  "test_configs": [
+                    {
+                      "relative_path": "pytest.ini",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "tox.ini",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "noxfile.py",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "pyproject.toml",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "setup.cfg",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "package.json",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "jest.config.js",
+                      "exists": false,
+                      "kind": "missing"
+                    },
+                    {
+                      "relative_path": "vitest.config.js",
+                      "exists": false,
+                      "kind": "missing"
+                    }
+                  ],
+                  "test_directories": [
+                    {
+                      "relative_path": "tests",
+                      "exists": true,
+                      "kind": "directory"
+                    },
+                    {
+                      "relative_path": "JARVIS_CORE/tests",
+                      "exists": true,
+                      "kind": "directory"
+                    }
+                  ],
+                  "python_test_file_count": 11,
+                  "sample_python_test_files": [
+                    "JARVIS_CORE\\jarvis\\execution\\test_runner.py",
+                    "JARVIS_CORE\\tests\\test_safe_patch_generator.py",
+                    "deep_test.py",
+                    "golden_accounting_test.py",
+                    "pro_test.py",
+                    "safe_ultimate_test.py",
+                    "tests\\codex_cycle_test.py",
+                    "tests\\codex_users_test.py",
+                    "tests\\hr_enterprise_test.py",
+                    "tests\\hr_module_test.py",
+                    "tests\\hr_payroll_egypt_auto_test.py"
+                  ],
+                  "likely_test_runners": [
+                    "python_test_files_present"
+                  ],
+                  "test_runner_state": "detected",
+                  "risk_signal": "low",
+                  "prohibited_actions": [
+                    "heavy_test_execution_without_request",
+                    "test_database_mutation",
+                    "coverage_artifact_cleanup",
+                    "destructive_fixture_reset"
+                  ],
+                  "notes": [
+                    "Test runner observer did not execute tests.",
+                    "Detected files and configs are reported for planning only."
+                  ],
+                  "recommendation": "use_as_input_for_dependency_health_observer",
+                  "result": "local_test_runner_observer_built"
+                }
+              },
+              "dependency_health_observer": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:23:26.589944+00:00",
+                  "runtime": "dependency_health_observer",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "awareness_mode": "safe_read_only_dependency_observation",
+                  "phase": "phase_5_external_toolchain_runtime",
+                  "layer": "dependency_health_observer",
+                  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+                  "dependency_files": [
+                    {
+                      "relative_path": "requirements.txt",
+                      "exists": true,
+                      "kind": "file",
+                      "read_mode": "metadata_only",
+                      "size_bytes": 76,
+                      "dependency_line_count": 6
+                    },
+                    {
+                      "relative_path": "pyproject.toml",
+                      "exists": false,
+                      "kind": "missing",
+                      "read_mode": "metadata_only"
+                    },
+                    {
+                      "relative_path": "Pipfile",
+                      "exists": false,
+                      "kind": "missing",
+                      "read_mode": "metadata_only"
+                    },
+                    {
+                      "relative_path": "poetry.lock",
+                      "exists": false,
+                      "kind": "missing",
+                      "read_mode": "metadata_only"
+                    },
+                    {
+                      "relative_path": "package.json",
+                      "exists": false,
+                      "kind": "missing",
+                      "read_mode": "metadata_only"
+                    },
+                    {
+                      "relative_path": "package-lock.json",
+                      "exists": false,
+                      "kind": "missing",
+                      "read_mode": "metadata_only"
+                    },
+                    {
+                      "relative_path": "yarn.lock",
+                      "exists": false,
+                      "kind": "missing",
+                      "read_mode": "metadata_only"
+                    },
+                    {
+                      "relative_path": "pnpm-lock.yaml",
+                      "exists": false,
+                      "kind": "missing",
+                      "read_mode": "metadata_only"
+                    },
+                    {
+                      "relative_path": "environment.yml",
+                      "exists": false,
+                      "kind": "missing",
+                      "read_mode": "metadata_only"
+                    }
+                  ],
+                  "detected_files": [
+                    "requirements.txt"
+                  ],
+                  "detected_file_count": 1,
+                  "primary_manifests": [
+                    "requirements.txt"
+                  ],
+                  "dependency_counts": {
+                    "requirements.txt": 6
+                  },
+                  "lock_files_present": [],
+                  "dependency_health_state": "detected",
+                  "risk_signal": "watch",
+                  "prohibited_actions": [
+                    "package_install",
+                    "package_upgrade",
+                    "lockfile_write",
+                    "dependency_resolution",
+                    "network_package_fetch"
+                  ],
+                  "notes": [
+                    "Dependency observer inspected files only.",
+                    "No packages were installed, upgraded, resolved, or downloaded.",
+                    "No dependency or lock files were modified."
+                  ],
+                  "recommendation": "use_as_input_for_toolchain_risk_classifier",
+                  "result": "dependency_health_observer_built"
+                }
+              },
+              "toolchain_risk_classifier": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:24:45.692111+00:00",
+                  "runtime": "toolchain_risk_classifier",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "classifier_mode": "safe_read_only_toolchain_risk_aggregation",
+                  "phase": "phase_5_external_toolchain_runtime",
+                  "layer": "toolchain_risk_classifier",
+                  "available_source_count": 5,
+                  "available_sources": [
+                    "ide_awareness_runtime",
+                    "container_execution_awareness",
+                    "ci_cd_awareness_runtime",
+                    "local_test_runner_observer",
+                    "dependency_health_observer"
+                  ],
+                  "missing_sources": [],
+                  "unreadable_sources": [],
+                  "source_summaries": {
+                    "ide_awareness_runtime": {
+                      "available": true,
+                      "risk_signal": "low",
+                      "safety_locked": true,
+                      "result": "ide_awareness_runtime_built"
+                    },
+                    "container_execution_awareness": {
+                      "available": true,
+                      "risk_signal": "low",
+                      "safety_locked": true,
+                      "result": "container_execution_awareness_built"
+                    },
+                    "ci_cd_awareness_runtime": {
+                      "available": true,
+                      "risk_signal": "watch",
+                      "safety_locked": true,
+                      "result": "ci_cd_awareness_runtime_built"
+                    },
+                    "local_test_runner_observer": {
+                      "available": true,
+                      "risk_signal": "low",
+                      "safety_locked": true,
+                      "result": "local_test_runner_observer_built"
+                    },
+                    "dependency_health_observer": {
+                      "available": true,
+                      "risk_signal": "watch",
+                      "safety_locked": true,
+                      "result": "dependency_health_observer_built"
+                    }
+                  },
+                  "watch_sources": [
+                    "ci_cd_awareness_runtime",
+                    "dependency_health_observer"
+                  ],
+                  "unsafe_sources": [],
+                  "risk_reasons": [
+                    "deployment_or_ci_cd_files_detected",
+                    "dependency_manifest_without_lock_file",
+                    "local_tests_detected_but_not_executed"
+                  ],
+                  "risk_class": "watch",
+                  "monitoring_decision": {
+                    "safe_to_display_in_hud": true,
+                    "requires_human_review": true,
+                    "allow_tool_execution": false,
+                    "allow_destructive_execution": false,
+                    "allow_deploy": false
+                  },
+                  "recommendation": "use_as_input_for_external_toolchain_hud",
+                  "result": "toolchain_risk_classifier_built"
+                }
+              },
+              "external_toolchain_hud": {
+                "exists": true,
+                "data": {
+                  "timestamp": "2026-05-15T09:26:17.798343+00:00",
+                  "runtime": "external_toolchain_hud",
+                  "bounded": true,
+                  "execution_allowed": false,
+                  "apply_allowed": false,
+                  "autonomous_apply": false,
+                  "dangerous_autonomous_apply": false,
+                  "human_approval_required": true,
+                  "hud_mode": "safe_read_only_external_toolchain_visibility",
+                  "phase": "phase_5_external_toolchain_runtime",
+                  "layer": "external_toolchain_hud",
+                  "available_source_count": 6,
+                  "available_sources": [
+                    "ide_awareness_runtime",
+                    "container_execution_awareness",
+                    "ci_cd_awareness_runtime",
+                    "local_test_runner_observer",
+                    "dependency_health_observer",
+                    "toolchain_risk_classifier"
+                  ],
+                  "missing_sources": [],
+                  "unreadable_sources": [],
+                  "hud": {
+                    "title": "External Toolchain Runtime",
+                    "phase": "Phase 5",
+                    "status": "watch",
+                    "monitoring_only": true,
+                    "requires_human_review": true,
+                    "sections": {
+                      "ide_awareness": {
+                        "state": "not_detected",
+                        "detected_indicators": []
+                      },
+                      "container_awareness": {
+                        "state": "not_detected",
+                        "detected_files": []
+                      },
+                      "ci_cd_awareness": {
+                        "state": "detected",
+                        "detected_paths": [
+                          "Procfile",
+                          "nixpacks.toml",
+                          "deploy.sh"
+                        ],
+                        "workflow_file_count": 0
+                      },
+                      "local_test_runner": {
+                        "state": "detected",
+                        "python_test_file_count": 11,
+                        "likely_test_runners": [
+                          "python_test_files_present"
+                        ]
+                      },
+                      "dependency_health": {
+                        "state": "detected",
+                        "detected_files": [
+                          "requirements.txt"
+                        ],
+                        "lock_files_present": []
+                      },
+                      "risk_classifier": {
+                        "risk_class": "watch",
+                        "watch_sources": [
+                          "ci_cd_awareness_runtime",
+                          "dependency_health_observer"
+                        ],
+                        "unsafe_sources": []
+                      }
+                    },
+                    "warnings": [
+                      {
+                        "type": "toolchain_risk",
+                        "message": "deployment_or_ci_cd_files_detected"
+                      },
+                      {
+                        "type": "toolchain_risk",
+                        "message": "dependency_manifest_without_lock_file"
+                      },
+                      {
+                        "type": "toolchain_risk",
+                        "message": "local_tests_detected_but_not_executed"
+                      }
+                    ],
+                    "locks": {
+                      "execution_allowed": false,
+                      "apply_allowed": false,
+                      "autonomous_apply": false,
+                      "dangerous_autonomous_apply": false,
+                      "deploy_allowed": false,
+                      "destructive_execution_allowed": false,
+                      "human_approval_required": true
+                    }
+                  },
+                  "learning_assessment": {
+                    "toolchain_state": "toolchain_monitoring_watch",
+                    "safe_to_display_in_hud": true,
+                    "may_execute_recommendations": false,
+                    "may_apply_changes": false
+                  },
+                  "recommendation": "phase_5_complete_continue_to_mobile_control_center",
+                  "result": "external_toolchain_hud_built"
+                }
+              }
+            }
+          }
+        },
+        "summary": {
+          "engineering_available": 6,
+          "agent_society_available": 6,
+          "cognition_available": 6,
+          "learning_available": 5,
+          "toolchain_available": 7,
+          "safe_to_display": true
+        },
+        "recommendation": "use_as_input_for_cognitive_supervision_hud_section",
+        "result": "unified_runtime_hud_api_built"
+      },
+      "cognitive": {
+        "timestamp": "2026-05-15T09:37:29.979084+00:00",
+        "runtime": "cognitive_supervision_hud_section",
+        "bounded": true,
+        "execution_allowed": false,
+        "apply_allowed": false,
+        "autonomous_apply": false,
+        "dangerous_autonomous_apply": false,
+        "human_approval_required": true,
+        "hud_mode": "safe_read_only_cognitive_supervision_section",
+        "phase": "phase_6_full_mobile_control_center",
+        "layer": "cognitive_supervision_section",
+        "source": "runtime_self_monitoring_hud.json",
+        "section": {
+          "health_state": "stable",
+          "silence_state": "active",
+          "stability_state": "stable",
+          "reflection_state": "clear",
+          "next_runtime_allowed": true,
+          "health_score": 100,
+          "stability_score": 100,
+          "loop_state": "completed"
+        },
+        "section_state": "stable",
+        "recommendation": "use_as_input_for_agent_society_hud_section",
+        "result": "cognitive_supervision_hud_section_built"
+      },
+      "agent_society": {
+        "timestamp": "2026-05-15T09:38:58.446026+00:00",
+        "runtime": "agent_society_hud_section",
+        "bounded": true,
+        "execution_allowed": false,
+        "apply_allowed": false,
+        "autonomous_apply": false,
+        "dangerous_autonomous_apply": false,
+        "human_approval_required": true,
+        "hud_mode": "safe_read_only_agent_society_section",
+        "phase": "phase_6_full_mobile_control_center",
+        "layer": "agent_society_section",
+        "section": {
+          "society_state": "initialized",
+          "agent_count": 7,
+          "agents": {
+            "planner_agent": {
+              "role": "planning",
+              "risk_level": "low",
+              "can_apply": false
+            },
+            "patch_agent": {
+              "role": "patch_generation",
+              "risk_level": "medium",
+              "can_apply": false
+            },
+            "reviewer_agent": {
+              "role": "review",
+              "risk_level": "low",
+              "can_apply": false
+            },
+            "validator_agent": {
+              "role": "validation",
+              "risk_level": "low",
+              "can_apply": false
+            },
+            "rollback_agent": {
+              "role": "recovery",
+              "risk_level": "medium",
+              "can_apply": false
+            },
+            "memory_agent": {
+              "role": "memory",
+              "risk_level": "low",
+              "can_apply": false
+            },
+            "security_agent": {
+              "role": "governance",
+              "risk_level": "high",
+              "can_apply": false
+            }
+          },
+          "routing": {
+            "selected_agent": "patch_agent",
+            "selected_role": "patch_generation",
+            "routing_state": "routed",
+            "execution_allowed": false
+          },
+          "delegation": {
+            "workflow_state": "delegated",
+            "workflow_steps": 6,
+            "execution_allowed": false
+          },
+          "consensus": {
+            "consensus_state": "approved_for_planning_only",
+            "vote_count": 3,
+            "apply_allowed": false
+          },
+          "event_log": {
+            "latest_event_type": "orchestration_recorded",
+            "event_log_path": "JARVIS_CORE/runtime_logs/agent_society_events.jsonl"
+          },
+          "aggregate": {
+            "aggregate_state": "ready",
+            "latest_task": "implement safe runtime dashboard patch",
+            "latest_event_type": "orchestration_recorded"
+          }
+        },
+        "unsafe_agents": [],
+        "section_state": "stable",
+        "recommendation": "use_as_input_for_engineering_runtime_hud_section",
+        "result": "agent_society_hud_section_built"
+      },
+      "engineering": {
+        "timestamp": "2026-05-15T09:40:15.733130+00:00",
+        "runtime": "engineering_runtime_hud_section",
+        "bounded": true,
+        "execution_allowed": false,
+        "apply_allowed": false,
+        "autonomous_apply": false,
+        "dangerous_autonomous_apply": false,
+        "human_approval_required": true,
+        "hud_mode": "safe_read_only_engineering_runtime_section",
+        "phase": "phase_6_full_mobile_control_center",
+        "layer": "engineering_runtime_section",
+        "section": {
+          "approval_state": "locked",
+          "authorization_scope": "execution_preparation_only",
+          "execution_lock_state": "locked",
+          "apply_decision": "ready_for_human_approval",
+          "controlled_apply_execution_allowed": false,
+          "rollback_ready": true,
+          "rollback_state": "rollback_ready",
+          "mutation_state": "persistent_execution_memory",
+          "validation_state": "not_available",
+          "supervision_state": "execution_locked_pending_review",
+          "execution_decision": "blocked_until_clean_review",
+          "locks": {
+            "execution_allowed": false,
+            "apply_allowed": false,
+            "autonomous_apply": false,
+            "dangerous_autonomous_apply": false,
+            "human_approval_required": true,
+            "project_apply_allowed": false
+          }
+        },
+        "section_state": "locked",
+        "recommendation": "use_as_input_for_learning_runtime_hud_section",
+        "result": "engineering_runtime_hud_section_built"
+      },
+      "learning": {
+        "timestamp": "2026-05-15T09:41:45.274001+00:00",
+        "runtime": "learning_runtime_hud_section",
+        "bounded": true,
+        "execution_allowed": false,
+        "apply_allowed": false,
+        "autonomous_apply": false,
+        "dangerous_autonomous_apply": false,
+        "human_approval_required": true,
+        "hud_mode": "safe_read_only_learning_runtime_section",
+        "phase": "phase_6_full_mobile_control_center",
+        "layer": "learning_runtime_section",
+        "section": {
+          "runtime_learning_state": "runtime_learning_review_required",
+          "review_items": [
+            {
+              "provider": "openrouter",
+              "reason": "static_validation_ready_but_runtime_trust_missing"
+            }
+          ],
+          "provider_scoring_state": "provider_scores_need_review",
+          "recommended_provider_for_review": "openrouter",
+          "provider_review_flags": [
+            {
+              "provider": "openrouter",
+              "reason": "static_validation_ready_but_runtime_trust_missing"
+            }
+          ],
+          "adaptive_routing_state": "routing_recommendations_need_review",
+          "provider_decision_state": "review_required_before_use",
+          "learning_stability": "watch",
+          "safety_stability": "stable",
+          "next_runtime_allowed": true,
+          "safe_learning_hud_status": "watch",
+          "safe_learning_warnings": [
+            {
+              "type": "provider_review",
+              "message": "static_validation_ready_but_runtime_trust_missing",
+              "subject": "openrouter"
+            }
+          ]
+        },
+        "warning_count": 3,
+        "section_state": "watch",
+        "recommendation": "use_as_input_for_toolchain_runtime_hud_section",
+        "result": "learning_runtime_hud_section_built"
+      },
+      "toolchain": {
+        "timestamp": "2026-05-15T09:42:56.011798+00:00",
+        "runtime": "toolchain_runtime_hud_section",
+        "bounded": true,
+        "execution_allowed": false,
+        "apply_allowed": false,
+        "autonomous_apply": false,
+        "dangerous_autonomous_apply": false,
+        "human_approval_required": true,
+        "hud_mode": "safe_read_only_toolchain_runtime_section",
+        "phase": "phase_6_full_mobile_control_center",
+        "layer": "toolchain_runtime_section",
+        "section": {
+          "ide_state": "not_detected",
+          "container_state": "not_detected",
+          "container_files": [],
+          "ci_cd_state": "detected",
+          "ci_cd_detected_paths": [
+            "Procfile",
+            "nixpacks.toml",
+            "deploy.sh"
+          ],
+          "test_runner_state": "detected",
+          "python_test_file_count": 11,
+          "dependency_state": "detected",
+          "dependency_files": [
+            "requirements.txt"
+          ],
+          "lock_files_present": [],
+          "risk_class": "watch",
+          "risk_reasons": [
+            "deployment_or_ci_cd_files_detected",
+            "dependency_manifest_without_lock_file",
+            "local_tests_detected_but_not_executed"
+          ],
+          "watch_sources": [
+            "ci_cd_awareness_runtime",
+            "dependency_health_observer"
+          ],
+          "unsafe_sources": [],
+          "external_toolchain_hud_status": "watch",
+          "external_toolchain_warnings": [
+            {
+              "type": "toolchain_risk",
+              "message": "deployment_or_ci_cd_files_detected"
+            },
+            {
+              "type": "toolchain_risk",
+              "message": "dependency_manifest_without_lock_file"
+            },
+            {
+              "type": "toolchain_risk",
+              "message": "local_tests_detected_but_not_executed"
+            }
+          ]
+        },
+        "warning_count": 6,
+        "section_state": "watch",
+        "recommendation": "use_as_input_for_runtime_warnings_locks_hud_section",
+        "result": "toolchain_runtime_hud_section_built"
+      },
+      "warnings_locks": {
+        "timestamp": "2026-05-15T09:44:13.224667+00:00",
+        "runtime": "runtime_warnings_locks_hud_section",
+        "bounded": true,
+        "execution_allowed": false,
+        "apply_allowed": false,
+        "autonomous_apply": false,
+        "dangerous_autonomous_apply": false,
+        "human_approval_required": true,
+        "hud_mode": "safe_read_only_warnings_locks_section",
+        "phase": "phase_6_full_mobile_control_center",
+        "layer": "runtime_warnings_locks_section",
+        "watch_states": [
+          {
+            "section": "learning",
+            "state": "watch"
+          },
+          {
+            "section": "toolchain",
+            "state": "watch"
+          }
+        ],
+        "warnings": [
+          {
+            "section": "learning",
+            "warning_count": 3,
+            "state": "watch"
+          },
+          {
+            "section": "toolchain",
+            "warning_count": 6,
+            "state": "watch"
+          }
+        ],
+        "blockers": [
+          {
+            "section": "engineering",
+            "reason": "validation_guard_not_available"
+          },
+          {
+            "section": "learning",
+            "reason": "static_validation_ready_but_runtime_trust_missing",
+            "subject": "openrouter"
+          },
+          {
+            "section": "toolchain",
+            "reason": "deployment_or_ci_cd_files_detected"
+          },
+          {
+            "section": "toolchain",
+            "reason": "dependency_manifest_without_lock_file"
+          },
+          {
+            "section": "toolchain",
+            "reason": "local_tests_detected_but_not_executed"
+          }
+        ],
+        "locks": {
+          "bounded": true,
+          "execution_allowed": false,
+          "apply_allowed": false,
+          "autonomous_apply": false,
+          "dangerous_autonomous_apply": false,
+          "human_approval_required": true,
+          "auto_apply_enabled": false,
+          "deploy_allowed": false,
+          "destructive_execution_allowed": false
+        },
+        "human_review_required": true,
+        "section_state": "watch",
+        "recommendation": "use_as_input_for_mobile_control_center_ui_integration",
+        "result": "runtime_warnings_locks_hud_section_built"
+      }
+    },
+    "locks": {
+      "bounded": true,
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "autonomous_apply": false,
+      "dangerous_autonomous_apply": false,
+      "human_approval_required": true,
+      "auto_apply_enabled": false,
+      "deploy_allowed": false,
+      "destructive_execution_allowed": false
+    },
+    "warnings": [
+      {
+        "section": "learning",
+        "warning_count": 3,
+        "state": "watch"
+      },
+      {
+        "section": "toolchain",
+        "warning_count": 6,
+        "state": "watch"
+      }
+    ],
+    "blockers": [
+      {
+        "section": "engineering",
+        "reason": "validation_guard_not_available"
+      },
+      {
+        "section": "learning",
+        "reason": "static_validation_ready_but_runtime_trust_missing",
+        "subject": "openrouter"
+      },
+      {
+        "section": "toolchain",
+        "reason": "deployment_or_ci_cd_files_detected"
+      },
+      {
+        "section": "toolchain",
+        "reason": "dependency_manifest_without_lock_file"
+      },
+      {
+        "section": "toolchain",
+        "reason": "local_tests_detected_but_not_executed"
+      }
+    ]
+  },
+  "recommendation": "phase_6_complete_continue_to_voice_runtime",
+  "result": "mobile_control_center_hud_integration_built"
+}

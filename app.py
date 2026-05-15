@@ -831,6 +831,15 @@ def jarvis_mobile_control_center():
     )
 
 
+@app.route("/jarvis/mobile/api/unified-hud")
+def jarvis_mobile_unified_hud():
+    from JARVIS_CORE.jarvis.runtime.mobile_control_center_hud_integration import (
+        build_mobile_control_center_hud,
+    )
+
+    return jsonify(build_mobile_control_center_hud(write_output=False))
+
+
 @app.route("/dev-control")
 @login_required
 @admin_required
