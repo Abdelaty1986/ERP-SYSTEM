@@ -1,0 +1,50 @@
+{
+  "phase": "Phase 14 - Full Voice Conversation Runtime",
+  "layer": "Layer 1 - Voice System Audit",
+  "generated_at": "2026-05-15T15:09:39.451803+00:00",
+  "state": "operational",
+  "safety": {
+    "bounded": true,
+    "autonomous_apply": false,
+    "deploy_allowed": false,
+    "database_mutation_allowed": false,
+    "destructive_execution_allowed": false,
+    "human_approval_required_for_risky_actions": true,
+    "voice_commands_bypass_governance": false
+  },
+  "voice_files_detected": [
+    "JARVIS_CORE/jarvis/agents/reviewer_agent.py",
+    "JARVIS_CORE/jarvis/architecture/dependency_reasoning_engine.py",
+    "JARVIS_CORE/jarvis/config/runtime_config.py",
+    "JARVIS_CORE/jarvis/core/egyptian_voice_prompts.py",
+    "JARVIS_CORE/jarvis/core/execution_pipeline.py",
+    "JARVIS_CORE/jarvis/core/identity_loader.py",
+    "JARVIS_CORE/jarvis/core/interactive_voice_listener.py",
+    "JARVIS_CORE/jarvis/core/orchestrator.py",
+    "JARVIS_CORE/jarvis/core/output_formatter.py",
+    "JARVIS_CORE/jarvis/core/planning_engine.py",
+    "JARVIS_CORE/jarvis/core/voice_runtime.py",
+    "JARVIS_CORE/jarvis/interfaces/live_jarvis_loop.py",
+    "JARVIS_CORE/jarvis/interfaces/voice_cli.py",
+    "JARVIS_CORE/jarvis/mobile/mobile_control_center.py",
+    "JARVIS_CORE/jarvis/mobile/mobile_runtime_api.py",
+    "JARVIS_CORE/jarvis/runtime/__pycache__/full_voice_conversation_probe.cpython-313.pyc",
+    "JARVIS_CORE/jarvis/runtime/__pycache__/full_voice_intent_router.cpython-313.pyc",
+    "JARVIS_CORE/jarvis/runtime/__pycache__/full_voice_safety_guard.cpython-313.pyc",
+    "JARVIS_CORE/jarvis/runtime/full_voice_conversation_probe.py",
+    "JARVIS_CORE/jarvis/runtime/full_voice_intent_router.py",
+    "JARVIS_CORE/jarvis/runtime/full_voice_safety_guard.py",
+    "JARVIS_CORE/jarvis/voice/voice_manager.py",
+    "templates/jarvis/mobile_control_center.html"
+  ],
+  "browser_voice_capabilities": {
+    "speech_recognition": "provided_by_browser_when_available",
+    "speech_synthesis": "provided_by_browser_when_available",
+    "server_side_audio_capture": false
+  },
+  "routes": {
+    "voice_command": "/jarvis/mobile/api/voice/command",
+    "method": "POST",
+    "executes_dangerous_actions": false
+  }
+}

@@ -831,6 +831,16 @@ def jarvis_mobile_control_center():
     )
 
 
+@app.route("/jarvis/mobile/api/voice/command", methods=["POST"])
+def jarvis_mobile_voice_command():
+    from JARVIS_CORE.jarvis.runtime.full_voice_intent_router import route_voice_command
+
+    payload = request.get_json(silent=True) or {}
+    recognized_text = str(payload.get("recognized_text") or "").strip()
+    result = route_voice_command(recognized_text)
+    return jsonify(result)
+
+
 @app.route("/dev-control")
 @login_required
 @admin_required
