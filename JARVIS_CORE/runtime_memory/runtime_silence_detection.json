@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-15T08:07:15.805610+00:00",
+  "timestamp": "2026-05-15T08:12:03.669716+00:00",
   "runtime": "runtime_silence_detection",
   "bounded": true,
   "execution_allowed": false,
@@ -21,10 +21,9 @@
     "execution_allowed": false,
     "apply_allowed": false
   },
-  "health_state": "degraded",
+  "health_state": "stable",
   "reasons": [
-    "Only one cognition timeline event found.",
-    "Cognition health report is not stable."
+    "Only one cognition timeline event found."
   ],
   "recommendations": [
     "Run cognition wake cycle to increase runtime activity continuity.",
