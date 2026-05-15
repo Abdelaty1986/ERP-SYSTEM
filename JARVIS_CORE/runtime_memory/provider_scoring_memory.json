@@ -1,0 +1,90 @@
+{
+  "timestamp": "2026-05-15T09:06:54.109611+00:00",
+  "runtime": "provider_scoring_memory",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "memory_mode": "safe_read_only_provider_scoring",
+  "phase": "phase_4_runtime_learning_system",
+  "layer": "provider_scoring_memory",
+  "available_source_count": 5,
+  "available_sources": [
+    "provider_model_validation",
+    "model_trust_memory",
+    "adaptive_model_routing_hud",
+    "adaptive_learning_scoring",
+    "agent_performance_memory"
+  ],
+  "missing_sources": [
+    "provider_trust_memory",
+    "provider_strategy_memory"
+  ],
+  "unreadable_sources": [],
+  "provider_count": 3,
+  "provider_scores": {
+    "gemini": {
+      "validation_state": "needs_model_config",
+      "runtime_state": null,
+      "model_trust_state": "low_confidence",
+      "configured_model": "not_configured",
+      "validation_confidence": 0.35,
+      "runtime_trust_score": 0.0,
+      "model_trust_score": 0.34,
+      "combined_observation_score": 0.207,
+      "ready_in_static_validation": false,
+      "review_required": false,
+      "recommendation_scope": "routing_memory_only"
+    },
+    "groq": {
+      "validation_state": "needs_model_config",
+      "runtime_state": null,
+      "model_trust_state": "low_confidence",
+      "configured_model": "not_configured",
+      "validation_confidence": 0.35,
+      "runtime_trust_score": 0.0,
+      "model_trust_score": 0.35,
+      "combined_observation_score": 0.21,
+      "ready_in_static_validation": false,
+      "review_required": false,
+      "recommendation_scope": "routing_memory_only"
+    },
+    "openrouter": {
+      "validation_state": "ready",
+      "runtime_state": null,
+      "model_trust_state": "trusted",
+      "configured_model": "deepseek/deepseek-v4-flash:free",
+      "validation_confidence": 1.0,
+      "runtime_trust_score": 0.0,
+      "model_trust_score": 0.9,
+      "combined_observation_score": 0.575,
+      "ready_in_static_validation": true,
+      "review_required": true,
+      "recommendation_scope": "routing_memory_only"
+    }
+  },
+  "ranked_providers": [
+    "openrouter",
+    "groq",
+    "gemini"
+  ],
+  "recommended_provider_for_review": "openrouter",
+  "prior_routing_recommendation": "openrouter",
+  "agent_learning_state": "stable_agent_performance_memory",
+  "review_flags": [
+    {
+      "provider": "openrouter",
+      "reason": "static_validation_ready_but_runtime_trust_missing"
+    }
+  ],
+  "learning_assessment": {
+    "learning_state": "provider_scores_need_review",
+    "safe_to_inform_routing_recommendations": true,
+    "may_execute_recommendations": false,
+    "may_apply_changes": false
+  },
+  "recommendation": "use_as_memory_input_for_adaptive_routing_recommendations",
+  "result": "provider_scoring_memory_built"
+}
