@@ -26,7 +26,7 @@ class AgentSocietyRouter:
         if any(k in text for k in ["rollback", "recover", "restore", "failure", "failed"]):
             return "rollback_agent"
 
-        if any(k in text for k in ["validate", "validation", "test", "compile", "run", "checks"]):
+        if any(k in text for k in ["validate", "validation", "test", "compile", "checks"]):
             return "validator_agent"
 
         if any(k in text for k in ["review", "audit", "quality", "inspect"]):
