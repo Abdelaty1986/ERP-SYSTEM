@@ -1,27 +1,22 @@
 {
-  "timestamp": "2026-05-15T08:12:03.775228+00:00",
+  "timestamp": "2026-05-15T08:18:27.947173+00:00",
   "runtime": "cognitive_stability_analysis",
   "bounded": true,
   "execution_allowed": false,
   "apply_allowed": false,
   "autonomous_apply": false,
   "dangerous_autonomous_apply": false,
-  "stability_state": "watch",
-  "stability_score": 55,
+  "stability_state": "stable",
+  "stability_score": 100,
   "inputs": {
     "health_state": "stable",
-    "health_score": 90,
-    "silence_state": "low_activity",
-    "silence_risk": "medium",
-    "timeline_event_count": 1
+    "health_score": 100,
+    "silence_state": "active",
+    "silence_risk": "low",
+    "timeline_event_count": 3
   },
-  "reasons": [
-    "Silence state is low_activity.",
-    "Silence risk is medium.",
-    "Timeline event count is low: 1."
-  ],
+  "reasons": [],
   "recommendations": [
-    "Continue bounded monitoring before unlocking any higher autonomy.",
-    "Run additional wake cycles to enrich cognition timeline continuity."
+    "Cognitive runtime is stable enough for the next bounded runtime layer."
   ]
 }

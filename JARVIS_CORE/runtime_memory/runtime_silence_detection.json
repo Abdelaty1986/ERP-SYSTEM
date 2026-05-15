@@ -1,32 +1,29 @@
 {
-  "timestamp": "2026-05-15T08:12:03.669716+00:00",
+  "timestamp": "2026-05-15T08:18:27.847039+00:00",
   "runtime": "runtime_silence_detection",
   "bounded": true,
   "execution_allowed": false,
   "apply_allowed": false,
   "autonomous_apply": false,
   "dangerous_autonomous_apply": false,
-  "silence_state": "low_activity",
-  "silence_risk": "medium",
-  "timeline_event_count": 1,
+  "silence_state": "active",
+  "silence_risk": "low",
+  "timeline_event_count": 3,
   "latest_event": {
-    "timestamp": "2026-05-15T07:27:03.704652+00:00",
-    "runtime": "cognition_timeline",
+    "timestamp": "2026-05-15T08:18:27.660883+00:00",
+    "runtime": "cognition_wake_cycle",
     "bounded": true,
-    "cognition_state": "awake_snapshot",
-    "selected_agent": "patch_agent",
-    "consensus_state": "approved_for_planning_only",
-    "latest_task": "implement safe runtime dashboard patch",
-    "persistence_mode": "snapshot_only",
+    "cognition_state": "wake_cycle",
     "execution_allowed": false,
-    "apply_allowed": false
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "dangerous_autonomous_apply": false,
+    "wake_reason": "continuity_enrichment",
+    "runtime_activity": "bounded_monitoring"
   },
   "health_state": "stable",
-  "reasons": [
-    "Only one cognition timeline event found."
-  ],
+  "reasons": [],
   "recommendations": [
-    "Run cognition wake cycle to increase runtime activity continuity.",
-    "Do not unlock autonomous execution until cognition activity stabilizes."
+    "Runtime activity appears sufficient for the next monitoring layer."
   ]
 }
