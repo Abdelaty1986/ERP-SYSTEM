@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-05-15T05:19:11.086225+00:00",
+  "runtime": "agent_society_registry",
+  "bounded": true,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "society_state": "initialized",
+  "agents": {
+    "planner_agent": {
+      "role": "planning",
+      "can_apply": false,
+      "risk_level": "low",
+      "description": "Breaks tasks into safe engineering steps."
+    },
+    "patch_agent": {
+      "role": "patch_generation",
+      "can_apply": false,
+      "risk_level": "medium",
+      "description": "Generates structured patch proposals only."
+    },
+    "reviewer_agent": {
+      "role": "review",
+      "can_apply": false,
+      "risk_level": "low",
+      "description": "Reviews proposed changes before approval."
+    },
+    "validator_agent": {
+      "role": "validation",
+      "can_apply": false,
+      "risk_level": "low",
+      "description": "Runs compile and runtime validation checks."
+    },
+    "rollback_agent": {
+      "role": "recovery",
+      "can_apply": false,
+      "risk_level": "medium",
+      "description": "Prepares rollback recommendations."
+    },
+    "memory_agent": {
+      "role": "memory",
+      "can_apply": false,
+      "risk_level": "low",
+      "description": "Records engineering outcomes and lessons."
+    },
+    "security_agent": {
+      "role": "governance",
+      "can_apply": false,
+      "risk_level": "high",
+      "description": "Blocks unsafe or destructive actions."
+    }
+  },
+  "policy": {
+    "human_approval_required": true,
+    "auto_git_commit": false,
+    "auto_git_push": false,
+    "filesystem_scope": "bounded_project_runtime_only",
+    "mutation_mode": "proposal_first"
+  }
+}
