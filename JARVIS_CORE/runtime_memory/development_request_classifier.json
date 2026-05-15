@@ -1,0 +1,104 @@
+{
+  "phase": "Phase 10 - Autonomous Development Governance",
+  "layer": "Layer 2 - Development Request Classifier",
+  "generated_at": "2026-05-15T14:10:11.955621+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "supported_classifications": [
+    "ui_change",
+    "backend_change",
+    "database_change",
+    "runtime_change",
+    "agent_change",
+    "deployment_change",
+    "unknown"
+  ],
+  "risk_levels": [
+    "low",
+    "medium",
+    "high",
+    "critical"
+  ],
+  "classifier_rules": {
+    "ui_change": [
+      "ui",
+      "hud",
+      "template",
+      "css",
+      "static"
+    ],
+    "backend_change": [
+      "route",
+      "api",
+      "backend",
+      "view",
+      "controller",
+      "module"
+    ],
+    "database_change": [
+      "schema",
+      "migration",
+      "database",
+      "db",
+      "table",
+      "sql"
+    ],
+    "runtime_change": [
+      "runtime",
+      "jarvis",
+      "memory",
+      "approval",
+      "governance"
+    ],
+    "agent_change": [
+      "agent",
+      "routing",
+      "skill",
+      "provider"
+    ],
+    "deployment_change": [
+      "deploy",
+      "release",
+      "production",
+      "hosting"
+    ],
+    "unknown": [
+      "fallback when no rule matches"
+    ]
+  },
+  "default_examples": {
+    "UI HUD update": {
+      "classification": "ui_change",
+      "risk": "low"
+    },
+    "ERP route change": {
+      "classification": "backend_change",
+      "risk": "high"
+    },
+    "database schema change": {
+      "classification": "database_change",
+      "risk": "critical"
+    },
+    "agent routing update": {
+      "classification": "agent_change",
+      "risk": "medium"
+    },
+    "deployment request": {
+      "classification": "deployment_change",
+      "risk": "critical"
+    },
+    "unrecognized development work": {
+      "classification": "unknown",
+      "risk": "medium"
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "phase": "Phase 10 - Autonomous Development Governance",
+  "layer": "Layer 4 - Approval Escalation Matrix",
+  "generated_at": "2026-05-15T14:10:11.958740+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "matrix": {
+    "ui_change": {
+      "risk": "low",
+      "who_approves": "human",
+      "what_is_allowed": [
+        "analysis",
+        "planning",
+        "proposal"
+      ],
+      "what_is_blocked": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    "backend_change": {
+      "risk": "high",
+      "who_approves": "human",
+      "what_is_allowed": [
+        "analysis",
+        "planning",
+        "risk_report"
+      ],
+      "what_is_blocked": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    "database_change": {
+      "risk": "critical",
+      "who_approves": "human",
+      "what_is_allowed": [
+        "analysis",
+        "planning",
+        "escalation_report"
+      ],
+      "what_is_blocked": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    "runtime_change": {
+      "risk": "high",
+      "who_approves": "human",
+      "what_is_allowed": [
+        "analysis",
+        "planning",
+        "risk_report"
+      ],
+      "what_is_blocked": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    "agent_change": {
+      "risk": "medium",
+      "who_approves": "human",
+      "what_is_allowed": [
+        "analysis",
+        "planning",
+        "human_review_request"
+      ],
+      "what_is_blocked": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    "deployment_change": {
+      "risk": "critical",
+      "who_approves": "human",
+      "what_is_allowed": [
+        "analysis",
+        "planning",
+        "escalation_report"
+      ],
+      "what_is_blocked": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    "unknown": {
+      "risk": "medium",
+      "who_approves": "human",
+      "what_is_allowed": [
+        "analysis",
+        "planning",
+        "human_review_request"
+      ],
+      "what_is_blocked": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "phase": "Phase 10 - Autonomous Development Governance",
+  "layer": "Layer 7 - Governance Decision Simulator",
+  "generated_at": "2026-05-15T14:10:11.963339+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "simulations": [
+    {
+      "request": "UI HUD update",
+      "classification": "ui_change",
+      "risk": "low",
+      "decision": "planning_only",
+      "allowed_actions": [
+        "analysis",
+        "planning",
+        "proposal"
+      ],
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    {
+      "request": "ERP route change",
+      "classification": "backend_change",
+      "risk": "high",
+      "decision": "human_approval_required",
+      "allowed_actions": [
+        "analysis",
+        "planning",
+        "risk_report"
+      ],
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    {
+      "request": "database schema change",
+      "classification": "database_change",
+      "risk": "critical",
+      "decision": "blocked_unless_explicitly_approved",
+      "allowed_actions": [
+        "analysis",
+        "planning",
+        "escalation_report"
+      ],
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    {
+      "request": "agent routing update",
+      "classification": "agent_change",
+      "risk": "medium",
+      "decision": "plan_plus_human_review",
+      "allowed_actions": [
+        "analysis",
+        "planning",
+        "human_review_request"
+      ],
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    },
+    {
+      "request": "deployment request",
+      "classification": "deployment_change",
+      "risk": "critical",
+      "decision": "blocked_unless_explicitly_approved",
+      "allowed_actions": [
+        "analysis",
+        "planning",
+        "escalation_report"
+      ],
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ],
+      "approval_required": true
+    }
+  ],
+  "simulation_mode": "analysis_only"
+}
