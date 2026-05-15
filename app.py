@@ -5671,6 +5671,10 @@ def jarvis_execution_request():
         command,
         classification.get("reason", "Request is unsupported or unsafe."),
     )
+    approval_execution_runtime.clear_for_blocked_request(
+        command,
+        classification.get("reason", "Request is unsupported or unsafe."),
+    )
     result["flow"] = "unsupported_or_unsafe"
     result["classification"] = classification
     return jsonify(result)

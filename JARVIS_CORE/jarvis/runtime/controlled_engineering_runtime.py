@@ -36,6 +36,7 @@ class ControlledEngineeringRuntime:
         "text",
         "arabic",
         "hud",
+        "dashboard",
         "template",
         "app.py",
         "واجهة",
@@ -575,11 +576,101 @@ class ControlledEngineeringRuntime:
 
     def _build_patch_plan(self, task):
         lowered = task.lower()
+        if self._is_arabic_dashboard_issue(lowered):
+            return self._build_arabic_dashboard_patch_plan(task)
         if "request plan" in lowered and "create patch plan" in lowered:
             return self._build_create_patch_plan_button_patch(task)
         if "engineering patch mode active" in lowered:
             return self._build_hud_label_patch_plan(task)
         return self._build_planning_only_task(task)
+
+    def _is_arabic_dashboard_issue(self, lowered):
+        has_arabic_issue = any(
+            token in lowered
+            for token in (
+                "عربي",
+                "العربية",
+                "العربيه",
+                "لغة",
+                "اللغه",
+                "اللغة",
+                "واجهة",
+                "الواجهة",
+                "dashboard",
+            )
+        )
+        has_ui_surface = any(
+            token in lowered
+            for token in (
+                "dashboard",
+                "hud",
+                "واجهة",
+                "الواجهة",
+                "الرئيسية",
+                "الرئيسيه",
+                "صفحة",
+                "الصفحة",
+            )
+        )
+        return has_arabic_issue and has_ui_surface
+
+    def _build_arabic_dashboard_patch_plan(self, task):
+        target = "templates/jarvis/mobile_control_center.html"
+        original = self._read_project_file(target)
+        updated = self._apply_arabic_dashboard_support_to_text(original)
+        expected_diff = self._build_diff(target, original, updated)
+
+        return {
+            "interpreted_intent": "Improve Arabic and RTL rendering in the JARVIS dashboard/HUD.",
+            "files_to_modify": [target],
+            "proposed_changes": [
+                "Add scoped Arabic/RTL text handling for the JARVIS HUD.",
+                "Ensure mixed Arabic/English task text can wrap safely without overlapping controls.",
+                "Add dir=\"auto\" to the command input and dynamic status/history containers.",
+                "Use an Arabic-capable font fallback without removing existing runtime panels or controls.",
+            ],
+            "expected_change_summary": (
+                "templates/jarvis/mobile_control_center.html will receive scoped CSS and "
+                "dir=\"auto\" attributes for Arabic dashboard text rendering."
+            ),
+            "expected_diff": expected_diff,
+            "risk_level": "low",
+            "validation_plan": [
+                "Confirm the template contains the Arabic HUD support CSS marker.",
+                "Confirm the command input and dynamic text containers use dir=\"auto\".",
+                "Run py_compile only for modified Python files; none are expected for this template patch.",
+                "Record validation status, stdout, and stderr in runtime memory.",
+            ],
+            "rollback_plan": [
+                "Create a rollback checkpoint with original template contents before applying.",
+                "If validation fails, expose rollback in the HUD and keep the checkpoint available.",
+                "Rollback restores the original template content from runtime memory.",
+            ],
+            "apply_supported": True,
+            "safety_decision": {
+                "allowed": True,
+                "reason": (
+                    "Deterministic template-only Arabic HUD rendering patch is safe to apply after approval."
+                    if original != updated
+                    else "Arabic HUD rendering support already exists; approval will re-validate the safe template state."
+                ),
+                "approval_required": True,
+                "bounded_execution": True,
+                "shell_execution": False,
+                "destructive_execution": False,
+                "deploy": False,
+                "file_deletion": False,
+            },
+            "operations": [
+                {
+                    "type": "replace_file_text",
+                    "path": target,
+                    "description": "Add scoped Arabic/RTL HUD rendering support.",
+                    "expected_marker": "JARVIS_ARABIC_HUD_TEXT_SUPPORT",
+                    "content": updated,
+                }
+            ],
+        }
 
     def _build_create_patch_plan_button_patch(self, task):
         target = "templates/jarvis/mobile_control_center.html"
@@ -784,6 +875,54 @@ class ControlledEngineeringRuntime:
         if old not in original:
             raise ValueError("Request Plan button anchor not found.")
         return original.replace(old, new, 1)
+
+    def _apply_arabic_dashboard_support_to_text(self, original):
+        text = original
+        marker = "JARVIS_ARABIC_HUD_TEXT_SUPPORT"
+        if marker not in text:
+            css = """
+/* JARVIS_ARABIC_HUD_TEXT_SUPPORT */
+.jarvis-arabic-text,
+.approval-execution-console [dir="auto"],
+.approval-execution-console [dir="rtl"],
+.engineering-patch-panel [dir="auto"],
+.engineering-patch-panel [dir="rtl"]{
+  font-family:Tahoma,"Segoe UI",Arial,sans-serif;
+  unicode-bidi:plaintext;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  line-height:1.55;
+}
+
+.approval-execution-console input[dir="auto"]{
+  text-align:start;
+}
+"""
+            anchor = ".engineering-patch-active-label{"
+            if anchor not in text:
+                raise ValueError("Arabic HUD CSS anchor not found.")
+            text = text.replace(anchor, css + "\n" + anchor, 1)
+
+        replacements = {
+            '<input id="jarvis-execution-command-input" type="text" value="git status --short" autocomplete="off">':
+                '<input id="jarvis-execution-command-input" type="text" value="git status --short" autocomplete="off" dir="auto">',
+            '<div class="value" id="jarvis-current-command">Waiting for command</div>':
+                '<div class="value jarvis-arabic-text" id="jarvis-current-command" dir="auto">Waiting for command</div>',
+            '<div class="value" id="jarvis-interpreted-action">No command interpreted</div>':
+                '<div class="value jarvis-arabic-text" id="jarvis-interpreted-action" dir="auto">No command interpreted</div>',
+            '<div class="value" id="jarvis-patch-task">Waiting for engineering task</div>':
+                '<div class="value jarvis-arabic-text" id="jarvis-patch-task" dir="auto">Waiting for engineering task</div>',
+            '<pre class="patch-preview" id="jarvis-patch-diff">No patch preview yet.</pre>':
+                '<pre class="patch-preview jarvis-arabic-text" id="jarvis-patch-diff" dir="auto">No patch preview yet.</pre>',
+            '<div class="execution-history" id="jarvis-patch-history">':
+                '<div class="execution-history jarvis-arabic-text" id="jarvis-patch-history" dir="auto">',
+            '<div class="execution-history" id="jarvis-execution-history">':
+                '<div class="execution-history jarvis-arabic-text" id="jarvis-execution-history" dir="auto">',
+        }
+        for old, new in replacements.items():
+            if old in text and new not in text:
+                text = text.replace(old, new, 1)
+        return text
 
     def _validate_operations_for_mutation(self, operations):
         if not operations:

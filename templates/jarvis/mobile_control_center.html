@@ -524,6 +524,24 @@ body{
 }
 
 
+
+/* JARVIS_ARABIC_HUD_TEXT_SUPPORT */
+.jarvis-arabic-text,
+.approval-execution-console [dir="auto"],
+.approval-execution-console [dir="rtl"],
+.engineering-patch-panel [dir="auto"],
+.engineering-patch-panel [dir="rtl"]{
+  font-family:Tahoma,"Segoe UI",Arial,sans-serif;
+  unicode-bidi:plaintext;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  line-height:1.55;
+}
+
+.approval-execution-console input[dir="auto"]{
+  text-align:start;
+}
+
 .engineering-patch-active-label{
   margin-top:10px;
   border:1px solid rgba(54,255,117,.48);
@@ -792,7 +810,7 @@ body{
     <form class="execution-command-form" id="jarvis-execution-request-form">
       <label for="jarvis-execution-command-input">CURRENT COMMAND</label>
       <div class="execution-command-row">
-        <input id="jarvis-execution-command-input" type="text" value="git status --short" autocomplete="off">
+        <input id="jarvis-execution-command-input" type="text" value="git status --short" autocomplete="off" dir="auto">
         <button class="execution-button" type="submit">Create Patch Plan</button>
       </div>
     </form>
@@ -800,11 +818,11 @@ body{
     <div class="execution-grid">
       <div class="execution-block">
         <div class="label">CURRENT COMMAND</div>
-        <div class="value" id="jarvis-current-command">Waiting for command</div>
+        <div class="value jarvis-arabic-text" id="jarvis-current-command" dir="auto">Waiting for command</div>
       </div>
       <div class="execution-block">
         <div class="label">INTERPRETED ACTION</div>
-        <div class="value" id="jarvis-interpreted-action">No command interpreted</div>
+        <div class="value jarvis-arabic-text" id="jarvis-interpreted-action" dir="auto">No command interpreted</div>
       </div>
       <div class="execution-block">
         <div class="label">RISK LEVEL</div>
@@ -877,7 +895,7 @@ body{
 
     <div class="execution-block" style="margin-top:10px">
       <div class="execution-section-title">EXECUTION HISTORY</div>
-      <div class="execution-history" id="jarvis-execution-history">
+      <div class="execution-history jarvis-arabic-text" id="jarvis-execution-history" dir="auto">
         <div class="execution-history-item"><b>No execution history loaded</b><span>Submit and approve a command to record history.</span></div>
       </div>
     </div>
@@ -894,7 +912,7 @@ body{
       <div class="execution-grid">
         <div class="execution-block">
           <div class="label">INPUT TASK</div>
-          <div class="value" id="jarvis-patch-task">Waiting for engineering task</div>
+          <div class="value jarvis-arabic-text" id="jarvis-patch-task" dir="auto">Waiting for engineering task</div>
         </div>
         <div class="execution-block">
           <div class="label">DETECTED MODE</div>
@@ -942,7 +960,7 @@ body{
 
       <div class="execution-block" style="margin-top:10px">
         <div class="execution-section-title">EXPECTED DIFF / CHANGE SUMMARY</div>
-        <pre class="patch-preview" id="jarvis-patch-diff">No patch preview yet.</pre>
+        <pre class="patch-preview jarvis-arabic-text" id="jarvis-patch-diff" dir="auto">No patch preview yet.</pre>
       </div>
 
       <div class="execution-approval-zone">
@@ -988,7 +1006,7 @@ body{
 
       <div class="execution-block" style="margin-top:10px">
         <div class="execution-section-title">PATCH HISTORY</div>
-        <div class="execution-history" id="jarvis-patch-history">
+        <div class="execution-history jarvis-arabic-text" id="jarvis-patch-history" dir="auto">
           <div class="execution-history-item"><b>No patch history loaded</b><span>Patch planning and apply results will appear here.</span></div>
         </div>
       </div>
@@ -1275,7 +1293,7 @@ body{
     setText(ids.interpretedAction, state.interpreted_action || "No command interpreted");
     setText(ids.riskLevel, state.risk_level || "none");
     setText(ids.approvalState, approvalState);
-    setText(ids.detectedMode, state.detected_mode || "safe_command");
+    setText(ids.detectedMode, state.detected_mode || (state.request_id ? "safe_command" : "waiting_for_input"));
     setText(ids.status, executionStatus);
     setText(ids.approvedCommand, state.approved_command || "none");
     setText(ids.finalResult, state.final_result || "idle");

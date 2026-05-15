@@ -110,6 +110,7 @@ class ApprovalDrivenExecutionRuntime:
 
         state = {
             "request_id": request_id,
+            "detected_mode": "safe_command",
             "requested_command": command,
             "approved_command": None,
             "interpreted_action": analysis["interpreted_action"],
@@ -179,12 +180,14 @@ class ApprovalDrivenExecutionRuntime:
                 return self._default_state()
 
             try:
-                return json.loads(self.state_path.read_text(encoding="utf-8"))
+                state = json.loads(self.state_path.read_text(encoding="utf-8"))
             except Exception as exc:
                 state = self._default_state()
                 state["execution_status"] = "FAILED"
                 state["final_result"] = f"state_read_failed: {exc}"
                 return state
+
+            return self._normalize_state_mode(state)
 
     def current_plan(self):
         state = self.current_state()
@@ -207,6 +210,7 @@ class ApprovalDrivenExecutionRuntime:
         state.update(
             {
                 "request_id": None,
+                "detected_mode": "engineering_task",
                 "requested_command": str(task or "").strip(),
                 "approved_command": None,
                 "interpreted_action": "Engineering task routed to controlled patch planning.",
@@ -247,6 +251,73 @@ class ApprovalDrivenExecutionRuntime:
                 "patch_id": patch_id,
                 "command": task,
                 "status": "IDLE",
+            }
+        )
+        return state
+
+    def clear_for_blocked_request(self, command="", reason="Request is unsupported or unsafe."):
+        block_reason = str(reason or "Request is unsupported or unsafe.")
+        state = self._default_state()
+        state.update(
+            {
+                "request_id": None,
+                "detected_mode": "unsupported_or_unsafe",
+                "requested_command": str(command or "").strip(),
+                "approved_command": None,
+                "interpreted_action": "Request blocked before shell or patch planning.",
+                "execution_plan": [
+                    "Classify the input before execution.",
+                    "Block unsafe or unsupported intent.",
+                    "Do not prepare shell execution or file mutation.",
+                ],
+                "risk_analysis": [
+                    block_reason,
+                    "No approval path is available for blocked requests.",
+                    "No files were modified and no shell command was executed.",
+                ],
+                "risk_level": "blocked",
+                "approval_required": False,
+                "approval_state": "blocked_unsafe",
+                "execution_status": "BLOCKED",
+                "safety_decision": {
+                    "allowed": False,
+                    "reason": block_reason,
+                    "approval_required": False,
+                    "bounded_execution": True,
+                    "shell_execution": False,
+                    "destructive_execution": False,
+                    "deploy": False,
+                    "file_deletion": False,
+                },
+                "stdout": "",
+                "stderr": "",
+                "returncode": None,
+                "final_result": "blocked_before_approval",
+                "created_at": self._now(),
+                "updated_at": self._now(),
+            }
+        )
+        self._write_json(self.state_path, state)
+        self._append_event_locked(
+            {
+                "event": "request_blocked_before_execution",
+                "request_id": None,
+                "command": command,
+                "status": "BLOCKED",
+                "reason": block_reason,
+            }
+        )
+        self._append_history_locked(
+            {
+                "event": "blocked",
+                "request_id": None,
+                "command": command,
+                "status": "BLOCKED",
+                "approval_state": "blocked_unsafe",
+                "risk_level": "blocked",
+                "result": "blocked_before_approval",
+                "reason": block_reason,
+                "timestamp": self._now(),
             }
         )
         return state
@@ -833,9 +904,24 @@ class ApprovalDrivenExecutionRuntime:
     def _failure(self, message, state):
         return {"ok": False, "message": message, "state": state}
 
+    def _normalize_state_mode(self, state):
+        if not isinstance(state, dict):
+            return self._default_state()
+
+        if state.get("approval_state") == "superseded_by_patch_approval":
+            state["detected_mode"] = "engineering_task"
+        elif state.get("final_result") == "no_shell_execution_for_engineering_task":
+            state["detected_mode"] = "engineering_task"
+        elif state.get("request_id") and not state.get("detected_mode"):
+            state["detected_mode"] = "safe_command"
+        else:
+            state.setdefault("detected_mode", "waiting_for_input")
+        return state
+
     def _default_state(self):
         return {
             "request_id": None,
+            "detected_mode": "waiting_for_input",
             "requested_command": "",
             "approved_command": None,
             "interpreted_action": "No command requested.",
