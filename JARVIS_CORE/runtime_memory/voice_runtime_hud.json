@@ -1,0 +1,71 @@
+{
+  "timestamp": "2026-05-15T10:06:07.026993+00:00",
+  "runtime": "voice_runtime_hud",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "microphone_enabled": false,
+  "voice_command_execution_allowed": false,
+  "phase": "phase_7_voice_runtime",
+  "layer": "voice_runtime_hud",
+  "hud_mode": "safe_read_only_voice_runtime_visibility",
+  "hud": {
+    "title": "Voice Runtime",
+    "phase": "Phase 7",
+    "status": "locked_simulation_ready",
+    "monitoring_only": true,
+    "microphone_enabled": false,
+    "voice_command_execution_allowed": false,
+    "sections": {
+      "input": {
+        "state": "stub_ready",
+        "microphone_access_requested": false,
+        "audio_recording_enabled": false
+      },
+      "output": {
+        "state": "stub_ready",
+        "tts_engine_enabled": false,
+        "audio_playback_enabled": false
+      },
+      "wake_word": {
+        "state": "simulation_ready",
+        "listener_enabled": false,
+        "microphone_listening": false
+      },
+      "intent_queue": {
+        "intent_count": 1,
+        "pending_approval_count": 1,
+        "execute_from_queue": false
+      },
+      "safety_gate": {
+        "intent_count": 1,
+        "default_decision": "blocked_pending_human_review",
+        "execute_safe_intents_automatically": false
+      }
+    },
+    "locks": {
+      "bounded": true,
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "autonomous_apply": false,
+      "dangerous_autonomous_apply": false,
+      "human_approval_required": true,
+      "microphone_enabled": false,
+      "voice_command_execution_allowed": false,
+      "audio_recording_enabled": false,
+      "audio_playback_enabled": false,
+      "wake_word_listener_enabled": false
+    },
+    "warnings": [
+      "voice_runtime_is_simulation_only",
+      "voice_intents_require_human_approval",
+      "voice_command_execution_locked"
+    ]
+  },
+  "source_count": 5,
+  "recommendation": "phase_7_complete_continue_to_autonomous_erp_evolution",
+  "result": "voice_runtime_hud_built"
+}
