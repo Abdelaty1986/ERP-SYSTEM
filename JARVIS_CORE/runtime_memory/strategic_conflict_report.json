@@ -1,0 +1,32 @@
+{
+  "phase": "Phase 11 - Autonomous Strategic Planning",
+  "layer": "Layer 6 - Strategic Conflict Detector",
+  "generated_at": "2026-05-15T14:26:01.803793+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "conflict_state": "warning",
+  "conflicts": [
+    {
+      "type": "governance_readiness",
+      "items": [
+        "development readiness blocked"
+      ]
+    }
+  ],
+  "checked_boundaries": [
+    "goals",
+    "governance",
+    "runtime limits",
+    "cognitive state",
+    "approval policies"
+  ]
+}
