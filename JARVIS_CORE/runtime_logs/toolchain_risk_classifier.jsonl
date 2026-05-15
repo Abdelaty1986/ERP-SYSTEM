@@ -1,0 +1,1 @@
+{"timestamp": "2026-05-15T09:24:45.692111+00:00", "runtime": "toolchain_risk_classifier", "risk_class": "watch", "watch_sources": ["ci_cd_awareness_runtime", "dependency_health_observer"], "unsafe_sources": [], "execution_allowed": false, "apply_allowed": false, "human_approval_required": true}

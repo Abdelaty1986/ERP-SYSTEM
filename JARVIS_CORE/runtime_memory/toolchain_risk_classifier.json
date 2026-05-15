@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-05-15T09:24:45.692111+00:00",
+  "runtime": "toolchain_risk_classifier",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "classifier_mode": "safe_read_only_toolchain_risk_aggregation",
+  "phase": "phase_5_external_toolchain_runtime",
+  "layer": "toolchain_risk_classifier",
+  "available_source_count": 5,
+  "available_sources": [
+    "ide_awareness_runtime",
+    "container_execution_awareness",
+    "ci_cd_awareness_runtime",
+    "local_test_runner_observer",
+    "dependency_health_observer"
+  ],
+  "missing_sources": [],
+  "unreadable_sources": [],
+  "source_summaries": {
+    "ide_awareness_runtime": {
+      "available": true,
+      "risk_signal": "low",
+      "safety_locked": true,
+      "result": "ide_awareness_runtime_built"
+    },
+    "container_execution_awareness": {
+      "available": true,
+      "risk_signal": "low",
+      "safety_locked": true,
+      "result": "container_execution_awareness_built"
+    },
+    "ci_cd_awareness_runtime": {
+      "available": true,
+      "risk_signal": "watch",
+      "safety_locked": true,
+      "result": "ci_cd_awareness_runtime_built"
+    },
+    "local_test_runner_observer": {
+      "available": true,
+      "risk_signal": "low",
+      "safety_locked": true,
+      "result": "local_test_runner_observer_built"
+    },
+    "dependency_health_observer": {
+      "available": true,
+      "risk_signal": "watch",
+      "safety_locked": true,
+      "result": "dependency_health_observer_built"
+    }
+  },
+  "watch_sources": [
+    "ci_cd_awareness_runtime",
+    "dependency_health_observer"
+  ],
+  "unsafe_sources": [],
+  "risk_reasons": [
+    "deployment_or_ci_cd_files_detected",
+    "dependency_manifest_without_lock_file",
+    "local_tests_detected_but_not_executed"
+  ],
+  "risk_class": "watch",
+  "monitoring_decision": {
+    "safe_to_display_in_hud": true,
+    "requires_human_review": true,
+    "allow_tool_execution": false,
+    "allow_destructive_execution": false,
+    "allow_deploy": false
+  },
+  "recommendation": "use_as_input_for_external_toolchain_hud",
+  "result": "toolchain_risk_classifier_built"
+}
