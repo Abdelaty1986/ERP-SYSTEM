@@ -522,6 +522,197 @@ body{
 .severity-unknown {
   border-color: rgba(180, 180, 180, 0.35);
 }
+
+.approval-execution-console{
+  margin-top:12px;
+  direction:ltr;
+}
+
+.approval-execution-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.execution-command-form{
+  margin-top:12px;
+}
+
+.execution-command-form label,
+.execution-section-title{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+
+.execution-command-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+}
+
+.execution-command-row input{
+  width:100%;
+  min-height:42px;
+  border:1px solid rgba(0,217,255,.36);
+  border-radius:10px;
+  padding:10px 12px;
+  color:var(--text);
+  background:rgba(0,8,18,.86);
+  outline:none;
+}
+
+.execution-command-row input:focus{
+  border-color:var(--cyan2);
+  box-shadow:0 0 14px rgba(0,217,255,.22);
+}
+
+.execution-button{
+  min-height:42px;
+  border:1px solid rgba(0,217,255,.45);
+  border-radius:10px;
+  padding:0 14px;
+  color:var(--text);
+  background:rgba(0,127,166,.22);
+  cursor:pointer;
+}
+
+.execution-button:hover{
+  border-color:var(--cyan2);
+  box-shadow:0 0 14px rgba(0,217,255,.18);
+}
+
+.execution-button:disabled{
+  cursor:not-allowed;
+  opacity:.48;
+}
+
+.execution-button.approve{
+  border-color:rgba(54,255,117,.62);
+  background:rgba(24,130,65,.28);
+}
+
+.execution-button.reject{
+  border-color:rgba(255,56,96,.62);
+  background:rgba(150,28,54,.24);
+}
+
+.execution-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+
+.execution-block{
+  border:1px solid rgba(0,217,255,.22);
+  border-radius:12px;
+  padding:10px;
+  background:rgba(4,20,38,.66);
+  min-width:0;
+}
+
+.execution-block .value{
+  color:var(--cyan2);
+  font-weight:bold;
+  overflow-wrap:anywhere;
+  line-height:1.35;
+}
+
+.execution-two-column{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+.execution-list{
+  margin:0;
+  padding-left:18px;
+  color:var(--text);
+  line-height:1.55;
+}
+
+.execution-approval-zone{
+  margin-top:10px;
+  border:1px solid rgba(54,255,117,.44);
+  border-radius:14px;
+  padding:12px;
+  background:rgba(4,36,28,.48);
+}
+
+.execution-approval-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+
+.execution-output-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+.execution-output{
+  margin:0;
+  min-height:120px;
+  max-height:230px;
+  overflow:auto;
+  white-space:pre-wrap;
+  word-break:break-word;
+  border:1px solid rgba(0,217,255,.2);
+  border-radius:12px;
+  padding:10px;
+  color:#dffcff;
+  background:rgba(0,6,14,.9);
+}
+
+.execution-history{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-height:260px;
+  overflow:auto;
+}
+
+.execution-history-item{
+  border:1px solid rgba(0,217,255,.2);
+  border-radius:12px;
+  padding:9px;
+  background:rgba(3,18,34,.72);
+}
+
+.execution-history-item b{
+  display:block;
+  color:var(--cyan2);
+  overflow-wrap:anywhere;
+}
+
+.execution-history-item span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  margin-top:4px;
+}
+
+@media(max-width:760px){
+  .approval-execution-header,
+  .execution-command-row,
+  .execution-two-column,
+  .execution-output-grid{
+    grid-template-columns:1fr;
+    display:grid;
+  }
+
+  .execution-grid{
+    grid-template-columns:1fr 1fr;
+  }
+}
 </style>
 
 </head>
@@ -544,6 +735,105 @@ body{
     <div class="stat"><div class="label">Runtime</div><div class="value"><span class="dot"></span>{{ data.runtime }}</div></div>
     <div class="stat"><div class="label">Voice</div><div class="value">{{ data.voice }} 〰</div></div>
   </div>
+
+  <section class="panel approval-execution-console" id="approval-execution-console">
+    <div class="approval-execution-header">
+      <div>
+        <div class="panel-title">Approval Driven Execution</div>
+        <div class="panel-sub">Whitelist only / human approval required / shell disabled</div>
+      </div>
+      <div class="runtime-session-status idle" id="jarvis-execution-live-status">IDLE</div>
+    </div>
+
+    <form class="execution-command-form" id="jarvis-execution-request-form">
+      <label for="jarvis-execution-command-input">CURRENT COMMAND</label>
+      <div class="execution-command-row">
+        <input id="jarvis-execution-command-input" type="text" value="git status --short" autocomplete="off">
+        <button class="execution-button" type="submit">Request Plan</button>
+      </div>
+    </form>
+
+    <div class="execution-grid">
+      <div class="execution-block">
+        <div class="label">CURRENT COMMAND</div>
+        <div class="value" id="jarvis-current-command">Waiting for command</div>
+      </div>
+      <div class="execution-block">
+        <div class="label">INTERPRETED ACTION</div>
+        <div class="value" id="jarvis-interpreted-action">No command interpreted</div>
+      </div>
+      <div class="execution-block">
+        <div class="label">RISK LEVEL</div>
+        <div class="value" id="jarvis-risk-level">none</div>
+      </div>
+      <div class="execution-block">
+        <div class="label">APPROVAL STATE</div>
+        <div class="value" id="jarvis-approval-state">waiting_for_command</div>
+      </div>
+    </div>
+
+    <div class="execution-two-column">
+      <div class="execution-block">
+        <div class="execution-section-title">EXECUTION PLAN</div>
+        <ol class="execution-list" id="jarvis-execution-plan">
+          <li>Submit a safe command to generate a plan.</li>
+        </ol>
+      </div>
+      <div class="execution-block">
+        <div class="execution-section-title">RISK ANALYSIS</div>
+        <ol class="execution-list" id="jarvis-risk-analysis">
+          <li>No command has been analyzed yet.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="execution-approval-zone" id="jarvis-approval-zone">
+      <div class="execution-section-title">APPROVE / REJECT CONTROLS</div>
+      <div id="jarvis-approval-help">Approval is required before any real execution. Unsafe commands stay blocked.</div>
+      <div class="execution-approval-actions">
+        <button class="execution-button approve" id="jarvis-approve-run-button" type="button" disabled>Approve and Run</button>
+        <button class="execution-button reject" id="jarvis-reject-button" type="button" disabled>Reject</button>
+        <button class="execution-button" id="jarvis-refresh-execution-button" type="button">Refresh Status</button>
+      </div>
+    </div>
+
+    <div class="execution-grid">
+      <div class="execution-block">
+        <div class="label">LIVE EXECUTION STATUS</div>
+        <div class="value" id="jarvis-execution-status">IDLE</div>
+      </div>
+      <div class="execution-block">
+        <div class="label">APPROVED COMMAND</div>
+        <div class="value" id="jarvis-approved-command">none</div>
+      </div>
+      <div class="execution-block">
+        <div class="label">FINAL EXECUTION RESULT</div>
+        <div class="value" id="jarvis-final-result">idle</div>
+      </div>
+      <div class="execution-block">
+        <div class="label">RETURN CODE</div>
+        <div class="value" id="jarvis-return-code">--</div>
+      </div>
+    </div>
+
+    <div class="execution-output-grid">
+      <div>
+        <div class="execution-section-title">STDOUT</div>
+        <pre class="execution-output" id="jarvis-execution-stdout"></pre>
+      </div>
+      <div>
+        <div class="execution-section-title">STDERR</div>
+        <pre class="execution-output" id="jarvis-execution-stderr"></pre>
+      </div>
+    </div>
+
+    <div class="execution-block" style="margin-top:10px">
+      <div class="execution-section-title">EXECUTION HISTORY</div>
+      <div class="execution-history" id="jarvis-execution-history">
+        <div class="execution-history-item"><b>No execution history loaded</b><span>Submit and approve a command to record history.</span></div>
+      </div>
+    </div>
+  </section>
 
   <div class="main">
     <div class="panel">
@@ -716,6 +1006,216 @@ body{
   <div class="nav"><div>☰</div>LOGS</div>
   <div class="nav"><div>⚙</div>SETTINGS</div>
 </div>
+
+
+<script>
+(function(){
+  const ids = {
+    form: "jarvis-execution-request-form",
+    input: "jarvis-execution-command-input",
+    currentCommand: "jarvis-current-command",
+    interpretedAction: "jarvis-interpreted-action",
+    riskLevel: "jarvis-risk-level",
+    approvalState: "jarvis-approval-state",
+    plan: "jarvis-execution-plan",
+    risk: "jarvis-risk-analysis",
+    approve: "jarvis-approve-run-button",
+    reject: "jarvis-reject-button",
+    refresh: "jarvis-refresh-execution-button",
+    help: "jarvis-approval-help",
+    live: "jarvis-execution-live-status",
+    status: "jarvis-execution-status",
+    approvedCommand: "jarvis-approved-command",
+    finalResult: "jarvis-final-result",
+    returnCode: "jarvis-return-code",
+    stdout: "jarvis-execution-stdout",
+    stderr: "jarvis-execution-stderr",
+    history: "jarvis-execution-history"
+  };
+
+  let currentRequestId = null;
+
+  function el(id){
+    return document.getElementById(id);
+  }
+
+  function escapeHtml(value){
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function setText(id, value, fallback){
+    const node = el(id);
+    if(node) node.textContent = value ?? fallback ?? "";
+  }
+
+  function renderList(id, items, fallback){
+    const node = el(id);
+    if(!node) return;
+    const safeItems = Array.isArray(items) ? items : [];
+    if(!safeItems.length){
+      node.innerHTML = `<li>${escapeHtml(fallback)}</li>`;
+      return;
+    }
+    node.innerHTML = safeItems.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+  }
+
+  function statusClass(status){
+    const lowered = String(status || "idle").toLowerCase();
+    if(["completed", "approved", "waiting_approval", "executing"].includes(lowered)) return "active";
+    if(["blocked", "rejected", "failed", "timed_out"].includes(lowered)) return "failed";
+    return "idle";
+  }
+
+  async function postJson(url, body){
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body || {})
+    });
+    return await res.json();
+  }
+
+  function renderExecutionState(state){
+    state = state || {};
+    currentRequestId = state.request_id || currentRequestId;
+    const safety = state.safety_decision || {};
+    const executionStatus = state.execution_status || "IDLE";
+    const approvalState = state.approval_state || "waiting_for_command";
+
+    setText(ids.currentCommand, state.requested_command || "Waiting for command");
+    setText(ids.interpretedAction, state.interpreted_action || "No command interpreted");
+    setText(ids.riskLevel, state.risk_level || "none");
+    setText(ids.approvalState, approvalState);
+    setText(ids.status, executionStatus);
+    setText(ids.approvedCommand, state.approved_command || "none");
+    setText(ids.finalResult, state.final_result || "idle");
+    setText(ids.returnCode, state.returncode === null || state.returncode === undefined ? "--" : state.returncode);
+    setText(ids.help, safety.reason || "Approval is required before any real execution.");
+
+    const live = el(ids.live);
+    if(live){
+      live.textContent = executionStatus;
+      live.className = "runtime-session-status " + statusClass(executionStatus);
+    }
+
+    renderList(ids.plan, state.execution_plan, "Submit a safe command to generate a plan.");
+    renderList(ids.risk, state.risk_analysis, "No command has been analyzed yet.");
+
+    const stdout = el(ids.stdout);
+    const stderr = el(ids.stderr);
+    if(stdout) stdout.textContent = state.stdout || "(no stdout yet)";
+    if(stderr) stderr.textContent = state.stderr || "(no stderr yet)";
+
+    const canApprove = (
+      approvalState === "waiting_approval" &&
+      executionStatus === "WAITING_APPROVAL" &&
+      safety.allowed === true
+    );
+    const canReject = (
+      (approvalState === "waiting_approval" || approvalState === "approved") &&
+      executionStatus !== "EXECUTING"
+    );
+    const approveButton = el(ids.approve);
+    const rejectButton = el(ids.reject);
+    if(approveButton) approveButton.disabled = !canApprove;
+    if(rejectButton) rejectButton.disabled = !canReject;
+  }
+
+  async function refreshExecutionState(){
+    try{
+      const res = await fetch("/jarvis/api/execution/current");
+      const state = await res.json();
+      renderExecutionState(state);
+      await refreshExecutionHistory();
+    }catch(error){
+      setText(ids.help, "Execution runtime is unavailable.");
+      console.error("JARVIS execution refresh failed", error);
+    }
+  }
+
+  async function refreshExecutionHistory(){
+    const node = el(ids.history);
+    if(!node) return;
+    try{
+      const res = await fetch("/jarvis/api/execution/history");
+      const history = await res.json();
+      const entries = Array.isArray(history) ? history.slice(-8).reverse() : [];
+      if(!entries.length){
+        node.innerHTML = '<div class="execution-history-item"><b>No execution history yet</b><span>Requests and results will appear here.</span></div>';
+        return;
+      }
+      node.innerHTML = entries.map(item => `
+        <div class="execution-history-item">
+          <b>${escapeHtml(item.command || "command")}</b>
+          <span>${escapeHtml(item.event || "event")} / ${escapeHtml(item.status || "status")} / ${escapeHtml(item.result || "")}</span>
+          <span>${escapeHtml(item.timestamp || "")}</span>
+        </div>
+      `).join("");
+    }catch(error){
+      node.innerHTML = '<div class="execution-history-item"><b>History unavailable</b><span>Unable to load execution history.</span></div>';
+    }
+  }
+
+  async function requestExecutionPlan(event){
+    event.preventDefault();
+    const input = el(ids.input);
+    const command = input ? input.value.trim() : "";
+    if(!command){
+      setText(ids.help, "Enter a command before requesting a plan.");
+      return;
+    }
+    const data = await postJson("/jarvis/api/execution/request", {command});
+    renderExecutionState(data.state);
+    await refreshExecutionHistory();
+  }
+
+  async function approveAndRunExecution(){
+    if(!currentRequestId) return;
+    const approveButton = el(ids.approve);
+    if(approveButton) approveButton.disabled = true;
+    const approved = await postJson("/jarvis/api/execution/approve", {request_id: currentRequestId});
+    renderExecutionState(approved.state);
+    if(!approved.ok){
+      await refreshExecutionHistory();
+      return;
+    }
+    const started = await postJson("/jarvis/api/execution/run", {request_id: currentRequestId});
+    renderExecutionState(started.state);
+    await refreshExecutionHistory();
+    setTimeout(refreshExecutionState, 600);
+  }
+
+  async function rejectExecution(){
+    if(!currentRequestId) return;
+    const rejected = await postJson("/jarvis/api/execution/reject", {
+      request_id: currentRequestId,
+      reason: "Rejected from the visible HUD approval area."
+    });
+    renderExecutionState(rejected.state);
+    await refreshExecutionHistory();
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const form = el(ids.form);
+    const approveButton = el(ids.approve);
+    const rejectButton = el(ids.reject);
+    const refreshButton = el(ids.refresh);
+
+    if(form) form.addEventListener("submit", requestExecutionPlan);
+    if(approveButton) approveButton.addEventListener("click", approveAndRunExecution);
+    if(rejectButton) rejectButton.addEventListener("click", rejectExecution);
+    if(refreshButton) refreshButton.addEventListener("click", refreshExecutionState);
+
+    refreshExecutionState();
+    setInterval(refreshExecutionState, 2500);
+  });
+})();
+</script>
 
 
 <script>

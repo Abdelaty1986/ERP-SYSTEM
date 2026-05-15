@@ -1,5 +1,6 @@
 ﻿from jarvis.runtime.execution_state_machine import ExecutionStateMachine
 from jarvis.runtime.execution_explainer import ExecutionExplainer
+from jarvis.runtime.approval_execution_runtime import ApprovalDrivenExecutionRuntime
 from jarvis.runtime.execution_history_runtime import ExecutionHistoryRuntime
 from jarvis.runtime.execution_console_runtime import ExecutionConsoleRuntime
 from jarvis.runtime.execution_approval_runtime import ExecutionApprovalRuntime
@@ -5631,144 +5632,62 @@ except Exception as structured_mutation_error:
 # Phase 23 Explainable Execution Runtime APIs
 # =========================
 
-execution_machine = ExecutionStateMachine()
-execution_explainer = ExecutionExplainer()
-execution_history_runtime = ExecutionHistoryRuntime()
-execution_console_runtime = ExecutionConsoleRuntime()
-execution_approval_runtime = ExecutionApprovalRuntime()
-execution_timeline_runtime = ExecutionTimelineRuntime()
+approval_execution_runtime = ApprovalDrivenExecutionRuntime(project_root=BASE_DIR)
 
 
 @app.route("/jarvis/api/execution/status")
 def jarvis_execution_status():
-    return jsonify(
-        {
-            "mode": "approval_driven_execution",
-            "bounded": True,
-            "dangerous_execution": False,
-            "rollback_required": True,
-            "approval_required": True,
-            "states": [
-                "IDLE",
-                "WAITING_APPROVAL",
-                "EXECUTING",
-                "COMPLETED",
-                "FAILED",
-                "ROLLED_BACK",
-            ],
-        }
-    )
+    return jsonify(approval_execution_runtime.status())
 
 
 @app.route("/jarvis/api/execution/request", methods=["POST"])
 def jarvis_execution_request():
     payload = request.json or {}
     command = payload.get("command", "")
-
-    timeline = execution_machine.build(command)
-    explanation = execution_explainer.explain(command)
-    approval_state = execution_approval_runtime.set_waiting(command)
-
-    event = execution_timeline_runtime.append_event(
-        {
-            "event": "COMMAND_RECEIVED",
-            "command": command,
-            "state": "WAITING_APPROVAL",
-            "execution_mode": "approval_driven_execution",
-        }
-    )
-
-    console_state = execution_console_runtime.write_state(
-        {
-            "current_task": command,
-            "execution_status": "WAITING_APPROVAL",
-            "selected_agent": explanation.get("selected_agent"),
-            "approval_state": approval_state,
-            "latest_event": event,
-        }
-    )
-
-    record = execution_history_runtime.append(
-        {
-            "command": command,
-            "timeline": timeline,
-            "explanation": explanation,
-            "approval": approval_state,
-            "console_state": console_state,
-        }
-    )
-
-    return jsonify(
-        {
-            "ok": True,
-            "message": "Command received and moved to approval-driven execution.",
-            "timeline": timeline,
-            "explanation": explanation,
-            "approval": approval_state,
-            "record": record,
-        }
-    )
+    return jsonify(approval_execution_runtime.request_execution(command))
 
 
 @app.route("/jarvis/api/execution/current")
 def jarvis_execution_current():
-    return jsonify(execution_console_runtime.read_state())
+    return jsonify(approval_execution_runtime.current_state())
+
+
+@app.route("/jarvis/api/execution/plan")
+def jarvis_execution_plan():
+    return jsonify(approval_execution_runtime.current_plan())
 
 
 @app.route("/jarvis/api/execution/history")
 def jarvis_execution_history():
-    return jsonify(execution_history_runtime.read())
+    return jsonify(approval_execution_runtime.history())
 
 
 @app.route("/jarvis/api/execution/logs")
 def jarvis_execution_logs():
-    return jsonify(execution_timeline_runtime.read())
+    return jsonify(approval_execution_runtime.logs())
 
 
 @app.route("/jarvis/api/execution/approve", methods=["POST"])
 def jarvis_execution_approve():
-    approval = execution_approval_runtime.approve()
-
-    event = execution_timeline_runtime.append_event(
-        {
-            "event": "COMMAND_APPROVED",
-            "state": "EXECUTING_ALLOWED",
-            "real_execution_allowed": True,
-        }
-    )
-
-    console = execution_console_runtime.write_state(
-        {
-            "execution_status": "APPROVED",
-            "approval_state": approval,
-            "latest_event": event,
-        }
-    )
-
-    return jsonify({"ok": True, "approval": approval, "console": console})
+    payload = request.json or {}
+    return jsonify(approval_execution_runtime.approve_execution(payload.get("request_id")))
 
 
 @app.route("/jarvis/api/execution/reject", methods=["POST"])
 def jarvis_execution_reject():
-    approval = execution_approval_runtime.reject()
-
-    event = execution_timeline_runtime.append_event(
-        {
-            "event": "COMMAND_REJECTED",
-            "state": "REJECTED",
-            "real_execution_allowed": False,
-        }
+    payload = request.json or {}
+    return jsonify(
+        approval_execution_runtime.reject_execution(
+            payload.get("request_id"),
+            payload.get("reason"),
+        )
     )
 
-    console = execution_console_runtime.write_state(
-        {
-            "execution_status": "REJECTED",
-            "approval_state": approval,
-            "latest_event": event,
-        }
-    )
 
-    return jsonify({"ok": True, "approval": approval, "console": console})
+@app.route("/jarvis/api/execution/run", methods=["POST"])
+def jarvis_execution_run():
+    payload = request.json or {}
+    return jsonify(approval_execution_runtime.run_approved_execution(payload.get("request_id")))
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
