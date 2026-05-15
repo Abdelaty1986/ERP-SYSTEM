@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-05-15T07:23:48.661719+00:00",
+  "runtime": "persistent_cognition_state",
+  "bounded": true,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "cognition_state": "awake_snapshot",
+  "source_runtime": "agent_society_aggregator",
+  "society_state": "initialized",
+  "agent_count": 7,
+  "latest_task": "implement safe runtime dashboard patch",
+  "selected_agent": "patch_agent",
+  "consensus_state": "approved_for_planning_only",
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "approval_required": true,
+  "persistence_mode": "snapshot_only"
+}
