@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-05-15T09:37:29.979084+00:00",
+  "runtime": "cognitive_supervision_hud_section",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "hud_mode": "safe_read_only_cognitive_supervision_section",
+  "phase": "phase_6_full_mobile_control_center",
+  "layer": "cognitive_supervision_section",
+  "source": "runtime_self_monitoring_hud.json",
+  "section": {
+    "health_state": "stable",
+    "silence_state": "active",
+    "stability_state": "stable",
+    "reflection_state": "clear",
+    "next_runtime_allowed": true,
+    "health_score": 100,
+    "stability_score": 100,
+    "loop_state": "completed"
+  },
+  "section_state": "stable",
+  "recommendation": "use_as_input_for_agent_society_hud_section",
+  "result": "cognitive_supervision_hud_section_built"
+}
