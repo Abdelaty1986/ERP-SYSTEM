@@ -1,0 +1,1 @@
+{"timestamp": "2026-05-15T09:11:43.300782+00:00", "runtime": "safe_learning_hud_report", "learning_state": "safe_learning_hud_review_visible", "hud_status": "watch", "warning_count": 1, "next_runtime_allowed": true, "execution_allowed": false, "apply_allowed": false, "human_approval_required": true}
