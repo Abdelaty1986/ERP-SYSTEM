@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-05-15T14:33:35.814591+00:00",
+  "runtime": "provider_recovery_planner",
+  "healing_state": "stable",
+  "overall_state": "stable",
+  "selected_provider": null,
+  "bounded": true,
+  "execution_mode": "planning_only",
+  "plans": {}
+}
