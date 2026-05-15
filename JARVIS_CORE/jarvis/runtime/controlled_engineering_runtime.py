@@ -22,6 +22,13 @@ class ControlledEngineeringRuntime:
         "improve",
         "solve",
         "route",
+        "split",
+        "module",
+        "modules",
+        "modularize",
+        "refactor",
+        "rename",
+        "change",
         "ui",
         "page",
         "button",
@@ -30,6 +37,54 @@ class ControlledEngineeringRuntime:
         "arabic",
         "hud",
         "template",
+        "app.py",
+        "واجهة",
+        "الواجهة",
+        "واجهه",
+        "الواجهه",
+        "الرئيسية",
+        "الرئيسيه",
+        "صفحة",
+        "الصفحة",
+        "صفحه",
+        "الصفحه",
+        "زر",
+        "الزر",
+        "عنوان",
+        "اصلح",
+        "أصلح",
+        "إصلاح",
+        "اصلاح",
+        "صحح",
+        "عالج",
+        "حل",
+        "غيّر",
+        "غير",
+        "تغيير",
+        "بدّل",
+        "بدل",
+        "أضف",
+        "اضف",
+        "إضافة",
+        "اضافة",
+        "حسّن",
+        "حسن",
+        "تحسين",
+        "قسّم",
+        "قسم",
+        "تقسيم",
+        "موديولات",
+        "وحدات",
+        "مسار",
+        "راوت",
+        "خطأ",
+        "خطا",
+        "مشكلة",
+        "مشكل",
+        "نص",
+        "عربي",
+        "العربية",
+        "العربيه",
     )
 
     UNSAFE_KEYWORDS = (
@@ -48,6 +103,16 @@ class ControlledEngineeringRuntime:
         "secret",
         ".env",
         "database.db",
+        "احذف",
+        "حذف",
+        "امسح",
+        "مسح",
+        "دمر",
+        "دمّر",
+        "انشر",
+        "نشر",
+        "قاعدة البيانات",
+        "قاعدة بيانات",
     )
 
     ALLOWED_ROOTS = ("templates", "static", "JARVIS_CORE")
@@ -379,7 +444,7 @@ class ControlledEngineeringRuntime:
             checkpoint = self._create_rollback_checkpoint(state)
             changed_files = self._apply_operations(state.get("operations", []))
             validation_files = changed_files or self._operation_paths(state.get("operations", []))
-            validation = self._run_validation(validation_files)
+            validation = self._run_validation(validation_files, state.get("operations", []))
             now = self._now()
 
             state["rollback_checkpoint"] = checkpoint
@@ -509,9 +574,68 @@ class ControlledEngineeringRuntime:
         return events[-self.MAX_HISTORY :]
 
     def _build_patch_plan(self, task):
-        if "engineering patch mode active" in task.lower():
+        lowered = task.lower()
+        if "request plan" in lowered and "create patch plan" in lowered:
+            return self._build_create_patch_plan_button_patch(task)
+        if "engineering patch mode active" in lowered:
             return self._build_hud_label_patch_plan(task)
         return self._build_planning_only_task(task)
+
+    def _build_create_patch_plan_button_patch(self, task):
+        target = "templates/jarvis/mobile_control_center.html"
+        original = self._read_project_file(target)
+        updated = self._apply_create_patch_plan_button_to_text(original)
+        expected_diff = self._build_diff(target, original, updated)
+
+        return {
+            "interpreted_intent": "Rename the JARVIS request planning button to Create Patch Plan.",
+            "files_to_modify": [target],
+            "proposed_changes": [
+                "Change the visible Request Plan button label to Create Patch Plan.",
+                "Keep the existing form, endpoint, approval flow, and safe command routing intact.",
+                "Avoid backend shell execution, deploy, deletion, database, and secret changes.",
+            ],
+            "expected_change_summary": (
+                "templates/jarvis/mobile_control_center.html will update the visible "
+                "request button text from Request Plan to Create Patch Plan."
+            ),
+            "expected_diff": expected_diff,
+            "risk_level": "low",
+            "validation_plan": [
+                "Confirm the edited template contains Create Patch Plan.",
+                "Run py_compile only for modified Python files; none are expected for this patch.",
+                "Record validation status, stdout, and stderr in runtime memory.",
+            ],
+            "rollback_plan": [
+                "Create a rollback checkpoint with original template contents before applying.",
+                "If validation fails, expose rollback in the HUD and keep the checkpoint available.",
+                "Rollback restores the original template content from runtime memory.",
+            ],
+            "apply_supported": True,
+            "safety_decision": {
+                "allowed": True,
+                "reason": (
+                    "Deterministic template-only button label patch is safe to apply after approval."
+                    if original != updated
+                    else "The requested button label already exists; approval will re-validate the safe template state."
+                ),
+                "approval_required": True,
+                "bounded_execution": True,
+                "shell_execution": False,
+                "destructive_execution": False,
+                "deploy": False,
+                "file_deletion": False,
+            },
+            "operations": [
+                {
+                    "type": "replace_file_text",
+                    "path": target,
+                    "description": "Rename the request planning button.",
+                    "expected_marker": "Create Patch Plan",
+                    "content": updated,
+                }
+            ],
+        }
 
     def _build_hud_label_patch_plan(self, task):
         target = "templates/jarvis/mobile_control_center.html"
@@ -652,6 +776,15 @@ class ControlledEngineeringRuntime:
             text = text.replace(anchor, html + anchor, 1)
         return text
 
+    def _apply_create_patch_plan_button_to_text(self, original):
+        old = '<button class="execution-button" type="submit">Request Plan</button>'
+        new = '<button class="execution-button" type="submit">Create Patch Plan</button>'
+        if new in original:
+            return original
+        if old not in original:
+            raise ValueError("Request Plan button anchor not found.")
+        return original.replace(old, new, 1)
+
     def _validate_operations_for_mutation(self, operations):
         if not operations:
             raise ValueError("No safe file mutation operations are available.")
@@ -702,7 +835,8 @@ class ControlledEngineeringRuntime:
             paths.append(str(path.relative_to(self.project_root)).replace("\\", "/"))
         return paths
 
-    def _run_validation(self, changed_files):
+    def _run_validation(self, changed_files, operations=None):
+        operations = operations or []
         steps = []
         stdout_parts = []
         stderr_parts = []
@@ -741,6 +875,27 @@ class ControlledEngineeringRuntime:
             stdout_parts.append(result["stdout"])
             stderr_parts.append(result["stderr"])
             if not contains_label:
+                status = "failed"
+
+        for operation in operations:
+            marker = operation.get("expected_marker")
+            path_name = operation.get("path")
+            if not marker or not path_name:
+                continue
+            content = self._read_project_file(path_name)
+            marker_found = marker in content
+            result = {
+                "name": "expected_marker_presence",
+                "command": f"read {path_name}",
+                "ok": marker_found,
+                "returncode": 0 if marker_found else 1,
+                "stdout": f"{marker} found\n" if marker_found else "",
+                "stderr": "" if marker_found else f"{marker} not found\n",
+            }
+            steps.append(result)
+            stdout_parts.append(result["stdout"])
+            stderr_parts.append(result["stderr"])
+            if not marker_found:
                 status = "failed"
 
         if not steps:

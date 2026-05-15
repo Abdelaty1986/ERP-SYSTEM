@@ -5659,6 +5659,10 @@ def jarvis_execution_request():
 
     if detected_mode == "engineering_task":
         result = controlled_engineering_runtime.request_patch(command)
+        approval_execution_runtime.clear_for_engineering_task(
+            command,
+            result.get("patch_state", {}).get("patch_id"),
+        )
         result["flow"] = "engineering_task"
         result["classification"] = classification
         return jsonify(result)

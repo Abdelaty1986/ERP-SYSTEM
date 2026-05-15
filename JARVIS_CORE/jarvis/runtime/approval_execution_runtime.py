@@ -202,6 +202,55 @@ class ApprovalDrivenExecutionRuntime:
             "actual_argv": state.get("display_argv") or state.get("actual_argv", []),
         }
 
+    def clear_for_engineering_task(self, task="", patch_id=None):
+        state = self._default_state()
+        state.update(
+            {
+                "request_id": None,
+                "requested_command": str(task or "").strip(),
+                "approved_command": None,
+                "interpreted_action": "Engineering task routed to controlled patch planning.",
+                "execution_plan": [
+                    "Classify input before shell handling.",
+                    "Route engineering work to the controlled patch planner.",
+                    "Keep shell execution disabled for this request.",
+                    "Use patch approval controls before any file mutation.",
+                ],
+                "risk_analysis": [
+                    "No shell command was prepared.",
+                    "Shell whitelist is only used for real safe commands.",
+                    "Patch approval is required before bounded file edits.",
+                ],
+                "risk_level": "low",
+                "approval_required": False,
+                "approval_state": "superseded_by_patch_approval",
+                "execution_status": "IDLE",
+                "safety_decision": {
+                    "allowed": False,
+                    "reason": "Engineering task is handled by controlled patch planning, not shell execution.",
+                    "approval_required": False,
+                    "bounded_execution": True,
+                    "shell_execution": False,
+                    "destructive_execution": False,
+                    "deploy": False,
+                    "file_deletion": False,
+                },
+                "final_result": "no_shell_execution_for_engineering_task",
+                "updated_at": self._now(),
+            }
+        )
+        self._write_json(self.state_path, state)
+        self._append_event_locked(
+            {
+                "event": "execution_state_cleared_for_engineering_task",
+                "request_id": None,
+                "patch_id": patch_id,
+                "command": task,
+                "status": "IDLE",
+            }
+        )
+        return state
+
     def approve_execution(self, request_id=None):
         with self._lock:
             state = self.current_state()

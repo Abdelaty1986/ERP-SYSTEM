@@ -793,7 +793,7 @@ body{
       <label for="jarvis-execution-command-input">CURRENT COMMAND</label>
       <div class="execution-command-row">
         <input id="jarvis-execution-command-input" type="text" value="git status --short" autocomplete="off">
-        <button class="execution-button" type="submit">Request Plan</button>
+        <button class="execution-button" type="submit">Create Patch Plan</button>
       </div>
     </form>
 
@@ -1372,6 +1372,75 @@ body{
     if(rollbackPatch) rollbackPatch.disabled = !canRollbackPatch;
   }
 
+  function renderExecutionAsPatchRouted(state){
+    state = state || {};
+    currentRequestId = null;
+    setText(ids.currentCommand, state.requested_task || "Engineering task");
+    setText(ids.interpretedAction, state.interpreted_intent || "Engineering task routed to controlled patch planning.");
+    setText(ids.riskLevel, state.risk_level || "low");
+    setText(ids.approvalState, state.approval_state || "patch approval required");
+    setText(ids.detectedMode, state.detected_mode || "engineering_task");
+    setText(ids.status, "NO_SHELL_EXECUTION");
+    setText(ids.approvedCommand, "none");
+    setText(ids.finalResult, "Patch plan generated; use patch approval controls.");
+    setText(ids.returnCode, "--");
+    setText(ids.help, "Engineering task routed to patch planning. Shell whitelist was not used.");
+    renderList(ids.plan, [
+      "Classify input before shell handling.",
+      "Route engineering work to the controlled patch planner.",
+      "Show patch plan, validation plan, rollback plan, and approval controls.",
+      "Apply files only after Approve Patch and Apply Approved Patch."
+    ], "Engineering task routed to patch planning.");
+    renderList(ids.risk, [
+      "No shell command was prepared.",
+      "Shell whitelist remains restricted to real safe commands.",
+      "Unsafe/destructive requests remain blocked."
+    ], "No shell execution for engineering tasks.");
+    const stdout = el(ids.stdout);
+    const stderr = el(ids.stderr);
+    if(stdout) stdout.textContent = "(engineering task: no shell stdout)";
+    if(stderr) stderr.textContent = "(engineering task: no shell stderr)";
+    const live = el(ids.live);
+    if(live){
+      live.textContent = "PATCH_PLANNING";
+      live.className = "runtime-session-status active";
+    }
+    const approveButton = el(ids.approve);
+    const rejectButton = el(ids.reject);
+    if(approveButton) approveButton.disabled = true;
+    if(rejectButton) rejectButton.disabled = true;
+  }
+
+  function renderExecutionAsBlocked(state, message){
+    state = state || {};
+    currentRequestId = null;
+    setText(ids.currentCommand, state.requested_task || "Blocked request");
+    setText(ids.interpretedAction, state.interpreted_intent || "Request blocked before execution.");
+    setText(ids.riskLevel, state.risk_level || "blocked");
+    setText(ids.approvalState, state.approval_state || "blocked_unsafe");
+    setText(ids.detectedMode, state.detected_mode || "unsupported_or_unsafe");
+    setText(ids.status, "BLOCKED");
+    setText(ids.approvedCommand, "none");
+    setText(ids.finalResult, message || state.final_result || "Blocked by safety gate.");
+    setText(ids.returnCode, "--");
+    setText(ids.help, message || "Request blocked by safety gate.");
+    renderList(ids.plan, state.proposed_changes, "No execution or patch plan is available for blocked requests.");
+    renderList(ids.risk, [message || "Unsafe or unsupported request."], "Request blocked by safety gate.");
+    const stdout = el(ids.stdout);
+    const stderr = el(ids.stderr);
+    if(stdout) stdout.textContent = "(blocked: no stdout)";
+    if(stderr) stderr.textContent = "(blocked: no stderr)";
+    const live = el(ids.live);
+    if(live){
+      live.textContent = "BLOCKED";
+      live.className = "runtime-session-status failed";
+    }
+    const approveButton = el(ids.approve);
+    const rejectButton = el(ids.reject);
+    if(approveButton) approveButton.disabled = true;
+    if(rejectButton) rejectButton.disabled = true;
+  }
+
   async function refreshExecutionState(){
     try{
       const res = await fetch("/jarvis/api/execution/current");
@@ -1453,11 +1522,16 @@ body{
     }
     const data = await postJson("/jarvis/api/execution/request", {command});
     setText(ids.detectedMode, data.detected_mode || data.flow || "unknown");
-    if(data.flow === "engineering_task" || data.patch_state){
+    if(data.flow === "engineering_task"){
+      renderExecutionAsPatchRouted(data.patch_state);
       renderPatchState(data.patch_state);
     }else if(data.flow === "unsupported_or_unsafe"){
+      renderExecutionAsBlocked(data.patch_state, data.message);
       renderPatchState(data.patch_state);
       setText(ids.help, data.message || "Request blocked by safety gate.");
+    }else if(data.patch_state){
+      renderExecutionAsPatchRouted(data.patch_state);
+      renderPatchState(data.patch_state);
     }else{
       renderExecutionState(data.state);
     }
