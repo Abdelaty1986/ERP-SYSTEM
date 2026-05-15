@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-05-15T10:00:01.305115+00:00",
+  "runtime": "voice_input_state_stub",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "microphone_enabled": false,
+  "voice_command_execution_allowed": false,
+  "phase": "phase_7_voice_runtime",
+  "layer": "voice_input_state_stub",
+  "input_mode": "simulated_voice_input_only",
+  "voice_input": {
+    "state": "stub_ready",
+    "microphone_access_requested": false,
+    "audio_recording_enabled": false,
+    "live_stream_active": false,
+    "last_transcript": null,
+    "simulated_transcript": "JARVIS voice input simulation ready."
+  },
+  "prohibited_actions": [
+    "microphone_activation",
+    "audio_recording",
+    "background_listening",
+    "live_voice_command_execution"
+  ],
+  "result": "voice_input_state_stub_built"
+}
