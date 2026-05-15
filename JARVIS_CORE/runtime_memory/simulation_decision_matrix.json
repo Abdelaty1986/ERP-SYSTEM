@@ -1,0 +1,115 @@
+{
+  "phase": "Phase 12 - Autonomous Simulation Layer",
+  "layer": "Layer 6 - Simulation Decision Matrix",
+  "generated_at": "2026-05-15T14:31:03.755961+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "decisions": [
+    {
+      "scenario_id": "sim_ui_hud_update",
+      "change_type": "ui_change",
+      "risk": "low",
+      "safe_to_plan": true,
+      "safe_to_stage": true,
+      "safe_to_execute": false,
+      "blocked": false,
+      "approval_required": true,
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ]
+    },
+    {
+      "scenario_id": "sim_erp_workflow_improvement",
+      "change_type": "backend_change",
+      "risk": "high",
+      "safe_to_plan": true,
+      "safe_to_stage": false,
+      "safe_to_execute": false,
+      "blocked": false,
+      "approval_required": true,
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ]
+    },
+    {
+      "scenario_id": "sim_runtime_module_update",
+      "change_type": "runtime_change",
+      "risk": "high",
+      "safe_to_plan": true,
+      "safe_to_stage": false,
+      "safe_to_execute": false,
+      "blocked": false,
+      "approval_required": true,
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ]
+    },
+    {
+      "scenario_id": "sim_agent_routing_adjustment",
+      "change_type": "agent_change",
+      "risk": "medium",
+      "safe_to_plan": true,
+      "safe_to_stage": true,
+      "safe_to_execute": false,
+      "blocked": false,
+      "approval_required": true,
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ]
+    },
+    {
+      "scenario_id": "sim_database_schema_proposal",
+      "change_type": "database_change",
+      "risk": "critical",
+      "safe_to_plan": true,
+      "safe_to_stage": false,
+      "safe_to_execute": false,
+      "blocked": true,
+      "approval_required": true,
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ]
+    },
+    {
+      "scenario_id": "sim_deployment_proposal",
+      "change_type": "deployment_change",
+      "risk": "critical",
+      "safe_to_plan": true,
+      "safe_to_stage": false,
+      "safe_to_execute": false,
+      "blocked": true,
+      "approval_required": true,
+      "blocked_actions": [
+        "apply",
+        "deploy",
+        "database_mutation",
+        "autonomous_apply"
+      ]
+    }
+  ],
+  "all_safe_to_execute_false": true
+}

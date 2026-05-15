@@ -1,0 +1,96 @@
+{
+  "phase": "Phase 12 - Autonomous Simulation Layer",
+  "layer": "Layer 5 - Rollback Simulation Planner",
+  "generated_at": "2026-05-15T14:31:03.754854+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "rollback_plans": [
+    {
+      "scenario_id": "sim_ui_hud_update",
+      "rollback_required": true,
+      "rollback_complexity": "low",
+      "rollback_steps": [
+        "capture pre-change checkpoint",
+        "validate proposed diff in sandbox",
+        "prepare manual rollback instructions",
+        "require human approval before any real execution"
+      ],
+      "checkpoint_needed": true,
+      "approval_needed": true
+    },
+    {
+      "scenario_id": "sim_erp_workflow_improvement",
+      "rollback_required": true,
+      "rollback_complexity": "high",
+      "rollback_steps": [
+        "capture pre-change checkpoint",
+        "validate proposed diff in sandbox",
+        "prepare manual rollback instructions",
+        "require human approval before any real execution"
+      ],
+      "checkpoint_needed": true,
+      "approval_needed": true
+    },
+    {
+      "scenario_id": "sim_runtime_module_update",
+      "rollback_required": true,
+      "rollback_complexity": "high",
+      "rollback_steps": [
+        "capture pre-change checkpoint",
+        "validate proposed diff in sandbox",
+        "prepare manual rollback instructions",
+        "require human approval before any real execution"
+      ],
+      "checkpoint_needed": true,
+      "approval_needed": true
+    },
+    {
+      "scenario_id": "sim_agent_routing_adjustment",
+      "rollback_required": true,
+      "rollback_complexity": "medium",
+      "rollback_steps": [
+        "capture pre-change checkpoint",
+        "validate proposed diff in sandbox",
+        "prepare manual rollback instructions",
+        "require human approval before any real execution"
+      ],
+      "checkpoint_needed": true,
+      "approval_needed": true
+    },
+    {
+      "scenario_id": "sim_database_schema_proposal",
+      "rollback_required": true,
+      "rollback_complexity": "critical",
+      "rollback_steps": [
+        "capture pre-change checkpoint",
+        "validate proposed diff in sandbox",
+        "prepare manual rollback instructions",
+        "require human approval before any real execution"
+      ],
+      "checkpoint_needed": true,
+      "approval_needed": true
+    },
+    {
+      "scenario_id": "sim_deployment_proposal",
+      "rollback_required": true,
+      "rollback_complexity": "critical",
+      "rollback_steps": [
+        "capture pre-change checkpoint",
+        "validate proposed diff in sandbox",
+        "prepare manual rollback instructions",
+        "require human approval before any real execution"
+      ],
+      "checkpoint_needed": true,
+      "approval_needed": true
+    }
+  ]
+}

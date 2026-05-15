@@ -5411,6 +5411,78 @@ setInterval(loadHumanApprovedEngineeringState, 7000);
 
 
 
+<!-- Phase 12 Autonomous Simulation Layer HUD -->
+
+<div class="panel" id="phase12-simulation-layer-panel">
+  <div class="panel-title">Phase 12 Simulation Layer</div>
+  <div class="panel-sub">context | scenarios | impact | forecast | rollback | decision</div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Simulation Context</b>
+      <div style="font-size:11px;color:var(--muted)">simulation_context_inventory.json</div>
+    </div>
+    <span class="online">complete</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Scenario Generation</b>
+      <div style="font-size:11px;color:var(--muted)">UI, ERP, runtime, agent, database, deployment proposals</div>
+    </div>
+    <span class="online">simulated</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Impact Simulation</b>
+      <div style="font-size:11px;color:var(--muted)">runtime, ERP, governance, cognition, agents, providers</div>
+    </div>
+    <span class="online">complete</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Failure Forecast</b>
+      <div style="font-size:11px;color:var(--muted)">dependency, mutation, approval, DB, UI, drift risks</div>
+    </div>
+    <span class="online">forecasted</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Rollback Simulation</b>
+      <div style="font-size:11px;color:var(--muted)">checkpoint and manual rollback plans required</div>
+    </div>
+    <span class="online">planned</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Decision Matrix</b>
+      <div style="font-size:11px;color:var(--muted)">safe_to_execute=false for every scenario</div>
+    </div>
+    <span class="online">gated</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Readiness State</b>
+      <div style="font-size:11px;color:var(--muted)">simulation_ready / needs_more_validation / blocked</div>
+    </div>
+    <span class="online">simulation only</span>
+  </div>
+
+  <div style="margin-top:10px;padding:10px;border-radius:12px;border:1px solid rgba(0,217,255,.18);background:rgba(8,33,58,.48);font-size:12px;line-height:1.55;color:var(--cyan2)">
+    execution=No | apply=No | deploy=No | database_mutation=No | safe_to_execute=false | autonomous_apply=Off | human_approval=Yes
+  </div>
+</div>
+
+<!-- End Phase 12 Autonomous Simulation Layer HUD -->
+
+
+
+
 <!-- Phase 11 Autonomous Strategic Planning HUD -->
 
 <div class="panel" id="phase11-strategic-planning-panel">
