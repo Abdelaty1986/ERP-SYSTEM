@@ -1,0 +1,8 @@
+[
+  {
+    "event": "EXPLAINABLE_EXECUTION_PROBE",
+    "command": "probe explainable execution runtime",
+    "status": "ok",
+    "timestamp": "2026-05-15T17:58:13.699135+00:00"
+  }
+]

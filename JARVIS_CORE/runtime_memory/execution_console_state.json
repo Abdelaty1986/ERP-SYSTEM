@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-05-15T17:58:13.698352+00:00",
+  "runtime": "execution_console_runtime",
+  "bounded": true,
+  "state": {
+    "current_task": "probe explainable execution runtime",
+    "execution_status": "WAITING_APPROVAL",
+    "approval_state": {
+      "timestamp": "2026-05-15T17:58:13.695871+00:00",
+      "approval_state": "waiting_approval",
+      "command": "probe explainable execution runtime",
+      "real_execution_allowed": false,
+      "bounded": true,
+      "dangerous_execution": false
+    }
+  }
+}

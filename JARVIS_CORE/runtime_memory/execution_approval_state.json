@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-05-15T17:58:13.695871+00:00",
+  "approval_state": "waiting_approval",
+  "command": "probe explainable execution runtime",
+  "real_execution_allowed": false,
+  "bounded": true,
+  "dangerous_execution": false
+}
