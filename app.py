@@ -36,6 +36,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from JARVIS_CORE.jarvis.architecture.approval_gateway_engine import ApprovalGatewayEngine
 from JARVIS_CORE.jarvis.architecture.approval_lineage_engine import ApprovalLineageEngine
 from JARVIS_CORE.jarvis.architecture.approval_transition_engine import ApprovalTransitionEngine
+from jarvis_app import create_jarvis_blueprint
 
 from db import PERMISSION_MODULES, init_db
 from migrations import get_migration_status, run_migrations
@@ -220,6 +221,7 @@ app = Flask(__name__)
 app.secret_key = load_secret_key()
 app.config["DB_PATH"] = DB_PATH
 app.config["DATABASE"] = DB_PATH
+app.register_blueprint(create_jarvis_blueprint())
 
 def init_and_migrate():
     """

@@ -1,0 +1,25 @@
+{
+  "provider": "erp",
+  "role": "connected_module_provider",
+  "integration_mode": "read_only_status_only",
+  "state": "available",
+  "bounded": true,
+  "database_mutation": false,
+  "accounting_data_mutation": false,
+  "deploy": false,
+  "destructive_execution": false,
+  "autonomous_apply": false,
+  "human_approval_required": true,
+  "governance_gates_preserved": true,
+  "project_root_present": true,
+  "app_file_present": true,
+  "runtime_memory_readable": true,
+  "route_counts": {
+    "total_routes": 201,
+    "erp_routes": 117,
+    "jarvis_routes": 84
+  },
+  "inventory_available": true,
+  "risk_mapping_available": true,
+  "checked_at": "2026-05-15T16:00:36Z"
+}

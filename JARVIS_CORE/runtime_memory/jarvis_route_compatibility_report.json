@@ -1,0 +1,21 @@
+{
+  "phase": "Phase 20 - JARVIS Independence Extraction Layer",
+  "state": "compatible",
+  "legacy_routes_preserved": {
+    "/jarvis/mobile": "existing Mobile Control Center entrypoint remains active",
+    "/jarvis/mobile/api/status": "existing mobile status route remains active",
+    "/jarvis/mobile/api/voice/command": "existing voice command route remains active",
+    "/jarvis/mobile/api/app/status": "existing PWA status route remains active",
+    "/jarvis/mobile/api/runtime/control/status": "existing runtime control status route remains active"
+  },
+  "independent_routes_added": {
+    "/jarvis/api/status": "independent JARVIS system status",
+    "/jarvis/api/runtime/status": "independent runtime status",
+    "/jarvis/api/agents/status": "independent agents status",
+    "/jarvis/api/mobile/status": "independent mobile compatibility status",
+    "/jarvis/api/voice/status": "independent voice status",
+    "/jarvis/api/providers/erp/status": "read-only ERP provider status"
+  },
+  "routing_strategy": "new independent routes are additive and do not replace legacy mobile or ERP routes",
+  "mobile_backend_preparation": "mobile control center can migrate from /jarvis/mobile/api/* to /jarvis/api/* incrementally"
+}
