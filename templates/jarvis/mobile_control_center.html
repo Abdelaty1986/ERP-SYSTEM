@@ -5629,6 +5629,71 @@ setInterval(loadStructuredMutationState, 7000);
 <!-- End Layer 11 -->
 
 
+<!-- Phase 6 Unified Runtime HUD -->
+
+<div class="panel" id="phase6-unified-hud-panel">
+  <div class="panel-title">Unified Runtime HUD</div>
+  <div class="panel-sub">Phase 6 monitoring only</div>
+
+  <div class="mini-grid">
+    <div class="mini-card"><div id="phase6-cognitive-state">--</div><span>Cognitive</span></div>
+    <div class="mini-card"><div id="phase6-engineering-state">--</div><span>Engineering</span></div>
+    <div class="mini-card"><div id="phase6-learning-state">--</div><span>Learning</span></div>
+  </div>
+
+  <div class="gitbox"><div class="label">Toolchain</div><div class="value" id="phase6-toolchain-state">Loading...</div></div>
+  <div class="gitbox"><div class="label">Human Review</div><div class="value" id="phase6-human-review">--</div></div>
+  <div class="gitbox"><div class="label">Locks</div><div class="value" id="phase6-locks">execution=false apply=false</div></div>
+  <div id="phase6-warning-feed" style="margin-top:10px;font-size:12px;line-height:1.5"></div>
+</div>
+
+<script>
+async function loadUnifiedRuntimeHud() {
+  const cognitiveEl = document.getElementById("phase6-cognitive-state");
+  const engineeringEl = document.getElementById("phase6-engineering-state");
+  const learningEl = document.getElementById("phase6-learning-state");
+  const toolchainEl = document.getElementById("phase6-toolchain-state");
+  const reviewEl = document.getElementById("phase6-human-review");
+  const locksEl = document.getElementById("phase6-locks");
+  const feedEl = document.getElementById("phase6-warning-feed");
+  if (!cognitiveEl || !engineeringEl || !learningEl || !toolchainEl || !reviewEl || !locksEl || !feedEl) return;
+
+  try {
+    const res = await fetch("/jarvis/mobile/api/unified-hud");
+    const data = await res.json();
+    const hud = data.mobile_hud || {};
+    const states = hud.section_states || {};
+    const locks = hud.locks || {};
+    const blockers = hud.blockers || [];
+
+    cognitiveEl.textContent = states.cognitive || "--";
+    engineeringEl.textContent = states.engineering || "--";
+    learningEl.textContent = states.learning || "--";
+    toolchainEl.textContent = states.toolchain || "--";
+    reviewEl.textContent = hud.human_review_required ? "required" : "clear";
+    locksEl.textContent =
+      "execution=" + locks.execution_allowed +
+      " apply=" + locks.apply_allowed +
+      " auto=" + locks.autonomous_apply;
+
+    feedEl.innerHTML = blockers.slice(0, 6).map(item => `
+      <div style="padding:8px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.05)">
+        <b>${item.section || "runtime"}</b> - ${item.reason || "review required"}
+      </div>
+    `).join("") || `<div style="opacity:.75">No active blockers.</div>`;
+  } catch(e) {
+    toolchainEl.textContent = "unavailable";
+    feedEl.innerHTML = `<div style="opacity:.75">Unified HUD unavailable.</div>`;
+  }
+}
+
+loadUnifiedRuntimeHud();
+setInterval(loadUnifiedRuntimeHud, 7000);
+</script>
+
+<!-- End Phase 6 Unified Runtime HUD -->
+
+
 <!-- JARVIS_STRUCTURED_MUTATION_START -->
 <!-- Runtime controlled structured mutation block. -->
 <!-- updated_at=2026-05-14T23:08:08.212982+00:00 -->

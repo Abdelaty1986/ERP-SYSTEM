@@ -1,0 +1,97 @@
+{
+  "timestamp": "2026-05-15T09:07:57.421739+00:00",
+  "runtime": "adaptive_routing_recommendations",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "memory_mode": "safe_read_only_routing_recommendations",
+  "phase": "phase_4_runtime_learning_system",
+  "layer": "adaptive_routing_recommendations",
+  "available_source_count": 5,
+  "available_sources": [
+    "provider_scoring_memory",
+    "agent_performance_memory",
+    "engineering_learning_memory",
+    "agent_society_routing",
+    "adaptive_model_routing_hud"
+  ],
+  "missing_sources": [],
+  "unreadable_sources": [],
+  "recommendations": {
+    "provider": {
+      "recommended_provider_for_review": "openrouter",
+      "decision_state": "review_required_before_use",
+      "reason": "provider scoring found review flags",
+      "review_flags": [
+        {
+          "provider": "openrouter",
+          "reason": "static_validation_ready_but_runtime_trust_missing"
+        }
+      ],
+      "apply_to_runtime": false
+    },
+    "agent": {
+      "current_selected_agent": "patch_agent",
+      "recommended_planning_agents": [
+        {
+          "agent": "planner_agent",
+          "role": "planning",
+          "risk_level": "low",
+          "signal": "participated_in_bounded_workflow"
+        },
+        {
+          "agent": "patch_agent",
+          "role": "patch_generation",
+          "risk_level": "medium",
+          "signal": "selected_for_bounded_planning"
+        },
+        {
+          "agent": "reviewer_agent",
+          "role": "review",
+          "risk_level": "low",
+          "signal": "positive_planning_signal"
+        },
+        {
+          "agent": "validator_agent",
+          "role": "validation",
+          "risk_level": "low",
+          "signal": "positive_planning_signal"
+        },
+        {
+          "agent": "memory_agent",
+          "role": "memory",
+          "risk_level": "low",
+          "signal": "participated_in_bounded_workflow"
+        },
+        {
+          "agent": "security_agent",
+          "role": "governance",
+          "risk_level": "high",
+          "signal": "positive_planning_signal"
+        }
+      ],
+      "decision_state": "planning_memory_only",
+      "apply_to_runtime": false
+    },
+    "engineering": {
+      "learning_state": "stable_learning_ready",
+      "routing_constraint": "proposal_only_human_approval_required",
+      "apply_to_runtime": false
+    },
+    "prior_hud": {
+      "recommended_provider": "openrouter",
+      "fallback_mode": "single_provider_terminal"
+    }
+  },
+  "learning_assessment": {
+    "learning_state": "routing_recommendations_need_review",
+    "safe_to_display_in_hud": true,
+    "may_execute_recommendations": false,
+    "may_apply_changes": false
+  },
+  "recommendation": "use_as_memory_input_for_runtime_learning_summary",
+  "result": "adaptive_routing_recommendations_built"
+}

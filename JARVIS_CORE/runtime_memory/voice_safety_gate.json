@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-05-15T10:04:48.037263+00:00",
+  "runtime": "voice_safety_gate",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "microphone_enabled": false,
+  "voice_command_execution_allowed": false,
+  "phase": "phase_7_voice_runtime",
+  "layer": "voice_safety_gate",
+  "gate_mode": "block_by_default_voice_intent_review",
+  "intent_count": 1,
+  "evaluated_intents": [
+    {
+      "intent_id": "voice-intent-preview-status",
+      "intent_type": "runtime_status_request",
+      "queue_state": "awaiting_human_approval",
+      "dangerous_terms": [],
+      "safety_decision": "blocked_pending_human_review",
+      "execution_allowed": false,
+      "requires_human_approval": true
+    }
+  ],
+  "gate_policy": {
+    "default_decision": "blocked_pending_human_review",
+    "execute_safe_intents_automatically": false,
+    "execute_dangerous_intents": false,
+    "human_approval_required": true,
+    "microphone_can_unlock_gate": false
+  },
+  "result": "voice_safety_gate_built"
+}

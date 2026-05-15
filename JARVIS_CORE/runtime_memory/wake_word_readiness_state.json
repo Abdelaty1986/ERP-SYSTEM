@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-05-15T10:02:18.397960+00:00",
+  "runtime": "wake_word_readiness_state",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "microphone_enabled": false,
+  "voice_command_execution_allowed": false,
+  "phase": "phase_7_voice_runtime",
+  "layer": "wake_word_readiness_state",
+  "readiness_mode": "simulated_wake_word_monitoring_only",
+  "wake_word": {
+    "configured_phrase": "Jarvis",
+    "readiness_state": "simulation_ready",
+    "listener_enabled": false,
+    "background_listener_active": false,
+    "microphone_listening": false,
+    "last_detected_at": null,
+    "detection_mode": "manual_future_approval_required"
+  },
+  "prohibited_actions": [
+    "wake_word_background_listener",
+    "microphone_listening",
+    "audio_stream_analysis",
+    "automatic_command_unlock"
+  ],
+  "result": "wake_word_readiness_state_built"
+}

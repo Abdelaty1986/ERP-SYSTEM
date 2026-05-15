@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-05-15T09:40:15.733130+00:00",
+  "runtime": "engineering_runtime_hud_section",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "hud_mode": "safe_read_only_engineering_runtime_section",
+  "phase": "phase_6_full_mobile_control_center",
+  "layer": "engineering_runtime_section",
+  "section": {
+    "approval_state": "locked",
+    "authorization_scope": "execution_preparation_only",
+    "execution_lock_state": "locked",
+    "apply_decision": "ready_for_human_approval",
+    "controlled_apply_execution_allowed": false,
+    "rollback_ready": true,
+    "rollback_state": "rollback_ready",
+    "mutation_state": "persistent_execution_memory",
+    "validation_state": "not_available",
+    "supervision_state": "execution_locked_pending_review",
+    "execution_decision": "blocked_until_clean_review",
+    "locks": {
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "autonomous_apply": false,
+      "dangerous_autonomous_apply": false,
+      "human_approval_required": true,
+      "project_apply_allowed": false
+    }
+  },
+  "section_state": "locked",
+  "recommendation": "use_as_input_for_learning_runtime_hud_section",
+  "result": "engineering_runtime_hud_section_built"
+}

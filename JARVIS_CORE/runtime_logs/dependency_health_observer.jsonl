@@ -1,0 +1,1 @@
+{"timestamp": "2026-05-15T09:23:26.589944+00:00", "runtime": "dependency_health_observer", "dependency_health_state": "detected", "detected_file_count": 1, "primary_manifests": ["requirements.txt"], "execution_allowed": false, "apply_allowed": false, "human_approval_required": true}

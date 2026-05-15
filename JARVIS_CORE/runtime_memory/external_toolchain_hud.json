@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-05-15T09:26:17.798343+00:00",
+  "runtime": "external_toolchain_hud",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "hud_mode": "safe_read_only_external_toolchain_visibility",
+  "phase": "phase_5_external_toolchain_runtime",
+  "layer": "external_toolchain_hud",
+  "available_source_count": 6,
+  "available_sources": [
+    "ide_awareness_runtime",
+    "container_execution_awareness",
+    "ci_cd_awareness_runtime",
+    "local_test_runner_observer",
+    "dependency_health_observer",
+    "toolchain_risk_classifier"
+  ],
+  "missing_sources": [],
+  "unreadable_sources": [],
+  "hud": {
+    "title": "External Toolchain Runtime",
+    "phase": "Phase 5",
+    "status": "watch",
+    "monitoring_only": true,
+    "requires_human_review": true,
+    "sections": {
+      "ide_awareness": {
+        "state": "not_detected",
+        "detected_indicators": []
+      },
+      "container_awareness": {
+        "state": "not_detected",
+        "detected_files": []
+      },
+      "ci_cd_awareness": {
+        "state": "detected",
+        "detected_paths": [
+          "Procfile",
+          "nixpacks.toml",
+          "deploy.sh"
+        ],
+        "workflow_file_count": 0
+      },
+      "local_test_runner": {
+        "state": "detected",
+        "python_test_file_count": 11,
+        "likely_test_runners": [
+          "python_test_files_present"
+        ]
+      },
+      "dependency_health": {
+        "state": "detected",
+        "detected_files": [
+          "requirements.txt"
+        ],
+        "lock_files_present": []
+      },
+      "risk_classifier": {
+        "risk_class": "watch",
+        "watch_sources": [
+          "ci_cd_awareness_runtime",
+          "dependency_health_observer"
+        ],
+        "unsafe_sources": []
+      }
+    },
+    "warnings": [
+      {
+        "type": "toolchain_risk",
+        "message": "deployment_or_ci_cd_files_detected"
+      },
+      {
+        "type": "toolchain_risk",
+        "message": "dependency_manifest_without_lock_file"
+      },
+      {
+        "type": "toolchain_risk",
+        "message": "local_tests_detected_but_not_executed"
+      }
+    ],
+    "locks": {
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "autonomous_apply": false,
+      "dangerous_autonomous_apply": false,
+      "deploy_allowed": false,
+      "destructive_execution_allowed": false,
+      "human_approval_required": true
+    }
+  },
+  "learning_assessment": {
+    "toolchain_state": "toolchain_monitoring_watch",
+    "safe_to_display_in_hud": true,
+    "may_execute_recommendations": false,
+    "may_apply_changes": false
+  },
+  "recommendation": "phase_5_complete_continue_to_mobile_control_center",
+  "result": "external_toolchain_hud_built"
+}

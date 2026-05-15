@@ -1,0 +1,90 @@
+{
+  "timestamp": "2026-05-15T09:09:06.334087+00:00",
+  "runtime": "runtime_learning_summary",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "memory_mode": "safe_read_only_runtime_learning_summary",
+  "phase": "phase_4_runtime_learning_system",
+  "layer": "runtime_learning_summary",
+  "available_source_count": 6,
+  "available_sources": [
+    "engineering_learning_memory",
+    "agent_performance_memory",
+    "provider_scoring_memory",
+    "adaptive_routing_recommendations",
+    "learning_ingestion_runtime",
+    "adaptive_learning_scoring"
+  ],
+  "missing_sources": [],
+  "unreadable_sources": [],
+  "layer_states": {
+    "engineering_learning_memory": {
+      "available": true,
+      "learning_state": "stable_learning_ready",
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "human_approval_required": true
+    },
+    "agent_performance_memory": {
+      "available": true,
+      "learning_state": "stable_agent_performance_memory",
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "human_approval_required": true
+    },
+    "provider_scoring_memory": {
+      "available": true,
+      "learning_state": "provider_scores_need_review",
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "human_approval_required": true
+    },
+    "adaptive_routing_recommendations": {
+      "available": true,
+      "learning_state": "routing_recommendations_need_review",
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "human_approval_required": true
+    },
+    "learning_ingestion_runtime": {
+      "available": true,
+      "learning_state": "learning_ingestion_ready",
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "human_approval_required": true
+    },
+    "adaptive_learning_scoring": {
+      "available": true,
+      "learning_state": "strong_adaptive_signal",
+      "execution_allowed": false,
+      "apply_allowed": false,
+      "human_approval_required": true
+    }
+  },
+  "review_items": [
+    {
+      "provider": "openrouter",
+      "reason": "static_validation_ready_but_runtime_trust_missing"
+    }
+  ],
+  "blocked_capabilities": [],
+  "learning_summary": {
+    "engineering_learning": "stable_learning_ready",
+    "agent_learning": "stable_agent_performance_memory",
+    "provider_learning": "provider_scores_need_review",
+    "routing_learning": "routing_recommendations_need_review",
+    "review_required": true
+  },
+  "learning_assessment": {
+    "learning_state": "runtime_learning_review_required",
+    "safe_to_display_in_hud": true,
+    "may_execute_recommendations": false,
+    "may_apply_changes": false
+  },
+  "recommendation": "use_as_memory_input_for_learning_stability_monitor",
+  "result": "runtime_learning_summary_built"
+}

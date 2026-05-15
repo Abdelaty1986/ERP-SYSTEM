@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-05-15T10:03:41.818474+00:00",
+  "runtime": "voice_command_intent_queue",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "microphone_enabled": false,
+  "voice_command_execution_allowed": false,
+  "phase": "phase_7_voice_runtime",
+  "layer": "voice_command_intent_queue",
+  "queue_mode": "safe_simulated_voice_intents_only",
+  "intent_count": 1,
+  "pending_approval_count": 1,
+  "intents": [
+    {
+      "intent_id": "voice-intent-preview-status",
+      "source": "simulated_voice_runtime",
+      "transcript": "Jarvis, show runtime status.",
+      "intent_type": "runtime_status_request",
+      "queue_state": "awaiting_human_approval",
+      "execution_allowed": false,
+      "requires_human_approval": true,
+      "created_at": "2026-05-15T10:03:41.818474+00:00"
+    }
+  ],
+  "queue_policy": {
+    "execute_from_queue": false,
+    "auto_dequeue": false,
+    "human_approval_required_for_all": true,
+    "dangerous_intents_blocked_by_default": true
+  },
+  "result": "voice_command_intent_queue_built"
+}

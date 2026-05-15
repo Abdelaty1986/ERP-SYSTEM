@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-05-15T09:23:26.589944+00:00",
+  "runtime": "dependency_health_observer",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "awareness_mode": "safe_read_only_dependency_observation",
+  "phase": "phase_5_external_toolchain_runtime",
+  "layer": "dependency_health_observer",
+  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+  "dependency_files": [
+    {
+      "relative_path": "requirements.txt",
+      "exists": true,
+      "kind": "file",
+      "read_mode": "metadata_only",
+      "size_bytes": 76,
+      "dependency_line_count": 6
+    },
+    {
+      "relative_path": "pyproject.toml",
+      "exists": false,
+      "kind": "missing",
+      "read_mode": "metadata_only"
+    },
+    {
+      "relative_path": "Pipfile",
+      "exists": false,
+      "kind": "missing",
+      "read_mode": "metadata_only"
+    },
+    {
+      "relative_path": "poetry.lock",
+      "exists": false,
+      "kind": "missing",
+      "read_mode": "metadata_only"
+    },
+    {
+      "relative_path": "package.json",
+      "exists": false,
+      "kind": "missing",
+      "read_mode": "metadata_only"
+    },
+    {
+      "relative_path": "package-lock.json",
+      "exists": false,
+      "kind": "missing",
+      "read_mode": "metadata_only"
+    },
+    {
+      "relative_path": "yarn.lock",
+      "exists": false,
+      "kind": "missing",
+      "read_mode": "metadata_only"
+    },
+    {
+      "relative_path": "pnpm-lock.yaml",
+      "exists": false,
+      "kind": "missing",
+      "read_mode": "metadata_only"
+    },
+    {
+      "relative_path": "environment.yml",
+      "exists": false,
+      "kind": "missing",
+      "read_mode": "metadata_only"
+    }
+  ],
+  "detected_files": [
+    "requirements.txt"
+  ],
+  "detected_file_count": 1,
+  "primary_manifests": [
+    "requirements.txt"
+  ],
+  "dependency_counts": {
+    "requirements.txt": 6
+  },
+  "lock_files_present": [],
+  "dependency_health_state": "detected",
+  "risk_signal": "watch",
+  "prohibited_actions": [
+    "package_install",
+    "package_upgrade",
+    "lockfile_write",
+    "dependency_resolution",
+    "network_package_fetch"
+  ],
+  "notes": [
+    "Dependency observer inspected files only.",
+    "No packages were installed, upgraded, resolved, or downloaded.",
+    "No dependency or lock files were modified."
+  ],
+  "recommendation": "use_as_input_for_toolchain_risk_classifier",
+  "result": "dependency_health_observer_built"
+}

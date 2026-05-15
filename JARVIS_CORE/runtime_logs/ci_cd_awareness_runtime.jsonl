@@ -1,0 +1,1 @@
+{"timestamp": "2026-05-15T09:20:47.550346+00:00", "runtime": "ci_cd_awareness_runtime", "ci_cd_awareness_state": "detected", "detected_path_count": 3, "workflow_file_count": 0, "execution_allowed": false, "apply_allowed": false, "human_approval_required": true}

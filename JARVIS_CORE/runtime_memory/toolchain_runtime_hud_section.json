@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-05-15T09:42:56.011798+00:00",
+  "runtime": "toolchain_runtime_hud_section",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "hud_mode": "safe_read_only_toolchain_runtime_section",
+  "phase": "phase_6_full_mobile_control_center",
+  "layer": "toolchain_runtime_section",
+  "section": {
+    "ide_state": "not_detected",
+    "container_state": "not_detected",
+    "container_files": [],
+    "ci_cd_state": "detected",
+    "ci_cd_detected_paths": [
+      "Procfile",
+      "nixpacks.toml",
+      "deploy.sh"
+    ],
+    "test_runner_state": "detected",
+    "python_test_file_count": 11,
+    "dependency_state": "detected",
+    "dependency_files": [
+      "requirements.txt"
+    ],
+    "lock_files_present": [],
+    "risk_class": "watch",
+    "risk_reasons": [
+      "deployment_or_ci_cd_files_detected",
+      "dependency_manifest_without_lock_file",
+      "local_tests_detected_but_not_executed"
+    ],
+    "watch_sources": [
+      "ci_cd_awareness_runtime",
+      "dependency_health_observer"
+    ],
+    "unsafe_sources": [],
+    "external_toolchain_hud_status": "watch",
+    "external_toolchain_warnings": [
+      {
+        "type": "toolchain_risk",
+        "message": "deployment_or_ci_cd_files_detected"
+      },
+      {
+        "type": "toolchain_risk",
+        "message": "dependency_manifest_without_lock_file"
+      },
+      {
+        "type": "toolchain_risk",
+        "message": "local_tests_detected_but_not_executed"
+      }
+    ]
+  },
+  "warning_count": 6,
+  "section_state": "watch",
+  "recommendation": "use_as_input_for_runtime_warnings_locks_hud_section",
+  "result": "toolchain_runtime_hud_section_built"
+}

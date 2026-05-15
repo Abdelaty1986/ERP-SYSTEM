@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-05-15T09:18:00.709746+00:00",
+  "runtime": "ide_awareness_runtime",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "awareness_mode": "safe_read_only_ide_observation",
+  "phase": "phase_5_external_toolchain_runtime",
+  "layer": "ide_awareness_runtime",
+  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+  "ide_indicators": {
+    "vscode_workspace": {
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.vscode",
+      "exists": false,
+      "kind": "missing"
+    },
+    "idea_workspace": {
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.idea",
+      "exists": false,
+      "kind": "missing"
+    },
+    "editorconfig": {
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.editorconfig",
+      "exists": false,
+      "kind": "missing"
+    },
+    "devcontainer": {
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.devcontainer",
+      "exists": false,
+      "kind": "missing"
+    }
+  },
+  "detected_indicators": [],
+  "terminal_hints": {
+    "term_program": null,
+    "vscode_pid_present": false,
+    "cursor_trace_present": false,
+    "shell": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+  },
+  "ide_awareness_state": "not_detected",
+  "risk_signal": "low",
+  "notes": [
+    "IDE awareness is observation-only.",
+    "No editor automation or file mutation was attempted.",
+    "No autonomous execution capability is enabled."
+  ],
+  "recommendation": "use_as_input_for_container_execution_awareness",
+  "result": "ide_awareness_runtime_built"
+}

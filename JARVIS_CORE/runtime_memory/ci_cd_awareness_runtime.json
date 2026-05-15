@@ -1,0 +1,111 @@
+{
+  "timestamp": "2026-05-15T09:20:47.550346+00:00",
+  "runtime": "ci_cd_awareness_runtime",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "awareness_mode": "safe_read_only_ci_cd_observation",
+  "phase": "phase_5_external_toolchain_runtime",
+  "layer": "ci_cd_awareness_runtime",
+  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+  "observed_paths": [
+    {
+      "relative_path": ".github/workflows",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.github\\workflows",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": ".gitlab-ci.yml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.gitlab-ci.yml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "azure-pipelines.yml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\azure-pipelines.yml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "Jenkinsfile",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\Jenkinsfile",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": ".circleci/config.yml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.circleci\\config.yml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": ".buildkite/pipeline.yml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.buildkite\\pipeline.yml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "Procfile",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\Procfile",
+      "exists": true,
+      "kind": "file"
+    },
+    {
+      "relative_path": "nixpacks.toml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\nixpacks.toml",
+      "exists": true,
+      "kind": "file"
+    },
+    {
+      "relative_path": "render.yaml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\render.yaml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "vercel.json",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\vercel.json",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "netlify.toml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\netlify.toml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "deploy.sh",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\deploy.sh",
+      "exists": true,
+      "kind": "file"
+    }
+  ],
+  "detected_paths": [
+    "Procfile",
+    "nixpacks.toml",
+    "deploy.sh"
+  ],
+  "detected_path_count": 3,
+  "workflow_file_count": 0,
+  "ci_cd_awareness_state": "detected",
+  "risk_signal": "watch",
+  "prohibited_actions": [
+    "deploy",
+    "remote_ci_trigger",
+    "workflow_dispatch",
+    "git_push",
+    "secret_mutation"
+  ],
+  "notes": [
+    "CI/CD awareness is observation-only.",
+    "No remote operations, deployments, or workflow triggers were executed.",
+    "Configuration files were detected by path only."
+  ],
+  "recommendation": "use_as_input_for_local_test_runner_observer",
+  "result": "ci_cd_awareness_runtime_built"
+}

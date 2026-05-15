@@ -1,0 +1,93 @@
+{
+  "timestamp": "2026-05-15T09:19:16.817732+00:00",
+  "runtime": "container_execution_awareness",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "awareness_mode": "safe_read_only_container_observation",
+  "phase": "phase_5_external_toolchain_runtime",
+  "layer": "container_execution_awareness",
+  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+  "observed_files": [
+    {
+      "relative_path": "Dockerfile",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\Dockerfile",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "Containerfile",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\Containerfile",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "docker-compose.yml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\docker-compose.yml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "docker-compose.yaml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\docker-compose.yaml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "compose.yml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\compose.yml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "compose.yaml",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\compose.yaml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": ".dockerignore",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.dockerignore",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": ".devcontainer/devcontainer.json",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.devcontainer\\devcontainer.json",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": ".devcontainer/Dockerfile",
+      "path": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM\\.devcontainer\\Dockerfile",
+      "exists": false,
+      "kind": "missing"
+    }
+  ],
+  "detected_file_count": 0,
+  "detected_files": [],
+  "container_signals": {
+    "compose_present": false,
+    "image_definition_present": false,
+    "devcontainer_present": false
+  },
+  "container_awareness_state": "not_detected",
+  "risk_signal": "low",
+  "prohibited_actions": [
+    "docker_build",
+    "docker_run",
+    "docker_compose_up",
+    "podman_run",
+    "container_mutation"
+  ],
+  "notes": [
+    "Container awareness is observation-only.",
+    "No Docker, Podman, or compose commands were executed.",
+    "No images, networks, volumes, or containers were created or modified."
+  ],
+  "recommendation": "use_as_input_for_ci_cd_awareness_runtime",
+  "result": "container_execution_awareness_built"
+}
