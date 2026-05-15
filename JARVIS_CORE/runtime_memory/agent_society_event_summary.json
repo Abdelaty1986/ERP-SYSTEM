@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-05-15T06:38:48.854435+00:00",
+  "runtime": "agent_society_event_summary",
+  "bounded": true,
+  "latest_event_type": "orchestration_recorded",
+  "latest_selected_agent": "patch_agent",
+  "latest_consensus_state": "approved_for_planning_only",
+  "event_log_path": "JARVIS_CORE/runtime_logs/agent_society_events.jsonl",
+  "summary_state": "updated"
+}
