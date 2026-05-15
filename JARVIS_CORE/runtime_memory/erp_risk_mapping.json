@@ -1,0 +1,2510 @@
+{
+  "phase": "Phase 8 - Autonomous ERP Evolution",
+  "layer": "Layer 2 - ERP Risk Mapping",
+  "generated_at": "2026-05-15T13:52:57.119934+00:00",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "state": "complete",
+  "risk_policy": {
+    "high": "No direct mutation. Require explicit human approval, backup, tests, and rollback plan.",
+    "medium": "Review dependencies first. UI-only or isolated changes require approval.",
+    "low": "Documentation or test-support changes still stay bounded and reviewable."
+  },
+  "summary": {
+    "high": 9,
+    "medium": 337,
+    "low": 8
+  },
+  "high_risk": [
+    {
+      "path": "app.py",
+      "risk": "high",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "database.db",
+      "risk": "high",
+      "reason": "Database schema or data surface; mutation is blocked in Phase 8.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "db.py",
+      "risk": "high",
+      "reason": "Database schema or data surface; mutation is blocked in Phase 8.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "deploy.sh",
+      "risk": "high",
+      "reason": "High operational impact based on path classification.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "migrations.py",
+      "risk": "high",
+      "reason": "Database schema or data surface; mutation is blocked in Phase 8.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/hr",
+      "risk": "high",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/inventory",
+      "risk": "high",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/reports",
+      "risk": "high",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/sales",
+      "risk": "high",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    }
+  ],
+  "medium_risk": [
+    {
+      "path": "JARVIS_CORE/jarvis/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/agents/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/agents/base_agent.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/agents/gemini_agent.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/agents/groq_agent.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/agents/openrouter_agent.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/agents/reviewer_agent.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/agent_skill_scoring_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/approval_gateway_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/approval_lineage_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/approval_transition_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/architecture_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/autonomous_task_chaining_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/cognitive_decision_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/controlled_apply_decision_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/dependency_reasoning_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/dynamic_agent_routing_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/execution_journal_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/failure_learning_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/goal_persistence_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/hotspot_detector.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/human_approved_apply_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/learning_evolution_scoring_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/multi_agent_deliberation_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/priority_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/recommendation_evolution_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/rollback_checkpoint_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/runtime_continuity_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/runtime_forecast_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/runtime_identity_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/runtime_reflection_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/safe_execution_queue_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/safe_execution_strategy_planner.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/self_learning_memory_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/strategy_arbitration_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/strategy_simulation_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/architecture/task_execution_simulation_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/cognition/runtime_adaptive_observer.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/cognition/runtime_correlation_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/cognition/runtime_insight_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/cognition/runtime_pattern_awareness.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/cognition/runtime_stability_forecaster.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/commands/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/commands/runtime_command_api.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/config/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/config/runtime_config.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/consensus/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/consensus/consensus_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/agent_registry.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/conversation_brain.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/conversation_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/decision_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/egyptian_voice_prompts.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/execution_pipeline.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/execution_state.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/file_inspector.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/git_manager.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/identity_loader.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/intent_detector.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/interactive_voice_listener.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/learning_suggestions.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/orchestrator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/output_formatter.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/patch_planner.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/planning_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/project_context_builder.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/project_loader.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/project_scanner.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/runtime_report_formatter.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/core/voice_runtime.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/apply_contract.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/apply_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/apply_finalizer.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/apply_safety_receipt.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/apply_session.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/approval_manager.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/audit_trail.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/diff_quality_gate.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/diff_renderer.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/ephemeral_branch_manager.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/execution_git_tagger.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/git_commit_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/patch_intelligence.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/patch_manifest.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/patch_materializer.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/patch_validator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/real_apply_applier.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/real_apply_policy_manager.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/real_apply_switch.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/real_diff_proposal_builder.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/rollback_manager.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/runtime_auto_scheduler.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/runtime_queue_worker.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/runtime_session_manager.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/runtime_timeline.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/runtime_wake_cycle.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/runtime_wake_supervisor.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/runtime_worker_state.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/safe_patch_generator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/sandbox_apply_simulator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/sandbox_execution_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/sandbox_integrity_verifier.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/sandbox_manager.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/sandbox_patch_applier.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/sandbox_post_apply_tester.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/system_health_check.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/target_resolver.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/test_runner.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/unified_diff_applier.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/unified_diff_builder.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/execution/unified_diff_validator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/health/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/health/runtime_health_monitor.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/intelligence/erp_project_intelligence.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/interfaces/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/interfaces/cli.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/interfaces/live_jarvis_loop.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/interfaces/voice_cli.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/learning/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/learning/agent_learning_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/logging/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/logging/runtime_logger.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/memory/runtime_observation_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/mobile/mobile_control_center.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/mobile/mobile_runtime_api.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/repair/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/repair/autonomous_repair_loop.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/adaptive_learning_scoring.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/adaptive_model_routing_hud.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/adaptive_provider_ranking.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/adaptive_routing_recommendations.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_performance_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_skill_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_aggregator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_aggregator_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_consensus.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_consensus_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_delegation.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_delegation_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_event_log.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_event_log_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_orchestrator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_orchestrator_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_registry.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_router.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/agent_society_router_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/approval_transition_stabilizer.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/approved_project_apply_gate.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/autonomous_engineering_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/cognition_health_monitor.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/confidence_decay_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/confidence_decay_runtime.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/diff_intelligence_runtime.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/engineering_planning_refinement.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/erp_autonomous_evolution.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/erp_autonomous_evolution_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/evolution_intelligence_layer.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/execution_supervision_runtime.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/fallback_graph_runtime.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/human_approved_engineering.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/learning_ingestion_runtime.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/learning_stability_monitor.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/llm_provider_health.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/memory_compression_runtime.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/model_discovery_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/model_trust_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/outcome_correlation_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/project_apply_validation_guard.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_arbitration.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_arbitration_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_forecast.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_forecast_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_intelligence.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_intelligence_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_model_validation.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_optimizer.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_optimizer_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_recovery_executor.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_recovery_executor_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_recovery_planner.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_recovery_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_recovery_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_registry.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_reliability_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_router.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_scoring_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_self_healing.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_self_healing_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_strategy_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_trust_memory.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/provider_trust_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/recovery_recommendation_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/recovery_recommendation_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/rollback_intelligence_layer.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/rollback_recovery_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/router_optimization_api.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/router_self_optimization.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/runtime_aggregator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/runtime_audit.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/runtime_chat_console.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/runtime_governance_decision.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/runtime_intent_pipeline.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/runtime_learning_summary.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/runtime_visibility.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/safe_learning_hud_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/sandbox_patch_apply.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/self_development_readiness.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/staged_patch_generator.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/structured_patch_mutation.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/targeted_provider_probe.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/runtime/targeted_provider_probe_report.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/security/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/security/runtime_permissions.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/supervision/architecture_drift_detector.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/supervision/runtime_engineering_recommender.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/supervision/runtime_supervision_engine.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/supervision/structural_trend_forecaster.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/voice/__init__.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "JARVIS_CORE/jarvis/voice/voice_manager.py",
+      "risk": "medium",
+      "reason": "Runtime governance surface; analysis-only outputs are allowed.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "advanced.py",
+      "risk": "medium",
+      "reason": "Medium operational impact based on path classification.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "documents.py",
+      "risk": "medium",
+      "reason": "Medium operational impact based on path classification.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "financial.py",
+      "risk": "medium",
+      "reason": "Medium operational impact based on path classification.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "operations.py",
+      "risk": "medium",
+      "reason": "Medium operational impact based on path classification.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_brand.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_dashboard.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_dev_control.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_dev_system.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_enterprise_theme.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_global_pages.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_hr.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_invoice_forms.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_main_dashboard.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/css/ledgerx_ui.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/js/ledgerx_dev_control.js",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/js/ledgerx_dev_system.js",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/js/ledgerx_hr.js",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/js/ledgerx_ui.js",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/readme/dashboard.png",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/readme/journal.png",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/readme/purchases.png",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/readme/sales.png",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/readme/trial-balance.png",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/style.css",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/uploads/company-logo.jpeg",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "static/uploads/company-logo.png",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/account_form.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/accounts.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/aging_report.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/ai_development_center.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/allocations.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/audit_log.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/backup.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/balance_sheet.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/base.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/cash_flow.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/company_settings.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/cost_center_report.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/cost_centers.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/customer_adjustments.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/customers_report.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/dashboard.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/dev_ai_dashboard.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/dev_control.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/developer_control.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/document_sequences.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/e_invoices.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/edit.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/edit_employee.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/edit_product.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/edit_purchase_invoice.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/edit_sale_invoice.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/edit_voucher.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/expenses.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/financial_sales.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/fiscal_periods.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/attendance.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/dashboard.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/employee_form.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/employee_view.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/employees.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/leaves.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/payroll.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/payroll_detail.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/payslip.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/hr/reports.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/import_full_data.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/inventory.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/inventory_report.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/jarvis/mobile_control_center.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/journal.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/landing.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/layout.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/ledger.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/login.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/multi_invoice.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/opening_balances.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/parties.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/party_edit.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/party_statement.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/payments.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/payroll.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/payroll_details.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/payslip.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/permissions.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/posting_control.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/print_customer_note.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/print_document.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/print_purchase_order.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/print_voucher.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/product_barcode.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/product_categories.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/products.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/profit_loss.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/purchase_invoice_from_receipt.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/purchase_orders.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/purchase_receipts.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/purchases.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/receipts.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/returns.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/sales.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/sales_credit_notes.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/sales_deliveries.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/sales_invoice_from_delivery.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/sales_orders.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/supplier_debit_notes.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/suppliers_report.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/system_health.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/trial_balance.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/users.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/vat_report.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/withholding_tax_report.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "templates/year_end.html",
+      "risk": "medium",
+      "reason": "User-facing UI surface; safe only as limited, explicit edits.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "views.py",
+      "risk": "medium",
+      "reason": "Medium operational impact based on path classification.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    }
+  ],
+  "low_risk": [
+    {
+      "path": "instance",
+      "risk": "low",
+      "reason": "Low operational impact based on path classification.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/__pycache__",
+      "risk": "low",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/accounting",
+      "risk": "low",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/admin",
+      "risk": "low",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/core",
+      "risk": "low",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/einvoice",
+      "risk": "low",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/parties",
+      "risk": "low",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    },
+    {
+      "path": "modules/setup",
+      "risk": "low",
+      "reason": "Route and business logic surface with broad ERP impact.",
+      "allowed_action": "analyze_only",
+      "requires_human_approval": true
+    }
+  ]
+}

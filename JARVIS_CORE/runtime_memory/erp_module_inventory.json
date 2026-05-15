@@ -1,0 +1,2190 @@
+{
+  "phase": "Phase 8 - Autonomous ERP Evolution",
+  "layer": "Layer 1 - ERP Module Inventory",
+  "generated_at": "2026-05-15T13:52:57.114409+00:00",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "state": "complete",
+  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM",
+  "core_paths": {
+    "routes": [
+      {
+        "path": "app.py",
+        "exists": true
+      },
+      {
+        "path": "views.py",
+        "exists": true
+      },
+      {
+        "path": "operations.py",
+        "exists": true
+      },
+      {
+        "path": "financial.py",
+        "exists": true
+      },
+      {
+        "path": "documents.py",
+        "exists": true
+      },
+      {
+        "path": "advanced.py",
+        "exists": true
+      }
+    ],
+    "modules": [
+      {
+        "path": "modules",
+        "exists": true
+      }
+    ],
+    "templates": [
+      {
+        "path": "templates",
+        "exists": true
+      }
+    ],
+    "static": [
+      {
+        "path": "static",
+        "exists": true
+      }
+    ],
+    "runtime": [
+      {
+        "path": "JARVIS_CORE/jarvis",
+        "exists": true
+      },
+      {
+        "path": "JARVIS_CORE/runtime_memory",
+        "exists": true
+      },
+      {
+        "path": "JARVIS_CORE/runtime_logs",
+        "exists": true
+      }
+    ],
+    "database_files": [
+      {
+        "path": "database.db",
+        "exists": true
+      },
+      {
+        "path": "instance",
+        "exists": true
+      }
+    ],
+    "tests": [
+      {
+        "path": "tests",
+        "exists": true
+      }
+    ]
+  },
+  "counts": {
+    "route_files": 6,
+    "module_directories": 11,
+    "templates": 87,
+    "static_assets": 22,
+    "runtime_python_files_sampled": 223,
+    "routes_detected": 213,
+    "template_references_detected": 132
+  },
+  "modules": [
+    "__pycache__",
+    "accounting",
+    "admin",
+    "core",
+    "einvoice",
+    "hr",
+    "inventory",
+    "parties",
+    "reports",
+    "sales",
+    "setup"
+  ],
+  "route_files": [
+    "app.py",
+    "views.py",
+    "operations.py",
+    "financial.py",
+    "documents.py",
+    "advanced.py"
+  ],
+  "template_files": [
+    "templates/account_form.html",
+    "templates/accounts.html",
+    "templates/aging_report.html",
+    "templates/ai_development_center.html",
+    "templates/allocations.html",
+    "templates/audit_log.html",
+    "templates/backup.html",
+    "templates/balance_sheet.html",
+    "templates/base.html",
+    "templates/cash_flow.html",
+    "templates/company_settings.html",
+    "templates/cost_center_report.html",
+    "templates/cost_centers.html",
+    "templates/customer_adjustments.html",
+    "templates/customers_report.html",
+    "templates/dashboard.html",
+    "templates/dev_ai_dashboard.html",
+    "templates/dev_control.html",
+    "templates/developer_control.html",
+    "templates/document_sequences.html",
+    "templates/e_invoices.html",
+    "templates/edit.html",
+    "templates/edit_employee.html",
+    "templates/edit_product.html",
+    "templates/edit_purchase_invoice.html",
+    "templates/edit_sale_invoice.html",
+    "templates/edit_voucher.html",
+    "templates/expenses.html",
+    "templates/financial_sales.html",
+    "templates/fiscal_periods.html",
+    "templates/hr/attendance.html",
+    "templates/hr/dashboard.html",
+    "templates/hr/employee_form.html",
+    "templates/hr/employee_view.html",
+    "templates/hr/employees.html",
+    "templates/hr/leaves.html",
+    "templates/hr/payroll.html",
+    "templates/hr/payroll_detail.html",
+    "templates/hr/payslip.html",
+    "templates/hr/reports.html",
+    "templates/import_full_data.html",
+    "templates/inventory.html",
+    "templates/inventory_report.html",
+    "templates/jarvis/mobile_control_center.html",
+    "templates/journal.html",
+    "templates/landing.html",
+    "templates/layout.html",
+    "templates/ledger.html",
+    "templates/login.html",
+    "templates/multi_invoice.html",
+    "templates/opening_balances.html",
+    "templates/parties.html",
+    "templates/party_edit.html",
+    "templates/party_statement.html",
+    "templates/payments.html",
+    "templates/payroll.html",
+    "templates/payroll_details.html",
+    "templates/payslip.html",
+    "templates/permissions.html",
+    "templates/posting_control.html",
+    "templates/print_customer_note.html",
+    "templates/print_document.html",
+    "templates/print_purchase_order.html",
+    "templates/print_voucher.html",
+    "templates/product_barcode.html",
+    "templates/product_categories.html",
+    "templates/products.html",
+    "templates/profit_loss.html",
+    "templates/purchase_invoice_from_receipt.html",
+    "templates/purchase_orders.html",
+    "templates/purchase_receipts.html",
+    "templates/purchases.html",
+    "templates/receipts.html",
+    "templates/returns.html",
+    "templates/sales.html",
+    "templates/sales_credit_notes.html",
+    "templates/sales_deliveries.html",
+    "templates/sales_invoice_from_delivery.html",
+    "templates/sales_orders.html",
+    "templates/supplier_debit_notes.html",
+    "templates/suppliers_report.html",
+    "templates/system_health.html",
+    "templates/trial_balance.html",
+    "templates/users.html",
+    "templates/vat_report.html",
+    "templates/withholding_tax_report.html",
+    "templates/year_end.html"
+  ],
+  "static_files": [
+    "static/css/ledgerx_brand.css",
+    "static/css/ledgerx_dashboard.css",
+    "static/css/ledgerx_dev_control.css",
+    "static/css/ledgerx_dev_system.css",
+    "static/css/ledgerx_enterprise_theme.css",
+    "static/css/ledgerx_global_pages.css",
+    "static/css/ledgerx_hr.css",
+    "static/css/ledgerx_invoice_forms.css",
+    "static/css/ledgerx_main_dashboard.css",
+    "static/css/ledgerx_ui.css",
+    "static/js/ledgerx_dev_control.js",
+    "static/js/ledgerx_dev_system.js",
+    "static/js/ledgerx_hr.js",
+    "static/js/ledgerx_ui.js",
+    "static/readme/dashboard.png",
+    "static/readme/journal.png",
+    "static/readme/purchases.png",
+    "static/readme/sales.png",
+    "static/readme/trial-balance.png",
+    "static/style.css",
+    "static/uploads/company-logo.jpeg",
+    "static/uploads/company-logo.png"
+  ],
+  "runtime_python_files": [
+    "JARVIS_CORE/jarvis/__init__.py",
+    "JARVIS_CORE/jarvis/agents/__init__.py",
+    "JARVIS_CORE/jarvis/agents/base_agent.py",
+    "JARVIS_CORE/jarvis/agents/gemini_agent.py",
+    "JARVIS_CORE/jarvis/agents/groq_agent.py",
+    "JARVIS_CORE/jarvis/agents/openrouter_agent.py",
+    "JARVIS_CORE/jarvis/agents/reviewer_agent.py",
+    "JARVIS_CORE/jarvis/architecture/agent_skill_scoring_engine.py",
+    "JARVIS_CORE/jarvis/architecture/approval_gateway_engine.py",
+    "JARVIS_CORE/jarvis/architecture/approval_lineage_engine.py",
+    "JARVIS_CORE/jarvis/architecture/approval_transition_engine.py",
+    "JARVIS_CORE/jarvis/architecture/architecture_memory.py",
+    "JARVIS_CORE/jarvis/architecture/autonomous_task_chaining_engine.py",
+    "JARVIS_CORE/jarvis/architecture/cognitive_decision_engine.py",
+    "JARVIS_CORE/jarvis/architecture/controlled_apply_decision_engine.py",
+    "JARVIS_CORE/jarvis/architecture/dependency_reasoning_engine.py",
+    "JARVIS_CORE/jarvis/architecture/dynamic_agent_routing_engine.py",
+    "JARVIS_CORE/jarvis/architecture/execution_journal_engine.py",
+    "JARVIS_CORE/jarvis/architecture/failure_learning_engine.py",
+    "JARVIS_CORE/jarvis/architecture/goal_persistence_engine.py",
+    "JARVIS_CORE/jarvis/architecture/hotspot_detector.py",
+    "JARVIS_CORE/jarvis/architecture/human_approved_apply_engine.py",
+    "JARVIS_CORE/jarvis/architecture/learning_evolution_scoring_engine.py",
+    "JARVIS_CORE/jarvis/architecture/multi_agent_deliberation_engine.py",
+    "JARVIS_CORE/jarvis/architecture/priority_engine.py",
+    "JARVIS_CORE/jarvis/architecture/recommendation_evolution_engine.py",
+    "JARVIS_CORE/jarvis/architecture/rollback_checkpoint_engine.py",
+    "JARVIS_CORE/jarvis/architecture/runtime_continuity_memory.py",
+    "JARVIS_CORE/jarvis/architecture/runtime_forecast_engine.py",
+    "JARVIS_CORE/jarvis/architecture/runtime_identity_engine.py",
+    "JARVIS_CORE/jarvis/architecture/runtime_reflection_engine.py",
+    "JARVIS_CORE/jarvis/architecture/safe_execution_queue_engine.py",
+    "JARVIS_CORE/jarvis/architecture/safe_execution_strategy_planner.py",
+    "JARVIS_CORE/jarvis/architecture/self_learning_memory_engine.py",
+    "JARVIS_CORE/jarvis/architecture/strategy_arbitration_engine.py",
+    "JARVIS_CORE/jarvis/architecture/strategy_simulation_engine.py",
+    "JARVIS_CORE/jarvis/architecture/task_execution_simulation_engine.py",
+    "JARVIS_CORE/jarvis/cognition/runtime_adaptive_observer.py",
+    "JARVIS_CORE/jarvis/cognition/runtime_correlation_engine.py",
+    "JARVIS_CORE/jarvis/cognition/runtime_insight_engine.py",
+    "JARVIS_CORE/jarvis/cognition/runtime_pattern_awareness.py",
+    "JARVIS_CORE/jarvis/cognition/runtime_stability_forecaster.py",
+    "JARVIS_CORE/jarvis/commands/__init__.py",
+    "JARVIS_CORE/jarvis/commands/runtime_command_api.py",
+    "JARVIS_CORE/jarvis/config/__init__.py",
+    "JARVIS_CORE/jarvis/config/runtime_config.py",
+    "JARVIS_CORE/jarvis/consensus/__init__.py",
+    "JARVIS_CORE/jarvis/consensus/consensus_engine.py",
+    "JARVIS_CORE/jarvis/core/__init__.py",
+    "JARVIS_CORE/jarvis/core/agent_registry.py",
+    "JARVIS_CORE/jarvis/core/conversation_brain.py",
+    "JARVIS_CORE/jarvis/core/conversation_memory.py",
+    "JARVIS_CORE/jarvis/core/decision_engine.py",
+    "JARVIS_CORE/jarvis/core/egyptian_voice_prompts.py",
+    "JARVIS_CORE/jarvis/core/execution_pipeline.py",
+    "JARVIS_CORE/jarvis/core/execution_state.py",
+    "JARVIS_CORE/jarvis/core/file_inspector.py",
+    "JARVIS_CORE/jarvis/core/git_manager.py",
+    "JARVIS_CORE/jarvis/core/identity_loader.py",
+    "JARVIS_CORE/jarvis/core/intent_detector.py",
+    "JARVIS_CORE/jarvis/core/interactive_voice_listener.py",
+    "JARVIS_CORE/jarvis/core/learning_suggestions.py",
+    "JARVIS_CORE/jarvis/core/memory.py",
+    "JARVIS_CORE/jarvis/core/orchestrator.py",
+    "JARVIS_CORE/jarvis/core/output_formatter.py",
+    "JARVIS_CORE/jarvis/core/patch_planner.py",
+    "JARVIS_CORE/jarvis/core/planning_engine.py",
+    "JARVIS_CORE/jarvis/core/project_context_builder.py",
+    "JARVIS_CORE/jarvis/core/project_loader.py",
+    "JARVIS_CORE/jarvis/core/project_scanner.py",
+    "JARVIS_CORE/jarvis/core/runtime_report_formatter.py",
+    "JARVIS_CORE/jarvis/core/voice_runtime.py",
+    "JARVIS_CORE/jarvis/execution/__init__.py",
+    "JARVIS_CORE/jarvis/execution/apply_contract.py",
+    "JARVIS_CORE/jarvis/execution/apply_engine.py",
+    "JARVIS_CORE/jarvis/execution/apply_finalizer.py",
+    "JARVIS_CORE/jarvis/execution/apply_safety_receipt.py",
+    "JARVIS_CORE/jarvis/execution/apply_session.py",
+    "JARVIS_CORE/jarvis/execution/approval_manager.py",
+    "JARVIS_CORE/jarvis/execution/audit_trail.py",
+    "JARVIS_CORE/jarvis/execution/diff_quality_gate.py",
+    "JARVIS_CORE/jarvis/execution/diff_renderer.py",
+    "JARVIS_CORE/jarvis/execution/ephemeral_branch_manager.py",
+    "JARVIS_CORE/jarvis/execution/execution_git_tagger.py",
+    "JARVIS_CORE/jarvis/execution/git_commit_engine.py",
+    "JARVIS_CORE/jarvis/execution/patch_intelligence.py",
+    "JARVIS_CORE/jarvis/execution/patch_manifest.py",
+    "JARVIS_CORE/jarvis/execution/patch_materializer.py",
+    "JARVIS_CORE/jarvis/execution/patch_validator.py",
+    "JARVIS_CORE/jarvis/execution/real_apply_applier.py",
+    "JARVIS_CORE/jarvis/execution/real_apply_policy_manager.py",
+    "JARVIS_CORE/jarvis/execution/real_apply_switch.py",
+    "JARVIS_CORE/jarvis/execution/real_diff_proposal_builder.py",
+    "JARVIS_CORE/jarvis/execution/rollback_manager.py",
+    "JARVIS_CORE/jarvis/execution/runtime_auto_scheduler.py",
+    "JARVIS_CORE/jarvis/execution/runtime_queue_worker.py",
+    "JARVIS_CORE/jarvis/execution/runtime_session_manager.py",
+    "JARVIS_CORE/jarvis/execution/runtime_timeline.py",
+    "JARVIS_CORE/jarvis/execution/runtime_wake_cycle.py",
+    "JARVIS_CORE/jarvis/execution/runtime_wake_supervisor.py",
+    "JARVIS_CORE/jarvis/execution/runtime_worker_state.py",
+    "JARVIS_CORE/jarvis/execution/safe_patch_generator.py",
+    "JARVIS_CORE/jarvis/execution/sandbox_apply_simulator.py",
+    "JARVIS_CORE/jarvis/execution/sandbox_execution_report.py",
+    "JARVIS_CORE/jarvis/execution/sandbox_integrity_verifier.py",
+    "JARVIS_CORE/jarvis/execution/sandbox_manager.py",
+    "JARVIS_CORE/jarvis/execution/sandbox_patch_applier.py",
+    "JARVIS_CORE/jarvis/execution/sandbox_post_apply_tester.py",
+    "JARVIS_CORE/jarvis/execution/system_health_check.py",
+    "JARVIS_CORE/jarvis/execution/target_resolver.py",
+    "JARVIS_CORE/jarvis/execution/test_runner.py",
+    "JARVIS_CORE/jarvis/execution/unified_diff_applier.py",
+    "JARVIS_CORE/jarvis/execution/unified_diff_builder.py",
+    "JARVIS_CORE/jarvis/execution/unified_diff_validator.py",
+    "JARVIS_CORE/jarvis/health/__init__.py",
+    "JARVIS_CORE/jarvis/health/runtime_health_monitor.py",
+    "JARVIS_CORE/jarvis/intelligence/erp_project_intelligence.py",
+    "JARVIS_CORE/jarvis/interfaces/__init__.py",
+    "JARVIS_CORE/jarvis/interfaces/cli.py",
+    "JARVIS_CORE/jarvis/interfaces/live_jarvis_loop.py",
+    "JARVIS_CORE/jarvis/interfaces/voice_cli.py",
+    "JARVIS_CORE/jarvis/learning/__init__.py",
+    "JARVIS_CORE/jarvis/learning/agent_learning_memory.py",
+    "JARVIS_CORE/jarvis/logging/__init__.py",
+    "JARVIS_CORE/jarvis/logging/runtime_logger.py",
+    "JARVIS_CORE/jarvis/memory/runtime_observation_memory.py",
+    "JARVIS_CORE/jarvis/mobile/mobile_control_center.py",
+    "JARVIS_CORE/jarvis/mobile/mobile_runtime_api.py",
+    "JARVIS_CORE/jarvis/repair/__init__.py",
+    "JARVIS_CORE/jarvis/repair/autonomous_repair_loop.py",
+    "JARVIS_CORE/jarvis/runtime/adaptive_learning_scoring.py",
+    "JARVIS_CORE/jarvis/runtime/adaptive_model_routing_hud.py",
+    "JARVIS_CORE/jarvis/runtime/adaptive_provider_ranking.py",
+    "JARVIS_CORE/jarvis/runtime/adaptive_routing_recommendations.py",
+    "JARVIS_CORE/jarvis/runtime/agent_performance_memory.py",
+    "JARVIS_CORE/jarvis/runtime/agent_skill_memory.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_aggregator.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_aggregator_probe.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_consensus.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_consensus_probe.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_delegation.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_delegation_probe.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_event_log.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_event_log_probe.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_orchestrator.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_orchestrator_probe.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_probe.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_registry.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_router.py",
+    "JARVIS_CORE/jarvis/runtime/agent_society_router_probe.py",
+    "JARVIS_CORE/jarvis/runtime/approval_transition_stabilizer.py",
+    "JARVIS_CORE/jarvis/runtime/approved_project_apply_gate.py",
+    "JARVIS_CORE/jarvis/runtime/autonomous_engineering_memory.py",
+    "JARVIS_CORE/jarvis/runtime/cognition_health_monitor.py",
+    "JARVIS_CORE/jarvis/runtime/confidence_decay_report.py",
+    "JARVIS_CORE/jarvis/runtime/confidence_decay_runtime.py",
+    "JARVIS_CORE/jarvis/runtime/diff_intelligence_runtime.py",
+    "JARVIS_CORE/jarvis/runtime/engineering_planning_refinement.py",
+    "JARVIS_CORE/jarvis/runtime/erp_autonomous_evolution.py",
+    "JARVIS_CORE/jarvis/runtime/erp_autonomous_evolution_probe.py",
+    "JARVIS_CORE/jarvis/runtime/evolution_intelligence_layer.py",
+    "JARVIS_CORE/jarvis/runtime/execution_supervision_runtime.py",
+    "JARVIS_CORE/jarvis/runtime/fallback_graph_runtime.py",
+    "JARVIS_CORE/jarvis/runtime/human_approved_engineering.py",
+    "JARVIS_CORE/jarvis/runtime/learning_ingestion_runtime.py",
+    "JARVIS_CORE/jarvis/runtime/learning_stability_monitor.py",
+    "JARVIS_CORE/jarvis/runtime/llm_provider_health.py",
+    "JARVIS_CORE/jarvis/runtime/memory_compression_runtime.py",
+    "JARVIS_CORE/jarvis/runtime/model_discovery_engine.py",
+    "JARVIS_CORE/jarvis/runtime/model_trust_memory.py",
+    "JARVIS_CORE/jarvis/runtime/outcome_correlation_engine.py",
+    "JARVIS_CORE/jarvis/runtime/project_apply_validation_guard.py",
+    "JARVIS_CORE/jarvis/runtime/provider_arbitration.py",
+    "JARVIS_CORE/jarvis/runtime/provider_arbitration_report.py",
+    "JARVIS_CORE/jarvis/runtime/provider_forecast.py",
+    "JARVIS_CORE/jarvis/runtime/provider_forecast_report.py",
+    "JARVIS_CORE/jarvis/runtime/provider_intelligence.py",
+    "JARVIS_CORE/jarvis/runtime/provider_intelligence_report.py",
+    "JARVIS_CORE/jarvis/runtime/provider_model_validation.py",
+    "JARVIS_CORE/jarvis/runtime/provider_optimizer.py",
+    "JARVIS_CORE/jarvis/runtime/provider_optimizer_report.py",
+    "JARVIS_CORE/jarvis/runtime/provider_recovery_executor.py",
+    "JARVIS_CORE/jarvis/runtime/provider_recovery_executor_report.py",
+    "JARVIS_CORE/jarvis/runtime/provider_recovery_planner.py",
+    "JARVIS_CORE/jarvis/runtime/provider_recovery_probe.py",
+    "JARVIS_CORE/jarvis/runtime/provider_recovery_report.py",
+    "JARVIS_CORE/jarvis/runtime/provider_registry.py",
+    "JARVIS_CORE/jarvis/runtime/provider_reliability_memory.py",
+    "JARVIS_CORE/jarvis/runtime/provider_router.py",
+    "JARVIS_CORE/jarvis/runtime/provider_scoring_memory.py",
+    "JARVIS_CORE/jarvis/runtime/provider_self_healing.py",
+    "JARVIS_CORE/jarvis/runtime/provider_self_healing_report.py",
+    "JARVIS_CORE/jarvis/runtime/provider_strategy_memory.py",
+    "JARVIS_CORE/jarvis/runtime/provider_trust_memory.py",
+    "JARVIS_CORE/jarvis/runtime/provider_trust_report.py",
+    "JARVIS_CORE/jarvis/runtime/recovery_recommendation_engine.py",
+    "JARVIS_CORE/jarvis/runtime/recovery_recommendation_probe.py",
+    "JARVIS_CORE/jarvis/runtime/rollback_intelligence_layer.py",
+    "JARVIS_CORE/jarvis/runtime/rollback_recovery_engine.py",
+    "JARVIS_CORE/jarvis/runtime/router_optimization_api.py",
+    "JARVIS_CORE/jarvis/runtime/router_self_optimization.py",
+    "JARVIS_CORE/jarvis/runtime/runtime_aggregator.py",
+    "JARVIS_CORE/jarvis/runtime/runtime_audit.py",
+    "JARVIS_CORE/jarvis/runtime/runtime_chat_console.py",
+    "JARVIS_CORE/jarvis/runtime/runtime_governance_decision.py",
+    "JARVIS_CORE/jarvis/runtime/runtime_intent_pipeline.py",
+    "JARVIS_CORE/jarvis/runtime/runtime_learning_summary.py",
+    "JARVIS_CORE/jarvis/runtime/runtime_visibility.py",
+    "JARVIS_CORE/jarvis/runtime/safe_learning_hud_report.py",
+    "JARVIS_CORE/jarvis/runtime/sandbox_patch_apply.py",
+    "JARVIS_CORE/jarvis/runtime/self_development_readiness.py",
+    "JARVIS_CORE/jarvis/runtime/staged_patch_generator.py",
+    "JARVIS_CORE/jarvis/runtime/structured_patch_mutation.py",
+    "JARVIS_CORE/jarvis/runtime/targeted_provider_probe.py",
+    "JARVIS_CORE/jarvis/runtime/targeted_provider_probe_report.py",
+    "JARVIS_CORE/jarvis/security/__init__.py",
+    "JARVIS_CORE/jarvis/security/runtime_permissions.py",
+    "JARVIS_CORE/jarvis/supervision/architecture_drift_detector.py",
+    "JARVIS_CORE/jarvis/supervision/runtime_engineering_recommender.py",
+    "JARVIS_CORE/jarvis/supervision/runtime_supervision_engine.py",
+    "JARVIS_CORE/jarvis/supervision/structural_trend_forecaster.py",
+    "JARVIS_CORE/jarvis/voice/__init__.py",
+    "JARVIS_CORE/jarvis/voice/voice_manager.py"
+  ],
+  "routes": [
+    {
+      "route": "/",
+      "handler": "home",
+      "file": "app.py"
+    },
+    {
+      "route": "/landing",
+      "handler": "landing_page",
+      "file": "app.py"
+    },
+    {
+      "route": "/login",
+      "handler": "login",
+      "file": "app.py"
+    },
+    {
+      "route": "/logout",
+      "handler": "logout",
+      "file": "app.py"
+    },
+    {
+      "route": "/dashboard",
+      "handler": "dashboard",
+      "file": "app.py"
+    },
+    {
+      "route": "/system-health",
+      "handler": "system_health",
+      "file": "app.py"
+    },
+    {
+      "route": "/dev/ai-center",
+      "handler": "ai_development_center",
+      "file": "app.py"
+    },
+    {
+      "route": "/dev/ai-dashboard",
+      "handler": "ai_dashboard",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/targeted-provider-probe",
+      "handler": "jarvis_targeted_provider_probe",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/provider-trust",
+      "handler": "jarvis_provider_trust_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/adaptive-provider-ranking",
+      "handler": "jarvis_adaptive_provider_ranking",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/confidence-decay",
+      "handler": "jarvis_confidence_decay_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile",
+      "handler": "jarvis_mobile_control_center",
+      "file": "app.py"
+    },
+    {
+      "route": "/dev-control",
+      "handler": "developer_control",
+      "file": "app.py"
+    },
+    {
+      "route": "/dev/run-migrations",
+      "handler": "dev_run_migrations",
+      "file": "app.py"
+    },
+    {
+      "route": "/dev/run-test",
+      "handler": "dev_run_test",
+      "file": "app.py"
+    },
+    {
+      "route": "/dev/deploy",
+      "handler": "dev_deploy",
+      "file": "app.py"
+    },
+    {
+      "route": "/dev/import-data",
+      "handler": "dev_import_data",
+      "file": "app.py"
+    },
+    {
+      "route": "/dev/backup-now",
+      "handler": "dev_backup_now",
+      "file": "app.py"
+    },
+    {
+      "route": "/settings/company",
+      "handler": "company_settings",
+      "file": "app.py"
+    },
+    {
+      "route": "/posting-control",
+      "handler": "posting_control",
+      "file": "app.py"
+    },
+    {
+      "route": "/posting-control/<group_key>/<action>",
+      "handler": "posting_control_action",
+      "file": "app.py"
+    },
+    {
+      "route": "/fiscal-periods",
+      "handler": "fiscal_periods",
+      "file": "app.py"
+    },
+    {
+      "route": "/fiscal-periods/<int:id>/<action>",
+      "handler": "fiscal_period_action",
+      "file": "app.py"
+    },
+    {
+      "route": "/accounts",
+      "handler": "accounts",
+      "file": "app.py"
+    },
+    {
+      "route": "/accounts/edit/<int:id>",
+      "handler": "account_edit",
+      "file": "app.py"
+    },
+    {
+      "route": "/accounts/delete/<int:id>",
+      "handler": "account_delete",
+      "file": "app.py"
+    },
+    {
+      "route": "/journal",
+      "handler": "journal",
+      "file": "app.py"
+    },
+    {
+      "route": "/journal/export",
+      "handler": "journal_export",
+      "file": "app.py"
+    },
+    {
+      "route": "/edit/<int:id>",
+      "handler": "edit",
+      "file": "app.py"
+    },
+    {
+      "route": "/delete/<int:id>",
+      "handler": "delete",
+      "file": "app.py"
+    },
+    {
+      "route": "/ledger/<int:id>",
+      "handler": "ledger",
+      "file": "app.py"
+    },
+    {
+      "route": "/ledger/<int:id>/export",
+      "handler": "ledger_export",
+      "file": "app.py"
+    },
+    {
+      "route": "/trial-balance",
+      "handler": "trial",
+      "file": "app.py"
+    },
+    {
+      "route": "/trial-balance/export",
+      "handler": "trial_export",
+      "file": "app.py"
+    },
+    {
+      "route": "/customers",
+      "handler": "customers",
+      "file": "app.py"
+    },
+    {
+      "route": "/customers/<int:id>/edit",
+      "handler": "edit_customer",
+      "file": "app.py"
+    },
+    {
+      "route": "/customers/<int:id>/delete",
+      "handler": "delete_customer",
+      "file": "app.py"
+    },
+    {
+      "route": "/suppliers",
+      "handler": "suppliers",
+      "file": "app.py"
+    },
+    {
+      "route": "/suppliers/<int:id>/edit",
+      "handler": "edit_supplier",
+      "file": "app.py"
+    },
+    {
+      "route": "/suppliers/<int:id>/delete",
+      "handler": "delete_supplier",
+      "file": "app.py"
+    },
+    {
+      "route": "/products",
+      "handler": "products",
+      "file": "app.py"
+    },
+    {
+      "route": "/products/<int:id>/barcode",
+      "handler": "product_barcode",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales",
+      "handler": "sales",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales-orders",
+      "handler": "sales_orders",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales-deliveries",
+      "handler": "sales_deliveries",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales/from-delivery",
+      "handler": "sales_invoice_from_delivery",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales/financial",
+      "handler": "financial_sales",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchases",
+      "handler": "purchases",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchase-orders",
+      "handler": "purchase_orders",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchase-receipts",
+      "handler": "purchase_receipts",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchases/from-receipt",
+      "handler": "purchase_invoice_from_receipt",
+      "file": "app.py"
+    },
+    {
+      "route": "/inventory",
+      "handler": "inventory",
+      "file": "app.py"
+    },
+    {
+      "route": "/product-categories",
+      "handler": "product_categories",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales/<int:id>/cancel",
+      "handler": "cancel_sale",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales-deliveries/<int:id>/cancel",
+      "handler": "cancel_sales_delivery",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales/<int:id>/edit",
+      "handler": "edit_sale_invoice",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales/<int:id>/export",
+      "handler": "export_sale_excel",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchases/<int:id>/cancel",
+      "handler": "cancel_purchase",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchase-receipts/<int:id>/cancel",
+      "handler": "cancel_purchase_receipt",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchases/<int:id>/edit",
+      "handler": "edit_purchase_invoice",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchases/<int:id>/export",
+      "handler": "export_purchase_excel",
+      "file": "app.py"
+    },
+    {
+      "route": "/receipts",
+      "handler": "receipts",
+      "file": "app.py"
+    },
+    {
+      "route": "/payments",
+      "handler": "payments",
+      "file": "app.py"
+    },
+    {
+      "route": "/receipts/<int:id>/cancel",
+      "handler": "cancel_receipt",
+      "file": "app.py"
+    },
+    {
+      "route": "/receipts/<int:id>/edit",
+      "handler": "edit_receipt",
+      "file": "app.py"
+    },
+    {
+      "route": "/payments/<int:id>/cancel",
+      "handler": "cancel_payment",
+      "file": "app.py"
+    },
+    {
+      "route": "/payments/<int:id>/edit",
+      "handler": "edit_payment",
+      "file": "app.py"
+    },
+    {
+      "route": "/employees",
+      "handler": "employees",
+      "file": "app.py"
+    },
+    {
+      "route": "/employees/<int:id>/toggle",
+      "handler": "toggle_employee",
+      "file": "app.py"
+    },
+    {
+      "route": "/payroll",
+      "handler": "payroll",
+      "file": "app.py"
+    },
+    {
+      "route": "/payroll/<int:id>",
+      "handler": "payroll_details",
+      "file": "app.py"
+    },
+    {
+      "route": "/payroll/<int:id>/post",
+      "handler": "payroll_post",
+      "file": "app.py"
+    },
+    {
+      "route": "/payroll/<int:run_id>/payslip/<int:employee_id>",
+      "handler": "payroll_payslip",
+      "file": "app.py"
+    },
+    {
+      "route": "/cost-centers",
+      "handler": "cost_centers",
+      "file": "app.py"
+    },
+    {
+      "route": "/document-sequences",
+      "handler": "document_sequences",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales/multi",
+      "handler": "sales_multi",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchases/multi",
+      "handler": "purchases_multi",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales/<int:id>/print",
+      "handler": "print_sale",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchases/<int:id>/print",
+      "handler": "print_purchase",
+      "file": "app.py"
+    },
+    {
+      "route": "/purchase-orders/<int:id>/print",
+      "handler": "print_purchase_order",
+      "file": "app.py"
+    },
+    {
+      "route": "/products/<int:id>/edit",
+      "handler": "edit_product",
+      "file": "app.py"
+    },
+    {
+      "route": "/products/<int:id>/delete",
+      "handler": "delete_product",
+      "file": "app.py"
+    },
+    {
+      "route": "/employees/<int:id>/edit",
+      "handler": "edit_employee",
+      "file": "app.py"
+    },
+    {
+      "route": "/employees/<int:id>/delete",
+      "handler": "delete_employee",
+      "file": "app.py"
+    },
+    {
+      "route": "/receipts/<int:id>/print",
+      "handler": "print_receipt",
+      "file": "app.py"
+    },
+    {
+      "route": "/payments/<int:id>/print",
+      "handler": "print_payment",
+      "file": "app.py"
+    },
+    {
+      "route": "/customers/<int:id>/statement",
+      "handler": "customer_statement",
+      "file": "app.py"
+    },
+    {
+      "route": "/suppliers/<int:id>/statement",
+      "handler": "supplier_statement",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/inventory",
+      "handler": "inventory_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/customers",
+      "handler": "customers_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/suppliers",
+      "handler": "suppliers_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/customers/aging",
+      "handler": "customers_aging_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/suppliers/aging",
+      "handler": "suppliers_aging_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/balance-sheet",
+      "handler": "balance_sheet_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/allocations",
+      "handler": "allocations",
+      "file": "app.py"
+    },
+    {
+      "route": "/returns/sales",
+      "handler": "sales_returns",
+      "file": "app.py"
+    },
+    {
+      "route": "/returns/purchases",
+      "handler": "purchase_returns",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/cash-flow",
+      "handler": "cash_flow_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/cost-centers",
+      "handler": "cost_center_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/opening-balances",
+      "handler": "opening_balances",
+      "file": "app.py"
+    },
+    {
+      "route": "/year-end",
+      "handler": "year_end",
+      "file": "app.py"
+    },
+    {
+      "route": "/backup",
+      "handler": "backup_restore",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/profit-loss",
+      "handler": "profit_loss_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/reports/vat",
+      "handler": "vat_report",
+      "file": "app.py"
+    },
+    {
+      "route": "/audit-log",
+      "handler": "audit_log",
+      "file": "app.py"
+    },
+    {
+      "route": "/permissions",
+      "handler": "permissions",
+      "file": "app.py"
+    },
+    {
+      "route": "/users",
+      "handler": "users",
+      "file": "app.py"
+    },
+    {
+      "route": "/users/<int:id>/change-password",
+      "handler": "change_user_password",
+      "file": "app.py"
+    },
+    {
+      "route": "/users/<int:id>/delete",
+      "handler": "delete_user",
+      "file": "app.py"
+    },
+    {
+      "route": "/import-full-data",
+      "handler": "import_full_data",
+      "file": "app.py"
+    },
+    {
+      "route": "/credit-notes/sales",
+      "handler": "sales_credit_notes",
+      "file": "app.py"
+    },
+    {
+      "route": "/credit-notes/sales/<int:id>/print",
+      "handler": "print_sales_credit_note",
+      "file": "app.py"
+    },
+    {
+      "route": "/credit-notes/sales/<int:id>/prepare-einvoice",
+      "handler": "prepare_sales_credit_note_einvoice",
+      "file": "app.py"
+    },
+    {
+      "route": "/debit-notes/suppliers",
+      "handler": "supplier_debit_notes",
+      "file": "app.py"
+    },
+    {
+      "route": "/debit-notes/suppliers/<int:id>/print",
+      "handler": "print_supplier_debit_note",
+      "file": "app.py"
+    },
+    {
+      "route": "/adjustments/customers",
+      "handler": "customer_adjustments",
+      "file": "app.py"
+    },
+    {
+      "route": "/adjustments/customers/<int:id>/print",
+      "handler": "print_customer_adjustment",
+      "file": "app.py"
+    },
+    {
+      "route": "/adjustments/customers/<int:id>/prepare-einvoice",
+      "handler": "prepare_customer_adjustment_einvoice",
+      "file": "app.py"
+    },
+    {
+      "route": "/e-invoices",
+      "handler": "e_invoices",
+      "file": "app.py"
+    },
+    {
+      "route": "/sales/export-all",
+      "handler": "export_all_sales_excel",
+      "file": "app.py"
+    },
+    {
+      "route": "/e-invoices/prepare-sales",
+      "handler": "prepare_sales_e_invoices",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/worker/tick",
+      "handler": "jarvis_mobile_worker_tick",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/scheduler/run",
+      "handler": "jarvis_mobile_scheduler_run",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/recommendations",
+      "handler": "jarvis_mobile_architecture_recommendations",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/trends",
+      "handler": "jarvis_mobile_architecture_trends",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/drift",
+      "handler": "jarvis_mobile_architecture_drift",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/supervision",
+      "handler": "jarvis_mobile_runtime_supervision",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/erp/intelligence",
+      "handler": "jarvis_mobile_erp_intelligence",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/insights",
+      "handler": "jarvis_mobile_runtime_insights",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/provider-recovery-executor",
+      "handler": "jarvis_mobile_provider_recovery_executor",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/provider-recovery",
+      "handler": "jarvis_mobile_provider_recovery",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/provider-self-healing",
+      "handler": "jarvis_mobile_provider_self_healing",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/provider-arbitration",
+      "handler": "jarvis_mobile_provider_arbitration",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/provider-optimizer",
+      "handler": "jarvis_mobile_provider_optimizer",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/provider-forecast",
+      "handler": "jarvis_mobile_provider_forecast",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/recovery-recommendations",
+      "handler": "jarvis_mobile_recovery_recommendations",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/provider-intelligence",
+      "handler": "jarvis_mobile_provider_intelligence",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/correlation",
+      "handler": "jarvis_mobile_runtime_correlation",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/activity-feed",
+      "handler": "jarvis_mobile_runtime_activity_feed",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/runtime/execution-summary",
+      "handler": "jarvis_mobile_runtime_execution_summary",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/status",
+      "handler": "jarvis_mobile_api_status",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/command/<command>",
+      "handler": "jarvis_mobile_api_command",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/hotspots",
+      "handler": "jarvis_mobile_architecture_hotspots",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/priorities",
+      "handler": "jarvis_mobile_architecture_priorities",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/dependency-reasoning",
+      "handler": "jarvis_mobile_dependency_reasoning",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/memory",
+      "handler": "jarvis_mobile_architecture_memory",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/forecast",
+      "handler": "jarvis_mobile_architecture_forecast",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/recommendation-evolution",
+      "handler": "jarvis_mobile_recommendation_evolution",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/strategy-simulation",
+      "handler": "jarvis_mobile_strategy_simulation",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/execution-plan",
+      "handler": "jarvis_mobile_execution_plan",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/reflection",
+      "handler": "jarvis_mobile_runtime_reflection",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/decision",
+      "handler": "jarvis_mobile_cognitive_decision",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/arbitration",
+      "handler": "jarvis_mobile_strategy_arbitration",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/deliberation",
+      "handler": "jarvis_mobile_multi_agent_deliberation",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/goal",
+      "handler": "jarvis_mobile_architecture_goal",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/identity",
+      "handler": "jarvis_mobile_runtime_identity",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/continuity",
+      "handler": "jarvis_mobile_runtime_continuity",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/learning",
+      "handler": "jarvis_mobile_self_learning_memory",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/learning-evolution",
+      "handler": "jarvis_mobile_learning_evolution",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/failure-learning",
+      "handler": "jarvis_mobile_failure_learning",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/agent-skills",
+      "handler": "jarvis_mobile_agent_skills",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/agent-routing",
+      "handler": "jarvis_mobile_agent_routing",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/task-chain",
+      "handler": "jarvis_mobile_task_chain",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/execution-simulation",
+      "handler": "jarvis_mobile_execution_simulation",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/apply-decision",
+      "handler": "jarvis_mobile_apply_decision",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/rollback-checkpoint",
+      "handler": "jarvis_mobile_rollback_checkpoint",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/execution-queue",
+      "handler": "jarvis_mobile_execution_queue",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/human-approved-apply",
+      "handler": "jarvis_mobile_human_approved_apply",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/execution-journal",
+      "handler": "jarvis_mobile_execution_journal",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/approval-gateway",
+      "handler": "jarvis_mobile_approval_gateway",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/approval-lineage",
+      "handler": "jarvis_mobile_approval_lineage",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/architecture/approval-transition",
+      "handler": "jarvis_mobile_approval_transition",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/router-optimization",
+      "handler": "jarvis_mobile_router_optimization",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/chat-console/submit",
+      "handler": "jarvis_mobile_chat_console_submit",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/mobile/api/chat-console/state",
+      "handler": "jarvis_mobile_chat_console_state",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/intent",
+      "handler": "jarvis_runtime_intent",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/intent/queue",
+      "handler": "jarvis_runtime_intent_queue",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/governance/decision",
+      "handler": "jarvis_runtime_governance_decision",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/governance/decisions",
+      "handler": "jarvis_runtime_governance_decisions",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/self-development/readiness/run",
+      "handler": "jarvis_self_development_readiness_run",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/self-development/readiness",
+      "handler": "jarvis_self_development_readiness_state",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/staged-patch/generate",
+      "handler": "jarvis_runtime_generate_staged_patch",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/staged-patch/preview",
+      "handler": "jarvis_runtime_patch_preview",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/sandbox-patch/apply",
+      "handler": "jarvis_runtime_sandbox_patch_apply",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/sandbox-patch/result",
+      "handler": "jarvis_runtime_sandbox_patch_result",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/rollback/checkpoint",
+      "handler": "jarvis_runtime_checkpoint",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/rollback/state",
+      "handler": "jarvis_runtime_rollback_state",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/engineering/prepare",
+      "handler": "jarvis_runtime_engineering_prepare",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/engineering/state",
+      "handler": "jarvis_runtime_engineering_state",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/project-apply/approve",
+      "handler": "jarvis_runtime_project_apply_approve",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/project-apply/state",
+      "handler": "jarvis_runtime_project_apply_state",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/project-apply/validate",
+      "handler": "jarvis_runtime_project_apply_validate",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/project-apply/validation-state",
+      "handler": "jarvis_runtime_project_apply_validation_state",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/structured-mutation/apply",
+      "handler": "jarvis_runtime_structured_mutation_apply",
+      "file": "app.py"
+    },
+    {
+      "route": "/jarvis/runtime/structured-mutation/state",
+      "handler": "jarvis_runtime_structured_mutation_state",
+      "file": "app.py"
+    },
+    {
+      "route": "/",
+      "handler": "dashboard",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/employees",
+      "handler": "employees",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/employees/add",
+      "handler": "add_employee",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/employees/<int:employee_id>",
+      "handler": "employee_view",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/employees/<int:employee_id>/edit",
+      "handler": "employee_edit",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/employees/<int:employee_id>/delete",
+      "handler": "employee_delete",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/attendance",
+      "handler": "attendance",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/attendance/mark-absent",
+      "handler": "mark_absent",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/leaves",
+      "handler": "leaves",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/leaves/<int:leave_id>/<action>",
+      "handler": "leave_action",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/reports",
+      "handler": "reports",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/payroll",
+      "handler": "payroll",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/payroll/generate",
+      "handler": "payroll_generate",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/payroll/<int:run_id>",
+      "handler": "payroll_detail",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/payroll/<int:run_id>/payslip/<int:employee_id>",
+      "handler": "payroll_payslip",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/payroll/<int:run_id>/post",
+      "handler": "payroll_post",
+      "file": "modules/hr/hr_module.py"
+    },
+    {
+      "route": "/payroll/<int:run_id>/pay",
+      "handler": "payroll_pay",
+      "file": "modules/hr/hr_module.py"
+    }
+  ],
+  "template_references": [
+    {
+      "file": "app.py",
+      "template": "aging_report.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "ai_development_center.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "cost_centers.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "customers_report.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "dev_ai_dashboard.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "developer_control.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "document_sequences.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "employees.html",
+      "exists": false
+    },
+    {
+      "file": "app.py",
+      "template": "jarvis/mobile_control_center.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "landing.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "login.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "multi_invoice.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "parties.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "party_statement.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "print_document.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "print_purchase_order.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "print_voucher.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "products.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "purchase_orders.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "purchase_receipts.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "returns.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "sales_deliveries.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "sales_orders.html",
+      "exists": true
+    },
+    {
+      "file": "app.py",
+      "template": "system_health.html",
+      "exists": true
+    },
+    {
+      "file": "views.py",
+      "template": "audit_log.html",
+      "exists": true
+    },
+    {
+      "file": "views.py",
+      "template": "backup.html",
+      "exists": true
+    },
+    {
+      "file": "views.py",
+      "template": "permissions.html",
+      "exists": true
+    },
+    {
+      "file": "views.py",
+      "template": "users.html",
+      "exists": true
+    },
+    {
+      "file": "operations.py",
+      "template": "allocations.html",
+      "exists": true
+    },
+    {
+      "file": "operations.py",
+      "template": "edit_purchase_invoice.html",
+      "exists": true
+    },
+    {
+      "file": "operations.py",
+      "template": "edit_sale_invoice.html",
+      "exists": true
+    },
+    {
+      "file": "operations.py",
+      "template": "edit_voucher.html",
+      "exists": true
+    },
+    {
+      "file": "financial.py",
+      "template": "balance_sheet.html",
+      "exists": true
+    },
+    {
+      "file": "financial.py",
+      "template": "cash_flow.html",
+      "exists": true
+    },
+    {
+      "file": "financial.py",
+      "template": "cost_center_report.html",
+      "exists": true
+    },
+    {
+      "file": "financial.py",
+      "template": "opening_balances.html",
+      "exists": true
+    },
+    {
+      "file": "financial.py",
+      "template": "profit_loss.html",
+      "exists": true
+    },
+    {
+      "file": "financial.py",
+      "template": "vat_report.html",
+      "exists": true
+    },
+    {
+      "file": "financial.py",
+      "template": "year_end.html",
+      "exists": true
+    },
+    {
+      "file": "documents.py",
+      "template": "print_customer_note.html",
+      "exists": true
+    },
+    {
+      "file": "documents.py",
+      "template": "print_document.html",
+      "exists": true
+    },
+    {
+      "file": "advanced.py",
+      "template": "financial_sales.html",
+      "exists": true
+    },
+    {
+      "file": "advanced.py",
+      "template": "purchase_invoice_from_receipt.html",
+      "exists": true
+    },
+    {
+      "file": "advanced.py",
+      "template": "sales_invoice_from_delivery.html",
+      "exists": true
+    },
+    {
+      "file": "modules/accounting/views.py",
+      "template": "account_form.html",
+      "exists": true
+    },
+    {
+      "file": "modules/accounting/views.py",
+      "template": "accounts.html",
+      "exists": true
+    },
+    {
+      "file": "modules/accounting/views.py",
+      "template": "edit.html",
+      "exists": true
+    },
+    {
+      "file": "modules/accounting/views.py",
+      "template": "journal.html",
+      "exists": true
+    },
+    {
+      "file": "modules/accounting/views.py",
+      "template": "ledger.html",
+      "exists": true
+    },
+    {
+      "file": "modules/accounting/views.py",
+      "template": "trial_balance.html",
+      "exists": true
+    },
+    {
+      "file": "modules/admin/views.py",
+      "template": "audit_log.html",
+      "exists": true
+    },
+    {
+      "file": "modules/admin/views.py",
+      "template": "backup.html",
+      "exists": true
+    },
+    {
+      "file": "modules/admin/views.py",
+      "template": "permissions.html",
+      "exists": true
+    },
+    {
+      "file": "modules/admin/views.py",
+      "template": "users.html",
+      "exists": true
+    },
+    {
+      "file": "modules/core/views.py",
+      "template": "company_settings.html",
+      "exists": true
+    },
+    {
+      "file": "modules/core/views.py",
+      "template": "dashboard.html",
+      "exists": true
+    },
+    {
+      "file": "modules/core/views.py",
+      "template": "fiscal_periods.html",
+      "exists": true
+    },
+    {
+      "file": "modules/core/views.py",
+      "template": "posting_control.html",
+      "exists": true
+    },
+    {
+      "file": "modules/einvoice/views.py",
+      "template": "e_invoices.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/attendance.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/dashboard.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/employee_form.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/employee_view.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/employees.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/leaves.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/payroll.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/payroll_detail.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/payslip.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/hr_module.py",
+      "template": "hr/reports.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/views.py",
+      "template": "edit_employee.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/views.py",
+      "template": "hr/employees.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/views.py",
+      "template": "payroll.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/views.py",
+      "template": "payroll_details.html",
+      "exists": true
+    },
+    {
+      "file": "modules/hr/views.py",
+      "template": "payslip.html",
+      "exists": true
+    },
+    {
+      "file": "modules/inventory/views.py",
+      "template": "edit_product.html",
+      "exists": true
+    },
+    {
+      "file": "modules/inventory/views.py",
+      "template": "inventory.html",
+      "exists": true
+    },
+    {
+      "file": "modules/inventory/views.py",
+      "template": "inventory_report.html",
+      "exists": true
+    },
+    {
+      "file": "modules/inventory/views.py",
+      "template": "product_barcode.html",
+      "exists": true
+    },
+    {
+      "file": "modules/inventory/views.py",
+      "template": "product_categories.html",
+      "exists": true
+    },
+    {
+      "file": "modules/inventory/views.py",
+      "template": "products.html",
+      "exists": true
+    },
+    {
+      "file": "modules/parties/views.py",
+      "template": "parties.html",
+      "exists": true
+    },
+    {
+      "file": "modules/parties/views.py",
+      "template": "party_edit.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/financial.py",
+      "template": "balance_sheet.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/financial.py",
+      "template": "cash_flow.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/financial.py",
+      "template": "cost_center_report.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/financial.py",
+      "template": "opening_balances.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/financial.py",
+      "template": "profit_loss.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/financial.py",
+      "template": "withholding_tax_report.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/financial.py",
+      "template": "year_end.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/views.py",
+      "template": "aging_report.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/views.py",
+      "template": "customers_report.html",
+      "exists": true
+    },
+    {
+      "file": "modules/reports/views.py",
+      "template": "suppliers_report.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/advanced.py",
+      "template": "financial_sales.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/advanced.py",
+      "template": "purchase_invoice_from_receipt.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/advanced.py",
+      "template": "sales_invoice_from_delivery.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/documents.py",
+      "template": "print_customer_note.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/documents.py",
+      "template": "print_document.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/operations.py",
+      "template": "allocations.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/operations.py",
+      "template": "edit_purchase_invoice.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/operations.py",
+      "template": "edit_sale_invoice.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/operations.py",
+      "template": "edit_voucher.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/orders.py",
+      "template": "print_purchase_order.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/orders.py",
+      "template": "purchase_orders.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/orders.py",
+      "template": "sales_orders.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/returns.py",
+      "template": "returns.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/returns.py",
+      "template": "sales_credit_notes.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/returns.py",
+      "template": "supplier_debit_notes.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/shipping.py",
+      "template": "purchase_receipts.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/shipping.py",
+      "template": "sales_deliveries.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/statements.py",
+      "template": "party_statement.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/treasury.py",
+      "template": "customer_adjustments.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/treasury.py",
+      "template": "payments.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/treasury.py",
+      "template": "print_customer_note.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/treasury.py",
+      "template": "print_voucher.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/treasury.py",
+      "template": "receipts.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "customer_adjustments.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "party_statement.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "payments.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "print_customer_note.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "print_document.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "print_purchase_order.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "print_voucher.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "purchase_orders.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "purchase_receipts.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "purchases.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "receipts.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "returns.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "sales.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "sales_credit_notes.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "sales_deliveries.html",
+      "exists": true
+    },
+    {
+      "file": "modules/sales/views.py",
+      "template": "sales_orders.html",
+      "exists": true
+    },
+    {
+      "file": "modules/setup/import_full_data.py",
+      "template": "import_full_data.html",
+      "exists": true
+    }
+  ]
+}

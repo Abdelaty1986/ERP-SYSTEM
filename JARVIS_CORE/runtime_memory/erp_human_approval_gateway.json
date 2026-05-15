@@ -1,0 +1,37 @@
+{
+  "phase": "Phase 8 - Autonomous ERP Evolution",
+  "layer": "Layer 5 - ERP Human Approval Gateway",
+  "generated_at": "2026-05-15T13:52:57.833209+00:00",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "state": "complete",
+  "gateway_state": "armed_for_future_review_only",
+  "execution_allowed": false,
+  "approval_required_for": [
+    "Any write outside JARVIS_CORE/runtime_memory",
+    "Any route, module, template, static, or database-affecting change",
+    "Any command that mutates database, deploys, or applies patches"
+  ],
+  "approval_contract": {
+    "required_phrase": "APPROVE_ERP_EVOLUTION",
+    "requires_named_files": true,
+    "requires_risk_summary": true,
+    "requires_test_plan": true,
+    "requires_rollback_plan": true,
+    "expires_after_single_use": true
+  },
+  "denied_without_approval": {
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false
+  }
+}

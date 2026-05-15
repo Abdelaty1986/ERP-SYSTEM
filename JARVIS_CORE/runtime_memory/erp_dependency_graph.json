@@ -1,0 +1,774 @@
+{
+  "phase": "Phase 8 - Autonomous ERP Evolution",
+  "layer": "Layer 3 - ERP Dependency Graph",
+  "generated_at": "2026-05-15T13:52:57.830373+00:00",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "state": "complete",
+  "graph": {
+    "routes_to_templates": {
+      "app.py": [
+        {
+          "template": "aging_report.html",
+          "exists": true
+        },
+        {
+          "template": "ai_development_center.html",
+          "exists": true
+        },
+        {
+          "template": "cost_centers.html",
+          "exists": true
+        },
+        {
+          "template": "customers_report.html",
+          "exists": true
+        },
+        {
+          "template": "dev_ai_dashboard.html",
+          "exists": true
+        },
+        {
+          "template": "developer_control.html",
+          "exists": true
+        },
+        {
+          "template": "document_sequences.html",
+          "exists": true
+        },
+        {
+          "template": "employees.html",
+          "exists": false
+        },
+        {
+          "template": "jarvis/mobile_control_center.html",
+          "exists": true
+        },
+        {
+          "template": "landing.html",
+          "exists": true
+        },
+        {
+          "template": "login.html",
+          "exists": true
+        },
+        {
+          "template": "multi_invoice.html",
+          "exists": true
+        },
+        {
+          "template": "parties.html",
+          "exists": true
+        },
+        {
+          "template": "party_statement.html",
+          "exists": true
+        },
+        {
+          "template": "print_document.html",
+          "exists": true
+        },
+        {
+          "template": "print_purchase_order.html",
+          "exists": true
+        },
+        {
+          "template": "print_voucher.html",
+          "exists": true
+        },
+        {
+          "template": "products.html",
+          "exists": true
+        },
+        {
+          "template": "purchase_orders.html",
+          "exists": true
+        },
+        {
+          "template": "purchase_receipts.html",
+          "exists": true
+        },
+        {
+          "template": "returns.html",
+          "exists": true
+        },
+        {
+          "template": "sales_deliveries.html",
+          "exists": true
+        },
+        {
+          "template": "sales_orders.html",
+          "exists": true
+        },
+        {
+          "template": "system_health.html",
+          "exists": true
+        }
+      ],
+      "views.py": [
+        {
+          "template": "audit_log.html",
+          "exists": true
+        },
+        {
+          "template": "backup.html",
+          "exists": true
+        },
+        {
+          "template": "permissions.html",
+          "exists": true
+        },
+        {
+          "template": "users.html",
+          "exists": true
+        }
+      ],
+      "operations.py": [
+        {
+          "template": "allocations.html",
+          "exists": true
+        },
+        {
+          "template": "edit_purchase_invoice.html",
+          "exists": true
+        },
+        {
+          "template": "edit_sale_invoice.html",
+          "exists": true
+        },
+        {
+          "template": "edit_voucher.html",
+          "exists": true
+        }
+      ],
+      "financial.py": [
+        {
+          "template": "balance_sheet.html",
+          "exists": true
+        },
+        {
+          "template": "cash_flow.html",
+          "exists": true
+        },
+        {
+          "template": "cost_center_report.html",
+          "exists": true
+        },
+        {
+          "template": "opening_balances.html",
+          "exists": true
+        },
+        {
+          "template": "profit_loss.html",
+          "exists": true
+        },
+        {
+          "template": "vat_report.html",
+          "exists": true
+        },
+        {
+          "template": "year_end.html",
+          "exists": true
+        }
+      ],
+      "documents.py": [
+        {
+          "template": "print_customer_note.html",
+          "exists": true
+        },
+        {
+          "template": "print_document.html",
+          "exists": true
+        }
+      ],
+      "advanced.py": [
+        {
+          "template": "financial_sales.html",
+          "exists": true
+        },
+        {
+          "template": "purchase_invoice_from_receipt.html",
+          "exists": true
+        },
+        {
+          "template": "sales_invoice_from_delivery.html",
+          "exists": true
+        }
+      ],
+      "modules/accounting/views.py": [
+        {
+          "template": "account_form.html",
+          "exists": true
+        },
+        {
+          "template": "accounts.html",
+          "exists": true
+        },
+        {
+          "template": "edit.html",
+          "exists": true
+        },
+        {
+          "template": "journal.html",
+          "exists": true
+        },
+        {
+          "template": "ledger.html",
+          "exists": true
+        },
+        {
+          "template": "trial_balance.html",
+          "exists": true
+        }
+      ],
+      "modules/admin/views.py": [
+        {
+          "template": "audit_log.html",
+          "exists": true
+        },
+        {
+          "template": "backup.html",
+          "exists": true
+        },
+        {
+          "template": "permissions.html",
+          "exists": true
+        },
+        {
+          "template": "users.html",
+          "exists": true
+        }
+      ],
+      "modules/core/views.py": [
+        {
+          "template": "company_settings.html",
+          "exists": true
+        },
+        {
+          "template": "dashboard.html",
+          "exists": true
+        },
+        {
+          "template": "fiscal_periods.html",
+          "exists": true
+        },
+        {
+          "template": "posting_control.html",
+          "exists": true
+        }
+      ],
+      "modules/einvoice/views.py": [
+        {
+          "template": "e_invoices.html",
+          "exists": true
+        }
+      ],
+      "modules/hr/hr_module.py": [
+        {
+          "template": "hr/attendance.html",
+          "exists": true
+        },
+        {
+          "template": "hr/dashboard.html",
+          "exists": true
+        },
+        {
+          "template": "hr/employee_form.html",
+          "exists": true
+        },
+        {
+          "template": "hr/employee_view.html",
+          "exists": true
+        },
+        {
+          "template": "hr/employees.html",
+          "exists": true
+        },
+        {
+          "template": "hr/leaves.html",
+          "exists": true
+        },
+        {
+          "template": "hr/payroll.html",
+          "exists": true
+        },
+        {
+          "template": "hr/payroll_detail.html",
+          "exists": true
+        },
+        {
+          "template": "hr/payslip.html",
+          "exists": true
+        },
+        {
+          "template": "hr/reports.html",
+          "exists": true
+        }
+      ],
+      "modules/hr/views.py": [
+        {
+          "template": "edit_employee.html",
+          "exists": true
+        },
+        {
+          "template": "hr/employees.html",
+          "exists": true
+        },
+        {
+          "template": "payroll.html",
+          "exists": true
+        },
+        {
+          "template": "payroll_details.html",
+          "exists": true
+        },
+        {
+          "template": "payslip.html",
+          "exists": true
+        }
+      ],
+      "modules/inventory/views.py": [
+        {
+          "template": "edit_product.html",
+          "exists": true
+        },
+        {
+          "template": "inventory.html",
+          "exists": true
+        },
+        {
+          "template": "inventory_report.html",
+          "exists": true
+        },
+        {
+          "template": "product_barcode.html",
+          "exists": true
+        },
+        {
+          "template": "product_categories.html",
+          "exists": true
+        },
+        {
+          "template": "products.html",
+          "exists": true
+        }
+      ],
+      "modules/parties/views.py": [
+        {
+          "template": "parties.html",
+          "exists": true
+        },
+        {
+          "template": "party_edit.html",
+          "exists": true
+        }
+      ],
+      "modules/reports/financial.py": [
+        {
+          "template": "balance_sheet.html",
+          "exists": true
+        },
+        {
+          "template": "cash_flow.html",
+          "exists": true
+        },
+        {
+          "template": "cost_center_report.html",
+          "exists": true
+        },
+        {
+          "template": "opening_balances.html",
+          "exists": true
+        },
+        {
+          "template": "profit_loss.html",
+          "exists": true
+        },
+        {
+          "template": "withholding_tax_report.html",
+          "exists": true
+        },
+        {
+          "template": "year_end.html",
+          "exists": true
+        }
+      ],
+      "modules/reports/views.py": [
+        {
+          "template": "aging_report.html",
+          "exists": true
+        },
+        {
+          "template": "customers_report.html",
+          "exists": true
+        },
+        {
+          "template": "suppliers_report.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/advanced.py": [
+        {
+          "template": "financial_sales.html",
+          "exists": true
+        },
+        {
+          "template": "purchase_invoice_from_receipt.html",
+          "exists": true
+        },
+        {
+          "template": "sales_invoice_from_delivery.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/documents.py": [
+        {
+          "template": "print_customer_note.html",
+          "exists": true
+        },
+        {
+          "template": "print_document.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/operations.py": [
+        {
+          "template": "allocations.html",
+          "exists": true
+        },
+        {
+          "template": "edit_purchase_invoice.html",
+          "exists": true
+        },
+        {
+          "template": "edit_sale_invoice.html",
+          "exists": true
+        },
+        {
+          "template": "edit_voucher.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/orders.py": [
+        {
+          "template": "print_purchase_order.html",
+          "exists": true
+        },
+        {
+          "template": "purchase_orders.html",
+          "exists": true
+        },
+        {
+          "template": "sales_orders.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/returns.py": [
+        {
+          "template": "returns.html",
+          "exists": true
+        },
+        {
+          "template": "sales_credit_notes.html",
+          "exists": true
+        },
+        {
+          "template": "supplier_debit_notes.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/shipping.py": [
+        {
+          "template": "purchase_receipts.html",
+          "exists": true
+        },
+        {
+          "template": "sales_deliveries.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/statements.py": [
+        {
+          "template": "party_statement.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/treasury.py": [
+        {
+          "template": "customer_adjustments.html",
+          "exists": true
+        },
+        {
+          "template": "payments.html",
+          "exists": true
+        },
+        {
+          "template": "print_customer_note.html",
+          "exists": true
+        },
+        {
+          "template": "print_voucher.html",
+          "exists": true
+        },
+        {
+          "template": "receipts.html",
+          "exists": true
+        }
+      ],
+      "modules/sales/views.py": [
+        {
+          "template": "customer_adjustments.html",
+          "exists": true
+        },
+        {
+          "template": "party_statement.html",
+          "exists": true
+        },
+        {
+          "template": "payments.html",
+          "exists": true
+        },
+        {
+          "template": "print_customer_note.html",
+          "exists": true
+        },
+        {
+          "template": "print_document.html",
+          "exists": true
+        },
+        {
+          "template": "print_purchase_order.html",
+          "exists": true
+        },
+        {
+          "template": "print_voucher.html",
+          "exists": true
+        },
+        {
+          "template": "purchase_orders.html",
+          "exists": true
+        },
+        {
+          "template": "purchase_receipts.html",
+          "exists": true
+        },
+        {
+          "template": "purchases.html",
+          "exists": true
+        },
+        {
+          "template": "receipts.html",
+          "exists": true
+        },
+        {
+          "template": "returns.html",
+          "exists": true
+        },
+        {
+          "template": "sales.html",
+          "exists": true
+        },
+        {
+          "template": "sales_credit_notes.html",
+          "exists": true
+        },
+        {
+          "template": "sales_deliveries.html",
+          "exists": true
+        },
+        {
+          "template": "sales_orders.html",
+          "exists": true
+        }
+      ],
+      "modules/setup/import_full_data.py": [
+        {
+          "template": "import_full_data.html",
+          "exists": true
+        }
+      ]
+    },
+    "python_imports": {
+      "app.py": [
+        "JARVIS_CORE.jarvis.architecture.agent_skill_scoring_engine",
+        "JARVIS_CORE.jarvis.architecture.approval_gateway_engine",
+        "JARVIS_CORE.jarvis.architecture.approval_lineage_engine",
+        "JARVIS_CORE.jarvis.architecture.approval_transition_engine",
+        "JARVIS_CORE.jarvis.architecture.architecture_memory",
+        "JARVIS_CORE.jarvis.architecture.autonomous_task_chaining_engine",
+        "JARVIS_CORE.jarvis.architecture.cognitive_decision_engine",
+        "JARVIS_CORE.jarvis.architecture.controlled_apply_decision_engine",
+        "JARVIS_CORE.jarvis.architecture.dependency_reasoning_engine",
+        "JARVIS_CORE.jarvis.architecture.dynamic_agent_routing_engine",
+        "JARVIS_CORE.jarvis.architecture.execution_journal_engine",
+        "JARVIS_CORE.jarvis.architecture.failure_learning_engine",
+        "JARVIS_CORE.jarvis.architecture.goal_persistence_engine",
+        "JARVIS_CORE.jarvis.architecture.hotspot_detector",
+        "JARVIS_CORE.jarvis.architecture.human_approved_apply_engine",
+        "JARVIS_CORE.jarvis.architecture.learning_evolution_scoring_engine",
+        "JARVIS_CORE.jarvis.architecture.multi_agent_deliberation_engine",
+        "JARVIS_CORE.jarvis.architecture.priority_engine",
+        "JARVIS_CORE.jarvis.architecture.recommendation_evolution_engine",
+        "JARVIS_CORE.jarvis.architecture.rollback_checkpoint_engine",
+        "JARVIS_CORE.jarvis.architecture.runtime_continuity_memory",
+        "JARVIS_CORE.jarvis.architecture.runtime_forecast_engine",
+        "JARVIS_CORE.jarvis.architecture.runtime_identity_engine",
+        "JARVIS_CORE.jarvis.architecture.runtime_reflection_engine",
+        "JARVIS_CORE.jarvis.architecture.safe_execution_queue_engine",
+        "JARVIS_CORE.jarvis.architecture.safe_execution_strategy_planner",
+        "JARVIS_CORE.jarvis.architecture.self_learning_memory_engine",
+        "JARVIS_CORE.jarvis.architecture.strategy_arbitration_engine",
+        "JARVIS_CORE.jarvis.architecture.strategy_simulation_engine",
+        "JARVIS_CORE.jarvis.architecture.task_execution_simulation_engine",
+        "JARVIS_CORE.jarvis.runtime.recovery_recommendation_engine",
+        "JARVIS_CORE.jarvis.runtime.router_optimization_api",
+        "db",
+        "jarvis.cognition.runtime_insight_engine",
+        "jarvis.commands",
+        "jarvis.execution.runtime_auto_scheduler",
+        "jarvis.execution.runtime_queue_worker",
+        "jarvis.execution.runtime_session_manager",
+        "jarvis.execution.runtime_timeline",
+        "jarvis.health.runtime_health_monitor",
+        "jarvis.intelligence.erp_project_intelligence",
+        "jarvis.logging",
+        "jarvis.mobile.mobile_control_center",
+        "jarvis.mobile.mobile_runtime_api",
+        "jarvis.repair.autonomous_repair_loop",
+        "jarvis.runtime.adaptive_provider_ranking",
+        "jarvis.runtime.approved_project_apply_gate",
+        "jarvis.runtime.confidence_decay_report",
+        "jarvis.runtime.human_approved_engineering",
+        "jarvis.runtime.project_apply_validation_guard",
+        "jarvis.runtime.provider_arbitration_report",
+        "jarvis.runtime.provider_forecast_report",
+        "jarvis.runtime.provider_intelligence_report",
+        "jarvis.runtime.provider_optimizer_report",
+        "jarvis.runtime.provider_recovery_executor_report",
+        "jarvis.runtime.provider_recovery_report",
+        "jarvis.runtime.provider_self_healing_report",
+        "jarvis.runtime.provider_trust_report",
+        "jarvis.runtime.rollback_recovery_engine",
+        "jarvis.runtime.runtime_chat_console",
+        "jarvis.runtime.runtime_governance_decision",
+        "jarvis.runtime.runtime_intent_pipeline",
+        "jarvis.runtime.sandbox_patch_apply",
+        "jarvis.runtime.self_development_readiness",
+        "jarvis.runtime.staged_patch_generator",
+        "jarvis.runtime.structured_patch_mutation",
+        "jarvis.runtime.targeted_provider_probe_report",
+        "jarvis.supervision.architecture_drift_detector",
+        "jarvis.supervision.runtime_engineering_recommender",
+        "jarvis.supervision.runtime_supervision_engine",
+        "jarvis.supervision.structural_trend_forecaster",
+        "modules.accounting.ledger_engine",
+        "modules.accounting.views",
+        "modules.admin.views",
+        "modules.core.views",
+        "modules.einvoice.views",
+        "modules.hr",
+        "modules.hr.hr_module",
+        "modules.hr.views",
+        "modules.inventory.views",
+        "modules.parties.views",
+        "modules.reports.financial",
+        "modules.reports.views",
+        "modules.sales.advanced",
+        "modules.sales.documents",
+        "modules.sales.operations",
+        "modules.sales.orders",
+        "modules.sales.returns",
+        "modules.sales.shipping",
+        "modules.sales.statements",
+        "modules.sales.treasury",
+        "modules.sales.views",
+        "modules.setup.import_full_data"
+      ],
+      "modules/hr/views.py": [
+        "modules.hr.support"
+      ],
+      "modules/sales/advanced.py": [
+        "modules.sales.taxing"
+      ],
+      "modules/sales/returns.py": [
+        "modules.accounting.ledger_engine"
+      ],
+      "modules/sales/treasury.py": [
+        "modules.accounting.ledger_engine"
+      ]
+    },
+    "static_to_templates": {
+      "templates/dashboard.html": [
+        "css/ledgerx_dashboard_vibrant.css",
+        "css/ledgerx_main_dashboard.css"
+      ],
+      "templates/dev_ai_dashboard.html": [
+        "css/ledgerx_dev_system.css"
+      ],
+      "templates/dev_control.html": [
+        "css/ledgerx_dev_control.css"
+      ],
+      "templates/developer_control.html": [
+        "css/ledgerx_dev_system.css"
+      ],
+      "templates/landing.html": [
+        "css/ledgerx_brand.css"
+      ],
+      "templates/layout.html": [
+        "css/ledgerx_dashboard.css",
+        "css/ledgerx_enterprise_theme.css",
+        "css/ledgerx_global_pages.css",
+        "css/ledgerx_ui.css",
+        "js/ledgerx_ui.js",
+        "style.css"
+      ],
+      "templates/login.html": [
+        "css/ledgerx_enterprise_theme.css",
+        "style.css"
+      ],
+      "templates/print_customer_note.html": [
+        "css/ledgerx_enterprise_theme.css",
+        "style.css"
+      ],
+      "templates/print_document.html": [
+        "css/ledgerx_enterprise_theme.css",
+        "style.css"
+      ],
+      "templates/print_purchase_order.html": [
+        "css/ledgerx_enterprise_theme.css",
+        "style.css"
+      ],
+      "templates/print_voucher.html": [
+        "css/ledgerx_enterprise_theme.css"
+      ],
+      "templates/purchases.html": [
+        "css/ledgerx_invoice_forms.css"
+      ],
+      "templates/sales.html": [
+        "css/ledgerx_invoice_forms.css"
+      ],
+      "templates/system_health.html": [
+        "css/ledgerx_dev_system.css"
+      ]
+    },
+    "runtime_memory_outputs": [
+      "JARVIS_CORE/runtime_memory/erp_module_inventory.json",
+      "JARVIS_CORE/runtime_memory/erp_risk_mapping.json",
+      "JARVIS_CORE/runtime_memory/erp_dependency_graph.json",
+      "JARVIS_CORE/runtime_memory/erp_safe_evolution_plan.json",
+      "JARVIS_CORE/runtime_memory/erp_human_approval_gateway.json"
+    ]
+  },
+  "notes": [
+    "Graph is built from static AST and text analysis only.",
+    "No production file, database, or deploy mutation was performed."
+  ]
+}
