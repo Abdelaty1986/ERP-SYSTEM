@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-05-15T09:21:57.448950+00:00",
+  "runtime": "local_test_runner_observer",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "awareness_mode": "safe_read_only_test_runner_observation",
+  "phase": "phase_5_external_toolchain_runtime",
+  "layer": "local_test_runner_observer",
+  "project_root": "C:\\Users\\Hany.Abdelatty\\Desktop\\ERP-SYSTEM\\ERP-SYSTEM",
+  "test_configs": [
+    {
+      "relative_path": "pytest.ini",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "tox.ini",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "noxfile.py",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "pyproject.toml",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "setup.cfg",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "package.json",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "jest.config.js",
+      "exists": false,
+      "kind": "missing"
+    },
+    {
+      "relative_path": "vitest.config.js",
+      "exists": false,
+      "kind": "missing"
+    }
+  ],
+  "test_directories": [
+    {
+      "relative_path": "tests",
+      "exists": true,
+      "kind": "directory"
+    },
+    {
+      "relative_path": "JARVIS_CORE/tests",
+      "exists": true,
+      "kind": "directory"
+    }
+  ],
+  "python_test_file_count": 11,
+  "sample_python_test_files": [
+    "JARVIS_CORE\\jarvis\\execution\\test_runner.py",
+    "JARVIS_CORE\\tests\\test_safe_patch_generator.py",
+    "deep_test.py",
+    "golden_accounting_test.py",
+    "pro_test.py",
+    "safe_ultimate_test.py",
+    "tests\\codex_cycle_test.py",
+    "tests\\codex_users_test.py",
+    "tests\\hr_enterprise_test.py",
+    "tests\\hr_module_test.py",
+    "tests\\hr_payroll_egypt_auto_test.py"
+  ],
+  "likely_test_runners": [
+    "python_test_files_present"
+  ],
+  "test_runner_state": "detected",
+  "risk_signal": "low",
+  "prohibited_actions": [
+    "heavy_test_execution_without_request",
+    "test_database_mutation",
+    "coverage_artifact_cleanup",
+    "destructive_fixture_reset"
+  ],
+  "notes": [
+    "Test runner observer did not execute tests.",
+    "Detected files and configs are reported for planning only."
+  ],
+  "recommendation": "use_as_input_for_dependency_health_observer",
+  "result": "local_test_runner_observer_built"
+}
