@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-05-15T08:05:32.258200+00:00",
+  "runtime": "cognition_health_monitor",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "health_state": "degraded",
+  "health_score": 70,
+  "checks": {
+    "persistent_cognition_state_exists": true,
+    "cognition_continuity_state_exists": false,
+    "cognition_timeline_event_count": 1,
+    "missing_components": [
+      "cognition_continuity_state"
+    ]
+  },
+  "recommendations": [
+    "Restore or regenerate missing cognition runtime components.",
+    "Run cognition wake cycle again to enrich timeline continuity."
+  ]
+}
