@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-05-15T08:09:30.295885+00:00",
+  "runtime": "cognitive_stability_analysis",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "stability_state": "unstable",
+  "stability_score": 20,
+  "inputs": {
+    "health_state": "degraded",
+    "health_score": 70,
+    "silence_state": "low_activity",
+    "silence_risk": "medium",
+    "timeline_event_count": 1
+  },
+  "reasons": [
+    "Health state is degraded.",
+    "Health score below stable threshold: 70.",
+    "Silence state is low_activity.",
+    "Silence risk is medium.",
+    "Timeline event count is low: 1."
+  ],
+  "recommendations": [
+    "Keep autonomous execution locked.",
+    "Repair missing cognition continuity components before proceeding to long-running loops."
+  ]
+}
