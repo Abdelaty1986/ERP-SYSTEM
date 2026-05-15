@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-05-15T08:24:07.886129+00:00",
+  "runtime": "runtime_self_monitoring_hud",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "hud_state": "online",
+  "cognitive_supervision": {
+    "health_state": "stable",
+    "health_score": 100,
+    "silence_state": "active",
+    "silence_risk": "low",
+    "stability_state": "stable",
+    "stability_score": 100,
+    "loop_state": "completed",
+    "reflection_state": "clear",
+    "next_runtime_allowed": true
+  },
+  "safety": {
+    "human_approval_required": true,
+    "autonomous_unlock_allowed": false,
+    "hud_is_monitoring_only": true
+  },
+  "status_text": "Persistent Cognitive Runtime is stable, active, and visible in HUD."
+}
