@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-15T06:32:43.893323+00:00",
+  "runtime": "agent_society_router",
+  "bounded": true,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "task": "check security risk",
+  "selected_agent": "security_agent",
+  "selected_role": "governance",
+  "can_apply": false,
+  "risk_level": "high",
+  "routing_state": "routed",
+  "approval_required": true,
+  "execution_allowed": false
+}
