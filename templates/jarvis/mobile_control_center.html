@@ -523,6 +523,20 @@ body{
   border-color: rgba(180, 180, 180, 0.35);
 }
 
+
+.engineering-patch-active-label{
+  margin-top:10px;
+  border:1px solid rgba(54,255,117,.48);
+  border-radius:10px;
+  padding:9px 12px;
+  color:#dfffe8;
+  background:rgba(19,76,48,.42);
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:0;
+  text-align:center;
+}
+
 .approval-execution-console{
   margin-top:12px;
   direction:ltr;
@@ -700,6 +714,34 @@ body{
   margin-top:4px;
 }
 
+.engineering-patch-panel{
+  margin-top:10px;
+  border:1px solid rgba(104,243,255,.3);
+  border-radius:14px;
+  padding:12px;
+  background:rgba(2,14,28,.72);
+}
+
+.patch-preview{
+  margin:0;
+  max-height:260px;
+  overflow:auto;
+  white-space:pre-wrap;
+  word-break:break-word;
+  border:1px solid rgba(0,217,255,.2);
+  border-radius:12px;
+  padding:10px;
+  color:#e9fbff;
+  background:rgba(0,6,14,.9);
+}
+
+.patch-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
 @media(max-width:760px){
   .approval-execution-header,
   .execution-command-row,
@@ -745,6 +787,8 @@ body{
       <div class="runtime-session-status idle" id="jarvis-execution-live-status">IDLE</div>
     </div>
 
+    <div class="engineering-patch-active-label" id="engineering-patch-mode-active">ENGINEERING PATCH MODE ACTIVE</div>
+
     <form class="execution-command-form" id="jarvis-execution-request-form">
       <label for="jarvis-execution-command-input">CURRENT COMMAND</label>
       <div class="execution-command-row">
@@ -769,6 +813,10 @@ body{
       <div class="execution-block">
         <div class="label">APPROVAL STATE</div>
         <div class="value" id="jarvis-approval-state">waiting_for_command</div>
+      </div>
+      <div class="execution-block">
+        <div class="label">DETECTED MODE</div>
+        <div class="value" id="jarvis-detected-mode">waiting_for_input</div>
       </div>
     </div>
 
@@ -831,6 +879,118 @@ body{
       <div class="execution-section-title">EXECUTION HISTORY</div>
       <div class="execution-history" id="jarvis-execution-history">
         <div class="execution-history-item"><b>No execution history loaded</b><span>Submit and approve a command to record history.</span></div>
+      </div>
+    </div>
+
+    <div class="engineering-patch-panel" id="jarvis-engineering-patch-panel">
+      <div class="approval-execution-header">
+        <div>
+          <div class="panel-title">Controlled Engineering Patch Runtime</div>
+          <div class="panel-sub">Patch planning / human approval / bounded file edits</div>
+        </div>
+        <div class="runtime-session-status idle" id="jarvis-patch-apply-status">IDLE</div>
+      </div>
+
+      <div class="execution-grid">
+        <div class="execution-block">
+          <div class="label">INPUT TASK</div>
+          <div class="value" id="jarvis-patch-task">Waiting for engineering task</div>
+        </div>
+        <div class="execution-block">
+          <div class="label">DETECTED MODE</div>
+          <div class="value" id="jarvis-patch-mode">engineering_task</div>
+        </div>
+        <div class="execution-block">
+          <div class="label">RISK LEVEL</div>
+          <div class="value" id="jarvis-patch-risk">none</div>
+        </div>
+        <div class="execution-block">
+          <div class="label">APPROVAL STATE</div>
+          <div class="value" id="jarvis-patch-approval-state">waiting_for_task</div>
+        </div>
+      </div>
+
+      <div class="execution-two-column">
+        <div class="execution-block">
+          <div class="execution-section-title">PATCH PLAN</div>
+          <ol class="execution-list" id="jarvis-patch-plan">
+            <li>Submit an engineering task to produce a patch plan.</li>
+          </ol>
+        </div>
+        <div class="execution-block">
+          <div class="execution-section-title">FILES TO MODIFY</div>
+          <ol class="execution-list" id="jarvis-patch-files">
+            <li>No files selected yet.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="execution-two-column">
+        <div class="execution-block">
+          <div class="execution-section-title">VALIDATION PLAN</div>
+          <ol class="execution-list" id="jarvis-patch-validation-plan">
+            <li>No validation plan yet.</li>
+          </ol>
+        </div>
+        <div class="execution-block">
+          <div class="execution-section-title">ROLLBACK PLAN</div>
+          <ol class="execution-list" id="jarvis-patch-rollback-plan">
+            <li>No rollback plan yet.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="execution-block" style="margin-top:10px">
+        <div class="execution-section-title">EXPECTED DIFF / CHANGE SUMMARY</div>
+        <pre class="patch-preview" id="jarvis-patch-diff">No patch preview yet.</pre>
+      </div>
+
+      <div class="execution-approval-zone">
+        <div class="execution-section-title">PATCH APPROVAL REQUIRED</div>
+        <div id="jarvis-patch-approval-help">A patch must be approved before any file can be modified.</div>
+        <div class="patch-actions">
+          <button class="execution-button approve" id="jarvis-approve-patch-button" type="button" disabled>Approve Patch</button>
+          <button class="execution-button" id="jarvis-apply-patch-button" type="button" disabled>Apply Approved Patch</button>
+          <button class="execution-button reject" id="jarvis-reject-patch-button" type="button" disabled>Reject Patch</button>
+          <button class="execution-button" id="jarvis-rollback-patch-button" type="button" disabled>Rollback Patch</button>
+        </div>
+      </div>
+
+      <div class="execution-grid">
+        <div class="execution-block">
+          <div class="label">APPLY STATUS</div>
+          <div class="value" id="jarvis-patch-status">IDLE</div>
+        </div>
+        <div class="execution-block">
+          <div class="label">VALIDATION RESULT</div>
+          <div class="value" id="jarvis-patch-validation-result">not_run</div>
+        </div>
+        <div class="execution-block">
+          <div class="label">FILES CHANGED</div>
+          <div class="value" id="jarvis-patch-files-changed">none</div>
+        </div>
+        <div class="execution-block">
+          <div class="label">FINAL RESULT</div>
+          <div class="value" id="jarvis-patch-final-result">idle</div>
+        </div>
+      </div>
+
+      <div class="execution-output-grid">
+        <div>
+          <div class="execution-section-title">VALIDATION STDOUT</div>
+          <pre class="execution-output" id="jarvis-patch-stdout"></pre>
+        </div>
+        <div>
+          <div class="execution-section-title">VALIDATION STDERR</div>
+          <pre class="execution-output" id="jarvis-patch-stderr"></pre>
+        </div>
+      </div>
+
+      <div class="execution-block" style="margin-top:10px">
+        <div class="execution-section-title">PATCH HISTORY</div>
+        <div class="execution-history" id="jarvis-patch-history">
+          <div class="execution-history-item"><b>No patch history loaded</b><span>Patch planning and apply results will appear here.</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1017,6 +1177,7 @@ body{
     interpretedAction: "jarvis-interpreted-action",
     riskLevel: "jarvis-risk-level",
     approvalState: "jarvis-approval-state",
+    detectedMode: "jarvis-detected-mode",
     plan: "jarvis-execution-plan",
     risk: "jarvis-risk-analysis",
     approve: "jarvis-approve-run-button",
@@ -1030,10 +1191,33 @@ body{
     returnCode: "jarvis-return-code",
     stdout: "jarvis-execution-stdout",
     stderr: "jarvis-execution-stderr",
-    history: "jarvis-execution-history"
+    history: "jarvis-execution-history",
+    patchTask: "jarvis-patch-task",
+    patchMode: "jarvis-patch-mode",
+    patchRisk: "jarvis-patch-risk",
+    patchApprovalState: "jarvis-patch-approval-state",
+    patchPlan: "jarvis-patch-plan",
+    patchFiles: "jarvis-patch-files",
+    patchValidationPlan: "jarvis-patch-validation-plan",
+    patchRollbackPlan: "jarvis-patch-rollback-plan",
+    patchDiff: "jarvis-patch-diff",
+    patchHelp: "jarvis-patch-approval-help",
+    patchApplyStatus: "jarvis-patch-apply-status",
+    patchStatus: "jarvis-patch-status",
+    patchValidationResult: "jarvis-patch-validation-result",
+    patchFilesChanged: "jarvis-patch-files-changed",
+    patchFinalResult: "jarvis-patch-final-result",
+    patchStdout: "jarvis-patch-stdout",
+    patchStderr: "jarvis-patch-stderr",
+    patchHistory: "jarvis-patch-history",
+    approvePatch: "jarvis-approve-patch-button",
+    applyPatch: "jarvis-apply-patch-button",
+    rejectPatch: "jarvis-reject-patch-button",
+    rollbackPatch: "jarvis-rollback-patch-button"
   };
 
   let currentRequestId = null;
+  let currentPatchId = null;
 
   function el(id){
     return document.getElementById(id);
@@ -1091,6 +1275,7 @@ body{
     setText(ids.interpretedAction, state.interpreted_action || "No command interpreted");
     setText(ids.riskLevel, state.risk_level || "none");
     setText(ids.approvalState, approvalState);
+    setText(ids.detectedMode, state.detected_mode || "safe_command");
     setText(ids.status, executionStatus);
     setText(ids.approvedCommand, state.approved_command || "none");
     setText(ids.finalResult, state.final_result || "idle");
@@ -1126,15 +1311,89 @@ body{
     if(rejectButton) rejectButton.disabled = !canReject;
   }
 
+  function renderPatchState(state){
+    state = state || {};
+    currentPatchId = state.patch_id || currentPatchId;
+    const safety = state.safety_decision || {};
+    const validation = state.validation_result || {};
+    const applyStatus = state.apply_status || "IDLE";
+    const approvalState = state.approval_state || "waiting_for_task";
+
+    setText(ids.patchTask, state.requested_task || "Waiting for engineering task");
+    setText(ids.patchMode, state.detected_mode || "engineering_task");
+    setText(ids.patchRisk, state.risk_level || "none");
+    setText(ids.patchApprovalState, approvalState);
+    setText(ids.patchStatus, applyStatus);
+    setText(ids.patchValidationResult, validation.status || "not_run");
+    setText(ids.patchFilesChanged, Array.isArray(state.files_changed) && state.files_changed.length ? state.files_changed.join(", ") : "none");
+    setText(ids.patchFinalResult, state.final_result || "idle");
+    setText(ids.patchHelp, safety.reason || "A patch must be approved before any file can be modified.");
+
+    const patchLive = el(ids.patchApplyStatus);
+    if(patchLive){
+      patchLive.textContent = applyStatus;
+      patchLive.className = "runtime-session-status " + statusClass(applyStatus);
+    }
+
+    renderList(ids.patchPlan, state.proposed_changes, "Submit an engineering task to produce a patch plan.");
+    renderList(ids.patchFiles, state.files_to_modify, "No files selected yet.");
+    renderList(ids.patchValidationPlan, state.validation_plan, "No validation plan yet.");
+    renderList(ids.patchRollbackPlan, state.rollback_plan, "No rollback plan yet.");
+
+    const diff = el(ids.patchDiff);
+    if(diff){
+      diff.textContent = state.expected_diff || state.expected_change_summary || "No patch preview yet.";
+    }
+
+    const stdout = el(ids.patchStdout);
+    const stderr = el(ids.patchStderr);
+    if(stdout) stdout.textContent = state.stdout || validation.stdout || "(no validation stdout yet)";
+    if(stderr) stderr.textContent = state.stderr || validation.stderr || "(no validation stderr yet)";
+
+    const canApprovePatch = (
+      approvalState === "waiting_patch_approval" &&
+      applyStatus === "WAITING_APPROVAL" &&
+      safety.allowed === true
+    );
+    const canApplyPatch = approvalState === "patch_approved" && applyStatus === "APPROVED";
+    const canRejectPatch = (
+      (approvalState === "waiting_patch_approval" || approvalState === "patch_approved") &&
+      !["APPLYING", "APPLIED"].includes(applyStatus)
+    );
+    const canRollbackPatch = Boolean(state.rollback_checkpoint) && applyStatus === "VALIDATION_FAILED";
+
+    const approvePatch = el(ids.approvePatch);
+    const applyPatch = el(ids.applyPatch);
+    const rejectPatch = el(ids.rejectPatch);
+    const rollbackPatch = el(ids.rollbackPatch);
+    if(approvePatch) approvePatch.disabled = !canApprovePatch;
+    if(applyPatch) applyPatch.disabled = !canApplyPatch;
+    if(rejectPatch) rejectPatch.disabled = !canRejectPatch;
+    if(rollbackPatch) rollbackPatch.disabled = !canRollbackPatch;
+  }
+
   async function refreshExecutionState(){
     try{
       const res = await fetch("/jarvis/api/execution/current");
       const state = await res.json();
       renderExecutionState(state);
       await refreshExecutionHistory();
+      await refreshEngineeringState();
     }catch(error){
       setText(ids.help, "Execution runtime is unavailable.");
       console.error("JARVIS execution refresh failed", error);
+    }
+  }
+
+  async function refreshEngineeringState(){
+    try{
+      const res = await fetch("/jarvis/api/engineering/current");
+      const state = await res.json();
+      renderPatchState(state);
+      await refreshPatchHistory();
+    }catch(error){
+      setText(ids.patchHelp, "Engineering runtime is unavailable.");
+      console.error("JARVIS engineering refresh failed", error);
     }
   }
 
@@ -1161,6 +1420,29 @@ body{
     }
   }
 
+  async function refreshPatchHistory(){
+    const node = el(ids.patchHistory);
+    if(!node) return;
+    try{
+      const res = await fetch("/jarvis/api/engineering/history");
+      const history = await res.json();
+      const entries = Array.isArray(history) ? history.slice(-8).reverse() : [];
+      if(!entries.length){
+        node.innerHTML = '<div class="execution-history-item"><b>No patch history yet</b><span>Patch planning and apply results will appear here.</span></div>';
+        return;
+      }
+      node.innerHTML = entries.map(item => `
+        <div class="execution-history-item">
+          <b>${escapeHtml(item.requested_task || "engineering task")}</b>
+          <span>${escapeHtml(item.event || "event")} / ${escapeHtml(item.approval_state || "approval")} / ${escapeHtml(item.result || "")}</span>
+          <span>${escapeHtml(item.timestamp || "")}</span>
+        </div>
+      `).join("");
+    }catch(error){
+      node.innerHTML = '<div class="execution-history-item"><b>Patch history unavailable</b><span>Unable to load patch history.</span></div>';
+    }
+  }
+
   async function requestExecutionPlan(event){
     event.preventDefault();
     const input = el(ids.input);
@@ -1170,8 +1452,17 @@ body{
       return;
     }
     const data = await postJson("/jarvis/api/execution/request", {command});
-    renderExecutionState(data.state);
+    setText(ids.detectedMode, data.detected_mode || data.flow || "unknown");
+    if(data.flow === "engineering_task" || data.patch_state){
+      renderPatchState(data.patch_state);
+    }else if(data.flow === "unsupported_or_unsafe"){
+      renderPatchState(data.patch_state);
+      setText(ids.help, data.message || "Request blocked by safety gate.");
+    }else{
+      renderExecutionState(data.state);
+    }
     await refreshExecutionHistory();
+    await refreshPatchHistory();
   }
 
   async function approveAndRunExecution(){
@@ -1200,16 +1491,55 @@ body{
     await refreshExecutionHistory();
   }
 
+  async function approvePatch(){
+    if(!currentPatchId) return;
+    const approved = await postJson("/jarvis/api/engineering/approve", {patch_id: currentPatchId});
+    renderPatchState(approved.patch_state);
+    await refreshPatchHistory();
+  }
+
+  async function applyPatch(){
+    if(!currentPatchId) return;
+    const applied = await postJson("/jarvis/api/engineering/apply", {patch_id: currentPatchId});
+    renderPatchState(applied.patch_state);
+    await refreshPatchHistory();
+  }
+
+  async function rejectPatch(){
+    if(!currentPatchId) return;
+    const rejected = await postJson("/jarvis/api/engineering/reject", {
+      patch_id: currentPatchId,
+      reason: "Rejected from the visible HUD patch approval area."
+    });
+    renderPatchState(rejected.patch_state);
+    await refreshPatchHistory();
+  }
+
+  async function rollbackPatch(){
+    if(!currentPatchId) return;
+    const rolledBack = await postJson("/jarvis/api/engineering/rollback", {patch_id: currentPatchId});
+    renderPatchState(rolledBack.patch_state);
+    await refreshPatchHistory();
+  }
+
   document.addEventListener("DOMContentLoaded", function(){
     const form = el(ids.form);
     const approveButton = el(ids.approve);
     const rejectButton = el(ids.reject);
     const refreshButton = el(ids.refresh);
+    const approvePatchButton = el(ids.approvePatch);
+    const applyPatchButton = el(ids.applyPatch);
+    const rejectPatchButton = el(ids.rejectPatch);
+    const rollbackPatchButton = el(ids.rollbackPatch);
 
     if(form) form.addEventListener("submit", requestExecutionPlan);
     if(approveButton) approveButton.addEventListener("click", approveAndRunExecution);
     if(rejectButton) rejectButton.addEventListener("click", rejectExecution);
     if(refreshButton) refreshButton.addEventListener("click", refreshExecutionState);
+    if(approvePatchButton) approvePatchButton.addEventListener("click", approvePatch);
+    if(applyPatchButton) applyPatchButton.addEventListener("click", applyPatch);
+    if(rejectPatchButton) rejectPatchButton.addEventListener("click", rejectPatch);
+    if(rollbackPatchButton) rollbackPatchButton.addEventListener("click", rollbackPatch);
 
     refreshExecutionState();
     setInterval(refreshExecutionState, 2500);

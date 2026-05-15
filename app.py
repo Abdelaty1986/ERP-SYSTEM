@@ -1,6 +1,7 @@
 ﻿from jarvis.runtime.execution_state_machine import ExecutionStateMachine
 from jarvis.runtime.execution_explainer import ExecutionExplainer
 from jarvis.runtime.approval_execution_runtime import ApprovalDrivenExecutionRuntime
+from jarvis.runtime.controlled_engineering_runtime import ControlledEngineeringRuntime
 from jarvis.runtime.execution_history_runtime import ExecutionHistoryRuntime
 from jarvis.runtime.execution_console_runtime import ExecutionConsoleRuntime
 from jarvis.runtime.execution_approval_runtime import ExecutionApprovalRuntime
@@ -228,6 +229,7 @@ app = Flask(__name__)
 app.secret_key = load_secret_key()
 app.config["DB_PATH"] = DB_PATH
 app.config["DATABASE"] = DB_PATH
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.register_blueprint(create_jarvis_blueprint())
 
 def init_and_migrate():
@@ -5633,6 +5635,7 @@ except Exception as structured_mutation_error:
 # =========================
 
 approval_execution_runtime = ApprovalDrivenExecutionRuntime(project_root=BASE_DIR)
+controlled_engineering_runtime = ControlledEngineeringRuntime(project_root=BASE_DIR)
 
 
 @app.route("/jarvis/api/execution/status")
@@ -5644,7 +5647,29 @@ def jarvis_execution_status():
 def jarvis_execution_request():
     payload = request.json or {}
     command = payload.get("command", "")
-    return jsonify(approval_execution_runtime.request_execution(command))
+    classification = controlled_engineering_runtime.classify_request(command)
+    detected_mode = classification.get("detected_mode")
+
+    if detected_mode == "safe_command":
+        result = approval_execution_runtime.request_execution(command)
+        result["detected_mode"] = "safe_command"
+        result["flow"] = "safe_command"
+        result["classification"] = classification
+        return jsonify(result)
+
+    if detected_mode == "engineering_task":
+        result = controlled_engineering_runtime.request_patch(command)
+        result["flow"] = "engineering_task"
+        result["classification"] = classification
+        return jsonify(result)
+
+    result = controlled_engineering_runtime.block_request(
+        command,
+        classification.get("reason", "Request is unsupported or unsafe."),
+    )
+    result["flow"] = "unsupported_or_unsafe"
+    result["classification"] = classification
+    return jsonify(result)
 
 
 @app.route("/jarvis/api/execution/current")
@@ -5688,6 +5713,55 @@ def jarvis_execution_reject():
 def jarvis_execution_run():
     payload = request.json or {}
     return jsonify(approval_execution_runtime.run_approved_execution(payload.get("request_id")))
+
+
+@app.route("/jarvis/api/engineering/status")
+def jarvis_engineering_status():
+    return jsonify(controlled_engineering_runtime.status())
+
+
+@app.route("/jarvis/api/engineering/current")
+def jarvis_engineering_current():
+    return jsonify(controlled_engineering_runtime.current_state())
+
+
+@app.route("/jarvis/api/engineering/approve", methods=["POST"])
+def jarvis_engineering_approve():
+    payload = request.json or {}
+    return jsonify(controlled_engineering_runtime.approve_patch(payload.get("patch_id")))
+
+
+@app.route("/jarvis/api/engineering/reject", methods=["POST"])
+def jarvis_engineering_reject():
+    payload = request.json or {}
+    return jsonify(
+        controlled_engineering_runtime.reject_patch(
+            payload.get("patch_id"),
+            payload.get("reason"),
+        )
+    )
+
+
+@app.route("/jarvis/api/engineering/apply", methods=["POST"])
+def jarvis_engineering_apply():
+    payload = request.json or {}
+    return jsonify(controlled_engineering_runtime.apply_approved_patch(payload.get("patch_id")))
+
+
+@app.route("/jarvis/api/engineering/rollback", methods=["POST"])
+def jarvis_engineering_rollback():
+    payload = request.json or {}
+    return jsonify(controlled_engineering_runtime.rollback_patch(payload.get("patch_id")))
+
+
+@app.route("/jarvis/api/engineering/history")
+def jarvis_engineering_history():
+    return jsonify(controlled_engineering_runtime.history())
+
+
+@app.route("/jarvis/api/engineering/logs")
+def jarvis_engineering_logs():
+    return jsonify(controlled_engineering_runtime.logs())
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
