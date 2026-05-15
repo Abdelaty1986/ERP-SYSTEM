@@ -1,0 +1,56 @@
+{
+  "phase": "Phase 13 - Controlled Autonomous Execution",
+  "layer": "Layer 3 - Safe Execution Queue",
+  "generated_at": "2026-05-15T14:39:25.982248+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "execution_allowed": "limited_sandbox_only",
+    "apply_allowed": "staged_only",
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true,
+    "rollback_required": true,
+    "checkpoint_required": true
+  },
+  "queued_actions": [
+    {
+      "action_id": "ceq_hud_text_preview",
+      "description": "Preview HUD text update in sandbox scope",
+      "bounded": true,
+      "reviewable": true,
+      "reversible": true,
+      "approval_state": "pending_review",
+      "rollback_binding": "rb_ceq_hud_text_preview",
+      "execution_scope": "sandbox_preview_only",
+      "execution_state": "queued"
+    },
+    {
+      "action_id": "ceq_runtime_json_write",
+      "description": "Write isolated runtime preview JSON",
+      "bounded": true,
+      "reviewable": true,
+      "reversible": true,
+      "approval_state": "pending_review",
+      "rollback_binding": "rb_ceq_runtime_json_write",
+      "execution_scope": "runtime_memory_preview_only",
+      "execution_state": "queued"
+    },
+    {
+      "action_id": "ceq_safe_report_generation",
+      "description": "Generate safe report artifact inside runtime memory",
+      "bounded": true,
+      "reviewable": true,
+      "reversible": true,
+      "approval_state": "pending_review",
+      "rollback_binding": "rb_ceq_safe_report_generation",
+      "execution_scope": "runtime_memory_preview_only",
+      "execution_state": "queued"
+    }
+  ],
+  "approval_state": "pending_review",
+  "rollback_binding": "required_for_all_actions",
+  "execution_scope": "limited_sandbox_only",
+  "execution_state": "queued"
+}

@@ -1,0 +1,82 @@
+{
+  "phase": "Phase 13 - Controlled Autonomous Execution",
+  "layer": "Layer 1 - Execution Governance Bridge",
+  "generated_at": "2026-05-15T14:39:25.979777+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "execution_allowed": "limited_sandbox_only",
+    "apply_allowed": "staged_only",
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true,
+    "rollback_required": true,
+    "checkpoint_required": true
+  },
+  "inputs": {
+    "governance_policy_engine.json": {
+      "file": "JARVIS_CORE/runtime_memory/governance_policy_engine.json",
+      "exists": true,
+      "state": "complete",
+      "error": null
+    },
+    "approval_escalation_matrix.json": {
+      "file": "JARVIS_CORE/runtime_memory/approval_escalation_matrix.json",
+      "exists": true,
+      "state": "complete",
+      "error": null
+    },
+    "simulation_decision_matrix.json": {
+      "file": "JARVIS_CORE/runtime_memory/simulation_decision_matrix.json",
+      "exists": true,
+      "state": "complete",
+      "error": null
+    },
+    "simulation_readiness_report.json": {
+      "file": "JARVIS_CORE/runtime_memory/simulation_readiness_report.json",
+      "exists": true,
+      "state": "complete",
+      "error": null
+    },
+    "autonomous_planning_readiness.json": {
+      "file": "JARVIS_CORE/runtime_memory/autonomous_planning_readiness.json",
+      "exists": true,
+      "state": "complete",
+      "error": null
+    },
+    "approval_gateway.json": {
+      "file": "JARVIS_CORE/runtime_memory/approval_gateway.json",
+      "exists": true,
+      "state": "unknown",
+      "error": null
+    }
+  },
+  "allowed": [
+    "UI text changes",
+    "HUD rendering changes",
+    "isolated runtime test outputs",
+    "safe JSON state writes"
+  ],
+  "blocked": [
+    "deploy",
+    "database schema changes",
+    "destructive file mutation",
+    "credential access",
+    "external execution",
+    "production mutation",
+    "autonomous deployment",
+    "database mutation",
+    "autonomous_apply"
+  ],
+  "approval_required_for": [
+    "every controlled execution",
+    "every staged action",
+    "every rollback checkpoint"
+  ],
+  "rollback_checkpoint_required_for": [
+    "every queued action",
+    "every sandbox demonstration"
+  ],
+  "bridge_state": "ready"
+}

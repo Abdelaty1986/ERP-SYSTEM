@@ -5411,6 +5411,78 @@ setInterval(loadHumanApprovedEngineeringState, 7000);
 
 
 
+<!-- Phase 13 Controlled Autonomous Execution HUD -->
+
+<div class="panel" id="phase13-controlled-execution-panel">
+  <div class="panel-title">Phase 13 Controlled Execution</div>
+  <div class="panel-sub">limited sandbox only | staged only | approval and rollback required</div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Execution Governance</b>
+      <div style="font-size:11px;color:var(--muted)">execution_governance_bridge.json</div>
+    </div>
+    <span class="online">bridged</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Sandbox Policy</b>
+      <div style="font-size:11px;color:var(--muted)">UI text, HUD rendering, runtime JSON only</div>
+    </div>
+    <span class="online">bounded</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Execution Queue</b>
+      <div style="font-size:11px;color:var(--muted)">queued, reviewable, reversible actions only</div>
+    </div>
+    <span class="online">pending</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Rollback Readiness</b>
+      <div style="font-size:11px;color:var(--muted)">checkpoint_required=true | rollback_required=true</div>
+    </div>
+    <span class="online">ready</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Approval Runtime</b>
+      <div style="font-size:11px;color:var(--muted)">pending_review until human approval token exists</div>
+    </div>
+    <span class="online">gated</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Execution Simulator</b>
+      <div style="font-size:11px;color:var(--muted)">unsafe operations blocked by policy</div>
+    </div>
+    <span class="online">simulated</span>
+  </div>
+
+  <div class="safe" style="grid-template-columns:1fr auto">
+    <div>
+      <b>Blocked Actions</b>
+      <div style="font-size:11px;color:var(--muted)">deploy, database mutation, destructive mutation, external execution</div>
+    </div>
+    <span class="online">blocked</span>
+  </div>
+
+  <div style="margin-top:10px;padding:10px;border-radius:12px;border:1px solid rgba(0,217,255,.18);background:rgba(8,33,58,.48);font-size:12px;line-height:1.55;color:var(--cyan2)">
+    execution=Limited Sandbox Only | apply=Staged Only | deploy=No | database_mutation=No | rollback=Yes | autonomous_apply=Off | human_approval=Yes
+  </div>
+</div>
+
+<!-- End Phase 13 Controlled Autonomous Execution HUD -->
+
+
+
+
 <!-- Phase 12 Autonomous Simulation Layer HUD -->
 
 <div class="panel" id="phase12-simulation-layer-panel">

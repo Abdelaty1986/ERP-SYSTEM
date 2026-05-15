@@ -1,0 +1,33 @@
+{
+  "phase": "Phase 13 - Controlled Autonomous Execution",
+  "layer": "Layer 10 - Controlled Sandbox Demonstration",
+  "generated_at": "2026-05-15T14:39:25.990456+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "execution_allowed": "limited_sandbox_only",
+    "apply_allowed": "staged_only",
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true,
+    "rollback_required": true,
+    "checkpoint_required": true
+  },
+  "demo_id": "phase13_sandbox_json_preview",
+  "execution_scope": "runtime_memory_preview_only",
+  "approval_state": "pending_review",
+  "rollback_reference": "rb_ceq_hud_text_preview",
+  "mutation_safety": {
+    "sandbox_only": true,
+    "production_logic_modified": false,
+    "database_mutation": false,
+    "deploy": false,
+    "external_execution": false,
+    "autonomous_apply": false
+  },
+  "demo_output": {
+    "type": "safe JSON preview report",
+    "message": "Controlled sandbox demonstration recorded without production mutation."
+  }
+}

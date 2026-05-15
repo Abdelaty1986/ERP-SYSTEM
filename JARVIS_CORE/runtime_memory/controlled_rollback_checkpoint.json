@@ -1,0 +1,63 @@
+{
+  "phase": "Phase 13 - Controlled Autonomous Execution",
+  "layer": "Layer 4 - Rollback Checkpoint Runtime",
+  "generated_at": "2026-05-15T14:39:25.983237+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "execution_allowed": "limited_sandbox_only",
+    "apply_allowed": "staged_only",
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true,
+    "rollback_required": true,
+    "checkpoint_required": true
+  },
+  "checkpoints": [
+    {
+      "checkpoint_id": "rb_ceq_hud_text_preview",
+      "action_id": "ceq_hud_text_preview",
+      "affected_files": [
+        "JARVIS_CORE/runtime_memory/sandbox_execution_demo.json"
+      ],
+      "rollback_steps": [
+        "review generated preview JSON",
+        "discard sandbox preview output if rejected",
+        "restore prior runtime_memory state from git or checkpoint copy if needed"
+      ],
+      "restore_strategy": "discard_preview_artifact",
+      "approval_reference": "execution_approval_runtime.pending_review"
+    },
+    {
+      "checkpoint_id": "rb_ceq_runtime_json_write",
+      "action_id": "ceq_runtime_json_write",
+      "affected_files": [
+        "JARVIS_CORE/runtime_memory/sandbox_execution_demo.json"
+      ],
+      "rollback_steps": [
+        "review generated preview JSON",
+        "discard sandbox preview output if rejected",
+        "restore prior runtime_memory state from git or checkpoint copy if needed"
+      ],
+      "restore_strategy": "discard_preview_artifact",
+      "approval_reference": "execution_approval_runtime.pending_review"
+    },
+    {
+      "checkpoint_id": "rb_ceq_safe_report_generation",
+      "action_id": "ceq_safe_report_generation",
+      "affected_files": [
+        "JARVIS_CORE/runtime_memory/sandbox_execution_demo.json"
+      ],
+      "rollback_steps": [
+        "review generated preview JSON",
+        "discard sandbox preview output if rejected",
+        "restore prior runtime_memory state from git or checkpoint copy if needed"
+      ],
+      "restore_strategy": "discard_preview_artifact",
+      "approval_reference": "execution_approval_runtime.pending_review"
+    }
+  ],
+  "checkpoint_required": true,
+  "rollback_required": true
+}

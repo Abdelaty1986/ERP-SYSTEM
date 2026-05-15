@@ -1,0 +1,60 @@
+{
+  "phase": "Phase 13 - Controlled Autonomous Execution",
+  "layer": "Layer 6 - Execution Approval Runtime",
+  "generated_at": "2026-05-15T14:39:25.985698+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "execution_allowed": "limited_sandbox_only",
+    "apply_allowed": "staged_only",
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true,
+    "rollback_required": true,
+    "checkpoint_required": true
+  },
+  "approvals": [
+    {
+      "action_id": "ceq_hud_text_preview",
+      "status": "pending_review",
+      "approval_token": "REQUIRES_HUMAN_APPROVAL_TOKEN",
+      "checkpoint_reference": "rb_ceq_hud_text_preview",
+      "rollback_linkage": true,
+      "valid_states": [
+        "pending_review",
+        "approved",
+        "rejected",
+        "blocked"
+      ]
+    },
+    {
+      "action_id": "ceq_runtime_json_write",
+      "status": "pending_review",
+      "approval_token": "REQUIRES_HUMAN_APPROVAL_TOKEN",
+      "checkpoint_reference": "rb_ceq_runtime_json_write",
+      "rollback_linkage": true,
+      "valid_states": [
+        "pending_review",
+        "approved",
+        "rejected",
+        "blocked"
+      ]
+    },
+    {
+      "action_id": "ceq_safe_report_generation",
+      "status": "pending_review",
+      "approval_token": "REQUIRES_HUMAN_APPROVAL_TOKEN",
+      "checkpoint_reference": "rb_ceq_safe_report_generation",
+      "rollback_linkage": true,
+      "valid_states": [
+        "pending_review",
+        "approved",
+        "rejected",
+        "blocked"
+      ]
+    }
+  ],
+  "approval_runtime_state": "pending_review",
+  "human_approval_required": true
+}

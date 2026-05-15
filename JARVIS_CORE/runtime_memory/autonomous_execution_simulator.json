@@ -1,0 +1,93 @@
+{
+  "phase": "Phase 13 - Controlled Autonomous Execution",
+  "layer": "Layer 7 - Autonomous Execution Simulator",
+  "generated_at": "2026-05-15T14:39:25.988602+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "execution_allowed": "limited_sandbox_only",
+    "apply_allowed": "staged_only",
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true,
+    "rollback_required": true,
+    "checkpoint_required": true
+  },
+  "operations": [
+    {
+      "operation_id": "sim_hud_text_update",
+      "execution_plan": {
+        "description": "HUD text update",
+        "scope": "sandbox_preview_only",
+        "mode": "limited_sandbox_only"
+      },
+      "approval_required": true,
+      "rollback_ready": true,
+      "rollback_reference": "rb_ceq_hud_text_preview",
+      "execution_allowed": "limited_sandbox_only",
+      "execution_blockers": []
+    },
+    {
+      "operation_id": "sim_runtime_json_write",
+      "execution_plan": {
+        "description": "runtime JSON write",
+        "scope": "runtime_memory_preview_only",
+        "mode": "limited_sandbox_only"
+      },
+      "approval_required": true,
+      "rollback_ready": true,
+      "rollback_reference": "rb_ceq_runtime_json_write",
+      "execution_allowed": "limited_sandbox_only",
+      "execution_blockers": []
+    },
+    {
+      "operation_id": "sim_safe_report_generation",
+      "execution_plan": {
+        "description": "safe report generation",
+        "scope": "runtime_memory_preview_only",
+        "mode": "limited_sandbox_only"
+      },
+      "approval_required": true,
+      "rollback_ready": true,
+      "rollback_reference": "rb_ceq_safe_report_generation",
+      "execution_allowed": "limited_sandbox_only",
+      "execution_blockers": []
+    },
+    {
+      "operation_id": "sim_database_schema_change",
+      "execution_plan": {
+        "description": "database schema change",
+        "scope": "blocked",
+        "mode": "simulation_only"
+      },
+      "approval_required": true,
+      "rollback_ready": false,
+      "rollback_reference": null,
+      "execution_allowed": false,
+      "execution_blockers": [
+        "blocked_by_policy",
+        "requires_human_approval",
+        "unsafe_scope"
+      ]
+    },
+    {
+      "operation_id": "sim_deploy_request",
+      "execution_plan": {
+        "description": "deployment request",
+        "scope": "blocked",
+        "mode": "simulation_only"
+      },
+      "approval_required": true,
+      "rollback_ready": false,
+      "rollback_reference": null,
+      "execution_allowed": false,
+      "execution_blockers": [
+        "blocked_by_policy",
+        "requires_human_approval",
+        "unsafe_scope"
+      ]
+    }
+  ],
+  "unsafe_operations_blocked": true
+}
