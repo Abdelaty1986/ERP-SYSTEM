@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-05-15T07:11:08.231625+00:00",
+  "runtime": "agent_society_aggregator",
+  "bounded": true,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "society_state": "initialized",
+  "agent_count": 7,
+  "latest_task": "implement safe runtime dashboard patch",
+  "selected_agent": "patch_agent",
+  "workflow_state": "delegated",
+  "workflow_steps": 6,
+  "consensus_state": "approved_for_planning_only",
+  "latest_event_type": "orchestration_recorded",
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "approval_required": true,
+  "aggregate_state": "ready",
+  "sources": {
+    "registry": true,
+    "routing": true,
+    "delegation": true,
+    "consensus": true,
+    "orchestrator": true,
+    "event_summary": true
+  }
+}
