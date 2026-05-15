@@ -840,6 +840,27 @@ def jarvis_mobile_unified_hud():
     return jsonify(build_mobile_control_center_hud(write_output=False))
 
 
+@app.route("/jarvis/mobile/api/android-apk/status")
+def jarvis_mobile_android_apk_status():
+    return jsonify({
+        "phase": "Phase 19",
+        "wrapper_approach": "trusted_web_activity",
+        "debug_apk_workflow_ready": True,
+        "debug_apk_generated": False,
+        "generation_status": "blocked_missing_local_android_toolchain",
+        "native_apk_deployed": False,
+        "play_store_deployment": False,
+        "production_signing": False,
+        "dangerous_permissions": False,
+        "hidden_background_execution": False,
+        "bounded": True,
+        "autonomous_apply": False,
+        "deploy": False,
+        "database_mutation": False,
+        "governance_gates_preserved": True,
+    })
+
+
 @app.route("/dev-control")
 @login_required
 @admin_required
