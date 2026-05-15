@@ -1,0 +1,1 @@
+{"timestamp": "2026-05-15T07:27:03.704652+00:00", "runtime": "cognition_timeline", "bounded": true, "cognition_state": "awake_snapshot", "selected_agent": "patch_agent", "consensus_state": "approved_for_planning_only", "latest_task": "implement safe runtime dashboard patch", "persistence_mode": "snapshot_only", "execution_allowed": false, "apply_allowed": false}

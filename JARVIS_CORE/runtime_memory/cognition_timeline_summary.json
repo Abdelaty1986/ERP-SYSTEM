@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-05-15T07:27:03.736566+00:00",
+  "runtime": "cognition_timeline_summary",
+  "bounded": true,
+  "timeline_entries": 1,
+  "latest_cognition_state": "awake_snapshot",
+  "latest_selected_agent": "patch_agent",
+  "latest_consensus_state": "approved_for_planning_only",
+  "timeline_state": "recorded"
+}
