@@ -1,0 +1,25 @@
+{
+  "phase": "Phase 9 - Cognitive Self-Evolution",
+  "layer": "Layer 3 - Decision Quality Analyzer",
+  "generated_at": "2026-05-15T14:04:08.808292+00:00",
+  "state": "complete",
+  "safety": {
+    "bounded": true,
+    "analysis_only": true,
+    "execution_allowed": false,
+    "apply_allowed": false,
+    "autonomous_apply": false,
+    "database_mutation_allowed": false,
+    "deploy_allowed": false,
+    "human_approval_required": true
+  },
+  "decision_quality": {
+    "risk_score": 0.9467,
+    "confidence_score": 0.6187,
+    "approval_ratio": 1.2932,
+    "autonomous_pressure": 1.0,
+    "repetition_score": 0.7333
+  },
+  "human_approval_outcome": "required_before_any_future_execution",
+  "recommendation": "Keep decisions in recommendation mode until a human approves a named plan."
+}
