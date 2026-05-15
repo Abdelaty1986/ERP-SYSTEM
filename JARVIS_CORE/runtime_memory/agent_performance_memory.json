@@ -1,0 +1,120 @@
+{
+  "timestamp": "2026-05-15T09:05:34.580423+00:00",
+  "runtime": "agent_performance_memory",
+  "bounded": true,
+  "execution_allowed": false,
+  "apply_allowed": false,
+  "autonomous_apply": false,
+  "dangerous_autonomous_apply": false,
+  "human_approval_required": true,
+  "memory_mode": "safe_read_only_agent_performance_learning",
+  "phase": "phase_4_runtime_learning_system",
+  "layer": "agent_performance_memory",
+  "available_source_count": 8,
+  "available_sources": [
+    "registry",
+    "routing",
+    "delegation",
+    "consensus",
+    "orchestrator",
+    "event_summary",
+    "aggregate",
+    "engineering_learning"
+  ],
+  "missing_sources": [],
+  "unreadable_sources": [],
+  "agent_count": 7,
+  "latest_task": "implement safe runtime dashboard patch",
+  "selected_agent": "patch_agent",
+  "workflow_state": "delegated",
+  "consensus_state": "approved_for_planning_only",
+  "aggregate_state": "ready",
+  "engineering_learning_state": "stable_learning_ready",
+  "agent_performance": {
+    "planner_agent": {
+      "role": "planning",
+      "risk_level": "low",
+      "selected_for_latest_task": false,
+      "workflow_participation_count": 1,
+      "latest_vote": null,
+      "latest_vote_reason": null,
+      "can_apply": false,
+      "safe_for_planning_memory": true,
+      "performance_signal": "participated_in_bounded_workflow"
+    },
+    "patch_agent": {
+      "role": "patch_generation",
+      "risk_level": "medium",
+      "selected_for_latest_task": true,
+      "workflow_participation_count": 1,
+      "latest_vote": null,
+      "latest_vote_reason": null,
+      "can_apply": false,
+      "safe_for_planning_memory": true,
+      "performance_signal": "selected_for_bounded_planning"
+    },
+    "reviewer_agent": {
+      "role": "review",
+      "risk_level": "low",
+      "selected_for_latest_task": false,
+      "workflow_participation_count": 1,
+      "latest_vote": "approve",
+      "latest_vote_reason": "Workflow structure is reviewable.",
+      "can_apply": false,
+      "safe_for_planning_memory": true,
+      "performance_signal": "positive_planning_signal"
+    },
+    "validator_agent": {
+      "role": "validation",
+      "risk_level": "low",
+      "selected_for_latest_task": false,
+      "workflow_participation_count": 1,
+      "latest_vote": "approve",
+      "latest_vote_reason": "Validation path is bounded.",
+      "can_apply": false,
+      "safe_for_planning_memory": true,
+      "performance_signal": "positive_planning_signal"
+    },
+    "rollback_agent": {
+      "role": "recovery",
+      "risk_level": "medium",
+      "selected_for_latest_task": false,
+      "workflow_participation_count": 0,
+      "latest_vote": null,
+      "latest_vote_reason": null,
+      "can_apply": false,
+      "safe_for_planning_memory": true,
+      "performance_signal": "registered_observation_only"
+    },
+    "memory_agent": {
+      "role": "memory",
+      "risk_level": "low",
+      "selected_for_latest_task": false,
+      "workflow_participation_count": 1,
+      "latest_vote": null,
+      "latest_vote_reason": null,
+      "can_apply": false,
+      "safe_for_planning_memory": true,
+      "performance_signal": "participated_in_bounded_workflow"
+    },
+    "security_agent": {
+      "role": "governance",
+      "risk_level": "high",
+      "selected_for_latest_task": false,
+      "workflow_participation_count": 1,
+      "latest_vote": "approve",
+      "latest_vote_reason": "No dangerous terms detected.",
+      "can_apply": false,
+      "safe_for_planning_memory": true,
+      "performance_signal": "positive_planning_signal"
+    }
+  },
+  "learning_assessment": {
+    "learning_state": "stable_agent_performance_memory",
+    "safe_to_inform_routing_recommendations": true,
+    "may_execute_recommendations": false,
+    "may_apply_changes": false
+  },
+  "recommendation": "use_as_memory_input_for_provider_scoring_memory",
+  "result": "agent_performance_memory_built"
+}
