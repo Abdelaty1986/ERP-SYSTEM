@@ -1,0 +1,1082 @@
+[
+  {
+    "timestamp": "2026-05-15T07:54:52.083480Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T07:55:01.932601Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T07:55:11.939160Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T07:55:21.984603Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T07:55:31.941162Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T07:55:41.933146Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T07:55:51.901755Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T07:56:01.891229Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T07:56:11.897155Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:32:00.854486Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:32:11.019517Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:32:20.841420Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:32:30.834224Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:32:40.825003Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:32:50.755086Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:33:00.698316Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:33:10.679176Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:33:20.761971Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:33:30.764720Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:33:40.767108Z",
+    "route_count": 196,
+    "template_count": 87,
+    "module_count": 32,
+    "static_file_count": 15,
+    "route_categories": {
+      "general": 64,
+      "jarvis": 79,
+      "customers": 9,
+      "purchases": 20,
+      "sales": 17,
+      "inventory": 2,
+      "reports": 5
+    },
+    "domain_map": {
+      "accounting": {
+        "templates": 4,
+        "modules": 2
+      },
+      "reports": {
+        "templates": 5,
+        "modules": 3
+      },
+      "general": {
+        "templates": 42,
+        "modules": 10
+      },
+      "customers": {
+        "templates": 5,
+        "modules": 0
+      },
+      "hr": {
+        "templates": 10,
+        "modules": 4
+      },
+      "inventory": {
+        "templates": 6,
+        "modules": 2
+      },
+      "purchases": {
+        "templates": 8,
+        "modules": 0
+      },
+      "sales": {
+        "templates": 6,
+        "modules": 11
+      },
+      "jarvis": {
+        "templates": 1,
+        "modules": 0
+      }
+    }
+  }
+]

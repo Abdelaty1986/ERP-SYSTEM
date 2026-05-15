@@ -1,0 +1,44 @@
+{
+  "timestamp": "2026-05-15T14:33:35.843579+00:00",
+  "providers": {
+    "groq": {
+      "success_count": 0,
+      "failure_count": 3,
+      "rate_limited_count": 0,
+      "missing_credentials_count": 3,
+      "degraded_count": 0,
+      "trust_score": 0.27,
+      "last_state": "missing_credentials",
+      "last_confidence": 0.15,
+      "last_updated": "2026-05-15T14:33:35.821328+00:00",
+      "decay_applied": 0.0,
+      "last_decay_run": "2026-05-15T14:33:35.843579+00:00"
+    },
+    "openrouter": {
+      "success_count": 0,
+      "failure_count": 3,
+      "rate_limited_count": 0,
+      "missing_credentials_count": 3,
+      "degraded_count": 0,
+      "trust_score": 0.27,
+      "last_state": "missing_credentials",
+      "last_confidence": 0.15,
+      "last_updated": "2026-05-15T14:33:35.826561+00:00",
+      "decay_applied": 0.0,
+      "last_decay_run": "2026-05-15T14:33:35.843579+00:00"
+    },
+    "gemini": {
+      "success_count": 0,
+      "failure_count": 2,
+      "rate_limited_count": 0,
+      "missing_credentials_count": 2,
+      "degraded_count": 0,
+      "trust_score": 0.321,
+      "last_state": "missing_credentials",
+      "last_confidence": 0.15,
+      "last_updated": "2026-05-15T14:33:35.813057+00:00",
+      "decay_applied": 0.0,
+      "last_decay_run": "2026-05-15T14:33:35.843579+00:00"
+    }
+  }
+}
