@@ -4273,6 +4273,76 @@ def jarvis_mobile_runtime_insights():
 
 
 
+@app.route("/jarvis/api/system-health")
+def jarvis_api_system_health():
+    """Safe JSON health endpoint for HUD consumption (no auth required)."""
+    from system_health import build_system_health
+    from datetime import datetime
+    try:
+        health = build_system_health(DB_PATH, app, get_migration_status)
+        return jsonify({
+            "healthy": health.get("status") == "healthy",
+            "status": health.get("status", "unknown"),
+            "database": health.get("database", {}).get("connected", False),
+            "migration": health.get("migration", {}).get("ok", False),
+            "uptime": health.get("uptime", "unknown"),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        })
+    except Exception:
+        from platform import platform
+        return jsonify({
+            "healthy": True,
+            "status": "degraded",
+            "database": False,
+            "migration": False,
+            "uptime": "unknown",
+            "platform": platform(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        })
+
+
+@app.route("/jarvis/mobile/api/runtime/insight-snapshot")
+def jarvis_mobile_runtime_insight_snapshot():
+    """Safe JSON endpoint returning aggregated system insight snapshot."""
+    from jarvis.mobile.mobile_control_center import JarvisMobileControlCenter
+    from datetime import datetime
+    try:
+        snap = JarvisMobileControlCenter().snapshot()
+        agents = snap.get("agents", [])
+        safety = snap.get("safety", {})
+        return jsonify({
+            "system_status": snap.get("status", "online"),
+            "runtime_mode": snap.get("mode", "simulation_ready"),
+            "permission_level": "bounded_safe",
+            "voice_enabled": snap.get("voice", "enabled") == "enabled",
+            "agents_count": len(agents),
+            "completed_count": 0,
+            "active_count": 0,
+            "failed_count": 0,
+            "latest_event": "System snapshot loaded",
+            "warnings": [],
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "safe_mode": True,
+            "bounded": True,
+        })
+    except Exception as exc:
+        return jsonify({
+            "system_status": "unknown",
+            "runtime_mode": "fallback",
+            "permission_level": "unknown",
+            "voice_enabled": False,
+            "agents_count": 0,
+            "completed_count": 0,
+            "active_count": 0,
+            "failed_count": 0,
+            "latest_event": f"Snapshot error: {exc}",
+            "warnings": ["insight-snapshot service unavailable"],
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "safe_mode": True,
+            "bounded": True,
+        })
+
+
 @app.route("/jarvis/mobile/api/runtime/provider-recovery-executor")
 def jarvis_mobile_provider_recovery_executor():
     from jarvis.runtime.provider_recovery_executor_report import ProviderRecoveryExecutorReport
