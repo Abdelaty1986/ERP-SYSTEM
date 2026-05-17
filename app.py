@@ -248,6 +248,13 @@ def init_and_migrate():
 
 init_and_migrate()
 
+# Startup auth recovery — create/update default user with Werkzeug-hashed password
+try:
+    from startup_auth_recovery import ensure_user_exists
+    ensure_user_exists()
+except Exception as exc:
+    print(f"[auth] Recovery hook failed (non-fatal): {exc}")
+
 
 def register_enterprise_hr_module():
     """
