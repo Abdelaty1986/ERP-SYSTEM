@@ -20,6 +20,7 @@ class InteractiveVoiceListener:
         self.voice = JarvisVoiceRuntime(enabled=True, tts_enabled=True)
 
     def listen(self):
+        print("[JARVIS]: أنا سامعك يا هاني. قول الأمر دلوقتي.")
         self.voice.speak("أنا سامعك يا هاني. قول الأمر دلوقتي.")
 
         try:
@@ -36,6 +37,7 @@ class InteractiveVoiceListener:
                 or task.startswith("ERROR:")
                 or task in self.BLOCKED_OUTPUTS
             ):
+                print("[JARVIS]: مسمعتش الأمر بوضوح. حاول تاني.")
                 self.voice.speak("مسمعتش الأمر بوضوح. حاول تاني.")
                 return {
                     "status": "no_valid_voice_command",

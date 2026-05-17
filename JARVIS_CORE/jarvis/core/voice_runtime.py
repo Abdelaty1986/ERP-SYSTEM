@@ -28,8 +28,6 @@ class JarvisVoiceRuntime:
         if not self.enabled:
             return
 
-        print(f"[JARVIS]: {message}")
-
         if self.tts_enabled:
             try:
                 subprocess.run(

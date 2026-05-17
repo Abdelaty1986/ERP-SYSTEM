@@ -1,29 +1,36 @@
-from __future__ import annotations
-
+import argparse
+import sys
 from pathlib import Path
 
 from jarvis.core.conversation_brain import ConversationBrain
 from jarvis.core.voice_runtime import JarvisVoiceRuntime
 from jarvis.execution.sandbox_execution_report import SandboxExecutionReport
+from jarvis.voice.elevenlabs_tts_provider import ElevenLabsTTSProvider
+from jarvis.voice.mic_recorder import MicRecorder
+from jarvis.voice.transcription_provider import TranscriptionProvider
 
 
 class LiveJarvisLoop:
-    """
-    Interactive Jarvis loop.
-    Jarvis responds from inside the runtime.
-    Real apply remains disabled.
-    """
-
-    def __init__(self, tts_enabled=False):
+    def __init__(self, tts_enabled=False, mic_mode=False):
         self.brain = ConversationBrain()
         self.voice = JarvisVoiceRuntime(
             enabled=True,
             tts_enabled=tts_enabled,
         )
+        self.elevenlabs = ElevenLabsTTSProvider() if tts_enabled else None
+        self.recorder = MicRecorder() if mic_mode else None
+        self.transcriber = TranscriptionProvider()
         self.running = True
+        self.mic_mode = mic_mode
 
     def _speak(self, message):
         print(f"JARVIS: {message}")
+        if self.elevenlabs:
+            try:
+                self.elevenlabs.speak(message)
+                return
+            except Exception as exc:
+                print(f"[ElevenLabs] speak error: {exc}")
         self.voice.speak(message)
 
     def _is_runtime_command(self, text):
@@ -95,12 +102,31 @@ class LiveJarvisLoop:
             "استلمت كلامك، لكن محتاج أمر أوضح."
         )
 
+    def _get_input(self):
+        if not self.mic_mode:
+            return input("YOU: ").strip()
+
+        audio_path = None
+        try:
+            audio_path = self.recorder.record(duration=10)
+            text = self.transcriber.transcribe(audio_path)
+            print(f"YOU (voice): {text}")
+            return text.strip()
+        except Exception as exc:
+            print(f"[MIC] Voice input failed: {exc}")
+            print("[MIC] التبديل إلى الإدخال النصي...")
+            return input("YOU (fallback): ").strip()
+        finally:
+            if audio_path:
+                from pathlib import Path as P
+                P(audio_path).unlink(missing_ok=True)
+
     def run(self):
         self._speak("أنا جاهز يا هاني. جارفيس يعمل الآن في الوضع الآمن.")
 
         while self.running:
             try:
-                text = input("YOU: ").strip()
+                text = self._get_input()
                 response = self.handle(text)
                 self._speak(response)
             except KeyboardInterrupt:
@@ -110,5 +136,15 @@ class LiveJarvisLoop:
                 self._speak(f"حدث خطأ أثناء التشغيل: {exc}")
 
 
+def main():
+    parser = argparse.ArgumentParser(description="JARVIS Live Interactive Loop")
+    parser.add_argument("--mic", action="store_true", help="Enable microphone recording mode")
+    parser.add_argument("--tts", action="store_true", help="Enable TTS (ElevenLabs primary, termux fallback)")
+    args = parser.parse_args()
+
+    loop = LiveJarvisLoop(tts_enabled=args.tts, mic_mode=args.mic)
+    loop.run()
+
+
 if __name__ == "__main__":
-    LiveJarvisLoop(tts_enabled=False).run()
+    main()
