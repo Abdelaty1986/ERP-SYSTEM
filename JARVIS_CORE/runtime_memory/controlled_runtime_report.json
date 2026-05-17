@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-17T15:44:37.837995Z",
+  "mode": "controlled_real_execution",
+  "project": "ERP-SYSTEM",
+  "checks": {
+    "git_status": "M JARVIS_CORE/jarvis/runtime/controlled_execution_engine.py\n M JARVIS_CORE/jarvis/runtime/execution_mode_manager.py\n M JARVIS_CORE/runtime_logs/controlled_execution_events.jsonl\n M JARVIS_CORE/runtime_memory/controlled_execution_state.json\n M JARVIS_CORE/runtime_memory/runtime_execution_mode.json\n M app.py\n M templates/jarvis/mobile_control_center.html\n?? JARVIS_CORE/jarvis/intent/\n?? JARVIS_CORE/runtime_logs/intent_parsed_events.jsonl\n?? JARVIS_CORE/runtime_memory/controlled_patch_preview.json",
+    "app_py_compile": true,
+    "app_py_compile_stderr": null,
+    "python_files": 161
+  }
+}

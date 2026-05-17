@@ -1,559 +1,729 @@
 {
-  "applied": [
-    {
-      "file": "app.py",
-      "status": "verified"
-    },
-    {
-      "file": "templates/jarvis/mobile_control_center.html",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/adaptive_learning_scoring.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/adaptive_model_routing_hud.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/adaptive_provider_ranking.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/adaptive_routing_recommendations.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_performance_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_skill_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_aggregator.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_aggregator_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_consensus.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_consensus_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_delegation.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_delegation_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_event_log.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_event_log_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_hud_section.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_orchestrator.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_orchestrator_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_registry.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_router.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/agent_society_router_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/android_apk_generation_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/approval_execution_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/approval_transition_stabilizer.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/approved_project_apply_gate.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/autonomous_engineering_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/ci_cd_awareness_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognition_continuity.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognition_continuity_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognition_continuity_repair.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognition_health_monitor.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognition_timeline.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognition_timeline_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognition_wake_cycle.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognition_wake_cycle_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognitive_reflection_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognitive_stability_analysis.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/cognitive_supervision_hud_section.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/confidence_decay_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/confidence_decay_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/container_execution_awareness.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/controlled_engineering_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/controlled_execution_engine.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/controlled_patch_manager.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/dependency_health_observer.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/diff_intelligence_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/engineering_learning_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/engineering_planning_refinement.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/engineering_runtime_hud_section.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/erp_autonomous_evolution.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/erp_autonomous_evolution_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/evolution_intelligence_layer.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_approval_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_console_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_explainer.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_history_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_mode_manager.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_runtime_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_state_machine.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_supervision_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/execution_timeline_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/external_toolchain_hud.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/fallback_graph_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/human_approved_engineering.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/ide_awareness_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/jarvis_independence_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/learning_ingestion_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/learning_runtime_hud_section.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/learning_stability_monitor.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/llm_provider_health.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/local_test_runner_observer.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/long_running_runtime_loop.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/memory_compression_runtime.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/mobile_control_center_hud_integration.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/model_discovery_engine.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/model_trust_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/outcome_correlation_engine.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/persistent_cognition_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/persistent_cognition_state.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/project_apply_validation_guard.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_arbitration.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_arbitration_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_forecast.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_forecast_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_intelligence.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_intelligence_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_model_validation.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_optimizer.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_optimizer_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_executor.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_executor_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_planner.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_registry.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_reliability_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_router.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_scoring_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_self_healing.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_self_healing_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_strategy_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_trust_memory.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/provider_trust_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/queue_health_monitor.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/recovery_recommendation_engine.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/recovery_recommendation_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/rollback_intelligence_layer.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/rollback_recovery_engine.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/router_optimization_api.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/router_self_optimization.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_aggregator.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_audit.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_chat_console.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_governance_decision.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_intent_pipeline.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_learning_summary.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_self_monitoring_hud.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_silence_detection.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_visibility.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/runtime_warnings_locks_hud_section.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/safe_learning_hud_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/sandbox_patch_apply.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/self_development_readiness.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/staged_patch_generator.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/structured_patch_mutation.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/targeted_provider_probe.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/targeted_provider_probe_report.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/toolchain_risk_classifier.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/toolchain_runtime_hud_section.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/unified_runtime_hud_api.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/voice_command_intent_queue.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/voice_input_state_stub.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/voice_output_state_stub.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/voice_runtime_hud.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/voice_safety_gate.py",
-      "status": "verified"
-    },
-    {
-      "file": "JARVIS_CORE/jarvis/runtime/wake_word_readiness_state.py",
-      "status": "verified"
-    }
-  ],
-  "failed": [],
-  "timestamp": "2026-05-17T13:32:44.293644Z",
-  "status": "completed"
+  "action": "improve",
+  "status": "pending_approval",
+  "results": {
+    "timestamp": "2026-05-17T15:44:38.782890Z",
+    "files_proposed": [
+      {
+        "file": "app.py",
+        "size": 368733,
+        "lines": 6059
+      },
+      {
+        "file": "templates/jarvis/mobile_control_center.html",
+        "size": 95366,
+        "lines": 1965
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/adaptive_learning_scoring.py",
+        "size": 3078,
+        "lines": 90
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/adaptive_model_routing_hud.py",
+        "size": 2284,
+        "lines": 71
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/adaptive_provider_ranking.py",
+        "size": 2626,
+        "lines": 96
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/adaptive_routing_recommendations.py",
+        "size": 6242,
+        "lines": 129
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_performance_memory.py",
+        "size": 6255,
+        "lines": 137
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_skill_memory.py",
+        "size": 8153,
+        "lines": 286
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_aggregator.py",
+        "size": 2780,
+        "lines": 72
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_aggregator_probe.py",
+        "size": 664,
+        "lines": 18
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_consensus.py",
+        "size": 2954,
+        "lines": 83
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_consensus_probe.py",
+        "size": 764,
+        "lines": 19
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_delegation.py",
+        "size": 2222,
+        "lines": 86
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_delegation_probe.py",
+        "size": 589,
+        "lines": 21
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_event_log.py",
+        "size": 2638,
+        "lines": 76
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_event_log_probe.py",
+        "size": 924,
+        "lines": 28
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_hud_section.py",
+        "size": 4636,
+        "lines": 117
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_orchestrator.py",
+        "size": 1932,
+        "lines": 59
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_orchestrator_probe.py",
+        "size": 781,
+        "lines": 22
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_probe.py",
+        "size": 646,
+        "lines": 14
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_registry.py",
+        "size": 3059,
+        "lines": 83
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_router.py",
+        "size": 2735,
+        "lines": 77
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/agent_society_router_probe.py",
+        "size": 931,
+        "lines": 32
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/android_apk_generation_probe.py",
+        "size": 4288,
+        "lines": 96
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/approval_execution_runtime.py",
+        "size": 39410,
+        "lines": 994
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/approval_transition_stabilizer.py",
+        "size": 1900,
+        "lines": 50
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/approved_project_apply_gate.py",
+        "size": 4518,
+        "lines": 159
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/autonomous_engineering_memory.py",
+        "size": 2787,
+        "lines": 80
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/ci_cd_awareness_runtime.py",
+        "size": 3980,
+        "lines": 108
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognition_continuity.py",
+        "size": 2006,
+        "lines": 59
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognition_continuity_probe.py",
+        "size": 683,
+        "lines": 19
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognition_continuity_repair.py",
+        "size": 4265,
+        "lines": 124
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognition_health_monitor.py",
+        "size": 3712,
+        "lines": 113
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognition_timeline.py",
+        "size": 2398,
+        "lines": 75
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognition_timeline_probe.py",
+        "size": 613,
+        "lines": 17
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognition_wake_cycle.py",
+        "size": 1211,
+        "lines": 44
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognition_wake_cycle_probe.py",
+        "size": 603,
+        "lines": 18
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognitive_reflection_runtime.py",
+        "size": 4445,
+        "lines": 120
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognitive_stability_analysis.py",
+        "size": 4431,
+        "lines": 131
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/cognitive_supervision_hud_section.py",
+        "size": 3418,
+        "lines": 86
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/confidence_decay_report.py",
+        "size": 257,
+        "lines": 11
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/confidence_decay_runtime.py",
+        "size": 2367,
+        "lines": 88
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/container_execution_awareness.py",
+        "size": 4205,
+        "lines": 107
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/controlled_engineering_runtime.py",
+        "size": 49783,
+        "lines": 1226
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/controlled_execution_engine.py",
+        "size": 16134,
+        "lines": 406
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/controlled_patch_manager.py",
+        "size": 8482,
+        "lines": 209
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/dependency_health_observer.py",
+        "size": 4764,
+        "lines": 125
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/diff_intelligence_runtime.py",
+        "size": 2860,
+        "lines": 92
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/engineering_learning_memory.py",
+        "size": 5786,
+        "lines": 116
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/engineering_planning_refinement.py",
+        "size": 3095,
+        "lines": 87
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/engineering_runtime_hud_section.py",
+        "size": 4470,
+        "lines": 104
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/erp_autonomous_evolution.py",
+        "size": 15174,
+        "lines": 392
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/erp_autonomous_evolution_probe.py",
+        "size": 3194,
+        "lines": 101
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/evolution_intelligence_layer.py",
+        "size": 2658,
+        "lines": 79
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_approval_runtime.py",
+        "size": 1937,
+        "lines": 58
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_console_runtime.py",
+        "size": 1019,
+        "lines": 37
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_explainer.py",
+        "size": 1450,
+        "lines": 34
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_history_runtime.py",
+        "size": 768,
+        "lines": 32
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_mode_manager.py",
+        "size": 1548,
+        "lines": 29
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_runtime_probe.py",
+        "size": 1935,
+        "lines": 63
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_state_machine.py",
+        "size": 955,
+        "lines": 37
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_supervision_runtime.py",
+        "size": 2351,
+        "lines": 73
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/execution_timeline_runtime.py",
+        "size": 919,
+        "lines": 34
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/external_toolchain_hud.py",
+        "size": 6707,
+        "lines": 150
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/fallback_graph_runtime.py",
+        "size": 2880,
+        "lines": 88
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/human_approved_engineering.py",
+        "size": 2925,
+        "lines": 85
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/ide_awareness_runtime.py",
+        "size": 3444,
+        "lines": 91
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/jarvis_independence_probe.py",
+        "size": 4379,
+        "lines": 121
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/learning_ingestion_runtime.py",
+        "size": 2825,
+        "lines": 91
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/learning_runtime_hud_section.py",
+        "size": 3880,
+        "lines": 88
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/learning_stability_monitor.py",
+        "size": 6137,
+        "lines": 131
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/llm_provider_health.py",
+        "size": 2613,
+        "lines": 93
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/local_test_runner_observer.py",
+        "size": 4850,
+        "lines": 123
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/long_running_runtime_loop.py",
+        "size": 2334,
+        "lines": 77
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/memory_compression_runtime.py",
+        "size": 2576,
+        "lines": 74
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/mobile_control_center_hud_integration.py",
+        "size": 3885,
+        "lines": 94
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/model_discovery_engine.py",
+        "size": 2292,
+        "lines": 65
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/model_trust_memory.py",
+        "size": 3114,
+        "lines": 103
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/outcome_correlation_engine.py",
+        "size": 3777,
+        "lines": 103
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/persistent_cognition_probe.py",
+        "size": 683,
+        "lines": 18
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/persistent_cognition_state.py",
+        "size": 1793,
+        "lines": 53
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/project_apply_validation_guard.py",
+        "size": 3224,
+        "lines": 110
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_arbitration.py",
+        "size": 3267,
+        "lines": 99
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_arbitration_report.py",
+        "size": 761,
+        "lines": 28
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_forecast.py",
+        "size": 2623,
+        "lines": 82
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_forecast_report.py",
+        "size": 721,
+        "lines": 23
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_intelligence.py",
+        "size": 2382,
+        "lines": 76
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_intelligence_report.py",
+        "size": 745,
+        "lines": 23
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_model_validation.py",
+        "size": 2409,
+        "lines": 71
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_optimizer.py",
+        "size": 3099,
+        "lines": 95
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_optimizer_report.py",
+        "size": 727,
+        "lines": 23
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_executor.py",
+        "size": 2176,
+        "lines": 63
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_executor_report.py",
+        "size": 843,
+        "lines": 28
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_planner.py",
+        "size": 3058,
+        "lines": 84
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_probe.py",
+        "size": 244,
+        "lines": 8
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_recovery_report.py",
+        "size": 763,
+        "lines": 28
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_registry.py",
+        "size": 1896,
+        "lines": 58
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_reliability_memory.py",
+        "size": 4305,
+        "lines": 134
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_router.py",
+        "size": 6518,
+        "lines": 188
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_scoring_memory.py",
+        "size": 7292,
+        "lines": 142
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_self_healing.py",
+        "size": 2876,
+        "lines": 75
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_self_healing_report.py",
+        "size": 765,
+        "lines": 28
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_strategy_memory.py",
+        "size": 3008,
+        "lines": 113
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_trust_memory.py",
+        "size": 2940,
+        "lines": 122
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/provider_trust_report.py",
+        "size": 849,
+        "lines": 31
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/queue_health_monitor.py",
+        "size": 5455,
+        "lines": 202
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/recovery_recommendation_engine.py",
+        "size": 8782,
+        "lines": 232
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/recovery_recommendation_probe.py",
+        "size": 253,
+        "lines": 6
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/rollback_intelligence_layer.py",
+        "size": 2555,
+        "lines": 78
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/rollback_recovery_engine.py",
+        "size": 2092,
+        "lines": 87
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/router_optimization_api.py",
+        "size": 1243,
+        "lines": 48
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/router_self_optimization.py",
+        "size": 7291,
+        "lines": 231
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_aggregator.py",
+        "size": 4606,
+        "lines": 156
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_audit.py",
+        "size": 6634,
+        "lines": 174
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_chat_console.py",
+        "size": 2393,
+        "lines": 85
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_governance_decision.py",
+        "size": 3256,
+        "lines": 118
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_intent_pipeline.py",
+        "size": 2185,
+        "lines": 94
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_learning_summary.py",
+        "size": 5939,
+        "lines": 125
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_self_monitoring_hud.py",
+        "size": 3140,
+        "lines": 82
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_silence_detection.py",
+        "size": 3699,
+        "lines": 111
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_visibility.py",
+        "size": 3137,
+        "lines": 104
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/runtime_warnings_locks_hud_section.py",
+        "size": 4652,
+        "lines": 119
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/safe_learning_hud_report.py",
+        "size": 6877,
+        "lines": 144
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/sandbox_patch_apply.py",
+        "size": 3803,
+        "lines": 129
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/self_development_readiness.py",
+        "size": 2769,
+        "lines": 104
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/staged_patch_generator.py",
+        "size": 2713,
+        "lines": 107
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/structured_patch_mutation.py",
+        "size": 5279,
+        "lines": 183
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/targeted_provider_probe.py",
+        "size": 5513,
+        "lines": 200
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/targeted_provider_probe_report.py",
+        "size": 2013,
+        "lines": 77
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/toolchain_risk_classifier.py",
+        "size": 5924,
+        "lines": 141
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/toolchain_runtime_hud_section.py",
+        "size": 3911,
+        "lines": 93
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/unified_runtime_hud_api.py",
+        "size": 5571,
+        "lines": 146
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/voice_command_intent_queue.py",
+        "size": 2791,
+        "lines": 74
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/voice_input_state_stub.py",
+        "size": 2426,
+        "lines": 66
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/voice_output_state_stub.py",
+        "size": 2428,
+        "lines": 66
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/voice_runtime_hud.py",
+        "size": 5571,
+        "lines": 132
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/voice_safety_gate.py",
+        "size": 3354,
+        "lines": 98
+      },
+      {
+        "file": "JARVIS_CORE/jarvis/runtime/wake_word_readiness_state.py",
+        "size": 2518,
+        "lines": 67
+      }
+    ],
+    "summary": "138 files eligible for patch",
+    "patch_available": true
+  },
+  "command": "جهز باتش للإصلاح",
+  "command_id": "",
+  "intent": {
+    "intent": "improve",
+    "risk_level": "high",
+    "target_files": [
+      "project"
+    ],
+    "proposed_actions": [
+      "Generate improvement patch",
+      "Preview changes"
+    ],
+    "validation_steps": [
+      "python -m py_compile on changed files",
+      "Run py_compile on modified files",
+      "Verify pre/post diff",
+      "Log results to execution journal"
+    ],
+    "rollback_plan": [
+      "Create full checkpoint before apply",
+      "Auto-rollback on validation failure",
+      "Restore from backup if patch fails"
+    ],
+    "original_text": "جهز باتش للإصلاح"
+  },
+  "mode": "supervised_real_execution",
+  "risk_level": "high",
+  "approval_required": true
 }

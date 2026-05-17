@@ -4150,8 +4150,8 @@ def jarvis_mobile_worker_tick():
     mode_data = read_mode()
     current_mode = mode_data.get("mode", "simulation_only")
 
-    # If controlled real execution, use the real engine
-    if current_mode == "controlled_real_execution":
+    # If controlled or supervised real execution, use the real engine
+    if current_mode in ("controlled_real_execution", "supervised_real_execution"):
         from jarvis.runtime.controlled_execution_engine import ControlledExecutionEngine
         from jarvis.commands import RuntimeCommandAPI
         from jarvis.logging import RuntimeLogger
@@ -4165,8 +4165,16 @@ def jarvis_mobile_worker_tick():
             return jsonify({"processed": False, "reason": "no queued commands", "mode": "controlled_real_execution"}), 200
 
         engine = ControlledExecutionEngine()
-        result = engine.execute(target.get("command", ""), command_id=target.get("command_id", "") or target.get("id", ""))
-        result["mode"] = "controlled_real_execution"
+        raw_cmd = target.get("command", "")
+        parsed_intent = None
+        if current_mode == "supervised_real_execution":
+            try:
+                from jarvis.intent.intent_parser import ArabicIntentParser
+                parsed_intent = ArabicIntentParser().parse(raw_cmd)
+            except Exception:
+                parsed_intent = None
+        result = engine.execute(raw_cmd, command_id=target.get("command_id", "") or target.get("id", ""), parsed_intent=parsed_intent)
+        result["mode"] = current_mode
 
         # Update queue item status via RuntimeCommandAPI
         from jarvis.execution.runtime_queue_worker import queue_file_lock
@@ -4546,6 +4554,22 @@ def jarvis_mobile_execution_mode_post():
     result = write_mode(mode, confirm)
     status = 200 if result.get("ok") else 400
     return jsonify(result), status
+
+
+# ------------------------------------------------------------
+# Intent Parse API
+# ------------------------------------------------------------
+@app.route("/jarvis/mobile/api/runtime/intent/parse", methods=["POST"])
+def jarvis_mobile_intent_parse():
+    from flask import jsonify, request
+    from jarvis.intent.intent_parser import ArabicIntentParser
+    data = request.get_json(silent=True) or {}
+    text = data.get("text", "").strip()
+    if not text:
+        return jsonify({"intent": "unknown", "error": "no_text"}), 400
+    parser = ArabicIntentParser()
+    result = parser.parse(text)
+    return jsonify(result)
 
 
 # ------------------------------------------------------------

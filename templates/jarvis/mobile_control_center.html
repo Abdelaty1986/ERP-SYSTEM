@@ -847,7 +847,7 @@ body::after{
   <!-- ===== EXECUTION CONSOLE (safe sandbox) ===== -->
   <div class="panel">
     <div class="panel-title">⚙ APPROVAL EXECUTION <span class="badge">SAFE MODE</span></div>
-    <div class="panel-sub">Human approval required · No auto-execution</div>
+    <div class="panel-sub" id="hudExecSubtitle">اكتب لجارفيس المطلوب إصلاحه أو تنفيذه...</div>
     <div class="xcon" id="approvalExecConsole">
       <div class="xcon-hdr">
         <span class="xl">Execution Status</span>
@@ -855,13 +855,13 @@ body::after{
       </div>
       <form id="jarvisExecForm">
         <div class="xcon-inp">
-          <input id="jarvisExecInput" type="text" placeholder="system_review" autocomplete="off" dir="auto">
+          <input id="jarvisExecInput" type="text" placeholder="اكتب لجارفيس المطلوب إصلاحه أو تنفيذه..." autocomplete="off" dir="auto">
           <button type="submit">Run</button>
         </div>
       </form>
       <div class="xcon-grd">
         <div class="xcon-cell"><div class="xc-l">Command</div><div class="xc-v" id="jarvisCurCmd">Waiting</div></div>
-        <div class="xcon-cell"><div class="xc-l">Action</div><div class="xc-v" id="jarvisAction">No command</div></div>
+        <div class="xcon-cell"><div class="xc-l">Intent</div><div class="xc-v" id="jarvisIntent">—</div></div>
         <div class="xcon-cell"><div class="xc-l">Risk</div><div class="xc-v" id="jarvisRisk">none</div></div>
         <div class="xcon-cell"><div class="xc-l">Approval</div><div class="xc-v" id="jarvisAprState">waiting</div></div>
       </div>
@@ -878,16 +878,18 @@ body::after{
           <button class="rf" id="jarvisRefreshBtn">Refresh</button>
         </div>
       </div>
-      <div class="xcon-grd">
-        <div class="xcon-cell"><div class="xc-l">Status</div><div class="xc-v" id="jarvisExecStatus">IDLE</div></div>
-        <div class="xcon-cell"><div class="xc-l">Approved</div><div class="xc-v" id="jarvisAprCmd">none</div></div>
-        <div class="xcon-cell"><div class="xc-l">Result</div><div class="xc-v" id="jarvisResult">idle</div></div>
-        <div class="xcon-cell"><div class="xc-l">Code</div><div class="xc-v" id="jarvisCode">--</div></div>
-      </div>
       <div class="xcon-out">
         <div><div class="xc-l">STDOUT</div><pre id="jarvisStdout"></pre></div>
         <div><div class="xc-l">STDERR</div><pre id="jarvisStderr"></pre></div>
       </div>
+      <div class="xcon-grd">
+        <div class="xcon-cell"><div class="xc-l">Status</div><div class="xc-v" id="jarvisExecStatus">IDLE</div></div>
+        <div class="xcon-cell"><div class="xc-l">Target</div><div class="xc-v" id="jarvisTarget">—</div></div>
+        <div class="xcon-cell"><div class="xc-l">Result</div><div class="xc-v" id="jarvisResult">idle</div></div>
+        <div class="xcon-cell"><div class="xc-l">Rollback</div><div class="xc-v" id="jarvisRollback">—</div></div>
+      </div>
+      <div class="xc-l">Task Timeline</div>
+      <div class="xcon-timeline" id="jarvisTimeline"><div style="font-size:8px;color:rgba(0,240,255,.2);">queued → planned → approved → running → completed/failed</div></div>
       <div class="xc-l">History</div>
       <div class="xcon-hist" id="jarvisHistory"><div>No execution history.</div></div>
     </div>
@@ -943,8 +945,9 @@ body::after{
         <span id="hudCurrentMode" style="font-size:10px;color:#ffaa00;letter-spacing:1px;text-transform:uppercase;">loading...</span>
       </div>
       <div style="display:flex;gap:4px;flex-wrap:wrap;">
-        <button onclick="enableControlledRealExecution()" style="font-size:8px;padding:3px 8px;background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.15);color:#00f0ff;cursor:pointer;font-family:monospace;">Enable Real Execution</button>
-        <button onclick="returnToSimulation()" style="font-size:8px;padding:3px 8px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.15);color:#ffaa00;cursor:pointer;font-family:monospace;">Simulation Only</button>
+        <button onclick="enableSupervisedExecution()" style="font-size:7px;padding:3px 6px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.15);color:#00ff88;cursor:pointer;font-family:monospace;">Supervised Real</button>
+        <button onclick="enableControlledRealExecution()" style="font-size:7px;padding:3px 6px;background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.15);color:#00f0ff;cursor:pointer;font-family:monospace;">Controlled Real</button>
+        <button onclick="returnToSimulation()" style="font-size:7px;padding:3px 6px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.15);color:#ffaa00;cursor:pointer;font-family:monospace;">Simulation</button>
       </div>
       <div style="margin-top:6px;padding-top:4px;border-top:1px solid rgba(0,240,255,.05);">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
@@ -1097,7 +1100,9 @@ body::after{
     live:"jarvisExecLiveStatus", status:"jarvisExecStatus",
     aprCmd:"jarvisAprCmd", result:"jarvisResult",
     code:"jarvisCode", stdout:"jarvisStdout",
-    stderr:"jarvisStderr", history:"jarvisHistory"
+    stderr:"jarvisStderr", history:"jarvisHistory",
+    intent:"jarvisIntent", target:"jarvisTarget",
+    rollback:"jarvisRollback", timeline:"jarvisTimeline"
   };
   let curReqId=null;
   const $=id=>document.getElementById(id);
@@ -1148,6 +1153,34 @@ body::after{
     const cr=(ap==="waiting_approval"||ap==="approved")&&ex!=="EXECUTING";
     const aBtn=$(ids.approve),rBtn=$(ids.reject);
     if(aBtn)aBtn.disabled=!ca;if(rBtn)rBtn.disabled=!cr;
+
+    // Also update supervised intent fields if data is available
+    const intentData=s.intent||s.parsed_intent||null;
+    if(intentData){
+      const iEl=$d("jarvisIntent");if(iEl)iEl.textContent=intentData.intent||"—";
+      const rEl=$d("jarvisRisk");if(rEl){
+        rEl.textContent=intentData.risk_level||s.risk_level||"none";
+        rEl.style.color=intentData.risk_level==="high"?"#ff0044":intentData.risk_level==="medium"?"#ffaa00":"#00ff88";
+      }
+      const tEl=$d("jarvisTarget");
+      if(tEl){
+        const tf=intentData.target_files||[];
+        tEl.textContent=tf.length?tf.join(", ").slice(0,40):"—";
+      }
+      const rbEl=$d("jarvisRollback");
+      if(rbEl){
+        const rp=intentData.rollback_plan||[];
+        rbEl.textContent=rp.length?"available":"—";
+        rbEl.style.color=rp.length?"#00ff88":"rgba(0,240,255,.3)";
+      }
+      const tlEl=$d("jarvisTimeline");
+      if(tlEl){
+        const steps=["queued","planned","approved","running","completed"];
+        const curStep=s.execution_status||"queued";
+        const idx=steps.indexOf(curStep.toLowerCase())>=0?steps.indexOf(curStep.toLowerCase())+1:1;
+        tlEl.innerHTML=steps.map((st,i)=>'<span style="color:'+(i<idx?'#00ff88':'rgba(0,240,255,.2)')+';font-size:8px;margin-right:4px;">'+(i<idx?'▶':'○')+' '+st+'</span>').join(" → ");
+      }
+    }
   }
   async function refresh(){
     try{
@@ -1168,6 +1201,12 @@ body::after{
     const inp=$(ids.input),cmd=inp?inp.value.trim():"";
     if(!cmd){set(ids.help,"Enter a command.");return;}
     console.log("[submit] queuing command:",cmd);
+    // Try parsing as Arabic intent first
+    let intentResult=null;
+    try{
+      const ir=await fetch("/jarvis/mobile/api/runtime/intent/parse",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:cmd})});
+      if(ir.ok)intentResult=await ir.json();
+    }catch(e){/* intent parse non-critical */}
     try{
       const q=await post("/jarvis/mobile/api/command",{command:cmd,source:"mobile_hud_exec"});
       console.log("[submit] queue response:",q);
@@ -1177,7 +1216,12 @@ body::after{
         toast("Task queued: "+cmd,"+","ok");
         logAction("task_queued_"+(q.command_id||"?").slice(0,8));
         curReqId=q.command_id;
-        render({requested_command:cmd,execution_status:"QUEUED",approval_state:"queued",safety_decision:{allowed:false,reason:"Task queued in simulation mode — tick worker to process."}});
+        const renderState={requested_command:cmd,execution_status:"QUEUED",approval_state:"queued",safety_decision:{allowed:false,reason:"Task queued — tick worker to process."}};
+        if(intentResult&&intentResult.intent&&intentResult.intent!=="unknown"){
+          renderState.parsed_intent=intentResult;
+          renderState.risk_level=intentResult.risk_level||"none";
+        }
+        render(renderState);
         await hist();
         return;
       }
@@ -1803,6 +1847,17 @@ async function loadInsightSnapshot(){
 }
 
 // ===== EXECUTION MODE & PATCH CONTROLS =====
+async function enableSupervisedExecution(){
+  try{
+    const r=await post("/jarvis/mobile/api/runtime/execution-mode",{mode:"supervised_real_execution",confirm:"ENABLE_SUPERVISED_REAL_EXECUTION"});
+    if(r.ok){
+      toast("Mode: supervised_real_execution — Arabic NL ready","⚙","ok");
+      refreshExecSum();refreshJarvis();
+    }else{
+      toast("Mode switch failed: "+(r.error||"unknown"),"⚙","er");
+    }
+  }catch(e){toast("Mode switch error","⚙","er");console.error(e);}
+}
 async function enableControlledRealExecution(){
   try{
     const r=await post("/jarvis/mobile/api/runtime/execution-mode",{mode:"controlled_real_execution",confirm:"ENABLE_CONTROLLED_REAL_EXECUTION"});
@@ -1875,8 +1930,9 @@ refreshExecSum=async function(){
     if(!el)return;
     const mode=d2.mode||"simulation_only";
     el.textContent=mode;
-    el.style.color=mode==="controlled_real_execution"?"#00ff88":"#ffaa00";
-    el.style.textShadow=mode==="controlled_real_execution"?"0 0 6px #00ff88":"none";
+    if(mode==="supervised_real_execution"){el.style.color="#00ff88";el.style.textShadow="0 0 6px #00ff88";}
+    else if(mode==="controlled_real_execution"){el.style.color="#00f0ff";el.style.textShadow="0 0 6px #00f0ff";}
+    else{el.style.color="#ffaa00";el.style.textShadow="none";}
   }catch(e){/* mode display non-critical */}
   loadPatchStatus();
 };
