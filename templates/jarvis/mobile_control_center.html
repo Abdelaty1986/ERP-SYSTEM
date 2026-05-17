@@ -1135,24 +1135,38 @@ body::after{
   function render(s){
     s=s||{};curReqId=s.request_id||curReqId;
     const sa=s.safety_decision||{},ex=s.execution_status||"IDLE",ap=s.approval_state||"waiting";
+    const isEngineering=s.detected_mode==="engineering_task";
+    const isPatchApproval=ap==="superseded_by_patch_approval"||ap==="waiting_patch_approval";
+
     set(ids.curCmd,s.requested_command||"Waiting");
     set(ids.action,s.interpreted_action||"No command");
     set(ids.risk,s.risk_level||"none");
-    set(ids.aprState,ap);set(ids.status,ex);
+    set(ids.aprState,ap);
+    set(ids.status,isEngineering?"READY FOR PATCH APPROVAL":ex);
     set(ids.aprCmd,s.approved_command||"none");
     set(ids.result,s.final_result||"idle");
     set(ids.code,s.returncode==null?"--":s.returncode);
     set(ids.help,sa.reason||"Approval required before execution.");
-    const l=$(ids.live);if(l){l.textContent=ex;l.className="xs "+sCls(ex);}
+    const l=$(ids.live);
+    if(l){
+      if(isEngineering){l.textContent="WAITING_APPROVAL";l.className="xs active";}
+      else{l.textContent=ex;l.className="xs "+sCls(ex);}
+    }
     list(ids.plan,s.execution_plan,"Submit a safe command.");
     list(ids.riskList,s.risk_analysis,"No analysis yet.");
     const so=$(ids.stdout),se=$(ids.stderr);
     if(so)so.textContent=s.stdout||"(no stdout)";
     if(se)se.textContent=s.stderr||"(no stderr)";
-    const ca=ap==="waiting_approval"&&ex==="WAITING_APPROVAL"&&sa.allowed===true;
-    const cr=(ap==="waiting_approval"||ap==="approved")&&ex!=="EXECUTING";
+
+    // Approve enabled for:
+    // 1) Standard shell flow: waiting_approval + WAITING_APPROVAL + allowed
+    // 2) Engineering task: superseded_by_patch_approval + WAITING_APPROVAL
+    const ca=(ap==="waiting_approval"&&ex==="WAITING_APPROVAL"&&sa.allowed===true)
+          ||(isEngineering&&isPatchApproval&&ex==="WAITING_APPROVAL");
+    const cr=(ap==="waiting_approval"||ap==="approved"||isPatchApproval)&&ex!=="EXECUTING";
     const aBtn=$(ids.approve),rBtn=$(ids.reject);
-    if(aBtn)aBtn.disabled=!ca;if(rBtn)rBtn.disabled=!cr;
+    if(aBtn){aBtn.disabled=!ca;if(isEngineering&&ca)aBtn.textContent="Approve Patch & Apply";else if(!isEngineering)aBtn.textContent="Approve & Run";}
+    if(rBtn)rBtn.disabled=!cr;
 
     // Also update supervised intent fields if data is available
     const intentData=s.intent||s.parsed_intent||null;
@@ -1175,8 +1189,10 @@ body::after{
       }
       const tlEl=$d("jarvisTimeline");
       if(tlEl){
-        const steps=["queued","parsed","planned","waiting_approval","approved","running","completed"];
-        const curStep=s.execution_status||"queued";
+        const steps=isEngineering
+          ?["queued","parsed","planned","patch_approval","approved","applying","completed"]
+          :["queued","parsed","planned","waiting_approval","approved","running","completed"];
+        const curStep=isEngineering?"waiting_approval":s.execution_status||"queued";
         const idx=steps.indexOf(curStep.toLowerCase())>=0?steps.indexOf(curStep.toLowerCase())+1:1;
         tlEl.innerHTML=steps.map((st,i)=>'<span style="color:'+(i<idx?'#00ff88':'rgba(0,240,255,.2)')+';font-size:8px;margin-right:4px;">'+(i<idx?'▶':'○')+' '+st+'</span>').join(" → ");
       }
@@ -1257,6 +1273,38 @@ body::after{
       if(b){b.textContent="Approve & Run";b.disabled=true;}
       return;
     }
+    // Fetch current state to determine flow
+    let curState=null;
+    try{
+      const r=await fetch("/jarvis/api/execution/current");
+      curState=await r.json();
+    }catch(e){curState=null;}
+    // Engineering task: route through patch approval + apply
+    if(curState&&curState.detected_mode==="engineering_task"){
+      const b=$(ids.approve);if(b){b.disabled=true;b.textContent="Approving patch...";}
+      try{
+        const apr=await post("/jarvis/api/engineering/approve",{});
+        console.log("[approveRun] engineering approve response:",apr);
+        if(!apr.ok){
+          toast("Patch approval failed: "+(apr.message||"unknown"),"✕","er");
+          if(b){b.textContent="Approve Patch & Apply";b.disabled=false;}
+          return;
+        }
+        const apl=await post("/jarvis/api/engineering/apply",{});
+        console.log("[approveRun] engineering apply response:",apl);
+        if(apl.ok){
+          toast("Patch applied successfully","✓","ok");
+        }else{
+          toast("Patch apply: "+(apl.message||"unknown"),"⚠","wa");
+        }
+        await refresh();await hist();
+      }catch(e){
+        console.error("[approveRun] engineering approval exception:",e);
+        toast("Patch approval error","✕","er");
+      }
+      if(b){b.textContent="Approve & Run";b.disabled=true;}
+      return;
+    }
     // Standard approval flow
     if(!curReqId){console.warn("[approveRun] no curReqId");return;}
     const b=$(ids.approve);if(b)b.disabled=true;
@@ -1286,6 +1334,23 @@ body::after{
       const a=$(ids.approve);if(a){a.disabled=true;a.textContent="Approve & Run";}
       return;
     }
+    // Fetch current state to determine flow
+    let curState=null;
+    try{
+      const r=await fetch("/jarvis/api/execution/current");
+      curState=await r.json();
+    }catch(e){curState=null;}
+    // Engineering task: route through patch rejection
+    if(curState&&curState.detected_mode==="engineering_task"){
+      try{
+        const rj=await post("/jarvis/api/engineering/reject",{reason:"Rejected from HUD."});
+        console.log("[reject] engineering reject response:",rj);
+        await refresh();await hist();
+      }catch(e){
+        console.error("[reject] engineering rejection exception:",e);
+      }
+      return;
+    }
     // Standard rejection flow
     if(!curReqId){console.warn("[reject] no curReqId");return;}
     try{
@@ -1298,9 +1363,10 @@ body::after{
   // Reset approve/reject buttons to default state
   function resetAprButtons(){
     window.__queuedTask=null;
-    const a=$(ids.approve);if(a){a.disabled=true;a.textContent="Approve & Run";a.onclick=null;}
-    const r=$(ids.reject);if(r){r.disabled=true;r.textContent="Reject";r.onclick=null;}
+    const a=$(ids.approve);if(a){a.disabled=true;a.textContent="Approve & Run";}
+    const r=$(ids.reject);if(r){r.disabled=true;r.textContent="Reject";}
     const h=$(ids.help);if(h)h.textContent="Approval required before execution.";
+    refresh();
   }
   document.addEventListener("DOMContentLoaded",function(){
     const f=$(ids.form),a=$(ids.approve),r=$(ids.reject),rf=$(ids.refresh);
