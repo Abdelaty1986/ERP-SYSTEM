@@ -1,0 +1,1 @@
+{"event": "patch_request_blocked", "patch_id": "7ceea3f1-68f1-42a4-8d28-122f512510cb", "task": "abort", "status": "BLOCKED", "reason": "Input is neither a safe command nor a supported engineering task.", "timestamp": "2026-05-17T13:23:32.258458+00:00"}

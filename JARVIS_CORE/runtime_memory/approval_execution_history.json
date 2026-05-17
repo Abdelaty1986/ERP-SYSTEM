@@ -1,0 +1,86 @@
+[
+  {
+    "event": "request",
+    "request_id": "57db25eb-b594-4894-b2fe-bbb26e1c8e57",
+    "command": "git status",
+    "status": "WAITING_APPROVAL",
+    "approval_state": "waiting_approval",
+    "risk_level": "low",
+    "result": "waiting_for_approval",
+    "reason": "Matched safe whitelist entry: git status.",
+    "timestamp": "2026-05-17T13:13:59.854906+00:00"
+  },
+  {
+    "event": "approved",
+    "request_id": "57db25eb-b594-4894-b2fe-bbb26e1c8e57",
+    "command": "git status",
+    "status": "APPROVED",
+    "approval_state": "approved",
+    "result": "approved_waiting_to_run",
+    "timestamp": "2026-05-17T13:14:17.560672+00:00"
+  },
+  {
+    "event": "finished",
+    "request_id": "57db25eb-b594-4894-b2fe-bbb26e1c8e57",
+    "command": "git status",
+    "status": "COMPLETED",
+    "approval_state": "approved",
+    "returncode": 0,
+    "result": "Command completed successfully.",
+    "stdout": "On branch codex-local-evolution\nYour branch is ahead of 'origin/codex-local-evolution' by 2 commits.\n  (use \"git push\" to publish your local commits)\n\nChanges not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n  (use \"git restore <file>...\" to discard changes in working directory)\n\tmodified:   JARVIS_CORE/runtime_logs/architecture_drift_history.json\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_command_queue.jsonl\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_events.jsonl\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_session_registry.json\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_sessions.jsonl\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_timeline.jsonl\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_worker_state.json\n\tmodified:   app.py\n\tmodified:   system_health.py\n\tmodified:   templates/jarvis/mobile_control_center.html\n\nUntracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n\tJARVIS_CORE/jarvis/runtime/queue_health_monitor.py\n\tJARVIS_CORE/runtime_logs/approval_execution_events.jsonl\n\tJARVIS_CORE/runtime_logs/queue_health_events.jsonl\n\tJARVIS_CORE/runtime_memory/approval_execution_history.json\n\tJARVIS_CORE/runtime_memory/approval_execution_state.json\n\tJARVIS_CORE/runtime_memory/command_queue.jsonl\n\tJARVIS_CORE/runtime_memory/queue_health_state.json\n\tJARVIS_CORE/runtime_memory/runtime_execution_summary.json\n\tJARVIS_CORE/runtime_memory/runtime_worker_state.json\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")\n",
+    "stderr": "",
+    "timestamp": "2026-05-17T13:14:17.997203+00:00"
+  },
+  {
+    "event": "rejected",
+    "request_id": "57db25eb-b594-4894-b2fe-bbb26e1c8e57",
+    "command": "git status",
+    "status": "REJECTED",
+    "approval_state": "rejected",
+    "result": "Rejected from HUD.",
+    "timestamp": "2026-05-17T13:18:54.980538+00:00"
+  },
+  {
+    "event": "blocked",
+    "request_id": null,
+    "command": "abort",
+    "status": "BLOCKED",
+    "approval_state": "blocked_unsafe",
+    "risk_level": "blocked",
+    "result": "blocked_before_approval",
+    "reason": "Input is neither a safe command nor a supported engineering task.",
+    "timestamp": "2026-05-17T13:23:32.263366+00:00"
+  },
+  {
+    "event": "request",
+    "request_id": "862c6be5-a155-4db5-9615-ffed200a9359",
+    "command": "git status",
+    "status": "WAITING_APPROVAL",
+    "approval_state": "waiting_approval",
+    "risk_level": "low",
+    "result": "waiting_for_approval",
+    "reason": "Matched safe whitelist entry: git status.",
+    "timestamp": "2026-05-17T14:18:07.920476+00:00"
+  },
+  {
+    "event": "approved",
+    "request_id": "862c6be5-a155-4db5-9615-ffed200a9359",
+    "command": "git status",
+    "status": "APPROVED",
+    "approval_state": "approved",
+    "result": "approved_waiting_to_run",
+    "timestamp": "2026-05-17T14:18:24.054003+00:00"
+  },
+  {
+    "event": "finished",
+    "request_id": "862c6be5-a155-4db5-9615-ffed200a9359",
+    "command": "git status",
+    "status": "COMPLETED",
+    "approval_state": "approved",
+    "returncode": 0,
+    "result": "Command completed successfully.",
+    "stdout": "On branch codex-local-evolution\nYour branch is ahead of 'origin/codex-local-evolution' by 2 commits.\n  (use \"git push\" to publish your local commits)\n\nChanges not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n  (use \"git restore <file>...\" to discard changes in working directory)\n\tmodified:   JARVIS_CORE/runtime_logs/architecture_drift_history.json\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_command_queue.jsonl\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_events.jsonl\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_session_registry.json\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_sessions.jsonl\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_timeline.jsonl\n\tmodified:   JARVIS_CORE/runtime_logs/runtime_worker_state.json\n\tmodified:   app.py\n\tmodified:   system_health.py\n\tmodified:   templates/jarvis/mobile_control_center.html\n\nUntracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n\tJARVIS_CORE/jarvis/runtime/controlled_execution_engine.py\n\tJARVIS_CORE/jarvis/runtime/controlled_patch_manager.py\n\tJARVIS_CORE/jarvis/runtime/execution_mode_manager.py\n\tJARVIS_CORE/jarvis/runtime/queue_health_monitor.py\n\tJARVIS_CORE/runtime_backups/\n\tJARVIS_CORE/runtime_logs/approval_execution_events.jsonl\n\tJARVIS_CORE/runtime_logs/controlled_engineering_events.jsonl\n\tJARVIS_CORE/runtime_logs/controlled_execution_events.jsonl\n\tJARVIS_CORE/runtime_logs/queue_health_events.jsonl\n\tJARVIS_CORE/runtime_memory/approval_execution_history.json\n\tJARVIS_CORE/runtime_memory/approval_execution_state.json\n\tJARVIS_CORE/runtime_memory/command_queue.jsonl\n\tJARVIS_CORE/runtime_memory/controlled_engineering_history.json\n\tJARVIS_CORE/runtime_memory/controlled_engineering_state.json\n\tJARVIS_CORE/runtime_memory/controlled_execution_state.json\n\tJARVIS_CORE/runtime_memory/queue_health_state.json\n\tJARVIS_CORE/runtime_memory/runtime_execution_mode.json\n\tJARVIS_CORE/runtime_memory/runtime_execution_summary.json\n\tJARVIS_CORE/runtime_memory/runtime_worker_state.json\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")\n",
+    "stderr": "",
+    "timestamp": "2026-05-17T14:18:24.514474+00:00"
+  }
+]

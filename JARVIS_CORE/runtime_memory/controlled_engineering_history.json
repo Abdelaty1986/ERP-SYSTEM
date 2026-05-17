@@ -1,0 +1,17 @@
+[
+  {
+    "event": "blocked",
+    "patch_id": "7ceea3f1-68f1-42a4-8d28-122f512510cb",
+    "requested_task": "abort",
+    "files_changed": [],
+    "approval_state": "blocked_unsafe",
+    "result": "Input is neither a safe command nor a supported engineering task.",
+    "validation_result": {
+      "status": "not_run",
+      "steps": [],
+      "stdout": "",
+      "stderr": ""
+    },
+    "timestamp": "2026-05-17T13:23:32.258810+00:00"
+  }
+]

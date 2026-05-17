@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-17T12:43:44.734493+00:00",
+  "queue_total": 0,
+  "queued": 0,
+  "running": 0,
+  "completed": 0,
+  "failed": 0,
+  "latest_task": null,
+  "worker": {},
+  "health": "ok"
+}

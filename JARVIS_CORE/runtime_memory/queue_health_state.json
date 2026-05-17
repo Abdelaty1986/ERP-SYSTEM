@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "timestamp": "2026-05-17T12:43:44.734511+00:00",
+  "queue_file": "/data/data/com.termux/files/home/ERP-SYSTEM/JARVIS_CORE/runtime_memory/command_queue.jsonl",
+  "items": 0,
+  "duplicates_removed": 0,
+  "worker_status": "idle",
+  "summary": {
+    "timestamp": "2026-05-17T12:43:44.734493+00:00",
+    "queue_total": 0,
+    "queued": 0,
+    "running": 0,
+    "completed": 0,
+    "failed": 0,
+    "latest_task": null,
+    "worker": {},
+    "health": "ok"
+  }
+}
