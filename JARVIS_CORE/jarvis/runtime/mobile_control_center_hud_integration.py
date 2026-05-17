@@ -30,20 +30,31 @@ def load_json(name):
         return {}
 
 
+def _get_actual_mode():
+    try:
+        from jarvis.runtime.execution_mode_manager import read_mode
+        return read_mode().get("mode", "controlled_real_execution")
+    except Exception:
+        return "controlled_real_execution"
+
+
 def build_mobile_control_center_hud(write_output=True):
     sections = {name: load_json(filename) for name, filename in SECTION_FILES.items()}
     warnings_locks = sections.get("warnings_locks", {})
+
+    current_mode = _get_actual_mode()
+    is_simulation = current_mode == "simulation_only"
 
     result = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "runtime": "mobile_control_center_hud_integration",
         "bounded": True,
-        "execution_allowed": False,
-        "apply_allowed": False,
+        "execution_allowed": not is_simulation,
+        "apply_allowed": not is_simulation,
         "autonomous_apply": False,
         "dangerous_autonomous_apply": False,
-        "human_approval_required": True,
-        "hud_mode": "safe_read_only_mobile_control_center_integration",
+        "human_approval_required": current_mode == "supervised_real_execution",
+        "hud_mode": current_mode,
         "phase": "phase_6_full_mobile_control_center",
         "layer": "mobile_control_center_ui_integration",
         "mobile_hud": {
@@ -82,9 +93,9 @@ def build_mobile_control_center_hud(write_output=True):
                 "runtime": result["runtime"],
                 "status": result["mobile_hud"]["status"],
                 "human_review_required": result["mobile_hud"]["human_review_required"],
-                "execution_allowed": False,
-                "apply_allowed": False,
-                "human_approval_required": True,
+                "execution_allowed": result["execution_allowed"],
+                "apply_allowed": result["apply_allowed"],
+                "human_approval_required": result["human_approval_required"],
             }, ensure_ascii=False) + "\n")
 
     return result

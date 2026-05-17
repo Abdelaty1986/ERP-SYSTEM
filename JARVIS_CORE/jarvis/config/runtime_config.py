@@ -5,8 +5,8 @@ import json
 
 @dataclass
 class RuntimeConfig:
-    runtime_mode: str = "simulation_only"
-    permission_level: str = "sandbox_only"
+    runtime_mode: str = "controlled_real_execution"
+    permission_level: str = "gated_apply"
     voice_enabled: bool = True
     git_tags_enabled: bool = True
     isolated_branches_enabled: bool = True
@@ -24,11 +24,26 @@ class RuntimeConfigManager:
         return RuntimeConfig()
 
     def load(self):
-        if not self.config_path.exists():
-            return self.default_config()
+        # Always read authoritative mode from execution_mode_manager
+        try:
+            from jarvis.runtime.execution_mode_manager import read_mode
+            mode_data = read_mode()
+            actual_mode = mode_data.get("mode", "controlled_real_execution")
+        except Exception:
+            actual_mode = "controlled_real_execution"
 
-        data = json.loads(self.config_path.read_text(encoding="utf-8"))
-        return RuntimeConfig(**data)
+        # Map mode to permission level
+        mode_to_permission = {
+            "simulation_only": "sandbox_only",
+            "controlled_real_execution": "gated_apply",
+            "supervised_real_execution": "supervised",
+        }
+        permission = mode_to_permission.get(actual_mode, "gated_apply")
+
+        return RuntimeConfig(
+            runtime_mode=actual_mode,
+            permission_level=permission,
+        )
 
     def save(self, config: RuntimeConfig):
         self.config_path.parent.mkdir(parents=True, exist_ok=True)

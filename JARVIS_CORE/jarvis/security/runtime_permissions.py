@@ -34,12 +34,19 @@ class RuntimePermissionManager:
                 allow_branching=True,
                 allow_shell_execution=True,
             ),
+            "supervised": RuntimePermissionProfile(
+                name="supervised",
+                allow_real_apply=True,
+                allow_git_write=True,
+                allow_branching=True,
+                allow_shell_execution=True,
+            ),
         }
 
     def get_profile(self, permission_name):
         return self.profiles.get(
             permission_name,
-            self.profiles["readonly"]
+            self.profiles["gated_apply"]
         )
 
     def validate_real_apply(self, permission_name):

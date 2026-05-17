@@ -18,6 +18,14 @@ class RepairFinding:
 class AutonomousRepairLoop:
     def __init__(self):
         self.known_patterns = {
+
+    def _get_actual_mode(self):
+        try:
+            from jarvis.runtime.execution_mode_manager import read_mode
+            return read_mode().get("mode", "controlled_real_execution")
+        except Exception:
+            return "controlled_real_execution"
+
             "ModuleNotFoundError": ("missing_import_or_pythonpath", "medium", "راجع PYTHONPATH أو import path."),
             "SyntaxError": ("syntax_error", "high", "راجع آخر تعديل في الملف المذكور."),
             "IndentationError": ("indentation_error", "high", "راجع المسافات والـ indentation."),
@@ -138,7 +146,7 @@ class AutonomousRepairLoop:
             "status": "repair_plan_proposed",
             "safe_mode": True,
             "auto_apply": False,
-            "repair_mode": "simulation_only",
+            "repair_mode": self._get_actual_mode(),
             "health_status": snapshot.get("status", "unknown"),
             "highest_severity": highest.severity,
             "findings": [asdict(f) for f in findings],

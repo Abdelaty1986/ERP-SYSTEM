@@ -9,7 +9,7 @@ INTENT_LOG = Path("JARVIS_CORE/runtime_logs/intent_parsed_events.jsonl")
 CRITICAL_BLOCKED_PATTERNS = {
     ".git/config", ".env", "secrets", "credentials", "token",
     "rm -rf /", "rm -rf ~", "rm -rf .", "rm -rf *",
-    "shutdown -h", "shutdown -r", "reboot",
+    "shutdown", "reboot",
     "force-push", "force push --all",
 }
 
@@ -113,12 +113,16 @@ class ArabicIntentParser:
         if any(w in raw for w in ["ارفع", "ادفع", "push", "نشر", "رفع"]):
             return "deploy"
 
+        # Apply patch
+        if any(w in raw for w in ["طبق", "تطبيق", "طبق", "طبق التغييرات"]):
+            return "apply"
+
         # Git commit prep
         if any(w in lower for w in ENGINEERING_PATTERNS["git_commit"]):
             return "git_commit"
 
         # Fix/improve — engineering commands win over analysis
-        if any(w in raw for w in ["باتش", "patch", "تصحيح", "تحسين", "تطوير"]):
+        if any(w in raw for w in ["باتش", "patch", "تصحيح", "تحسين", "تطوير", "حسن", "طور"]):
             return "improve"
         if any(w in raw for w in ["أصلح", "صلح", "fix", "إصلاح", "تصليح"]):
             return "fix"
@@ -133,8 +137,8 @@ class ArabicIntentParser:
             return "debug"
 
         # Errors (خطأ without fix intent)
-        if any(w in raw for w in ["أخطاء", "مشاكل", "أعطال", "error", "bug", "خطأ"]):
-            if any(w in raw for w in ["راجع", "شوف", "اعرض", "كشف", "اكتشف", "scan", "check"]):
+        if any(w in raw for w in ["أخطاء", "مشاكل", "أعطال", "ثغرات", "ثغرة", "error", "bug", "خطأ"]):
+            if any(w in raw for w in ["راجع", "شوف", "اعرض", "كشف", "اكتشف", "افتح", "scan", "check"]):
                 return "scan_errors"
             return "debug"
 
@@ -161,13 +165,13 @@ class ArabicIntentParser:
 
         # HIGH risk: multi-file mutations, deploy, restructure
         multi_file = any(w in lower for w in ENGINEERING_PATTERNS["multi_file"])
-        if intent in ("deploy", "git_commit") and multi_file:
+        if intent in ("deploy", "git_commit", "apply") and multi_file:
             return "high"
         if intent in ("fix", "refactor") and multi_file:
             return "high"
 
-        # MEDIUM risk: single file fix, refactor, improve, clean
-        if intent in ("fix", "refactor", "improve"):
+        # MEDIUM risk: single file fix, refactor, improve, clean, apply
+        if intent in ("fix", "refactor", "improve", "apply"):
             return "medium"
         if intent in ("test", "debug", "clean", "git_commit"):
             return "medium"
@@ -223,6 +227,7 @@ class ArabicIntentParser:
             "debug": ["Inspect latest error logs", "Analyze failure context", "Propose fix"],
             "clean": ["Identify unused files", "Propose cleanup", "Execute with approval"],
             "deploy": ["Verify build", "Stage changes", "Run tests", "Deploy to Railway"],
+            "apply": ["Backup target files", "Apply pending patch", "Validate with py_compile", "Rollback on failure"],
             "git_commit": ["Review git status", "Stage files", "Create commit", "Prepare push"],
         }
         return base.get(intent, ["Analyze request", "Route to planning pipeline"])
@@ -237,6 +242,10 @@ class ArabicIntentParser:
             steps.append("Check for import errors")
         if intent in ("test", "run_tests"):
             steps.append("Run pytest if available")
+        if intent in ("apply",):
+            steps.append("Backup files before modification")
+            steps.append("py_compile after apply")
+            steps.append("Auto-rollback on validation failure")
         if intent == "deploy":
             steps.append("Run full test suite")
             steps.append("Verify git status is clean")

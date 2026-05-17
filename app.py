@@ -4148,7 +4148,7 @@ def jarvis_mobile_worker_tick():
     from jarvis.runtime.execution_mode_manager import read_mode
 
     mode_data = read_mode()
-    current_mode = mode_data.get("mode", "simulation_only")
+    current_mode = mode_data.get("mode", "controlled_real_execution")
 
     # If controlled or supervised real execution, use the real engine
     if current_mode in ("controlled_real_execution", "supervised_real_execution"):
@@ -4686,7 +4686,7 @@ def jarvis_mobile_runtime_execution_summary():
             "last_heartbeat": worker_state.get("last_heartbeat"),
         },
         "latest_task": latest_queue_item,
-        "execution_mode": mode_data.get("mode", "simulation_only"),
+        "execution_mode": mode_data.get("mode", "controlled_real_execution"),
         "execution_mode_updated": mode_data.get("updated_at"),
         "scheduler": {
             "runs": len(scheduler_completed),
@@ -4730,7 +4730,7 @@ def jarvis_mobile_api_status():
             "status": "repair_unavailable",
             "auto_apply": False,
             "safe_mode": True,
-            "repair_mode": "simulation_only",
+            "repair_mode": "controlled_real_execution",
             "findings": [{
                 "category": "repair_loop_failed",
                 "severity": "medium",
@@ -4871,7 +4871,7 @@ def jarvis_mobile_api_command_post():
         return jsonify({"accepted": False, "status": "rejected", "reason": "no_command_provided"}), 400
 
     mode_data = read_mode()
-    current_mode = mode_data.get("mode", "simulation_only")
+    current_mode = mode_data.get("mode", "controlled_real_execution")
 
     # Supervised mode: submit engineering commands without sandbox restriction
     if current_mode in ("supervised_real_execution", "controlled_real_execution"):
@@ -5034,7 +5034,7 @@ def jarvis_mobile_strategy_simulation():
     except Exception as exc:
         return jsonify({
             "bounded": True,
-            "mode": "simulation_only",
+            "mode": "controlled_real_execution",
             "autonomous_apply": False,
             "error": str(exc)
         }), 500

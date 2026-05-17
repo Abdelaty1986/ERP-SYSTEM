@@ -16,6 +16,13 @@ class RuntimeHealthMonitor:
         self.timeline_file = self.logs_dir / "runtime_timeline.jsonl"
         self.worker_state_file = self.logs_dir / "runtime_worker_state.json"
 
+    def _get_actual_mode(self):
+        try:
+            from jarvis.runtime.execution_mode_manager import read_mode
+            return read_mode().get("mode", "controlled_real_execution")
+        except Exception:
+            return "controlled_real_execution"
+
     def utc_now(self) -> str:
         return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
@@ -209,5 +216,5 @@ class RuntimeHealthMonitor:
             "queue": queue,
             "timeline": timeline,
             "worker": worker,
-            "repair_mode": "simulation_only",
+            "repair_mode": self._get_actual_mode(),
         }
