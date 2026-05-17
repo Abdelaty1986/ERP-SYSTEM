@@ -177,7 +177,7 @@ class ApprovalDrivenExecutionRuntime:
     def current_state(self):
         with self._lock:
             if not self.state_path.exists():
-                return self._default_state()
+                state = self._default_state()
 
             try:
                 state = json.loads(self.state_path.read_text(encoding="utf-8"))
@@ -187,7 +187,23 @@ class ApprovalDrivenExecutionRuntime:
                 state["final_result"] = f"state_read_failed: {exc}"
                 return state
 
-            return self._normalize_state_mode(state)
+            state = self._normalize_state_mode(state)
+
+            # Merge engineering runtime state when in engineering_task mode
+            if state.get("detected_mode") == "engineering_task":
+                try:
+                    from jarvis.runtime.controlled_engineering_runtime import ControlledEngineeringRuntime
+                    eng = ControlledEngineeringRuntime()
+                    eng_state = eng.current_state()
+                    state["engineering_patch_id"] = eng_state.get("patch_id")
+                    state["engineering_approval_state"] = eng_state.get("approval_state")
+                    state["engineering_apply_status"] = eng_state.get("apply_status")
+                    state["engineering_files"] = eng_state.get("files_to_modify", [])
+                    state["engineering_risk_level"] = eng_state.get("risk_level")
+                except Exception:
+                    pass
+
+            return state
 
     def current_plan(self):
         state = self.current_state()
@@ -240,6 +256,7 @@ class ApprovalDrivenExecutionRuntime:
                     "file_deletion": False,
                 },
                 "final_result": "no_shell_execution_for_engineering_task",
+                "engineering_patch_id": patch_id,
                 "updated_at": self._now(),
             }
         )
@@ -321,6 +338,16 @@ class ApprovalDrivenExecutionRuntime:
             }
         )
         return state
+
+    def reset_to_idle(self):
+        """Reset state to idle default, clearing any stale engineering task or approval state."""
+        with self._lock:
+            state = self._default_state()
+            state["detected_mode"] = "waiting_for_input"
+            state["execution_status"] = "IDLE"
+            state["approval_state"] = "waiting_for_command"
+            self._write_json(self.state_path, state)
+            return state
 
     def approve_execution(self, request_id=None):
         with self._lock:

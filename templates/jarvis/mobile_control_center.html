@@ -1256,8 +1256,13 @@ body::after{
   // Queued task state — set by dockTask(), checked by approveRun/reject
   window.__queuedTask=null;
 
+  // Prevent duplicate approval execution
+  window.__approvingWork=false;
+
   async function approveRun(){
     console.log("[approveRun] called, __queuedTask:",!!window.__queuedTask,"curReqId:",curReqId);
+    if(window.__approvingWork){toast("Already processing an approval.","⏳","wa");return;}
+    window.__approvingWork=true;
     // If a queued task is pending, process it via worker tick
     if(window.__queuedTask){
       const qt=window.__queuedTask;
@@ -1271,6 +1276,7 @@ body::after{
         toast("Worker tick failed","▶","er");
       }
       if(b){b.textContent="Approve & Run";b.disabled=true;}
+      window.__approvingWork=false;
       return;
     }
     // Fetch current state to determine flow
@@ -1281,16 +1287,41 @@ body::after{
     }catch(e){curState=null;}
     // Engineering task: route through patch approval + apply
     if(curState&&curState.detected_mode==="engineering_task"){
-      const b=$(ids.approve);if(b){b.disabled=true;b.textContent="Approving patch...";}
+      const b=$(ids.approve);if(b){b.disabled=true;b.textContent="Verifying patch state...";}
       try{
-        const apr=await post("/jarvis/api/engineering/approve",{});
+        // Step 0: Verify engineering runtime has an active waiting patch
+        let engState=null;
+        try{
+          const e=await fetch("/jarvis/api/engineering/current");
+          engState=await e.json();
+        }catch(e2){engState=null;}
+        const engApproval=engState&&engState.approval_state;
+        const engPatchId=engState&&engState.patch_id;
+        if(!engPatchId||!engApproval){
+          toast("No active patch found in engineering runtime.","✕","er");
+          if(b){b.textContent="Approve Patch & Apply";b.disabled=false;}
+          window.__approvingWork=false;
+          return;
+        }
+        if(engApproval!=="waiting_patch_approval"){
+          toast("Patch is not waiting for approval (state: "+engApproval+").","✕","er");
+          if(b){b.textContent="Approve Patch & Apply";b.disabled=false;}
+          window.__approvingWork=false;
+          return;
+        }
+        // Step 1: Approve the patch with verified patch_id
+        if(b)b.textContent="Approving patch...";
+        const apr=await post("/jarvis/api/engineering/approve",{patch_id:engPatchId});
         console.log("[approveRun] engineering approve response:",apr);
         if(!apr.ok){
           toast("Patch approval failed: "+(apr.message||"unknown"),"✕","er");
           if(b){b.textContent="Approve Patch & Apply";b.disabled=false;}
+          window.__approvingWork=false;
           return;
         }
-        const apl=await post("/jarvis/api/engineering/apply",{});
+        // Step 2: Apply the approved patch with verified patch_id
+        if(b)b.textContent="Applying patch...";
+        const apl=await post("/jarvis/api/engineering/apply",{patch_id:engPatchId});
         console.log("[approveRun] engineering apply response:",apl);
         if(apl.ok){
           toast("Patch applied successfully","✓","ok");
@@ -1303,15 +1334,16 @@ body::after{
         toast("Patch approval error","✕","er");
       }
       if(b){b.textContent="Approve & Run";b.disabled=true;}
+      window.__approvingWork=false;
       return;
     }
     // Standard approval flow
-    if(!curReqId){console.warn("[approveRun] no curReqId");return;}
+    if(!curReqId){console.warn("[approveRun] no curReqId");window.__approvingWork=false;return;}
     const b=$(ids.approve);if(b)b.disabled=true;
     try{
       const a=await post("/jarvis/api/execution/approve",{request_id:curReqId});
       console.log("[approveRun] approve response:",a);
-      render(a.state);if(!a.ok){await hist();return;}
+      render(a.state);if(!a.ok){await hist();window.__approvingWork=false;return;}
       const s=await post("/jarvis/api/execution/run",{request_id:curReqId});
       console.log("[approveRun] run response:",s);
       render(s.state);await hist();setTimeout(refresh,600);
@@ -1319,6 +1351,7 @@ body::after{
       console.error("[approveRun] approval exception:",e);
       if(b)b.disabled=false;
     }
+    window.__approvingWork=false;
   }
   async function reject(){
     console.log("[reject] called, __queuedTask:",!!window.__queuedTask,"curReqId:",curReqId);
@@ -1343,8 +1376,20 @@ body::after{
     // Engineering task: route through patch rejection
     if(curState&&curState.detected_mode==="engineering_task"){
       try{
-        const rj=await post("/jarvis/api/engineering/reject",{reason:"Rejected from HUD."});
+        let engState=null;
+        try{
+          const e=await fetch("/jarvis/api/engineering/current");
+          engState=await e.json();
+        }catch(e2){engState=null;}
+        const engPatchId=engState&&engState.patch_id;
+        if(!engPatchId){
+          toast("No active patch to reject.","✕","er");
+          return;
+        }
+        const rj=await post("/jarvis/api/engineering/reject",{patch_id:engPatchId,reason:"Rejected from HUD."});
         console.log("[reject] engineering reject response:",rj);
+        if(rj.ok) toast("Patch rejected.","✕","wa");
+        else toast("Reject failed: "+(rj.message||"unknown"),"✕","er");
         await refresh();await hist();
       }catch(e){
         console.error("[reject] engineering rejection exception:",e);
@@ -1363,6 +1408,7 @@ body::after{
   // Reset approve/reject buttons to default state
   function resetAprButtons(){
     window.__queuedTask=null;
+    window.__approvingWork=false;
     const a=$(ids.approve);if(a){a.disabled=true;a.textContent="Approve & Run";}
     const r=$(ids.reject);if(r){r.disabled=true;r.textContent="Reject";}
     const h=$(ids.help);if(h)h.textContent="Approval required before execution.";

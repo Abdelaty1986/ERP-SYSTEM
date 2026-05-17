@@ -4886,6 +4886,14 @@ def jarvis_mobile_api_command_post():
         project_id="ledgerx",
     )
 
+    # Clear stale approval_runtime engineering_task state when a new command is queued
+    if result.get("accepted") and current_mode in ("supervised_real_execution", "controlled_real_execution"):
+        try:
+            from jarvis.runtime.approval_execution_runtime import ApprovalDrivenExecutionRuntime
+            ApprovalDrivenExecutionRuntime().reset_to_idle()
+        except Exception:
+            pass
+
     status_code = 202 if result.get("accepted") else 400
     return jsonify(result), status_code
 

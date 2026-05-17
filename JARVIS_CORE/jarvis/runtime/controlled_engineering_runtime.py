@@ -2,6 +2,7 @@ import difflib
 import json
 import subprocess
 import sys
+import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -137,6 +138,7 @@ class ControlledEngineeringRuntime:
         self.state_path = self.memory_dir / "controlled_engineering_state.json"
         self.history_path = self.memory_dir / "controlled_engineering_history.json"
         self.events_path = self.logs_dir / "controlled_engineering_events.jsonl"
+        self._lock = threading.RLock()
 
     def status(self):
         return {
@@ -338,15 +340,16 @@ class ControlledEngineeringRuntime:
         }
 
     def current_state(self):
-        if not self.state_path.exists():
-            return self._default_state()
-        try:
-            return json.loads(self.state_path.read_text(encoding="utf-8"))
-        except Exception as exc:
-            state = self._default_state()
-            state["apply_status"] = "FAILED"
-            state["final_result"] = f"engineering_state_read_failed: {exc}"
-            return state
+        with self._lock:
+            if not self.state_path.exists():
+                return self._default_state()
+            try:
+                return json.loads(self.state_path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                state = self._default_state()
+                state["apply_status"] = "FAILED"
+                state["final_result"] = f"engineering_state_read_failed: {exc}"
+                return state
 
     def approve_patch(self, patch_id=None):
         state = self.current_state()
@@ -582,7 +585,22 @@ class ControlledEngineeringRuntime:
             return self._build_create_patch_plan_button_patch(task)
         if "engineering patch mode active" in lowered:
             return self._build_hud_label_patch_plan(task)
+        if self._is_generic_engineering_task(lowered):
+            return self._build_generic_engineering_patch(task)
         return self._build_planning_only_task(task)
+
+    def _is_generic_engineering_task(self, lowered):
+        keywords = (
+            "fix", "صلح", "أصلح", "إصلاح", "تصليح", "bug", "خطأ",
+            "improve", "حسن", "طور", "تحسين", "تطوير", "باتش", "patch",
+            "debug", "حلل", "تحليل", "فشل",
+            "refactor", "هيكلة", "إعادة هيكلة", "أعد هيكلة",
+            "clean", "نظف", "تنظيف",
+            "test", "اختبار", "اختبر",
+            "deploy", "انشر", "نشر",
+            "apply", "طبق", "تطبيق",
+        )
+        return any(k in lowered for k in keywords)
 
     def _is_arabic_dashboard_issue(self, lowered):
         has_arabic_issue = any(
@@ -781,6 +799,79 @@ class ControlledEngineeringRuntime:
                     "expected_marker": "ENGINEERING PATCH MODE ACTIVE",
                     "content": updated,
                 }
+            ],
+        }
+
+    def _build_generic_engineering_patch(self, task):
+        files = self._infer_files_for_task(task)
+        changes = []
+        diffs = []
+        valid_files = []
+        for f in files:
+            try:
+                resolved = self._resolve_mutation_path(f)
+                if resolved and resolved.exists() and resolved.is_file():
+                    content = resolved.read_text(encoding="utf-8")
+                    changes.append(f"Review and update {f}")
+                    diffs.append(f"Target: {f} — {len(content.splitlines())} lines available for supervised patch")
+                    valid_files.append(f)
+            except (ValueError, OSError):
+                pass
+        if not valid_files:
+            # Fallback: use app.py if no valid files found
+            try:
+                self._resolve_mutation_path("app.py")
+                content = self._read_project_file("app.py") or ""
+                changes.append("Review and update app.py")
+                diffs.append("Target: app.py — main application file")
+                valid_files.append("app.py")
+            except (ValueError, OSError):
+                changes.append(f"Prepare engineering patch for: {task[:80]}")
+                diffs.append("No valid target files identified for safe mutation")
+                valid_files = []
+
+        return {
+            "interpreted_intent": f"Engineering task: {task[:80]}",
+            "files_to_modify": valid_files,
+            "proposed_changes": changes,
+            "expected_change_summary": f"JARVIS prepared a supervised engineering patch for: {task[:120]}",
+            "expected_diff": "\n".join(diffs) if diffs else "No diff generated.",
+            "risk_level": "medium",
+            "validation_plan": [
+                "Validate target files exist.",
+                "Run py_compile on modified Python files.",
+                "Record validation status, stdout, and stderr in runtime memory.",
+            ],
+            "rollback_plan": [
+                "Create a rollback checkpoint with original file contents before applying.",
+                "If validation fails, expose rollback in the HUD and keep the checkpoint available.",
+                "Rollback restores the original content from runtime memory.",
+            ],
+            "apply_supported": bool(valid_files),
+            "safety_decision": {
+                "allowed": bool(valid_files),
+                "reason": (
+                    f"Supervised engineering patch for: {task[:120]}. "
+                    "Risk-gated approval required before file mutation."
+                ) if valid_files else (
+                    f"Planning-only: no valid files identified for: {task[:120]}."
+                ),
+                "approval_required": bool(valid_files),
+                "bounded_execution": True,
+                "shell_execution": False,
+                "destructive_execution": False,
+                "deploy": False,
+                "file_deletion": False,
+            },
+            "operations": [
+                {
+                    "type": "replace_file_text",
+                    "path": f,
+                    "description": f"Review and prepare {f} for supervised engineering patch.",
+                    "expected_marker": "",
+                    "content": self._read_project_file(f) or "",
+                }
+                for f in valid_files[:2]
             ],
         }
 
@@ -1213,8 +1304,9 @@ class ControlledEngineeringRuntime:
             handle.write(json.dumps(event, ensure_ascii=False) + "\n")
 
     def _write_json(self, path, payload):
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        with self._lock:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
     def _bounded_output(self, value):
         value = str(value or "")
